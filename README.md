@@ -19,7 +19,7 @@ This repository contains the code for one of the most popular bots I've ever bui
 5. Run `npm run start`
 
 # Environment variables in `.env` file
-* `BOTAN_TOKEN` — token for [botan.io](https://botan.io) analytics service
+* `BOTAN_TOKEN` — token for [botan.io](http://botan.io) analytics service
 * `VOICY_MONGO_DB_URL` — url for the mongo database used for Voicy, may include credentials
 * `VOICY_TELEGRAM_API_KEY` — telegram bot token for Voicy
 * `VOICY_RANDOM_SALT` — random salt to generate various encrypted things
