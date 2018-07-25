@@ -2,14 +2,15 @@
  * File to sendout messages per languages
  */
 
-/** Load env variables */
-require('dotenv').config({path: `${__dirname}/.env`});
-
-/** Dependencies */
+// Dependencies
 const mongoose = require('mongoose');
 
+// Load env variables
+require('dotenv').config({path: `${__dirname}/.env`});
+
+// Connect to mongoose
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.VOICY_MONGO_DB_URL, {
+mongoose.connect(process.env.MONGO_URL, {
   server: {
     socketOptions: {
       socketTimeoutMS: 0,
@@ -31,7 +32,7 @@ const db = require('./helpers/db');
 const Telegram = require('node-telegram-bot-api');
 const config = require('./config');
 
-const bot = new Telegram(process.env.VOICY_TELEGRAM_API_KEY, {
+const bot = new Telegram(process.env.TOKEN, {
   polling: false,
 });
 

@@ -1,0 +1,30 @@
+// Dependencies
+const { findChat } = require('../helpers/db')
+
+/**
+ * Setting up lock command
+ * @param {Telegraf:Bot} bot Bot that should get lock setup
+ */
+function setupLock(bot) {
+  bot.command('lock', async (ctx) => {
+    // Get chat
+    let chat = await findChat(ctx.chat.id)
+    // Setup localizations
+    const strings = require('../helpers/strings')()
+    strings.setChat(chat)
+    // Reverse admin lock
+    chat.adminLocked = !chat.adminLocked
+    // Save chat
+    chat = await chat.save()
+    // Reply with the new setting
+    const text = chat.adminLocked ?
+      '🔑 Great! *Voicy* will now respond only to command calls sent by *admins* in this chat.' :
+      '🔑 Great! *Voicy* will now respond only to command calls from *anyone* in this chat.'
+    ctx.replyWithMarkup(strings.translate(text))
+  })
+}
+
+// Exports
+module.exports = {
+  setupLock,
+}

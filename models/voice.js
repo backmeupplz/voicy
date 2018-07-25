@@ -1,23 +1,12 @@
-/**
- * @module models/voice
- * @license MIT
- */
+// Dependencies
+const mongoose = require('mongoose')
 
-/** Dependencies */
-const mongoose = require('mongoose');
-
-/** Schema */
-const Schema = mongoose.Schema;
+// Schema
+const Schema = mongoose.Schema
 const voiceSchema = new Schema({
   url: {
     type: String,
     required: true,
-  },
-  text: {
-    type: String,
-  },
-  language: {
-  	type: String,
   },
   engine: {
     type: String,
@@ -29,7 +18,12 @@ const voiceSchema = new Schema({
     type: Number,
     required: true,
   },
-}, { timestamps: true });
+  language: {
+    type: String,
+    required: true,
+  },
+  text: String,
+}, { timestamps: true })
 
-/** Exports */
-module.exports = mongoose.model('voice', voiceSchema);
+// Exports
+module.exports = mongoose.model('voice', voiceSchema)

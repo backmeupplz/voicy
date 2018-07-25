@@ -23,6 +23,7 @@ This repository contains the code for one of the most popular bots I've ever bui
 * `SALT` — Random salt to generate various encrypted stuff
 * `ADMIN_ID` — Chat id of the person who shall receive valuable logs
 * `YANDEX_KEY` — Key for Yandex SpeechKit voice recognition service 
+* `USERNAME` — Username of the bot in the format `bot_bot_bot`
 * `WIT_LANGUAGES` — A map of language names to Wit.ai tokens
 
 Extra info is available in `.env.sample` file.
@@ -39,3 +40,11 @@ MIT — use for any purpose. Would be great if you could leave a note about the 
 [![Reddit](/img/reddit.png?raw=true)](https://redd.it/5iduzy)
 [![Bot Store](/img/bs.png?raw=true)](https://storebot.me/bot/voicybot)
 [![Product Hunt](/img/ph.png?raw=true)](https://www.producthunt.com/posts/voicy)
+
+# TODO
+* Google speech credentials integration
+* Language recognition bug
+* Turn off censorship
+* Google bucket save bug when recognition failed (not deleting the records)
+* Delete /help if not responding
+* Inline keyboard accessible only by caller

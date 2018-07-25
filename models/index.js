@@ -1,11 +1,5 @@
-/**
- * Includes all models in one place
- *
- * @module models
- * @license MIT
- */
-
+// Exports
 module.exports = {
   Voice: require('./voice'),
   Chat: require('./chat'),
-};
+}

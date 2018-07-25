@@ -6,20 +6,20 @@
  */
 
 /** Dependencies */
-const Localize = require('localize');
+const Localize = require('localize')
 
 Localize.prototype.setChat = function (chat) {
   const languages = {
-    'wit': {
-      'English': 'en',
-      'Russian': 'ru',
-      'Spanish': 'es',
-      'Chinese': 'ch',
-      'Arabic': 'ar',
-      'Persian': 'fa',
-      'German': 'de',
-      'Portugese': 'pt-BR',
-      'Italian': 'it',
+    wit: {
+      English: 'en',
+      Russian: 'ru',
+      Spanish: 'es',
+      Chinese: 'ch',
+      Arabic: 'ar',
+      Persian: 'fa',
+      German: 'de',
+      Portugese: 'pt-BR',
+      Italian: 'it',
     },
     'google': {
       'ru-RU': 'ru',

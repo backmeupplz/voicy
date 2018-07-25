@@ -1,14 +1,6 @@
-/**
- * Manages google cloud storage
- *
- * @module cloud
- * @license MIT
- */
-
-/** Dependencies */
-const path = require('path');
-const Storage = require('@google-cloud/storage');
-const config = require('../config');
+// Dependencies
+const path = require('path')
+const Storage = require('@google-cloud/storage')
 
 const storage = new Storage({
   projectId: config.g_cloud_project_id,

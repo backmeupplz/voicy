@@ -1,16 +1,18 @@
-const ffmpeg = require('fluent-ffmpeg');
-const temp = require('temp');
+// Dependencies
+const ffmpeg = require('fluent-ffmpeg')
+const temp = require('temp')
 
+// Exports
 module.exports = filepath =>
   new Promise((resolve, reject) => {
     ffmpeg.ffprobe(filepath, (err, info) => {
       if (err) {
-        reject(err);
-        return;
+        reject(err)
+        return
       }
 
-      const fileSize = info.format.duration;
-      const output = temp.path({ suffix: '.flac' });
+      const fileSize = info.format.duration
+      const output = temp.path({ suffix: '.flac' })
 
       ffmpeg()
         .on('error', error => reject(error))
@@ -21,6 +23,6 @@ module.exports = filepath =>
         .output(output)
         .audioFrequency(16000)
         .toFormat('s16le')
-        .run();
-    });
-  });
+        .run()
+    })
+  })

@@ -2,7 +2,7 @@
  * File to build localization files
  */
 
-/** Dependencies */
+// Dependencies
 const strings = require('./helpers/strings');
 const fm = require('easy-file-manager');
 

@@ -1,13 +1,8 @@
-/**
- * @module models/chat
- * @license MIT
- */
+// Dependencies
+const mongoose = require('mongoose')
 
-/** Dependencies */
-const mongoose = require('mongoose');
-
-/** Schema */
-const Schema = mongoose.Schema;
+// Schema
+const Schema = mongoose.Schema
 const chatSchema = new Schema({
   id: {
     type: String,
@@ -34,27 +29,6 @@ const chatSchema = new Schema({
     required: true,
     default: 'en-US',
   },
-  seconds: {
-    type: Number,
-    required: true,
-    default: 60,
-  },
-  voices: [{
-    type: Schema.ObjectId,
-    ref: 'voice',
-    required: true,
-    default: [],
-  }],
-  productHuntDiscountApplied: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
-  productHuntSecondsBought: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
   adminLocked: {
     type: Boolean,
     required: true,
@@ -70,7 +44,7 @@ const chatSchema = new Schema({
     required: true,
     default: false,
   },
-}, { timestamps: true });
+}, { timestamps: true })
 
-/** Exports */
-module.exports = mongoose.model('chat', chatSchema);
+// Exports
+module.exports = mongoose.model('chat', chatSchema)
