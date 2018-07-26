@@ -22,11 +22,6 @@ setupPromises()
 // Setup mongoose
 setupMongoose()
 
-bot.use((ctx, next) => {
-  console.info(ctx.message || ctx.channelPost)
-  next()
-})
-
 // Setup audio handler
 setupAudioHandler(bot)
 
