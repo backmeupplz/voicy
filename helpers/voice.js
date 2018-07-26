@@ -10,16 +10,18 @@ const { findChat, findVoice, addVoice } = require('./db')
 /**
  * Handles any message that comes with voice
  * @param {Telegraf:Context} ctx Context of the request
- * @param {Telegraf:Bot} bot Bot that should respond
  */
-async function handleMessage(ctx, bot) {
+async function handleMessage(ctx) {
   // Get chat
   const chat = await findChat(ctx.chat.id)
   // Prepare localizations
   const strings = require('./strings')()
   strings.setChat(chat)
   // Get voice message
-  const voice = ctx.message.voice || ctx.message.document || ctx.message.audio || ctx.message.video_note
+  const voice = ctx.message.voice ||
+    ctx.message.document ||
+    ctx.message.audio ||
+    ctx.message.video_note
   // Send an error to user if file is larger than 20 mb
   if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
     await ctx.replyWithMarkdown(strings.translate('_👮 I can\'t recognize voice messages larger than 20 megabytes_'), {
@@ -29,24 +31,23 @@ async function handleMessage(ctx, bot) {
     return
   }
   // Get full url to the voice message
-  const fileData = await bot.telegram.getFile(voice.file_id)
+  const fileData = await ctx.telegram.getFile(voice.file_id)
   const voiceUrl = await urlFinder.fileUrl(fileData.file_path)
   // Send action or transcription depending on whether chat is silent
   if (chat.silent) {
-    await sendAction(bot, ctx, voiceUrl, chat)
+    await sendAction(ctx, voiceUrl, chat)
   } else {
-    await sendTranscription(bot, ctx, voiceUrl, chat)
+    await sendTranscription(ctx, voiceUrl, chat)
   }
 }
 
 /**
  * Sends temp message first and then updates that message to the transcription or error
- * @param {Telegraf:Bot} bot Bot that should send transcription
  * @param {Telegraf:Context} ctx Context of the message
  * @param {URL} url Url of audio file to transcript
  * @param {Mongoose:Chat} chat Chat object where message has been received
  */
-async function sendTranscription(bot, ctx, url, chat) {
+async function sendTranscription(ctx, url, chat) {
   // Prepare localizations
   const strings = require('./strings')()
   strings.setChat(chat)
@@ -66,7 +67,7 @@ async function sendTranscription(bot, ctx, url, chat) {
   // Try to find existing voice message
   const dbvoice = await findVoice(url, lan, chat.engine)
   if (dbvoice && lan === dbvoice.language && dbvoice.engine === chat.engine) {
-    updateMessagewithTranscription(bot, sentMessage, dbvoice.text, chat)
+    updateMessagewithTranscription(ctx, sentMessage, dbvoice.text, chat)
     return
   }
 
@@ -76,7 +77,7 @@ async function sendTranscription(bot, ctx, url, chat) {
     const data = await download(url)
     fs.writeFileSync(ogaPath, data)
   } catch (err) {
-    updateMessagewithError(bot, sentMessage, chat)
+    updateMessagewithError(ctx, sentMessage, chat)
     return
   }
 
@@ -88,7 +89,7 @@ async function sendTranscription(bot, ctx, url, chat) {
     flacPath = result.flacPath
     duration = result.duration
   } catch (err) {
-    updateMessagewithError(bot, sentMessage, chat)
+    updateMessagewithError(ctx, sentMessage, chat)
     return
   }
 
@@ -107,7 +108,7 @@ async function sendTranscription(bot, ctx, url, chat) {
 
   // Check limits
   if (chat.engine === 'wit' && duration > 50) {
-    updateMessagewithTranscription(bot,
+    updateMessagewithTranscription(ctx,
       sentMessage,
       strings.translate('_👮 Wit.ai cannot recognize voice messages longer than 50 seconds_'),
       chat,
@@ -130,21 +131,20 @@ async function sendTranscription(bot, ctx, url, chat) {
     // Unlink (delete) flac file
     fs.unlink(flacPath)
     // Send trancription to user
-    updateMessagewithTranscription(bot, sentMessage, text, chat)
+    updateMessagewithTranscription(ctx, sentMessage, text, chat)
   } catch (err) {
     // In case of error, send it
-    updateMessagewithError(bot, sentMessage, chat)
+    updateMessagewithError(ctx, sentMessage, chat)
   }
 }
 
 /**
  * Sends typing action first and then sends transcription (doesn't send error)
- * @param {Telegraf:Bot} bot Bot that should send transcription
  * @param {Telegraf:Context} ctx Context that triggered voice recognition
  * @param {URL} url Url of audio file to transcript
  * @param {Mongoose:Chat} chat Chat object where message has been received
  */
-async function sendAction(bot, ctx, url, chat) {
+async function sendAction(ctx, url, chat) {
   // Prepare localizations
   const strings = require('./strings')()
   strings.setChat(chat)
@@ -161,7 +161,7 @@ async function sendAction(bot, ctx, url, chat) {
   }
   const dbvoice = await findVoice(url, lan, chat.engine)
   if (dbvoice && lan === dbvoice.language && dbvoice.engine === chat.engine) {
-    sendMessageWithTranscription(bot, ctx, dbvoice.text, chat)
+    sendMessageWithTranscription(ctx, dbvoice.text, chat)
     return
   }
 
@@ -202,18 +202,18 @@ async function sendAction(bot, ctx, url, chat) {
   fs.unlink(flacPath)
 
   // Send trancription to user
-  sendMessageWithTranscription(bot, ctx, text, chat)
+  sendMessageWithTranscription(ctx, text, chat)
 }
 
 /**
  * Updates message with text
- * @param {Telegraf:Bot} bot Bot that should update the text
+ * @param {Telegraf:Context} ctx Context of the message
  * @param {Telegraf:Message} msg Message to be updated
  * @param {String} text Text that the message should be updated to
  * @param {Mongoose:Chat} chat Relevant to this voice chat
  * @param {Boolean} markdown Whether to support markdown or not
  */
-function updateMessagewithTranscription(bot, msg, text, chat, markdown) {
+function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   // Get localization
   const strings = require('./strings')()
   strings.setChat(chat)
@@ -223,7 +223,7 @@ function updateMessagewithTranscription(bot, msg, text, chat, markdown) {
     options.parse_mode = 'Markdown'
   }
   // Edit message
-  bot.telegram.editMessageText(msg.chat.id,
+  ctx.telegram.editMessageText(msg.chat.id,
     msg.message_id,
     null,
     text || strings.translate('_👮 Please, speak clearly, I couldn\'t recognize that_'),
@@ -232,13 +232,12 @@ function updateMessagewithTranscription(bot, msg, text, chat, markdown) {
 
 /**
  * Sending message with transcription to chat
- * @param {Telegraf:Bot} bot Bot that should send message
  * @param {Telegraf:Context} ctx Context to respond to
  * @param {String} text Transcription
  * @param {Mongoose:Chat} chat Chat to respond to
  * @param {Boolean} markdown Whether should support markdown or not
  */
-async function sendMessageWithTranscription(bot, ctx, text, chat, markdown) {
+async function sendMessageWithTranscription(ctx, text, chat, markdown) {
   // Setup localizations
   const strings = require('./strings')()
   strings.setChat(chat)
@@ -251,22 +250,22 @@ async function sendMessageWithTranscription(bot, ctx, text, chat, markdown) {
   }
   // Send message
   if (text) {
-    await bot.telegram.sendMessage(chat.id, text, options)
+    await ctx.telegram.sendMessage(chat.id, text, options)
   }
 }
 
 /**
  * Function to update the message with error
- * @param {Telegraf:Bot} bot Bot that should update the message with error
+ * @param {Telegraf:Context} ctx Context of the message
  * @param {Telegraf:Message} msg Message to be updated
  * @param {Mongoose:Chat} chat Relevant chat
  */
-function updateMessagewithError(bot, msg, chat) {
+function updateMessagewithError(ctx, msg, chat) {
   // Setup localizations
   const strings = require('./strings')()
   strings.setChat(chat)
   // Edit message
-  bot.telegram.editMessageText(msg.chat.id,
+  ctx.telegram.editMessageText(msg.chat.id,
     msg.message_id,
     null,
     strings.translate('_👮 I couldn\'t recognize that_'),

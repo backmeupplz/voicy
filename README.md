@@ -46,3 +46,4 @@ MIT — use for any purpose. Would be great if you could leave a note about the 
 * Turn off censorship
 * Localizations
 * Make channels work again
+* Check different file types again

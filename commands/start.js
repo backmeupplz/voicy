@@ -21,7 +21,7 @@ function setupStart(bot) {
       chat = await setLanguageCode(chat, ctx.from.language_code)
       sendStart(ctx, chat)
     } else {
-      sendLanguage(bot, chat)
+      sendLanguage(ctx, chat)
     }
   })
   // Enter chat
@@ -34,7 +34,7 @@ function setupStart(bot) {
       const adminLockCheck = await checkAdminLock(chat, ctx)
       if (!adminLockCheck) return
       // Send language keyboard
-      sendLanguage(bot, chat)
+      sendLanguage(ctx, chat)
     }
   })
 }

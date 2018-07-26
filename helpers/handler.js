@@ -10,7 +10,7 @@ function setupAudioHandler(bot) {
   // Voice handler
   bot.on(['voice', 'video_note'], (ctx) => {
     // Handle voice
-    handleMessage(ctx, bot)
+    handleMessage(ctx)
   })
   // Audio handler
   bot.on(['audio', 'document'], async (ctx) => {
@@ -18,7 +18,7 @@ function setupAudioHandler(bot) {
     const chat = await findChat(ctx.chat.id)
     if (chat.filesBanned) return
     // Handle voice
-    handleMessage(ctx, bot)
+    handleMessage(ctx)
   })
 }
 
