@@ -13,7 +13,7 @@ function setupStart(bot) {
     // Get chat
     let chat = await findChat(ctx.chat.id)
     // Check if admin locked
-    const adminLockCheck = await checkAdminLock(chat, bot, ctx)
+    const adminLockCheck = await checkAdminLock(chat, ctx)
     if (!adminLockCheck) return
     // Check if Telegram gives us language code
     if (ctx.from.language_code) {
@@ -31,7 +31,7 @@ function setupStart(bot) {
       // Get chat
       const chat = await findChat(ctx.chat.id)
       // Check if admin locked
-      const adminLockCheck = await checkAdminLock(chat, bot, ctx)
+      const adminLockCheck = await checkAdminLock(chat, ctx)
       if (!adminLockCheck) return
       // Send language keyboard
       sendLanguage(bot, chat)

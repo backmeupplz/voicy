@@ -44,6 +44,5 @@ MIT — use for any purpose. Would be great if you could leave a note about the 
 # TODO
 * Google speech credentials integration
 * Turn off censorship
-* Inline keyboard accessible only by caller
 * Localizations
 * Make channels work again

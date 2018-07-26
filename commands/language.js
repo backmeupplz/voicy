@@ -12,7 +12,7 @@ function setupLanguage(bot) {
     // Get chat
     const chat = await findChat(ctx.chat.id)
     // Check if admin locked
-    const adminLockCheck = await checkAdminLock(chat, bot, ctx)
+    const adminLockCheck = await checkAdminLock(chat, ctx)
     if (!adminLockCheck) return
     sendLanguage(ctx, true)
   })

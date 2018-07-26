@@ -85,6 +85,10 @@ async function sendLanguage(ctx, isCommand) {
     reply_markup: { inline_keyboard: languageKeyboard(chat.engine, 0, isCommand) },
   }
   options.reply_markup = JSON.stringify(options.reply_markup)
+  // Reply to the message
+  if (ctx.message) {
+    options.reply_to_message_id = ctx.message.message_id
+  }
   // Reply with keyboard
   ctx.replyWithMarkdown(text, options)
 }
@@ -100,6 +104,22 @@ async function setLanguage(data, ctx) {
   const options = data.split('~')
   const engine = options[2]
   const isCommand = parseInt(options[1], 10) === 1
+  // Check if callback to reply
+  if (ctx.update &&
+    ctx.update.callback_query &&
+    ctx.update.callback_query.message &&
+    ctx.update.callback_query.message.reply_to_message) {
+    // Check if original caller
+    const msg = ctx.update.callback_query.message.reply_to_message
+    if (msg.from.id !== ctx.from.id) {
+      // Get localization
+      const chat = await findChat(ctx.chat.id)
+      strings.setChat(chat)
+      // Send error
+      await ctx.telegram.answerCbQuery(ctx.callbackQuery.id, strings.translate('Only the person who started command can select options'))
+      return
+    }
+  }
   // Setup language
   if (engine === 'yandex') {
     // Get extra options

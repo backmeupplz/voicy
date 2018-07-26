@@ -16,10 +16,14 @@ async function sendEngine(ctx) {
   // Construct options keyboard
   const options = {
     reply_markup: { inline_keyboard: [
-      [{ text: 'wit.ai', callback_data: 'ei~~~wit' }],
-      // [{ text: 'Google Speech', callback_data: 'ei~~~google' }], // TODO: turn on Google
-      [{ text: 'Yandex SpeechKit', callback_data: 'ei~~~yandex' }],
+      [{ text: 'wit.ai', callback_data: `ei~wit~${ctx.from.id}` }],
+      [{ text: 'Google Speech', callback_data: `ei~google~${ctx.from.id}` }],
+      [{ text: 'Yandex SpeechKit', callback_data: `ei~yandex~${ctx.from.id}` }],
     ] },
+  }
+  // Reply to the message
+  if (ctx.message) {
+    options.reply_to_message_id = ctx.message.message_id
   }
   options.reply_markup = JSON.stringify(options.reply_markup)
   // Reply with the keyboard
@@ -34,10 +38,25 @@ async function setEngine(data, ctx) {
   // Get localizations
   const strings = require('./strings')()
   // Get options
-  const options = data.split('~~~')
+  const options = data.split('~')
   const engine = options[1]
   // Get chat
   let chat = await findChat(ctx.chat.id)
+  // Check if callback to reply
+  if (ctx.update &&
+    ctx.update.callback_query &&
+    ctx.update.callback_query.message &&
+    ctx.update.callback_query.message.reply_to_message) {
+    // Check if original caller
+    const msg = ctx.update.callback_query.message.reply_to_message
+    if (msg.from.id !== ctx.from.id) {
+      // Setup localizations
+      strings.setChat(chat)
+      // Reply with error
+      await ctx.telegram.answerCbQuery(ctx.callbackQuery.id, strings.translate('Only the person who started command can select options'))
+      return
+    }
+  }
   // Set engine
   chat.engine = engine
   // Save chat

@@ -11,7 +11,7 @@ function setupFiles(bot) {
     // Get chat
     let chat = await findChat(ctx.chat.id)
     // Check if admin locked
-    const adminLockCheck = await checkAdminLock(chat, bot, ctx)
+    const adminLockCheck = await checkAdminLock(chat, ctx)
     if (!adminLockCheck) return
     // Setup localizations
     const strings = require('../helpers/strings')()
