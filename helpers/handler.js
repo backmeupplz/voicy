@@ -1,30 +1,26 @@
 // Dependencies
 const { handleMessage } = require('./voice')
+const { findChat } = require('./db')
 
 /**
  * Setting up audio handling
  * @param bot Bot to setup handling
  */
 function setupAudioHandler(bot) {
-  // // Audio handler
-  // bot.on('audio', (ctx) => {
-  //   console.info(ctx.message)
-  //   return ctx.reply('Audio')
-  // })
   // Voice handler
-  bot.on('voice', (ctx) => {
+  bot.on(['voice', 'video_note'], (ctx) => {
+    // Handle voice
     handleMessage(ctx, bot)
   })
-  // // Document handler
-  // bot.on('document', (ctx) => {
-  //   console.info(ctx.message)
-  //   return ctx.reply('Document')
-  // })
-  // // Video note handler
-  // bot.on('video_note', (ctx) => {
-  //   console.info(ctx.message)
-  //   return ctx.reply('Video note')
-  // })
+  // Audio handler
+  bot.on(['audio', 'document'], async (ctx) => {
+    // Check if files banned
+    const chat = await findChat(ctx.chat.id)
+    if (chat.filesBanned) return
+    // Handle voice
+    handleMessage(ctx, bot)
+  })
+  // TODO: handle channels
   // // Channel post handler
   // bot.on('channel_post', (ctx) => {
   //   console.info(ctx.message || ctx.channelPost)

@@ -16,8 +16,8 @@ async function sendEngine(ctx) {
   // Construct options keyboard
   const options = {
     reply_markup: { inline_keyboard: [
-      [{ text: 'wit.ai', callback_data: 'ei~~~wit' },
-      { text: 'Google Speech', callback_data: 'ei~~~google' }],
+      [{ text: 'wit.ai', callback_data: 'ei~~~wit' }],
+      // [{ text: 'Google Speech', callback_data: 'ei~~~google' }], // TODO: turn on Google
       [{ text: 'Yandex SpeechKit', callback_data: 'ei~~~yandex' }],
     ] },
   }

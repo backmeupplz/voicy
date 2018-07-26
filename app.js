@@ -13,6 +13,7 @@ const { setupEngine } = require('./commands/engine')
 const { setupLock } = require('./commands/lock')
 const { setupFiles } = require('./commands/files')
 const { setupSilent } = require('./commands/silent')
+const { setupGoogle, setupCheckingCredentials } = require('./commands/google')
 const { setupCallbackHandler } = require('./helpers/callback')
 
 // Create bot
@@ -22,6 +23,8 @@ setupPromises()
 // Setup mongoose
 setupMongoose()
 
+// Setup checking for google credentials
+setupCheckingCredentials(bot)
 // Setup audio handler
 setupAudioHandler(bot)
 
@@ -35,6 +38,7 @@ setupEngine(bot)
 setupLock(bot)
 setupFiles(bot)
 setupSilent(bot)
+setupGoogle(bot)
 
 // Setup keyboard callback handler
 setupCallbackHandler(bot)
