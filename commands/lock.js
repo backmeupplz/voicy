@@ -12,6 +12,12 @@ function setupLock(bot) {
     // Setup localizations
     const strings = require('../helpers/strings')()
     strings.setChat(chat)
+    // Check if private or channel
+    if (ctx.chat.type === 'private') {
+      const text = '😅 Sorry, but this command only works in group chats'
+      ctx.replyWithMarkdown(strings.translate(text))
+      return
+    }
     // Reverse admin lock
     chat.adminLocked = !chat.adminLocked
     // Save chat
@@ -20,7 +26,7 @@ function setupLock(bot) {
     const text = chat.adminLocked ?
       '🔑 Great! *Voicy* will now respond only to command calls sent by *admins* in this chat.' :
       '🔑 Great! *Voicy* will now respond only to command calls from *anyone* in this chat.'
-    ctx.replyWithMarkup(strings.translate(text))
+    ctx.replyWithMarkdown(strings.translate(text))
   })
 }
 

@@ -8,14 +8,14 @@ const { setEngine } = require('./engine')
  */
 function setupCallbackHandler(bot) {
   // TODO: check if it's the original sender
-  bot.action(async (ctx) => {
-    const options = ctx.callbackQuery.data.split('~')
+  bot.action(async (data, ctx) => {
+    const options = data.split('~')
     const inline = options[0]
     try {
       if (inline === 'li') {
-        await setLanguage(ctx)
+        await setLanguage(data, ctx)
       } else if (inline === 'ei') {
-        await setEngine(ctx)
+        await setEngine(data, ctx)
       }
     } catch (error) {
       ctx.editMessageText(`❗️ _${error.message}_`)

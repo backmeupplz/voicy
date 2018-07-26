@@ -86,18 +86,18 @@ async function sendLanguage(ctx, isCommand) {
   }
   options.reply_markup = JSON.stringify(options.reply_markup)
   // Reply with keyboard
-  ctx.replyWithMarkup(text, options)
+  ctx.replyWithMarkdown(text, options)
 }
 
 /**
  * Called when inline button with language is touched
  * @param {Telegraf:Context} ctx Context to respond to
  */
-async function setLanguage(ctx) {
+async function setLanguage(data, ctx) {
   // Get localization
   const strings = require('./strings')()
   // Get options
-  const options = ctx.callbackQuery.data.split('~')
+  const options = data.split('~')
   const engine = options[2]
   const isCommand = parseInt(options[1], 10) === 1
   // Setup language
@@ -114,7 +114,9 @@ async function setLanguage(ctx) {
     // Setup localization
     strings.setChat(chat)
     // Edit message
-    await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (Yandex SpeechKit) in this chat. Thank you!', name))
+    await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (Yandex SpeechKit) in this chat. Thank you!', name), {
+      parse_mode: 'Markdown',
+    })
     // If it was not a command, send start
     if (!isCommand) await sendStart(ctx, chat)
   } else if (engine === 'wit') {
@@ -132,6 +134,7 @@ async function setLanguage(ctx) {
       // Get keyboard options
       const opts = {
         reply_markup: { inline_keyboard: languageKeyboard(engine, name === '<' ? page - 1 : page + 1, isCommand) },
+        parse_mode: 'Markdown',
       }
       opts.reply_markup = JSON.stringify(opts.reply_markup)
       // Edit message
@@ -144,7 +147,9 @@ async function setLanguage(ctx) {
       // Setup localization
       strings.setChat(chat)
       // Edit message
-      await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (wit.ai) in this chat. Thank you!', name))
+      await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (wit.ai) in this chat. Thank you!', name), {
+        parse_mode: 'Markdown',
+      })
       // If it was not a command, send start
       if (!isCommand) await sendStart(ctx, chat)
     }
@@ -164,6 +169,7 @@ async function setLanguage(ctx) {
       // Construct options for the keyaborad
       const opts = {
         reply_markup: { inline_keyboard: languageKeyboard(engine, language === '<' ? page - 1 : page + 1, isCommand) },
+        parse_mode: 'Markdown',
       };
       opts.reply_markup = JSON.stringify(opts.reply_markup);
       // Edit message
@@ -176,7 +182,9 @@ async function setLanguage(ctx) {
       // Setup localization
       strings.setChat(chat)
       // Edit message
-      await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (Google Speech) in this chat. Thank you!', name))
+      await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (Google Speech) in this chat. Thank you!', name), {
+        parse_mode: 'Markdown',
+      })
       // If it was not a command, send start
       if (!isCommand) await sendStart(ctx, chat)
     }

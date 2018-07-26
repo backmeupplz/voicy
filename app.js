@@ -22,6 +22,11 @@ setupPromises()
 // Setup mongoose
 setupMongoose()
 
+bot.use((ctx, next) => {
+  console.info(ctx.message || ctx.channelPost)
+  next()
+})
+
 // Setup audio handler
 setupAudioHandler(bot)
 
@@ -39,4 +44,8 @@ setupSilent(bot)
 // Setup keyboard callback handler
 setupCallbackHandler(bot)
 
+// Start bot
+bot.startPolling()
+
+// Consolethat everything is fine
 console.info('Bot is up and running')
