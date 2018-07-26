@@ -47,5 +47,5 @@ setupCallbackHandler(bot)
 // Start bot
 bot.startPolling()
 
-// Consolethat everything is fine
+// Console that everything is fine
 console.info('Bot is up and running')
