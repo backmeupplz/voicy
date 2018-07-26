@@ -1,5 +1,6 @@
 // Dependencies
 const { findChat } = require('../helpers/db')
+const { checkAdminLock } = require('../helpers/admins')
 
 /**
  * Setting up lock command
@@ -9,6 +10,9 @@ function setupLock(bot) {
   bot.command('lock', async (ctx) => {
     // Get chat
     let chat = await findChat(ctx.chat.id)
+    // Check if admin locked
+    const adminLockCheck = await checkAdminLock(chat, bot, ctx)
+    if (!adminLockCheck) return
     // Setup localizations
     const strings = require('../helpers/strings')()
     strings.setChat(chat)

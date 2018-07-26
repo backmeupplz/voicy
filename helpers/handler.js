@@ -20,12 +20,6 @@ function setupAudioHandler(bot) {
     // Handle voice
     handleMessage(ctx, bot)
   })
-  // TODO: handle channels
-  // // Channel post handler
-  // bot.on('channel_post', (ctx) => {
-  //   console.info(ctx.message || ctx.channelPost)
-  //   return ctx.reply('Channel post')
-  // })
 }
 
 // Exports

@@ -31,8 +31,6 @@ setupCheckingCredentials(bot)
 // Setup audio handler
 setupAudioHandler(bot)
 
-// TODO: check if admin is locked before commands
-
 // Setup commands
 setupHelp(bot)
 setupStart(bot)

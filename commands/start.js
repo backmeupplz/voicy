@@ -1,6 +1,7 @@
 // Dependencies
 const { findChat } = require('../helpers/db')
 const { sendLanguage, setLanguageCode } = require('../helpers/language')
+const { checkAdminLock } = require('../helpers/admins')
 
 /**
  * Setting up start command
@@ -11,6 +12,9 @@ function setupStart(bot) {
   bot.start(async (ctx) => {
     // Get chat
     let chat = await findChat(ctx.chat.id)
+    // Check if admin locked
+    const adminLockCheck = await checkAdminLock(chat, bot, ctx)
+    if (!adminLockCheck) return
     // Check if Telegram gives us language code
     if (ctx.from.language_code) {
       // Set language code to the chat
@@ -26,6 +30,9 @@ function setupStart(bot) {
       ctx.message.new_chat_participant.username === process.env.USERNAME) {
       // Get chat
       const chat = await findChat(ctx.chat.id)
+      // Check if admin locked
+      const adminLockCheck = await checkAdminLock(chat, bot, ctx)
+      if (!adminLockCheck) return
       // Send language keyboard
       sendLanguage(bot, chat)
     }
