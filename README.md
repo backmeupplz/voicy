@@ -46,5 +46,4 @@ MIT — use for any purpose. Would be great if you could leave a note about the 
 * Turn off censorship
 * Delete /help if not responding
 * Inline keyboard accessible only by caller
-* Channels posts
 * Localizations

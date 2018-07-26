@@ -17,7 +17,10 @@ const { setupGoogle, setupCheckingCredentials } = require('./commands/google')
 const { setupCallbackHandler } = require('./helpers/callback')
 
 // Create bot
-const bot = new Telegraf(process.env.TOKEN, { username: process.env.USERNAME })
+const bot = new Telegraf(process.env.TOKEN, {
+  username: process.env.USERNAME,
+  channelMode: true,
+})
 // Setup promises
 setupPromises()
 // Setup mongoose
