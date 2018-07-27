@@ -28,11 +28,7 @@ Localize.prototype.setChat = function setChat(chat) {
  * @returns localizing object
  */
 function localize() {
-  return {
-    translate: arg => arg,
-    setChat: () => {},
-  }
-  // return new Localize(localizations)
+  return new Localize(localizations)
 }
 
 // Exports
