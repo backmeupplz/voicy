@@ -7,7 +7,7 @@ const { findChat } = require('./db')
  */
 async function sendEngine(ctx) {
   // Get chat
-  const chat = await findChat(ctx.chat.id)
+  const chat = await findChat(ctx.chat ? ctx.chat.id : ctx.update.channel_post.chat.id)
   // Setup localizations
   const strings = require('./strings')()
   strings.setChat(chat)
@@ -16,9 +16,9 @@ async function sendEngine(ctx) {
   // Construct options keyboard
   const options = {
     reply_markup: { inline_keyboard: [
-      [{ text: 'wit.ai', callback_data: `ei~wit~${ctx.from.id}` }],
-      [{ text: 'Google Speech', callback_data: `ei~google~${ctx.from.id}` }],
-      [{ text: 'Yandex SpeechKit', callback_data: `ei~yandex~${ctx.from.id}` }],
+      [{ text: 'wit.ai', callback_data: 'ei~wit' }],
+      [{ text: 'Google Speech', callback_data: 'ei~google' }],
+      [{ text: 'Yandex SpeechKit', callback_data: 'ei~yandex' }],
     ] },
   }
   // Reply to the message

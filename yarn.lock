@@ -2702,9 +2702,9 @@ tar@^4:
     safe-buffer "^5.1.2"
     yallist "^3.0.2"
 
-telegraf@^3.21.2:
-  version "3.21.2"
-  resolved "https://registry.yarnpkg.com/telegraf/-/telegraf-3.21.2.tgz#192a79e8990297377bf2bf03085cb4d00a20d9a8"
+telegraf@^3.22.1:
+  version "3.22.1"
+  resolved "https://registry.yarnpkg.com/telegraf/-/telegraf-3.22.1.tgz#2337a9c00359c0de749821d56944e2a5d9fcd2ee"
   dependencies:
     "@types/node" "^10.1.2"
     debug "^3.0.0"

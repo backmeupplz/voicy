@@ -28,7 +28,7 @@
     "random-token": "0.0.8",
     "request": "^2.81.0",
     "superagent": "^3.1.0",
-    "telegraf": "^3.21.2",
+    "telegraf": "^3.22.1",
     "temp": "^0.8.3",
     "xml2js": "^0.4.17"
   },

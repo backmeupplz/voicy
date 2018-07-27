@@ -16,12 +16,12 @@ function setupStart(bot) {
     const adminLockCheck = await checkAdminLock(chat, ctx)
     if (!adminLockCheck) return
     // Check if Telegram gives us language code
-    if (ctx.from.language_code) {
+    if (ctx.from && ctx.from.language_code) {
       // Set language code to the chat
       chat = await setLanguageCode(chat, ctx.from.language_code)
       sendStart(ctx, chat)
     } else {
-      sendLanguage(ctx, chat)
+      sendLanguage(ctx)
     }
   })
   // Enter chat

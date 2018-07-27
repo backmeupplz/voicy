@@ -30,16 +30,23 @@ function setupGoogle(bot) {
  */
 function setupCheckingCredentials(bot) {
   bot.use(async (ctx, next) => {
-    // Get messahe
-    const msg = ctx.message || ctx.channelPost
-    // Check if reply to bot
-    if (msg && msg.reply_to_message && msg.reply_to_message.from.username === process.env.USERNAME) {
-      // Get chat
-      const chat = await findChat(ctx.chat.id)
-      // Check if reply to setup message
-      if (chat.googleSetupMessageId && chat.googleSetupMessageId === msg.reply_to_message.message_id) {
-        
+    try {
+      // Get messahe
+      const msg = ctx.message || ctx.channelPost
+      // Check if reply to bot
+      if (msg &&
+        msg.reply_to_message &&
+        msg.reply_to_message.from.username === process.env.USERNAME) {
+        // Get chat
+        const chat = await findChat(ctx.chat.id)
+        // Check if reply to setup message
+        if (chat.googleSetupMessageId &&
+          chat.googleSetupMessageId === msg.reply_to_message.message_id) {
+          console.info('Replied with credentials!', ctx.message)
+        }
       }
+    } catch (err) {
+      // Do nothing
     }
     // Continue
     next()
