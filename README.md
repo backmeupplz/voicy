@@ -42,7 +42,7 @@ MIT — use for any purpose. Would be great if you could leave a note about the 
 [![Product Hunt](/img/ph.png?raw=true)](https://www.producthunt.com/posts/voicy)
 
 # TODO
-* Make sure google speech works
+* Fix language strings for google
 * Write an instruction about how to get google speech credentials
 * Turn off censorship on wit.ai and yandex
 * Order localizations

@@ -93,18 +93,18 @@ async function sendTranscription(ctx, url, chat) {
     return
   }
 
-  // TODO: check if google credentials are there
-  // /// Check if ok with google engine
-  // if (chat.engine === 'google' && (chat.seconds <= 0 || (chat.seconds + 10 < duration))) {
-  //   /** Send message warning about switch to wit.ai */
-  //   const text = strings.translate('😮 You didn\'t have enough seconds of Google Speech voice recognition left to convert this voice message! But no worries — we have automatically switched you to the free wit.ai so that no voice messages are getting lost. Don\'t forget to setup your /language.');
-  //   await bot.sendMessage(chat.id, text, {
-  //     parse_mode: 'Markdown',
-  //   });
-  //   /** Set wit.ai to be the new chat's engine */
-  //   chat.engine = 'wit';
-  //   await chat.save();
-  // }
+  // Check if ok with google engine
+  if (chat.engine === 'google' && !chat.googleKey) {
+    updateMessagewithTranscription(ctx,
+      sentMessage,
+      strings.translate(strings.translate('😮 Please, setup google credentials with the /google command or change the engine with the /engine command. Your credentials are not setup yet.')),
+      chat,
+      true)
+    // Unlink (delete) files
+    fs.unlink(flacPath)
+    fs.unlink(ogaPath)
+    return
+  }
 
   // Check limits
   if (chat.engine === 'wit' && duration > 50) {
@@ -173,13 +173,13 @@ async function sendAction(ctx, url, chat) {
   // Convert audio file to flac
   const { flacPath, duration } = await flac(ogaPath, chat)
 
-  // TODO: check google credentials
-  // /** Check if ok with google engine */
-  // if (chat.engine === 'google' && (chat.seconds <= 0 || (chat.seconds + 10 < duration))) {
-  //   /** Set wit.ai to be the new chat's engine */
-  //   chat.engine = 'wit';
-  //   await chat.save();
-  // }
+  // Check if ok with google engine
+  if (chat.engine === 'google' && !chat.googleKey) {
+    // Unlink (delete) files
+    fs.unlink(flacPath)
+    fs.unlink(ogaPath)
+    return
+  }
 
   // Check limits
   if (chat.engine === 'wit' && duration > 50) {

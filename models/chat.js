@@ -46,7 +46,6 @@ const chatSchema = new Schema({
   },
   googleSetupMessageId: Number,
   googleKey: String,
-  googleProjectName: String,
   language: String, // added justas a virtual variable
 }, { timestamps: true })
 

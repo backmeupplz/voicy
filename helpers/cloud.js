@@ -2,40 +2,61 @@
 const path = require('path')
 const Storage = require('@google-cloud/storage')
 
-const storage = new Storage({
-  projectId: config.g_cloud_project_id,
-  credentials: require('../certificates/voicy.json'),
-});
-
-function put(path) {
-  return new Promise((resolve, reject) => {
-    const bucket = storage.bucket(config.g_cloud_project_id);
-    bucket.upload(path, (err, file) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(`gs://${config.g_cloud_project_id}/${file.name}`);
-    });
-  });
+/**
+ * Getting google storage api for the chat
+ * @param key Google credentials JSON
+ * @returns Authenticated Google storage module
+ */
+function getStorage(key) {
+  return new Storage({
+    credentials: key,
+  })
 }
 
-function del(uri) {
+/**
+ * Uploading file at path to google storage
+ * @param {String} filePath Path of the file to upload
+ * @param {Mongoose:Chat} chat Chat with credentials
+ * @returns end link of the uploaded file
+ */
+function put(filePath, chat) {
   return new Promise((resolve, reject) => {
-    const bucket = storage.bucket(config.g_cloud_project_id);
-    const file = bucket.file(path.basename(uri));
+    const key = JSON.parse(chat.googleKey)
+    const storage = getStorage(key)
+    const bucket = storage.bucket(key.project_id)
+    bucket.upload(filePath, (err, file) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      resolve(`gs://${key.project_id}/${file.name}`)
+    })
+  })
+}
+
+/**
+ * Deleting the file at uri
+ * @param {String} uri Uri of the file to delete
+ * @param {Mongoose:Chat} chat Chat with credentials
+ */
+function del(uri, chat) {
+  return new Promise((resolve, reject) => {
+    const key = JSON.parse(chat.googleKey)
+    const storage = getStorage(key)
+    const bucket = storage.bucket(key.project_id)
+    const file = bucket.file(path.basename(uri))
     file.delete((err) => {
       if (err) {
-        reject(err);
-        return;
+        reject(err)
+        return
       }
-      resolve();
-    });
-  });
+      resolve()
+    })
+  })
 }
 
-/** Exports */
+// Exports
 module.exports = {
   put,
   del,
-};
+}

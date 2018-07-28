@@ -57,14 +57,6 @@ function setupCheckingCredentials(bot) {
             await ctx.reply(strings.translate('Sorry, document\'s mime type should be \'text/plain\'.'))
             throw new Error()
           }
-          // Check filename
-          if (!msg.document.file_name || msg.document.file_name.split('-').length < 2) {
-            await ctx.reply(strings.translate('Please, do not rename .json file after downloading it from Google Cloud Console.'))
-            throw new Error()
-          }
-          // Check if the right document
-          const filenameOptions = msg.document.file_name.split('-')
-          const projectName = `${filenameOptions[0]}-${filenameOptions[1]}`
           // Download the file
           const fileData = await ctx.telegram.getFile(msg.document.file_id)
           const url = await fileUrl(fileData.file_path)
@@ -72,10 +64,9 @@ function setupCheckingCredentials(bot) {
           const data = await download(url)
           // Save to chat
           chat.googleKey = data.toString('utf8')
-          chat.googleProjectName = projectName
           await chat.save()
           // Reply with confirmation
-          await ctx.replyWithMarkdown(strings.translate('Congratualations! *Voicy* got the credentials file for the *$[1]* Google Cloud Project. Now you are able to use Google Speech recognition.', projectName))
+          await ctx.replyWithMarkdown(strings.translate('Congratualations! *Voicy* got the credentials file for the *$[1]* Google Cloud Project. Now you are able to use Google Speech recognition.', JSON.parse(chat.googleKey).project_id))
         }
       }
     } catch (err) {

@@ -3,6 +3,7 @@ const fs = require('fs')
 // const cloud = require('./cloud')
 const https = require('https')
 const language = require('./language')
+const cloud = require('./cloud')
 
 // Language map
 const languageMap = {
@@ -23,7 +24,7 @@ async function getText(flacPath, chat, duration) {
   if (chat.engine === 'wit') {
     return await wit(language.witLanguages()[chat.witLanguage], flacPath)
   } else if (chat.engine === 'google') {
-    return await google(flacPath, duration, chat)
+    return await google(flacPath, chat)
   }
   // Try wit if yandex couldn't make it
   const yandexResult = await yandex(flacPath, chat)
@@ -36,37 +37,42 @@ async function getText(flacPath, chat, duration) {
 /**
  * COnvert filepath to text with google
  * @param {Path} filePath Path of the file
- * @param {Number} duration Duration of the file
  * @param {Mongoose:Chat} chat Chat to convert
  */
-async function google(filePath, duration, chat) {
-  // TODO: Fix
-  // const uri = await cloud.put(filePath)
-  // const speech = require('@google-cloud/speech')({
-  //   projectId: config.g_cloud_project_id,
-  //   credentials: require('../certificates/voicy.json'),
-  // });
+async function google(filePath, chat) {
+  // Check if chat has google credentials
+  if (!chat.googleKey) {
+    throw new Error('No google credentials')
+  }
+  // Upload to drive
+  const uri = await cloud.put(filePath, chat)
+  // Transcribe
+  const speech = require('@google-cloud/speech')({
+    credentials: JSON.parse(chat.googleKey),
+  })
 
-  // return new Promise((resolve) => {
-  //   speech.startRecognition(uri, {
-  //     encoding: 'LINEAR16',
-  //     sampleRateHertz: 16000,
-  //     languageCode: chat.googleLanguage,
-  //   }, (err, operation) => {
-  //     cloud.del(uri);
-  //     if (err) {
-  //       resolve();
-  //       return;
-  //     }
-  //     operation
-  //       .on('error', () => {
-  //         resolve();
-  //       })
-  //       .on('complete', (result) => {
-  //         resolve(result);
-  //       });
-  //   });
-  // });
+  return new Promise((resolve) => {
+    speech.startRecognition(uri, {
+      encoding: 'LINEAR16',
+      sampleRateHertz: 16000,
+      languageCode: chat.googleLanguage,
+    }, (err, operation) => {
+      if (err) {
+        resolve()
+        cloud.del(uri, chat)
+        return
+      }
+      operation
+        .on('error', () => {
+          resolve()
+          cloud.del(uri, chat)
+        })
+        .on('complete', (result) => {
+          resolve(result)
+          cloud.del(uri, chat)
+        })
+    })
+  })
 }
 
 /**
