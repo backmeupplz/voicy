@@ -42,7 +42,7 @@ const chatSchema = new Schema({
   filesBanned: {
     type: Boolean,
     required: true,
-    default: false,
+    default: true,
   },
   googleSetupMessageId: Number,
   googleKey: String,
