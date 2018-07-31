@@ -3,7 +3,7 @@
  * @param {Telegraf:Context} ctx Context of the message
  */
 function checkDate(ctx) {
-  let message = ctx.update.message || ctx.update.channelPost || ctx.update.callback_query
+  let message = ctx.update.message || ctx.update.channel_post || ctx.update.callback_query
   if (ctx.update.callback_query) {
     message = message.message
   }
