@@ -40,9 +40,3 @@ MIT — use for any purpose. Would be great if you could leave a note about the 
 [![Reddit](/img/reddit.png?raw=true)](https://redd.it/5iduzy)
 [![Bot Store](/img/bs.png?raw=true)](https://storebot.me/bot/voicybot)
 [![Product Hunt](/img/ph.png?raw=true)](https://www.producthunt.com/posts/voicy)
-
-# TODO
-* Write an instruction about how to get google speech credentials
-* Turn off censorship on wit.ai and yandex
-* Order localizations
-* Check different file types again (documents, files, etc.)

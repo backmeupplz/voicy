@@ -147,9 +147,13 @@ async function setLanguage(data, ctx) {
     // Setup localization
     strings.setChat(chat)
     // Edit message
-    await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (Yandex SpeechKit) in this chat. Thank you!', name), {
-      parse_mode: 'Markdown',
-    })
+    try {
+      await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (Yandex SpeechKit) in this chat. Thank you!', name), {
+        parse_mode: 'Markdown',
+      })
+    } catch (err) {
+      // Do nothing
+    }
     // If it was not a command, send start
     if (!isCommand) await sendStart(ctx, chat)
   } else if (engine === 'wit') {
@@ -171,7 +175,11 @@ async function setLanguage(data, ctx) {
       }
       opts.reply_markup = JSON.stringify(opts.reply_markup)
       // Edit message
-      await ctx.editMessageText(text, opts)
+      try {
+        await ctx.editMessageText(text, opts)
+      } catch (err) {
+        // Do nothing
+      }
     } else {
       // Set language
       chat.witLanguage = name
@@ -180,9 +188,13 @@ async function setLanguage(data, ctx) {
       // Setup localization
       strings.setChat(chat)
       // Edit message
-      await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (wit.ai) in this chat. Thank you!', name), {
-        parse_mode: 'Markdown',
-      })
+      try {
+        await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (wit.ai) in this chat. Thank you!', name), {
+          parse_mode: 'Markdown',
+        })
+      } catch (err) {
+        // Do nothing
+      }
       // If it was not a command, send start
       if (!isCommand) await sendStart(ctx, chat)
     }
@@ -206,7 +218,11 @@ async function setLanguage(data, ctx) {
       };
       opts.reply_markup = JSON.stringify(opts.reply_markup);
       // Edit message
-      await ctx.editMessageText(text, opts)
+      try {
+        await ctx.editMessageText(text, opts)
+      } catch (err) {
+        // Do nothing
+      }
     } else {
       // Set language
       chat.googleLanguage = language;
@@ -215,9 +231,13 @@ async function setLanguage(data, ctx) {
       // Setup localization
       strings.setChat(chat)
       // Edit message
-      await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (Google Speech) in this chat. Thank you!', name), {
-        parse_mode: 'Markdown',
-      })
+      try {
+        await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (Google Speech) in this chat. Thank you!', name), {
+          parse_mode: 'Markdown',
+        })
+      } catch (err) {
+        // Do nothing
+      }
       // If it was not a command, send start
       if (!isCommand) await sendStart(ctx, chat)
     }

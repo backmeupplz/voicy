@@ -73,9 +73,13 @@ async function setEngine(data, ctx) {
     engineString = 'Yandex SpeechKit'
   }
   // Edit message
-  await ctx.editMessageText(strings.translate('👍 Now *Voicy* uses *$[1]* in this chat. Thank you! Don\'t forget to set /language.', engineString), {
-    parse_mode: 'Markdown',
-  })
+  try {
+    await ctx.editMessageText(strings.translate('👍 Now *Voicy* uses *$[1]* in this chat. Thank you! Don\'t forget to set /language.', engineString), {
+      parse_mode: 'Markdown',
+    })
+  } catch (err) {
+    // Do nothing
+  }
 }
 
 // Exports

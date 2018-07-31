@@ -1,6 +1,6 @@
 // Dependencies
 const { handleMessage } = require('./voice')
-// const { findChat } = require('./db')
+const { findChat } = require('./db')
 
 /**
  * Setting up audio handling
@@ -13,13 +13,13 @@ function setupAudioHandler(bot) {
     handleMessage(ctx)
   })
   // Audio handler
-  // bot.on(['audio', 'document'], async (ctx) => {
-  //   // Check if files banned
-  //   const chat = await findChat(ctx.chat.id)
-  //   if (chat.filesBanned) return
-  //   // Handle voice
-  //   handleMessage(ctx)
-  // })
+  bot.on(['audio', 'document'], async (ctx) => {
+    // Check if files banned
+    const chat = await findChat(ctx.chat.id)
+    if (chat.filesBanned) return
+    // Handle voice
+    handleMessage(ctx)
+  })
 }
 
 // Exports

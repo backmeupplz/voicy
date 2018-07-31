@@ -18,7 +18,7 @@ function setupLock(bot) {
     strings.setChat(chat)
     // Check if private or channel
     if (ctx.chat.type === 'private') {
-      const text = '😅 Sorry, but this command only works in group chats'
+      const text = '😅 Sorry, but this command only works in group chats.'
       ctx.replyWithMarkdown(strings.translate(text))
       return
     }
