@@ -1,0 +1,204 @@
+﻿📁 Wonderful! *Voicy* will *ignore* all audio files in this chat since now.
+
+
+Harika! *Voicy* artık bu konuşmadaki bütün ses dosyalarını *yoksayacak*
+
+
+📁 Wonderful! *Voicy* will *try to recognize* all audio files in this chat since now.
+Harika! *Voicy* artık bu konuşmadaki bütün ses doysalarını *tanımlayamaya çalışacak*.
+
+
+
+Reply to this message with the Google Cloud credentials file (.json) to setup Google Speech voice recognition. Not sure what is this and how to get it? Check out [our quick tutorial](https://google.com).
+Google Speech ses tanımayı kurmak için bu mesajı Google Cloud kimlik dosyası (.json) ile yanıtlayınız. Ne olduğundan ve nasıl bulacağınızdan emin değil misiniz? [Eğitim sayfasına] bir göz atın (https://google.com).
+
+
+Sorry, you should reply with a credentials document.
+
+
+Üzgünüm, bir kimlik belgesi dosyası ile yanıtlamalısınız.
+
+
+Sorry, document\'s mime type should be \'text/plain\'.
+
+
+Üzgünüm, ancak belge\nin mimi \'text/plain\' olarak yazılmalıdır.
+
+Congratualations! *Voicy* got the credentials file for the *$[1]* Google Cloud Project. 
+Tebrikler! *Voicy* *$[1]* Google Cloud Projesi için kimlik dosyalarını aldı.
+
+Now you are able to use Google Speech recognition.
+
+Artık Google Konuşma tanımlamayı kullanabilirsiniz.
+
+
+😎 *Voicy* converts speech to text from any voice messages and audio files (.ogg, .flac, .wav, .mp3) it receives.
+😎 *Voicy* herhangi bir sesli mesajdaki ya da alınan ses dosyasındaki (.ogg, .flac, .wav, .mp3) konuşmayı metne çevirir.
+
+You can either talk to *Voicy* in the private chat or add it to a group.
+*Voicy* ile kişisel bir konuşmada konuşabilir ya da bir grup konuşmasına ekleyebilirsiniz.
+
+\n\nIf you want to use this bot in private messages, please, create a private group with anyone and add *Voicy* there.
+\n\nEğer bu botu özel konuşmada kullanmak istiyorsanız, lütfen birisiyle özel bir grup yaratınız ve *Voicy*i oraya ekleyiniz.
+ 
+If you want to add *Voicy* to a group chat, please, add it as a prticipant on the group profile or to the group in the *Voicy* bot profile.
+Eğer *Voicy*i bir grup konuşmasına eklemek isterseniz, lütfen onu grup profiline bir katılımcı olarak ya da grubu *Voicy* bot profiline ekleyiniz.
+
+
+\n\n/help — Shows this message 
+😱\n/engine — Lets you pick a voice recognition engine: wit.ai, Yandex SpeechKit or Google Speech 
+⚙\n/language — Lets you pick a voice recognition language 
+📣\n/lock — Toggles lock or unlock of non-admins using commands in group chats 
+🔑\n/files — Toggles if the bot should attempt to convert audio files or just ignore them 
+📁\n/silent — Toggles silent mode when no extra messages like `Voice recognition is initiated` are sent 
+😶\n/google — Setup google credentials for Google Speech 
+🦆\n\nLike this bot? Leave a review [here](https://telegram.me/storebot?start=voicybot) 
+👍\n\nAddress any concerns and questions to my creator — @borodutch 🦄
+
+😅 
+
+\n\n/help — Bu mesajı gösterir 
+😱\n/engine — Ses tanıma motoru seçmenizi sağlar: wit.ai, Yandex SpeechKit ya da Google Speech 
+⚙\n/language — Ses tanıma dilini seçmenizi sağlar 
+📣\n/lock — Admin olmayanların grup konuşmalarında komutları kullanıp kullanamayacağını belirler. 
+🔑\n/files — Botun konuşmadaki ses dosyalarını çevirmeye çalışmasını ya da yoksaymasını sağlar 
+📁\n/silent — `Ses tanımlama başlatıldı` gibi gönderilen ilave bir mesajları kapatmak için sessiz modu devreye sokar ya da kapatır
+😶\n/google — Google Speech için google kimlik bilgilerinin kurulumunu yapar
+🦆\n\nBu botu beğendiniz mi? Lütfen bir değerlendirme bırakınız, [buraya](https://telegram.me/storebot?start=voicybot)
+👍\n\nHerhangi bir sorun ve öneriniz için lütfen yaratıcım ile iletişime geçin — @borodutch 🦄
+
+😅
+
+
+
+Sorry, but this command only works in group chats.
+
+
+Üzgünüm, bu komut sadece grup konuşmalarında geçerlidir.
+
+🔑 Great! *Voicy* will now respond only to command calls sent by *admins* in this chat.
+
+
+🔑 Harika! *Voicy* bu konuşmada artık sadece *yöneticiler*in komutlarını yerine getirecek.
+
+🔑 Great! *Voicy* will now respond only to command calls from *anyone* in this chat.
+
+
+🔑 Harika! *Voicy* artık bu konuşmadaki *herhangi biri*nin komutlarını yerine getirecek.
+
+
+😶 Magnificent! *Voicy* will now work in *silent mode*: it will not send any messages to the chat except for the actual voice transcriptions.
+
+
+😶 Muhteşem! *Voicy* artık *sessiz mod* ile çalışacak: Konuşmaya ses transkripsiyonu dışında başka bir mesaj göndermeyecek.
+
+😏 Magnificent! *Voicy* will now work in *usual mode*: it will send `Voice recognition is initiated` messages right after it receives voice messages.
+
+
+😏 Muhteşem! *Voicy* artık *olağan mod* ile çalışacak: Sesli mesajların hemen ardından `Ses tanımlama başlatıldı` mesajı iletilecek.
+
+👋 Hello there! *Voicy* is a voice recognition bot that converts all voice messages and audio files (.ogg, .flac, .wav, .mp3) it gets into text.
+👋 Merhabalar! *Voicy* bir ses tanımlama botudur. Bütün sesli mesajları ve ses dosyalarını (.ogg, .flac, .wav, .mp3) metne çevirir.
+
+\n\n*Voicy* supports three voice recognition engines: wit.ai, Yandex SpeechKit and Google Speech. Initialy it\'s set to use wit.ai but you can switch to Google Speech or Yandex SpeechKit anytime in /engine. More information in /help.
+
+👋 
+\n\n*Voicy* üç farklı ses tanımlama motorunu desteklemektedir: wit.ai, Yandex SpeechKit ve Google Speech. Kurulumla beraber wit.ai kullanmaya başlar, ancak /engine komutu ile istediğiniz zaman Google Speech ya Yandex SpeechKit'e geçebilirsiniz. Daha fazla bilgi için /help.
+
+👋
+
+
+Please, select the engine of speech recognition.
+Lütfen bir ses tanımlama motoru seçiniz. 
+
+Google Speech is more accurate and supports audio longer than 50 seconds, but has to be setup with your Google Cloud credentials (a bit tedious). 
+Google Speech daha hatasız ve 50 saniyeden fazla ses dosyalarını desteklemektedir, ancak Google Cloud kimlik bilgileriyle kurulum yapılmak zorundadur (biraz meşakkatli).
+
+Yandex SpeechKit is pretty accurate, free, private and most of the time supports audio longer than 50 seconds, but has limited list of languages. 
+Yandex SpeechKit de oldukça hatasız ve ücretsizdir, kişiseldir ve çoğu zaman 50 saniyenin üzerinde ses dosyalarını desteklemektedir. Ancak sınırlı bir dil seçeneği vardır.
+
+Wit.ai is less accurate, free, and doesn\'t support audio longer than 50 seconds, but has plenty of languages.
+Wit.ai ise daha çok hataya meyillidir. Ücretsizdir ancak 50 saniyeden fazla ses dosyalarını desteklemez. Bunun yanında oldukça geniş dil seçeneği sunar.
+
+
+Please, note that all three support different languages, so pick the one that suits you the best.
+Üç motorun da farklı dilleri desteklediğine dikkat ediniz, size en uygun olanını seçiniz.
+
+
+
+Only the person who started command can select options.
+Sadece komutu başlatan kişi seçenekleri seçebilir. 
+
+
+
+👍Now *Voicy* uses *$[1]* in this chat. Thank you! Don\'t forget to set /language.
+
+
+👍*Voicy* artık bu konuşmada *$[1]* kullanacaktır. Teşekkürler! Lütfen dil ayarlarını yapmayı unutmayınız /language.
+
+👋 Please select the language of speech recognition for $[1]
+
+
+👋 Lütfen $[1]
+
+ ses tanımlama için bir dil seçiniz.
+
+👋 Please select the language of speech recognition
+
+
+👋 Lütfen konuşma tanımlamanın dilini seçniz.
+
+
+👍 Now *Voicy* speaks *$[1]* (Yandex SpeechKit) in this chat. Thank you!
+
+
+👍 Artık *Voicy* bu konuşmada *$[1]* (Yandex SpeechKit) kullanacaktır. Teşekkürler!
+
+
+👋 Please select the language of speech recognition for wit.ai.
+
+
+👋 Lütfen wit.ai konuşma tanımlama için dil seçiniz.
+
+
+👍 Now *Voicy* speaks *$[1]* (wit.ai) in this chat. Thank you!
+
+
+👍 Artık *Voicy* bu konuşmada *$[1]* (wit.ai) kullancaktır. Teşekkürler.
+
+
+👋 Please select the language of speech recognition for Google Speech.
+
+
+👋 Lütfen Google Speech konuşma tanımlama için bir dil seçniz.
+
+👍 Now *Voicy* speaks *$[1]* (Google Speech) in this chat. Thank you!
+👍 Artık *Voicy* bu konuşmada *$[1]* (Google Speech) kullancaktır. Teşekkürler
+
+
+👮 I can\'t recognize voice messages larger than 20 megabytes
+👮 20 Megabyte'dan büyük dosyları tanımlayamam
+
+🦄 Voice recognition is initiated...
+🦄 Ses tanımlama başlatıldı...
+
+
+👮 Wit.ai cannot recognize voice messages longer than 50 seconds
+👮 Wit.ai 50 saniyeden uzun sesli mesajları tanımlayamaz.
+
+
+👮 Please, speak clearly, I couldn\'t recognize that_
+
+_
+👮 Lütfen daha net konuşunuz. Bunu tanımlayamadım.
+
+👮 I couldn\'t recognize that_
+👮 Bunu tanımlayamadım
+
+
+
+
+😮 Please, setup google credentials with the /google command or change the engine with the /engine command. Your credentials are not setup yet.
+
+
+😮 Lütfen /google komutunu kullanarak google kimlik bilgilerinizi yükleyiniz ya da /engine komutuyla ses tanıma motorunu değiştiriniz. Kimlik bilgileriniz henüz yüklenmedi.
