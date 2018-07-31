@@ -2,6 +2,7 @@
 const { sendLanguage } = require('../helpers/language')
 const { findChat } = require('../helpers/db')
 const { checkAdminLock } = require('../helpers/admins')
+const { checkDate } = require('../helpers/filter')
 
 /**
  * Setting up language command
@@ -9,6 +10,9 @@ const { checkAdminLock } = require('../helpers/admins')
  */
 function setupLanguage(bot) {
   bot.command('language', async (ctx) => {
+    // Check if less than 5 minutes ago
+    if (!checkDate(ctx)) return
+
     // Get chat
     const chat = await findChat(ctx.chat.id)
     // Check if admin locked

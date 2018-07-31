@@ -3,6 +3,7 @@ const { findChat } = require('../helpers/db')
 const { checkAdminLock } = require('../helpers/admins')
 const { fileUrl } = require('../helpers/url')
 const download = require('download')
+const { checkDate } = require('../helpers/filter')
 
 /**
  * Setting up google command
@@ -10,6 +11,9 @@ const download = require('download')
  */
 function setupGoogle(bot) {
   bot.command('google', async (ctx) => {
+    // Check if less than 5 minutes ago
+    if (!checkDate(ctx)) return
+
     // Get chat
     const chat = await findChat(ctx.chat.id)
     // Check if admin locked

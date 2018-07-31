@@ -1,6 +1,7 @@
 // Dependencies
 const { findChat } = require('../helpers/db')
 const { checkAdminLock } = require('../helpers/admins')
+const { checkDate } = require('../helpers/filter')
 
 /**
  * Setting up silent command
@@ -8,6 +9,9 @@ const { checkAdminLock } = require('../helpers/admins')
  */
 function setupSilent(bot) {
   bot.command('silent', async (ctx) => {
+    // Check if less than 5 minutes ago
+    if (!checkDate(ctx)) return
+
     // Get chat
     let chat = await findChat(ctx.chat.id)
     // Check if admin locked

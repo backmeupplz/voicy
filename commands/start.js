@@ -2,6 +2,7 @@
 const { findChat } = require('../helpers/db')
 const { sendLanguage, setLanguageCode } = require('../helpers/language')
 const { checkAdminLock } = require('../helpers/admins')
+const { checkDate } = require('../helpers/filter')
 
 /**
  * Setting up start command
@@ -10,6 +11,9 @@ const { checkAdminLock } = require('../helpers/admins')
 function setupStart(bot) {
   // Start command
   bot.start(async (ctx) => {
+    // Check if less than 5 minutes ago
+    if (!checkDate(ctx)) return
+
     // Get chat
     let chat = await findChat(ctx.chat.id)
     // Check if admin locked
