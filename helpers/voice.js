@@ -105,8 +105,8 @@ async function sendTranscription(ctx, url, chat) {
       chat,
       true)
     // Unlink (delete) files
-    await fs.unlink(flacPath)
-    await fs.unlink(ogaPath)
+    fs.unlink(flacPath, () => {})
+    fs.unlink(ogaPath, () => {})
     return
   }
 
@@ -118,20 +118,20 @@ async function sendTranscription(ctx, url, chat) {
       chat,
       true)
     // Unlink (delete) files
-    await fs.unlink(flacPath)
-    await fs.unlink(ogaPath)
+    fs.unlink(flacPath, () => {})
+    fs.unlink(ogaPath, () => {})
     return
   }
 
   // No need for oga file anymore
-  await fs.unlink(ogaPath)
+  fs.unlink(ogaPath, () => {})
 
   // Convert flac file to speech
   try {
     // Get transcription
     const text = await speechAPI.getText(flacPath, chat, duration)
     // Unlink (delete) flac file
-    await fs.unlink(flacPath)
+    fs.unlink(flacPath, () => {})
     // Send trancription to user
     await updateMessagewithTranscription(ctx, sentMessage, text, chat)
     // Save voice to db
@@ -180,24 +180,24 @@ async function sendAction(ctx, url, chat) {
   // Check if ok with google engine
   if (chat.engine === 'google' && !chat.googleKey) {
     // Unlink (delete) files
-    await fs.unlink(flacPath)
-    await fs.unlink(ogaPath)
+    fs.unlink(flacPath, () => {})
+    fs.unlink(ogaPath, () => {})
     return
   }
 
   // Check limits
   if (chat.engine === 'wit' && duration > 50) {
     // Unlink (delete) files
-    await fs.unlink(flacPath)
-    await fs.unlink(ogaPath)
+    fs.unlink(flacPath, () => {})
+    fs.unlink(ogaPath, () => {})
     return
   }
   // No need for oga file anymore
-  await fs.unlink(ogaPath)
+  fs.unlink(ogaPath, () => {})
   // Convert flac file to speech
   const text = await speechAPI.getText(flacPath, chat, duration)
   // Unlink (delete) flac file
-  await fs.unlink(flacPath)
+  fs.unlink(flacPath, () => {})
   // Send trancription to user
   await sendMessageWithTranscription(ctx, text, chat)
   // Save voice to db
