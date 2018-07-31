@@ -3,7 +3,7 @@
  * @param {Telegraf:Context} ctx Context of the message
  */
 function checkDate(ctx) {
-  const message = ctx.update.message || ctx.update.channelPost
+  const message = ctx.update.message || ctx.update.channelPost || ctx.callback_query.message
   if (!message) {
     console.info('Not processing because no message found', JSON.stringify(ctx.update, undefined, 2))
     return false
