@@ -28,7 +28,7 @@ async function handleMessage(ctx) {
   if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
     await ctx.replyWithMarkdown(strings.translate('_👮 I can\'t recognize voice messages larger than 20 megabytes_'), {
       parse_mode: 'Markdown',
-      reply_to_message_id: ctx.message.message_id,
+      reply_to_message_id: message.message_id,
     })
     return
   }
