@@ -33,7 +33,6 @@ async function addVoice(url, text, chat, duration) {
     language = chat.yandexLanguage
   }
   // Create and save voice
-  console.info('Adding voice to db', { url, text, language, duration, engine: chat.engine })
   const voice = new Voice({ url, text, language, duration, engine: chat.engine })
   const dbvoice = await voice.save()
   // Return the voice
