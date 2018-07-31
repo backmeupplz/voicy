@@ -33,6 +33,7 @@ async function addVoice(url, text, chat, duration) {
     language = chat.yandexLanguage
   }
   // Create and save voice
+  console.info('Adding voice to db', { url, text, language, duration, engine: chat.engine })
   const voice = new Voice({ url, text, language, duration, engine: chat.engine })
   const dbvoice = await voice.save()
   // Return the voice
@@ -50,32 +51,9 @@ function findVoice(url, language, engine) {
   return Voice.findOne({ url, language, engine })
 }
 
-// function findOptionalChat(id) {
-//   return Chat.findOne({ id });
-// }
-
-// function getChats(query) {
-//   return Chat.find(query);
-// }
-
-// function countChats(query) {
-//   return new Promise((resolve, reject) => {
-//     Chat.count(query, (err, count) => {
-//       if (err) {
-//         reject(err);
-//       } else {
-//         resolve(count);
-//       }
-//     });
-//   });
-// }
-
 // Exports
 module.exports = {
   findChat,
   addVoice,
   findVoice,
-  // findOptionalChat,
-  // getChats,
-  // countChats,
 }

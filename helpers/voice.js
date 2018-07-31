@@ -71,7 +71,7 @@ async function sendTranscription(ctx, url, chat) {
   // Try to find existing voice message
   const dbvoice = await findVoice(url, lan, chat.engine)
   if (dbvoice && lan === dbvoice.language && dbvoice.engine === chat.engine) {
-    updateMessagewithTranscription(ctx, sentMessage, dbvoice.text, chat)
+    await updateMessagewithTranscription(ctx, sentMessage, dbvoice.text, chat)
     return
   }
 
@@ -81,7 +81,7 @@ async function sendTranscription(ctx, url, chat) {
     const data = await download(url)
     fs.writeFileSync(ogaPath, data)
   } catch (err) {
-    updateMessagewithError(ctx, sentMessage, chat)
+    await updateMessagewithError(ctx, sentMessage, chat)
     return
   }
 
@@ -93,52 +93,52 @@ async function sendTranscription(ctx, url, chat) {
     flacPath = result.flacPath
     duration = result.duration
   } catch (err) {
-    updateMessagewithError(ctx, sentMessage, chat)
+    await updateMessagewithError(ctx, sentMessage, chat)
     return
   }
 
   // Check if ok with google engine
   if (chat.engine === 'google' && !chat.googleKey) {
-    updateMessagewithTranscription(ctx,
+    await updateMessagewithTranscription(ctx,
       sentMessage,
       strings.translate(strings.translate('😮 Please, setup google credentials with the /google command or change the engine with the /engine command. Your credentials are not setup yet.')),
       chat,
       true)
     // Unlink (delete) files
-    fs.unlink(flacPath)
-    fs.unlink(ogaPath)
+    await fs.unlink(flacPath)
+    await fs.unlink(ogaPath)
     return
   }
 
   // Check limits
   if (chat.engine === 'wit' && duration > 50) {
-    updateMessagewithTranscription(ctx,
+    await updateMessagewithTranscription(ctx,
       sentMessage,
       strings.translate('_👮 Wit.ai cannot recognize voice messages longer than 50 seconds_'),
       chat,
       true)
     // Unlink (delete) files
-    fs.unlink(flacPath)
-    fs.unlink(ogaPath)
+    await fs.unlink(flacPath)
+    await fs.unlink(ogaPath)
     return
   }
 
   // No need for oga file anymore
-  fs.unlink(ogaPath)
+  await fs.unlink(ogaPath)
 
   // Convert flac file to speech
   try {
     // Get transcription
     const text = await speechAPI.getText(flacPath, chat, duration)
+    // Unlink (delete) flac file
+    await fs.unlink(flacPath)
+    // Send trancription to user
+    await updateMessagewithTranscription(ctx, sentMessage, text, chat)
     // Save voice to db
     await addVoice(url, text, chat, duration)
-    // Unlink (delete) flac file
-    fs.unlink(flacPath)
-    // Send trancription to user
-    updateMessagewithTranscription(ctx, sentMessage, text, chat)
   } catch (err) {
     // In case of error, send it
-    updateMessagewithError(ctx, sentMessage, chat)
+    await updateMessagewithError(ctx, sentMessage, chat)
   }
 }
 
@@ -165,7 +165,7 @@ async function sendAction(ctx, url, chat) {
   }
   const dbvoice = await findVoice(url, lan, chat.engine)
   if (dbvoice && lan === dbvoice.language && dbvoice.engine === chat.engine) {
-    sendMessageWithTranscription(ctx, dbvoice.text, chat)
+    await sendMessageWithTranscription(ctx, dbvoice.text, chat)
     return
   }
 
@@ -180,33 +180,28 @@ async function sendAction(ctx, url, chat) {
   // Check if ok with google engine
   if (chat.engine === 'google' && !chat.googleKey) {
     // Unlink (delete) files
-    fs.unlink(flacPath)
-    fs.unlink(ogaPath)
+    await fs.unlink(flacPath)
+    await fs.unlink(ogaPath)
     return
   }
 
   // Check limits
   if (chat.engine === 'wit' && duration > 50) {
     // Unlink (delete) files
-    fs.unlink(flacPath)
-    fs.unlink(ogaPath)
+    await fs.unlink(flacPath)
+    await fs.unlink(ogaPath)
     return
   }
-
   // No need for oga file anymore
-  fs.unlink(ogaPath)
-
+  await fs.unlink(ogaPath)
   // Convert flac file to speech
   const text = await speechAPI.getText(flacPath, chat, duration)
-
-  // Save voice to db
-  addVoice(url, text, chat, duration)
-
   // Unlink (delete) flac file
-  fs.unlink(flacPath)
-
+  await fs.unlink(flacPath)
   // Send trancription to user
-  sendMessageWithTranscription(ctx, text, chat)
+  await sendMessageWithTranscription(ctx, text, chat)
+  // Save voice to db
+  await addVoice(url, text, chat, duration)
 }
 
 /**
@@ -217,7 +212,7 @@ async function sendAction(ctx, url, chat) {
  * @param {Mongoose:Chat} chat Relevant to this voice chat
  * @param {Boolean} markdown Whether to support markdown or not
  */
-function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
+async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   // Get localization
   const strings = require('./strings')()
   strings.setChat(chat)
@@ -227,7 +222,7 @@ function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
     options.parse_mode = 'Markdown'
   }
   // Edit message
-  ctx.telegram.editMessageText(msg.chat.id,
+  await ctx.telegram.editMessageText(msg.chat.id,
     msg.message_id,
     null,
     text || strings.translate('_👮 Please, speak clearly, I couldn\'t recognize that_'),
@@ -266,12 +261,12 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
  * @param {Telegraf:Message} msg Message to be updated
  * @param {Mongoose:Chat} chat Relevant chat
  */
-function updateMessagewithError(ctx, msg, chat) {
+async function updateMessagewithError(ctx, msg, chat) {
   // Setup localizations
   const strings = require('./strings')()
   strings.setChat(chat)
   // Edit message
-  ctx.telegram.editMessageText(msg.chat.id,
+  await ctx.telegram.editMessageText(msg.chat.id,
     msg.message_id,
     null,
     strings.translate('_👮 I couldn\'t recognize that_'),
