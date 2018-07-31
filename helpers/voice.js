@@ -17,16 +17,13 @@ async function handleMessage(ctx) {
   // Prepare localizations
   const strings = require('./strings')()
   strings.setChat(chat)
-  // Check if channel post
-  if (ctx.update.channel_post) {
-    ctx.message = ctx.update.channel_post
-    console.log(ctx.update.channel_post)
-  }
+  // Get message
+  const message = ctx.message || ctx.update.channel_post
   // Get voice message
-  const voice = ctx.message.voice ||
-    ctx.message.document ||
-    ctx.message.audio ||
-    ctx.message.video_note
+  const voice = message.voice ||
+    message.document ||
+    message.audio ||
+    message.video_note
   // Send an error to user if file is larger than 20 mb
   if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
     await ctx.replyWithMarkdown(strings.translate('_👮 I can\'t recognize voice messages larger than 20 megabytes_'), {
