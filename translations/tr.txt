@@ -9,7 +9,7 @@ Harika! *Voicy* artık bu konuşmadaki bütün ses doysalarını *tanımlayamaya
 
 
 
-Reply to this message with the Google Cloud credentials file (.json) to setup Google Speech voice recognition. Not sure what is this and how to get it? Check out [our quick tutorial](https://google.com).
+Reply to this message with the Google Cloud credentials file (.json) to set up Google Speech voice recognition. Not sure what is this and how to get it? Check out [our quick tutorial](https://google.com).
 Google Speech ses tanımayı kurmak için bu mesajı Google Cloud kimlik dosyası (.json) ile yanıtlayınız. Ne olduğundan ve nasıl bulacağınızdan emin değil misiniz? [Eğitim sayfasına] bir göz atın (https://google.com).
 
 
@@ -41,7 +41,7 @@ You can either talk to *Voicy* in the private chat or add it to a group.
 \n\nIf you want to use this bot in private messages, please, create a private group with anyone and add *Voicy* there.
 \n\nEğer bu botu özel konuşmada kullanmak istiyorsanız, lütfen birisiyle özel bir grup yaratınız ve *Voicy*i oraya ekleyiniz.
  
-If you want to add *Voicy* to a group chat, please, add it as a prticipant on the group profile or to the group in the *Voicy* bot profile.
+If you want to add *Voicy* to a group chat, please, add it as a participant on the group profile or to the group in the *Voicy* bot profile.
 Eğer *Voicy*i bir grup konuşmasına eklemek isterseniz, lütfen onu grup profiline bir katılımcı olarak ya da grubu *Voicy* bot profiline ekleyiniz.
 
 
@@ -51,7 +51,7 @@ Eğer *Voicy*i bir grup konuşmasına eklemek isterseniz, lütfen onu grup profi
 📣\n/lock — Toggles lock or unlock of non-admins using commands in group chats 
 🔑\n/files — Toggles if the bot should attempt to convert audio files or just ignore them 
 📁\n/silent — Toggles silent mode when no extra messages like `Voice recognition is initiated` are sent 
-😶\n/google — Setup google credentials for Google Speech 
+😶\n/google — Set up google credentials for Google Speech 
 🦆\n\nLike this bot? Leave a review [here](https://telegram.me/storebot?start=voicybot) 
 👍\n\nAddress any concerns and questions to my creator — @borodutch 🦄
 
@@ -100,7 +100,7 @@ Sorry, but this command only works in group chats.
 👋 Hello there! *Voicy* is a voice recognition bot that converts all voice messages and audio files (.ogg, .flac, .wav, .mp3) it gets into text.
 👋 Merhabalar! *Voicy* bir ses tanımlama botudur. Bütün sesli mesajları ve ses dosyalarını (.ogg, .flac, .wav, .mp3) metne çevirir.
 
-\n\n*Voicy* supports three voice recognition engines: wit.ai, Yandex SpeechKit and Google Speech. Initialy it\'s set to use wit.ai but you can switch to Google Speech or Yandex SpeechKit anytime in /engine. More information in /help.
+\n\n*Voicy* supports three voice recognition engines: wit.ai, Yandex SpeechKit and Google Speech. Initially it\'s set to use wit.ai but you can switch to Google Speech or Yandex SpeechKit anytime in /engine. More information in /help.
 
 👋 
 \n\n*Voicy* üç farklı ses tanımlama motorunu desteklemektedir: wit.ai, Yandex SpeechKit ve Google Speech. Kurulumla beraber wit.ai kullanmaya başlar, ancak /engine komutu ile istediğiniz zaman Google Speech ya Yandex SpeechKit'e geçebilirsiniz. Daha fazla bilgi için /help.
@@ -111,7 +111,7 @@ Sorry, but this command only works in group chats.
 Please, select the engine of speech recognition.
 Lütfen bir ses tanımlama motoru seçiniz. 
 
-Google Speech is more accurate and supports audio longer than 50 seconds, but has to be setup with your Google Cloud credentials (a bit tedious). 
+Google Speech is more accurate and supports audio longer than 50 seconds, but has to be set up with your Google Cloud credentials (a bit tedious). 
 Google Speech daha hatasız ve 50 saniyeden fazla ses dosyalarını desteklemektedir, ancak Google Cloud kimlik bilgileriyle kurulum yapılmak zorundadur (biraz meşakkatli).
 
 Yandex SpeechKit is pretty accurate, free, private and most of the time supports audio longer than 50 seconds, but has limited list of languages. 
@@ -193,12 +193,13 @@ _
 👮 Lütfen daha net konuşunuz. Bunu tanımlayamadım.
 
 👮 I couldn\'t recognize that_
-👮 Bunu tanımlayamadım
+
+👮 Bunu tanımlayamadım
 
 
 
 
-😮 Please, setup google credentials with the /google command or change the engine with the /engine command. Your credentials are not setup yet.
+😮 Please, set up google credentials with the /google command or change the engine with the /engine command. Your credentials are not set up yet.
 
 
 😮 Lütfen /google komutunu kullanarak google kimlik bilgilerinizi yükleyiniz ya da /engine komutuyla ses tanıma motorunu değiştiriniz. Kimlik bilgileriniz henüz yüklenmedi.

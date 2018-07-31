@@ -23,7 +23,7 @@ function setupGoogle(bot) {
     const strings = require('../helpers/strings')()
     strings.setChat(chat)
     // Send message
-    const msg = await ctx.replyWithMarkdown(strings.translate('Reply to this message with the Google Cloud credentials file (.json) to setup Google Speech voice recognition. Not sure what is this and how to get it? Check out [our quick tutorial](https://google.com).'))
+    const msg = await ctx.replyWithMarkdown(strings.translate('Reply to this message with the Google Cloud credentials file (.json) to set up Google Speech voice recognition. Not sure what is this and how to get it? Check out [our quick tutorial](https://google.com).'))
     // Save msg to chat
     chat.googleSetupMessageId = msg.message_id
     chat.save()
@@ -70,7 +70,7 @@ function setupCheckingCredentials(bot) {
           chat.googleKey = data.toString('utf8')
           await chat.save()
           // Reply with confirmation
-          await ctx.replyWithMarkdown(strings.translate('Congratualations! *Voicy* got the credentials file for the *$[1]* Google Cloud Project. Now you are able to use Google Speech recognition.', JSON.parse(chat.googleKey).project_id))
+          await ctx.replyWithMarkdown(strings.translate('Congratulations! *Voicy* got the credentials file for the *$[1]* Google Cloud Project. Now you are able to use Google Speech recognition.', JSON.parse(chat.googleKey).project_id))
         }
       }
     } catch (err) {

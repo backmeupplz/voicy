@@ -12,7 +12,7 @@ async function sendEngine(ctx) {
   const strings = require('./strings')()
   strings.setChat(chat)
   // Get text
-  const text = strings.translate('👋 Please, select the engine of speech recognition. Google Speech is more accurate and supports audio longer than 50 seconds, but has to be setup with your Google Cloud credentials (a bit tedious). Yandex SpeechKit is pretty accurate, free, private and most of the time supports audio longer than 50 seconds, but has limited list of languages. Wit.ai is less accurate, free, and doesn\'t support audio longer than 50 seconds, but has plenty of languages. Please, note that all three support different languages, so pick the one that suits you the best.')
+  const text = strings.translate('👋 Please, select the engine of speech recognition. Google Speech is more accurate and supports audio longer than 50 seconds, but has to be set up with your Google Cloud credentials (a bit tedious). Yandex SpeechKit is pretty accurate, free, private and most of the time supports audio longer than 50 seconds, but has limited list of languages. Wit.ai is less accurate, free, and doesn\'t support audio longer than 50 seconds, but has plenty of languages. Please, note that all three support different languages, so pick the one that suits you the best.')
   // Construct options keyboard
   const options = {
     reply_markup: { inline_keyboard: [

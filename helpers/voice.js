@@ -101,7 +101,7 @@ async function sendTranscription(ctx, url, chat) {
   if (chat.engine === 'google' && !chat.googleKey) {
     await updateMessagewithTranscription(ctx,
       sentMessage,
-      strings.translate(strings.translate('😮 Please, setup google credentials with the /google command or change the engine with the /engine command. Your credentials are not setup yet.')),
+      strings.translate(strings.translate('😮 Please, set up google credentials with the /google command or change the engine with the /engine command. Your credentials are not set up yet.')),
       chat,
       true)
     // Unlink (delete) files
