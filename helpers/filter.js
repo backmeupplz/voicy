@@ -8,7 +8,7 @@ function checkDate(ctx) {
     message = message.message
   }
   if (!message) {
-    console.info('Not processing because no message found', JSON.stringify(ctx.update.channel_post, undefined, 2))
+    console.info('Not processing because no message found', JSON.stringify(ctx.update, undefined, 2))
     return false
   }
   const isMsgNew = (Date.now() / 1000) - message.date < 5 * 60
