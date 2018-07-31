@@ -4,8 +4,8 @@
  */
 function checkDate(ctx) {
   let message = ctx.update.message || ctx.update.channelPost
-  if (message.channelPost.message) {
-    message = message.channelPost.message
+  if (message.callback_query && message.callback_query.message) {
+    message = message.callback_query.message
   }
   if (!message) {
     console.info('Not processing because no message found', JSON.stringify(ctx.update, undefined, 2))
