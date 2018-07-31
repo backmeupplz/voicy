@@ -52,7 +52,7 @@ async function isBotAdmin(ctx, chatId) {
  */
 async function checkAdminLock(chat, ctx) {
   try {
-    if (chat.adminLocked && !ctx.channel_post) {
+    if (chat.adminLocked && !ctx.update.channel_post) {
       // Check if user is an admin
       const isUserAdmin = await isAdmin(ctx, chat.id, ctx.from.id)
       if (!isUserAdmin) {

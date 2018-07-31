@@ -38,7 +38,7 @@ function setupCheckingCredentials(bot) {
   bot.use(async (ctx, next) => {
     try {
       // Get messahe
-      const msg = ctx.message || ctx.channel_post
+      const msg = ctx.message || ctx.update.channel_post
       // Check if reply to bot
       if (msg &&
         msg.reply_to_message &&
