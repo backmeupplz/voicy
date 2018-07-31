@@ -18,8 +18,9 @@ async function handleMessage(ctx) {
   const strings = require('./strings')()
   strings.setChat(chat)
   // Check if channel post
-  if (ctx.channel_post) {
-    ctx.message = ctx.channel_post
+  if (ctx.update.channel_post) {
+    ctx.message = ctx.update.channel_post
+    console.log(ctx.update.channel_post)
   }
   // Get voice message
   const voice = ctx.message.voice ||
