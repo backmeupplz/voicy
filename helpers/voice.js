@@ -19,6 +19,9 @@ async function handleMessage(ctx) {
   strings.setChat(chat)
   // Get message
   const message = ctx.message || ctx.update.channel_post
+  if (ctx.update.channel_post) {
+    console.log(ctx.update.channel_post)
+  }
   // Get voice message
   const voice = message.voice ||
     message.document ||
