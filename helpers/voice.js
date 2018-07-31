@@ -17,6 +17,10 @@ async function handleMessage(ctx) {
   // Prepare localizations
   const strings = require('./strings')()
   strings.setChat(chat)
+  // Check if channel post
+  if (ctx.channel_post) {
+    ctx.message = ctx.channel_post
+  }
   // Get voice message
   const voice = ctx.message.voice ||
     ctx.message.document ||
