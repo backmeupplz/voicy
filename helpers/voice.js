@@ -19,9 +19,6 @@ async function handleMessage(ctx) {
   strings.setChat(chat)
   // Get message
   const message = ctx.message || ctx.update.channel_post
-  if (ctx.update.channel_post) {
-    console.log(ctx.update.channel_post)
-  }
   // Get voice message
   const voice = message.voice ||
     message.document ||
@@ -56,9 +53,11 @@ async function sendTranscription(ctx, url, chat) {
   // Prepare localizations
   const strings = require('./strings')()
   strings.setChat(chat)
+  // Get message
+  const message = ctx.message || ctx.update.channel_post
   // Send initial message
   const sentMessage = await ctx.replyWithMarkdown(strings.translate('_🦄 Voice recognition is initiated..._'), {
-    reply_to_message_id: ctx.message.message_id,
+    reply_to_message_id: message.message_id,
   })
   // Get language
   let lan
@@ -246,9 +245,11 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
   // Setup localizations
   const strings = require('./strings')()
   strings.setChat(chat)
+  // Get message
+  const message = ctx.message || ctx.update.channel_post
   // Create options
   const options = {
-    reply_to_message_id: ctx.message.message_id,
+    reply_to_message_id: message.message_id,
   }
   if (!text || markdown) {
     options.parse_mode = 'Markdown'
