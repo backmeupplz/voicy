@@ -49,3 +49,8 @@ bot.startPolling()
 
 // Console that everything is fine
 console.info('Bot is up and running')
+
+
+const { check } = require('./helpers/stringsConstants')
+
+check(bot)
