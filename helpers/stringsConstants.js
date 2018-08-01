@@ -1,3 +1,32 @@
+/** DEBUG: checking translations */
+async function check(bot) {
+  for (let i = 0; i < Object.values(localizations).length; i += 1) {
+    const obj = Object.values(localizations)[i]
+    for (const v of Object.values(obj)) {
+      try {
+        await send(v, bot)
+      } catch (err) {
+        console.info(err, v)
+      }
+      await sleep(0.5)
+    }
+    await sleep(10)
+  }
+  console.log('Done sending!')
+}
+
+/** Sleep function, takes seconds */
+function sleep(s) {
+  return new Promise(resolve => setTimeout(resolve, 1000 * s));
+}
+
+/** Sending a message to the bot */
+async function send(text, bot) {
+  await bot.telegram.sendMessage(process.env.ADMIN_ID, text, {
+    parse_mode: 'Markdown',
+  })
+}
+
 const localizations = {
   '📁 Wonderful! *Voicy* will *ignore* all audio files in this chat since now.': {
     ch: '📁 太好了！从现在起，*Voicy*将*ignore*这个对话中的所有语音档。',
@@ -101,7 +130,7 @@ const localizations = {
     no: '🔑 Flott! *Voicy* skal nå svare kun på kommandoer som sendes av *admins* i denne chatten.',
     ja: '🔑 了解！ *ヴォイシー* は *主催者* のコマンドにしか応じないよ。',
     tr: '🔑 Harika! *Voicy* bu konuşmada artık sadece *yöneticiler* in komutlarını yerine getirecek.',
-    sv: '🔑 Bra! *Voicy* kommer nu bara svara p� kommandon skickade av *administrat�rer" i den h�r chatten.',
+    sv: '🔑 Bra! *Voicy* kommer nu bara svara p� kommandon skickade av *administrat�rer* i den h�r chatten.',
     pt: '🔑 Boa! Agora, *Voicy* só vai responder a comandos enviados por *administradores* neste chat.',
     en: '🔑 Great! *Voicy* will now respond only to command calls sent by *admins* in this chat.',
     es: '🔑 ¡Estupendo! *Voicy* responderá ahora solo a los comandos enviados por *administradores* en este chat.',
@@ -249,7 +278,7 @@ const localizations = {
     pt: '👍 Agora *Voicy* fala *$[1]* (wit.ai) neste chat. Obrigado!',
     en: '👍 Now *Voicy* speaks *$[1]* (wit.ai) in this chat. Thank you!',
     es: '👍 Ahora *Voicy* habla *$[1]* (wit.ai) en este chat. ¡Gracias!',
-    ru: '👍 Теперь *Войси* использует (wit.ai) В этом чате. Спасибо!',
+    ru: '👍 Теперь *Войси* использует *$[1]* (wit.ai) В этом чате. Спасибо!',
   },
   '👋 Please select the language of speech recognition for Google Speech.': {
     ch: '👋 请选择您希望Google语音辨识的语言。',
@@ -421,4 +450,5 @@ const languages = {
 module.exports = {
   localizations,
   languages,
+  check,
 }
