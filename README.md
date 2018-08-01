@@ -7,8 +7,7 @@ You can also help by translating the bot to other languages using the strings.tx
 
 # List of repositories
 * [Voicy](https://github.com/backmeupplz/voicy) — the main [@voicybot](https://t.me/voicybot) code
-* [Voicy localizations](https://github.com/backmeupplz/voicy-localizations) — the list of localized strings for [@voicybot](https://t.me/voicybot)
-* [Voicy payments](https://github.com/backmeupplz/voicy-payments) — payments service that used stripe to process payments for the Google Speech seconds of recognition; currently retired as a stats server for [voicybot.com](http://voicybot.com)
+* [Voicy payments](https://github.com/backmeupplz/voicy-payments) — payments service that used stripe to process payments for the Google Speech seconds of recognition; currently retired as the stats server for [voicybot.com](http://voicybot.com)
 * [Voicy landing](https://github.com/backmeupplz/voicy-landing) — [voicybot.com](http://voicybot.com) landing page
 
 
