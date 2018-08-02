@@ -8,7 +8,6 @@ const { checkDate } = require('./filter')
  * @param {Telegraf:Bot} bot Bot to setup callback handler
  */
 function setupCallbackHandler(bot) {
-  // TODO: check if it's the original sender
   bot.action(async (data, ctx) => {
     // Check if less than 5 minutes ago
     if (!checkDate(ctx)) return
