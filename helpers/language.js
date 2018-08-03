@@ -137,7 +137,7 @@ async function setLanguage(data, ctx) {
   if (engine === 'yandex') {
     // Get extra options
     const language = options[3]
-    const name = options[4]
+    const name = Object.keys(yandexLanguages())[Object.values(yandexLanguages()).indexOf(language)]
     // Get chat
     let chat = await findChat(ctx.chat.id)
     // Set language
