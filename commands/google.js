@@ -36,7 +36,6 @@ function setupGoogle(bot) {
  */
 function setupCheckingCredentials(bot) {
   bot.use(async (ctx, next) => {
-    console.log(ctx.message)
     try {
       // Get messahe
       const msg = ctx.message || ctx.update.channel_post

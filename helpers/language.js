@@ -201,7 +201,7 @@ async function setLanguage(data, ctx) {
   } else if (engine === 'google') {
     // Get extra options
     const language = options[3]
-    const name = options[4]
+    let name = options[4]
     const page = parseInt(options[5], 10)
     // Get chat
     let chat = await findChat(ctx.chat.id)
@@ -221,13 +221,16 @@ async function setLanguage(data, ctx) {
       try {
         await ctx.editMessageText(text, opts)
       } catch (err) {
+        console.log(err)
         // Do nothing
       }
     } else {
       // Set language
       chat.googleLanguage = language;
-      // Safve chat
+      // Safe chat
       chat = await chat.save()
+      // Get name
+      name = Object.keys(googleLanguages())[Object.values(googleLanguages()).indexOf(language)]
       // Setup localization
       strings.setChat(chat)
       // Edit message
@@ -269,7 +272,7 @@ function languageKeyboard(engine, page, isCommand) {
     const code = list[name]
     const data = (engine === 'wit') ?
       `li~${(isCommand ? 1 : 0)}~${engine}~${name}~${page}` :
-      `li~${(isCommand ? 1 : 0)}~${engine}~${code}~${name}~${page}`
+      `li~${(isCommand ? 1 : 0)}~${engine}~${code}~???~${page}`
     if (engine === 'wit') {
       temp.push({
         text: name,
