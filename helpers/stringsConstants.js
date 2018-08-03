@@ -29,6 +29,7 @@ async function send(text, bot) {
 
 const localizations = {
   '📁 Wonderful! *Voicy* will *ignore* all audio files in this chat since now.': {
+    ge: '📁 Wunderbar! *stimmig* werden *ignorieren* alle audio-Dateien in diesem Chat ab sofort.',
     it: '📁 Meraviglioso! *Voicy* *ignorerà* tutti i file audio in questa chat a partire da ora.',
     uz: '📁 Ajoyib! *Voicy* bu chatdagi barcha audio fayllarni hozirdan boshlab *e�tiborsiz qoldiradi*.',
     fr: '📁 Merveilleux! *Voicy* *ignorera* tous les fichiers audio dans cette conversation depuis maintenant.',
@@ -48,6 +49,7 @@ const localizations = {
     ru: '📁 Великолепно! *Войси* теперь будет *игнорировать* все аудио файлы в этом чате.',
   },
   '📁 Wonderful! *Voicy* will *try to recognize* all audio files in this chat since now.': {
+    ge: '📁 Wunderbar! *stimmig* werden *versuche es zu erkennen* alle audio-Dateien in diesem Chat ab sofort.',
     it: '📁 Meraviglioso! *Voicy* *tenterà di riconoscere* tutti i file audio in questa chat a partire da ora.',
     uz: '📁 Ajoyib! *Voicy* bu chatdagi barcha audio fayllarni hozirdan boshlab *tushunishga harakat qiladi*.',
     fr: '📁 Merveilleux! *Voicy* *essaiera de reconnaître* tous les fichiers audio dans cette conversation depuis maintenant.',
@@ -67,6 +69,7 @@ const localizations = {
     ru: '📁 Великолепно! *Войси* теперь будет *пробовать перевести в текст* все аудио файлы в этом чате.',
   },
   'Reply to this message with the Google Cloud credentials file (.json) to set up Google Speech voice recognition. Not sure what is this and how to get it? Check out [our quick tutorial](https://google.com).': {
+    ge: 'Antworten Sie auf diese Nachricht mit der Google-Wolke Anmeldeinformationen Datei (.json) Einrichten der Google Speech-Spracherkennung. Nicht sicher, was ist das und wie Sie es bekommen? Schauen Sie sich [unsere Kurzanleitung](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).',
     it: 'Rispondi a questo messaggio con il file delle credenziali di Google Cloud (.json) per impostare il riconoscimento vocale di Google Speech. Non sei sicuro di cosa si tratta e di come ottenerlo? Dai un’occhiata [il nostro breve tutorial](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).',
     uz: 'Google nutqni tushunish xizmatini sozlash uchun bu xabarga Google Cloud xizmatidagi shaxsiy ma�lumotlaringiz fayli (.json) bilan javob qaytaring. Buni qanday amalga oshirishni bilmasangiz, [qo�llanmamiz](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8) bilan tanishing.',
     fr: 'Répondez à ce message avec le fichier (.json) d\'informations d\'identification de Google Cloud pour configurer reconnaissance vocale de Google Speech. Vous ne savez pas ce que c\'est et comment l\'obtenir? Consultez notre tutoriel rapide (https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).',
@@ -86,6 +89,7 @@ const localizations = {
     ru: 'Ответьте на это сообщение с файлом аутентификации для Google Cloud (.json), чтобы настроить распознавание речи от Google Speech. Не уверены, как сделать, чтобы все заработало? Прочитайте [наше короткое руководство](https://medium.com/@nikitakolmogorov/%D1%83%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0-google-speech-%D0%B2-voicybot-9f8268cd58c6).',
   },
   'Sorry, you should reply with a credentials document.': {
+    ge: 'Es tut uns leid, sollten Sie mit einem Dokument Anmeldeinformationen Antworten.',
     it: 'Spiacente, dovresti rispondere con un documento di credenziali.',
     uz: 'Uzr, shaxsiy ma�lumotlaringiz bor hujjat bilan javob qaytaring.',
     fr: 'Désolé, vous devez répondre avec un document d\'identification.',
@@ -105,6 +109,7 @@ const localizations = {
     ru: 'Ответьте, пожалуйста, аутентификационным документом.',
   },
   'Sorry, document\'s mime type should be \'text/plain\'.': {
+    ge: 'Entschuldigung, der Mime-Typ des Dokuments sollte sein \'text/plain\'.',
     it: 'Spiacente, il formato tipo del documento\ ‘s dovrebbe essere \’testo\piano\’.',
     uz: 'Uzr, hujjatning mime turi \'text/plain\' kabi bo�lishi lozim.',
     fr: 'Désolé, le type mime du document doit être texte ordinaire.',
@@ -124,6 +129,7 @@ const localizations = {
     ru: 'Пожалуйста, убедитесь, что тип документа — \'text/plain\'.',
   },
   'Congratulations! *Voicy* got the credentials file for the *$[1]* Google Cloud Project. Now you are able to use Google Speech recognition.': {
+    ge: 'Herzlichen Glückwunsch! *stimmig* habe die Anmeldeinformationen-Datei für die *$[1]* Google-Cloud-Projekt. Jetzt können Sie die Google-Spracherkennung verwenden.',
     it: 'Congratulazioni! *Voicy* ha ricevuto il file di credenziali per il progetto Google Cloud *$[1]*. Ora puoi utilizzare il riconoscimento vocale Google Speech.',
     uz: 'Tabriklaymiz! *Voicy* *$[1]* Google Cloud loyihasi uchun shaxsiy ma�lumotlar faylini oldi. Endi siz Google ovozni tushunish xizmatidan foydalishingiz mumkin.',
     fr: 'Félicitations! *Voicy* a obtenu le fichier d’informations d’identification pour le *$[1]* projet Google Cloud. Vous êtes maintenant en mesure d’utiliser la reconnaissance vocale de Google Speech.',
@@ -143,6 +149,7 @@ const localizations = {
     ru: 'Поздравляем! *Войси* получил аутентификационный документ для *$[1]* проекта Google Cloud. Теперь вы можете использовать движок Google Speech в этом чате.',
   },
   '😎 *Voicy* converts speech to text from any voice messages and audio files (.ogg, .flac, .wav, .mp3) it receives. You can either talk to *Voicy* in the private chat or add it to a group.\n\nIf you want to use this bot in private messages, please, create a private group with anyone and add *Voicy* there. If you want to add *Voicy* to a group chat, please, add it as a participant on the group profile or to the group in the *Voicy* bot profile.\n\n/help — Shows this message 😱\n/engine — Lets you pick a voice recognition engine: wit.ai, Yandex SpeechKit or Google Speech ⚙\n/language — Lets you pick a voice recognition language 📣\n/lock — Toggles lock or unlock of non-admins using commands in group chats 🔑\n/files — Toggles if the bot should attempt to convert audio files or just ignore them 📁\n/silent — Toggles silent mode when no extra messages like `Voice recognition is initiated` are sent 😶\n/google — Set up google credentials for Google Speech 🦆\n\nLike this bot? Leave a review [here](https://telegram.me/storebot?start=voicybot) 👍\n\nAddress any concerns and questions to my creator — @borodutch 🦄': {
+    ge: '😎 *Stimmig* wandelt Rede zu Text von irgendein Sprachnachrichten und audio-Dateien (.ogg, .flac, .wav,. MP3) erhält es. Sie können entweder sprechen Sie mit *stimmig* im privaten chat oder einer Gruppe hinzufügen.\n\nWenn Sie diese Bot in privaten Nachrichten verwenden möchten, bitte erstellen Sie eine private Gruppe mit irgendjemand und hinzufügen *stimmig*. Wenn Sie hinzufügen möchten *stimmig* zu einem Gruppenchat, fügen Sie es als eine Prticipant auf dem Gruppenprofil oder der zu Gruppe in der *stimmig* Bot Profil.\n\n/help – zeigt diese Meldung 😱\n\n/engine – hier können Sie wählen Sie eine Stimme-Erkennungs-Engine: wit.ai, Yandex SpeechKit oder Google Rede ⚙\n/language — können Sie eine Stimme Erkennungssprache auswählen 📣\n/lock - Umschalten sperren oder Entsperren von von nicht-Admins mit den Befehlen im Gruppen-Chats 🔑 \n/files — schaltet, wenn der Bot versuchen sollte, um Audiodateien zu konvertieren oder einfach nur ignorieren 📁\n/silent – schaltet leise-Modus, wenn keine zusätzliche Nachrichten wie "Spracherkennung ist gestartet wird" gesendet 😶\n/google — setup Google-Anmeldeinformationen für Google Rede 🦆\n\n Wie dieser Bot? Hinterlassen Sie eine Bewertung [hier](https://telegram.me/storebot?start=voicybot ) 👍\n\nAdresse alle Bedenken und Fragen zu meinem Schöpfer – @borodutch 🦄 ',
     it: '😎 *Voicy* converte il parlato in testo di qualsiasi messaggio vocale e file audio (.ogg, .flac, .wav, .mp3) che riceve. Puoi anche parlare a *Voicy* nella chat privata o aggiungerlo in un gruppo. \n\n Se vuoi usare questo programma nei messaggi privati, per cortesia, crea un gruppo privato con chiunque e aggiungi *Voicy*. Se desideri aggiungere *Voicy* in una chat di gruppo, per cortesia, aggiungilo come partecipante sul profilo del gruppo oppure al gruppo nel profilo del programma *Voicy*. \n\n/help – Mostra questo messaggio 😱\n/engine – Ti consente di selezionare un motore di riconoscimento vocale: wit.ai, Yandex SpeechKit o Google Speech ⚙\n/language – Ti consente di selezionare un linguaggio di riconoscimento vocale 📣\n/lock – Attiva lo sblocco o il blocco dell’uso di comandi nelle chat di gruppo da parte di utenti non amministratori 🔑\n/files – Attiva se il programma debba tentare di convertire file audio o semplicemente ignorarli 📁\n/silent – Attiva la modalità silenziosa quando non vengono inviati messaggi extra come “Il riconoscimento vocale è iniziato” 😶\n/google - Configurazione delle credenziali Google per Google Speech 🦆\n\n Ti piace questo programma? Lascia una recensione [qui](https://telegram.me/storebot?start=voicybot) 👍\n\n Invia qualsiasi dubbio o domanda al mio creatore - @borodutch 🦄 ',
     uz: '😎 *Voicy* qabul qilingan har qanday audio fayllar (.ogg, .flac, .wav, .mp3) va ovozli fayllarni matnga aylantiradi. *Voicy*ga maxfiy chatda gapirishingiz yoki uni guruhga qo�shib ham foydalanishingiz mumkin.\n\nBu botdan shaxsiy xabarlar uchun foydalanmoqchi bo�lsangiz, suhbatdoshingiz bilan alohida maxfiy guruh yarating va *Voicy*ni ham shu yerga qo�shing. *Voicy*ni guruh chatiga qo�shmoqchi bo�lsangiz, uni guruh profili orqali ishtirokchi sifatida qo�shing yoki *Voicy* bot profilidagi guruhga qo�shishingiz mumkin.\n\n/help — Bu xabarni ko�rsatadi 😱\n/engine — Ovozni tushunish tizimini tanlang: wit.ai, Yandex SpeechKit yoki Google Speech ⚙\n/language — Ovozni tushunish tilini tanlang 📣\n/lock — Administrator bo�lmaganlar uchun guruh chatlarida buyruqlardan foydalanishga ruxsat beradi yoki taqiqlaydi 🔑\n/files — Bot audio fayllarga aylantirishga uringanda yoki rad qilganda yonadi/o�chadi 📁\n/silent — "Ovozni tushunish ishga tushdi" kabi qo�shimcha xabarlar yuborilmasa, sokin rejimga o�tadi 😶\n/google — Google Speech uchun Google shaxsiy ma�lumotlarini sozlash 🦆\n\nBu bot yoqdimi? Fikr-mulohazalaringizni [bu yerda](https://telegram.me/storebot?start=voicybot) qoldiring 👍\n\nHar qanday muammo yoki savollar bilan meni tuzuvchimga murojaat qiling: — @borodutch 🦄',
     fr: '😎 Il convertit les discours au texte à partir des messages vocaux et des fichiers audio (.ogg, .flac, .wav, .mp3) qu\'il reçoit. Vous pouvez soit parler à *Voicy* dans le dans le chat privé ou l\'ajouter à un groupe. Si vous souhaitez utiliser ce bot en messages privés, créer un groupe privé avec quelqu\'un et ajoutez *Voicy* là.\n\nSi vous souhaitez ajouter *Voicy* à un groupe de discussion, s\'il vous plaît, ajoutez-le comme un participant sur le profil du groupe ou au groupe dans le profil bot *Voicy*.\n\n/help — Affiche ce message 😱\n/engine — Vous permet de choisir un moteur de reconnaissance vocale: wit.ai, Yandex SpeechKit or Google Speech ⚙\n/language — Vous permet de choisir la langue de reconnaissance vocale 📣\n/lock — Bascule verrouiller ou déverrouiller des non-admins à l\'aide de commandes dans les groupe de conversations 🔑\n/files — Bascule si le robot doit essayer de convertir des fichiers audio ou simplement les ignorer 📁\n/silent — Bascule le mode silencieux lorsque aucun message supplémentaire comme `La reconnaissance vocale est initiée` est envoyé 😶\n/google — Configurer les informations d\'identification de Google pour Google\n\nAime ce bot? Laisser un commentaire ici (https://telegram.me/storebot?start=voicybot)\n\nTraiter des préoccupations et des questions à mon créateur — @borodutch 🦄',
@@ -162,6 +169,7 @@ const localizations = {
     ru: '😎 *Войси* переводит в текст все голосовые сообщения и аудио файлы (.ogg, .flac, .wav, .mp3), которые получает. Вы можете использовать *Войси* в личных сообщениях или добавить его в группу.\n\nЕсли вы хотите использовать *Войси* в приватных сообщениях с другими людьми, то, пожалуйста, создайте приватную группу с собеседником и добавьте туда *Войси*. Если хотите добавить *Войси* в групповой чат, то, пожалуйста, добавьте его, как собеседника в профиле группы, или в профиле *Войси*.\n\n/help — Это сообщение 😱\n/engine — Выбор движка распознавания речи: wit.ai, Yandex SpeechKit или Google Speech ⚙\n/language — Выбор языка распознавания речи 📣\n/lock — Включает и выключает обработку команд, отправленных не админами в групповых чатах 🔑\n/files — Включает и выключает обработку аудио файлов 📁\n/silent — Включает и выключает тихий режим, когда *Войси* не посылает лишних сообщений типа `Распознавание речи инициированно` 😶\n/google — Установка аутентификационного файла для использования движка Google Speech 🦆\n\nНравится бот? Оставьте отзыв [вот тут](https://telegram.me/storebot?start=voicybot) 👍\n\nВсе вопросы и пожелания по боту отправляйте напрямую создателю — @borodutch 🦄',
   },
   '😅 Sorry, but this command only works in group chats.': {
+    ge: '😅 Tut mir leid, aber dieser Befehl funktioniert nur bei Gruppen-Chats.',
     it: '😅 Spiacente ma questo comando funziona solamente nelle chat di gruppo.',
     uz: '😅 Uzr, bu buyruq faqatgina guruh chatlarida ishlaydi.',
     fr: '😅 Désolé, mais cette commande ne fonctionne que dans le groupe de discussion.',
@@ -181,6 +189,7 @@ const localizations = {
     ru: '😅 Простите, эта команда работает только в групповых чатах.',
   },
   '🔑 Great! *Voicy* will now respond only to command calls sent by *admins* in this chat.': {
+    ge: '🔑 Wunderbar! *stimmig* reagieren nun nur auf Befehl Anrufe gesendet von *Administrator* in diesem Chat.',
     it: '🔑 Ottimo! *Voicy* risponderà ora solo ai comandi inviati dagli *amministratori* in questa chat.',
     uz: '🔑 Zo�r! *Voicy* bu chatda faqat *admins* (administratorlar) yuborgan buyruq chaqiruvlariga javob beradi.',
     fr: '🔑 Parfait! *Voicy* répondra désormais uniquement aux appels de commande envoyés par *admins*dans ce chat.',
@@ -200,6 +209,7 @@ const localizations = {
     ru: '🔑 Отлично! *Войси* теперь будет реагировать только на команды, посланные *админами* в этом чате.',
   },
   '🔑 Great! *Voicy* will now respond only to command calls from *anyone* in this chat.': {
+    ge: '🔑 Wunderbar! *stimmig* reagieren nun nur auf Befehl saufrufe von *irgendjemand* in diesem Chat.',
     it: '🔑 Ottimo! *Voicy* risponderà ora solo ai comandi inviati da *chiunque* in questa chat.',
     uz: '🔑 Zo�r! *Voicy* bu chatda faqat *anyone* (har qanday inson) yuborgan buyruq chaqiruvlariga javob beradi.',
     fr: '🔑 Parfait! *Voicy* répondra désormais uniquement aux appels de commande envoyés par *personne* dans ce chat.',
@@ -219,6 +229,7 @@ const localizations = {
     ru: '🔑 Отлично! *Войси* теперь будет реагировать на команды, посланные *кем угодно* в этом чате.',
   },
   '😶 Magnificent! *Voicy* will now work in *silent mode*: it will not send any messages to the chat except for the actual voice transcriptions.': {
+    ge: '😶 Großartig! *stimmig* funktioniert jetzt im *silent-Modus*: Es sendet keine Nachrichten nicht in den Chat mit Ausnahme der tatsächlichen Stimme Transkriptionen.',
     it: '😶 Magnifico! *Voicy* funzionerà ora in *modalità silenziosa*: non invierà alcun messaggio eccetto le effettive trascrizioni vocali.',
     uz: '😶 Qoyil! *Voicy* endi *silent mode* (sokin rejim)da ham ishlaydi: u endi chatga amaldagi ovoz transkripsiyasidan boshqa hech qanday xabar yubormaydi.',
     fr: '😶 Magnifique! *Voicy* fonctionne désormais en *mode silencieux*: il n\'enverra pas aucun message sur le chat sauf les messages pour les transcriptions de voix réelles.',
@@ -238,6 +249,7 @@ const localizations = {
     ru: '😶 Магически! *Войси* теперь работает в *тихом режиме*: он не будет посылать в чат ничего, кроме распознанного текста.',
   },
   '😏 Magnificent! *Voicy* will now work in *usual mode*: it will send `Voice recognition is initiated` messages right after it receives voice messages.': {
+    ge: '😏 Prächtigen! *stimmig* funktioniert jetzt im *üblichen Modus*: Es sendet "Spracherkennung wird initiiert" Nachrichten direkt nachdem es Sprachnachrichten empfangen.',
     it: '😏 Magnifico! *Voicy* funzionerà ora in *modalità normale*: invierà i messaggi ‘Il riconoscimento vocale è iniziato’ subito dopo aver ricevuto i messaggi vocali. ',
     uz: '😏 Qoyil! *Voicy* endi *usual mode* (odatdagi rejim)da ishlaydi: u audio xabarlarni olganidan keyin "Ovozni tushunish ishga tushdi" xabarini yuboradi.',
     fr: '😏 Magnifique! *Voicy* fonctionne désormais en *mode normal*: il enverra des messages `La reconnaissance vocale est initiée` juste après la réception de messages vocaux.',
@@ -257,6 +269,7 @@ const localizations = {
     ru: '😏 Магически! *Войси* теперь работает в *обычном режиме*: он будет посылать сообщения типа `Распознавание голоса инициированно` сразу после получения голосовых сообщений.',
   },
   '👋 Hello there! *Voicy* is a voice recognition bot that converts all voice messages and audio files (.ogg, .flac, .wav, .mp3) it gets into text.\n\n*Voicy* supports three voice recognition engines: wit.ai, Yandex SpeechKit and Google Speech. Initially it\'s set to use wit.ai but you can switch to Google Speech or Yandex SpeechKit anytime in /engine. More information in /help. Initialement il est configuré pour utiliser wit.ai mais vous pouvez passer à Google Speech ou Yandex SpeechKit à tout moment à engine. Plus d\'informations dans aide.': {
+    ge: '👋 Hallo! *stimmig* ist eine Stimme Anerkennung Bot, die alle Sprachnachrichten und audio-Dateien (.ogg, .flac, .wav,. MP3) umwandelt wird es in Text.\n\n*stimmig* drei Stimme-Erkennungs-Engines unterstützt: wit.ai, Yandex SpeechKit und die Google-Spracherkennung. Erstmal ist es gesetzt, um wit.ai zu verwenden, aber Sie können Google Rede oder Yandex SpeechKit jederzeit in /engine wechseln. Weitere Informationen in /help.',
     it: '👋 Ciao! *Voicy* è un programma di riconoscimento vocale che converte tutti i messaggi vocali e i file audio (.ogg, .flac, .wav, .mp3) che riceve in testo. \n\n *Voicy* supporta tre motori di riconoscimento vocale: wit.ai, Yandex, SpeechKit e Google Speech. Inizialmente è impostato per utilizzare wit.ai ma puoi passare a Google Speech o Yandex SpeechKit in qualsiasi momento in /engine. Maggiori informazioni in /help.',
     uz: '👋 Salom! *Voicy* � ovozni tushunish boti bo�lib, barcha ovozli xabar va audio fayllarni (.ogg, .flac, .wav, .mp3) matnga aylantiradi.\n\n*Voicy* uchta ovozni tushunish tizimi bilan ishlaydi: wit.ai, Yandex SpeechKit and Google Speech. U odatda wit.ai tizimidan foydalanadi, lekin Google Speech yoki Yandex SpeechKit tizimiga /engine orqali almashtirishingiz mumkin. Batafasil ma�lumotni /help orqali olish mumkin.',
     fr: '👋 Bonjour là-bas. *Voicy* est un bot de reconnaissance vocale qui convertit tous les messages vocaux et les fichiers audio (.ogg, .flac, .wav, .mp3) en texte.\n\n*Voicy* prend en charge trois moteurs de reconnaissance vocale: wit.ai, Yandex SpeechKit and Google Speech.',
@@ -276,6 +289,7 @@ const localizations = {
     ru: '👋 Здравствуйте! *Войси* — это бот, который переводит все голосовые сообщения и аудио файлы (.ogg, .flac, .wav, .mp3), которые получает, в текст.\n\n*Войси* поддерживает три движка распознавания речи: wit.ai, Yandex SpeechKit и Google Speech. Изначально, он использует wit.ai, но вы можете переключиться на Google Speech или Yandex SpeechKit в любое время, используя команду /engine. Больше информации в /help.',
   },
   '👋 Please, select the engine of speech recognition. Google Speech is more accurate and supports audio longer than 50 seconds, but has to be set up with your Google Cloud credentials (a bit tedious). Yandex SpeechKit is pretty accurate, free, private and most of the time supports audio longer than 50 seconds, but has limited list of languages. Wit.ai is less accurate, free, and doesn\'t support audio longer than 50 seconds, but has plenty of languages. Please, note that all three support different languages, so pick the one that suits you the best.': {
+    ge: '👋 Bitte wählen Sie den Motor der Spracherkennung. Google Rede ist genauer und unterstützt Audio länger als 50 Sekunden, aber muss mit Ihrem eingerichtet werden Google-Cloud-Anmeldeinformationen (etwas mühsam). Yandex SpeechKit ist ziemlich genau, kostenlose, Private und die meiste Zeit unterstützt Audio länger als 50 Sekunden, aber hat eine begrenzte Liste der Sprachen. Wit.AI ist weniger genau, frei, und nicht länger als 50 Sekunden Audio unterstützen, aber hat viele Sprachen. Bitte beachten Sie, dass alle drei unterstützt verschiedene Sprachen, so wählen Sie diejenige, die Ihnen am meisten zusagt.',
     it: '👋 Per favore, seleziona il motore di riconoscimento vocale. Google Speech è maggiormente accurato e supporta audio più lunghi di 50 secondi, ma deve essere impostato con le tue credenziali di Google Cloud (un po’ noioso). Yandex Speechkit è piuttosto accurato, gratuito, privato e la maggior parte delle volte supporta audio più lunghi di 50 secondi, ma ha una lista limitata di linguaggi. Wit.ai è meno accurato, gratuito, e non supporta audio più lunghi di 50 secondi, ma ha abbondanza di linguaggi. Per favore, notare che tutti e tre i motori supportano differenti linguaggi, quindi scegli quello che si adatta meglio.',
     uz: '👋 Ovozni tushunish tizimini tanlang. Google Speech ancha yaxshi ishlaydi va 50 soniyadan uzun audio fayllarni ham o�qiy oladi, lekin Google Cloud shaxsiy ma�lumotlari bilan sozlash kerak bo�ladi (biroz vaqt oladi). Yandex SpeechKit ham yaxshi ishlaydi, bepul, xavfsiz va odatda 50 soniyadan uzun audio fayllarni ham o�qiy oladi, lekin ba�zi tillardagina ishlaydi. Wit.ai is juda yaxshi ishlamasa-da, bepul, 50 soniyadan uzun audio fayllarni o�qiy olmaydi, lekin juda ko�p tilda ishlaydi. Uchalasi har xil tilda ishlaydi. O�zingizga mosini tanlang!',
     fr: '👋 S\'il vous plaît, sélectionnez le moteur de reconnaissance vocale. Google Speech est plus précis et prend en charge l\'audio plus de 50 secondes, mais ce doit être configuré avec vos informations d\'identification de Google Cloud (un peu fastidieux).Yandex SpeechKit est assez précis, gratuit, privé et la plupart du temps prend en charge l’audio plu de 50 secondes, mais a liste des langues limité. Wit.ai est moins précis, gratuit et ne supporte pas l\'audio plus de 50 secondes, mais il a beaucoup de langues.. Veuillez noter que tous les trois prise en charge différentes langues, alors choisissez celle qui vous convient le mieux.',
@@ -295,6 +309,7 @@ const localizations = {
     ru: '👋 Пожалуйста, выберите движок распознавания речи. Google Speech более точный, поддерживает аудио длиннее 50 секунд, но требует, чтобы вы установили аутентификационный файл Google Cloud (немного сложно). Yandex SpeechKit достаточно точный, бесплатный, поддерживает аудио более 50 секунд, но меньше языков. Wit.ai наименее точный, бесплатный, поддерживает файлы короче 50 секунд, но работает с большим количеством языков. Стоит отметить, что разные движки поддерживают разные языки, так что выберите тот, который подходит вам наиболее всего.',
   },
   'Only the person who started command can select options': {
+    ge: 'Nur die Person, die Befehl gestartet kann Optionen auswählen',
     it: 'Solo la persona che ha lanciato il comando può selezionare le opzioni',
     uz: 'Buyruqni boshlagan odamgina parametrlarni tanlay oladi',
     fr: 'Seule la personne qui a lancé la commande pouvez sélectionner des options',
@@ -314,6 +329,7 @@ const localizations = {
     ru: 'Только тот, кто запустил выбор, может выбирать настройки',
   },
   '👍 Now *Voicy* uses *$[1]* in this chat. Thank you! Don\'t forget to set /language.': {
+    ge: '👍 Jetzt *stimmig* verwendet *$[1]* in diesem Chat. Danke! Vergiss nicht zu setzen /language.',
     it: '👍 Ora *Voicy* usa *$[1]* in questa chat. Grazie! Non dimenticare di impostare /language.',
     uz: '👍 Endi *Voicy* *$[1]*dan bu chatda foydalana oladi. Rahmat! Tilni /language orqali sozlashni unutmang.',
     fr: '👍 Maintenant *Voicy* utilise *$[1]* dans ce chat. Merci! Ne pas oublier de mettre la /language.',
@@ -333,6 +349,7 @@ const localizations = {
     ru: '👍 Теперь *Войси* использует *$[1]* в этом чате. Спасибо! Не забудьте установить язык через /language.',
   },
   '👋 Please select the language of speech recognition for $[1]': {
+    ge: '👋 Bitte wählen Sie die Sprache der Spracherkennung für $[1].',
     it: '👋 Per favore scegli il linguaggio di riconoscimento vocale per $[1]',
     uz: '👋 $[1] uchun ovozni tushunish tilini tanlang',
     fr: '👋 Veuillez sélectionner la langue de reconnaissance vocale pour $[1]',
@@ -352,6 +369,7 @@ const localizations = {
     ru: '👋 Пожалуйста, выберите язык распознавания речи для $[1]',
   },
   '👋 Please select the language of speech recognition': {
+    ge: '👋 Bitte wählen Sie die Sprache der Spracherkennung.',
     it: '👋 Per favore scegli il linguaggio di riconoscimento vocale',
     uz: '👋 Ovozni tushunish tilini tanlang',
     fr: '👋 Veuillez sélectionner la langue de reconnaissance vocale',
@@ -371,6 +389,7 @@ const localizations = {
     ru: '👋 Пожалуйста, выберите язык распознавания речи',
   },
   '👍 Now *Voicy* speaks *$[1]* (Yandex SpeechKit) in this chat. Thank you!': {
+    ge: '👍 Jetzt *stimmig* spricht *$[1]* (Yandex SpeechKit) in diesem Chat. Danke!',
     it: '👍 Adesso Voicy parla *$[1]* (Yandex SpeechKit) in questa chat. Grazie!',
     uz: '👍 Endi *Voicy* bu chatda *$[1]* (Yandex SpeechKit) tilida gaplasha oladi. Rahmat!',
     fr: '👍 Maintenant *Voicy* parle *$[1]* (Yandex SpeechKit) dans ce chat.Merci!',
@@ -390,6 +409,7 @@ const localizations = {
     ru: '👍 Теперь *Войси* использует *$[1]* (Yandex SpeechKit) в этом чате. Спасибо!',
   },
   '👋 Please select the language of speech recognition for wit.ai.': {
+    ge: '👋 Bitte wählen Sie die Sprache der Spracherkennung für wit.ai.',
     it: '👋 Per favore scegli il linguaggio di riconoscimento vocale per wit.ai.',
     uz: '👋 wit.ai uchun ovozni tushunish tilini tanlang.',
     fr: '👋 Veuillez sélectionner la langue de reconnaissance vocale pour wit.ai.',
@@ -409,6 +429,7 @@ const localizations = {
     ru: '👋 Пожалуйста, выберите язык распознавания речи для wit.ai.',
   },
   '👍 Now *Voicy* speaks *$[1]* (wit.ai) in this chat. Thank you!': {
+    ge: '👍 Jetzt *stimmig* spricht *$[1]* (wit.ai) in diesem Chat. Danke!',
     it: '👍 Adesso Voicy parla *$[1]* (wit.ai) in questa chat. Grazie!',
     uz: '👍 Endi *Voicy* bu chatda *$[1]* (wit.ai) tilida gaplasha oladi. Rahmat!',
     fr: '👍 Maintenant *Voicy* parle *$[1]* (wit.ai) dans ce chat. Merci!',
@@ -428,6 +449,7 @@ const localizations = {
     ru: '👍 Теперь *Войси* использует *$[1]* (wit.ai) В этом чате. Спасибо!',
   },
   '👋 Please select the language of speech recognition for Google Speech.': {
+    ge: '👋 Bitte wählen Sie die Sprache der Spracherkennung für Google Rede.',
     it: '👋 Per favore scegli il linguaggio di riconoscimento vocale per Google Speech.',
     uz: '👋 Google Speech uchun ovozni tushunish tilini tanlang.',
     fr: '👋 Veuillez sélectionner la langue de reconnaissance vocale pour Google Speech.',
@@ -447,6 +469,7 @@ const localizations = {
     ru: '👋 Пожалуйста, выберите язык распознавания речи для Google Speech.',
   },
   '👍 Now *Voicy* speaks *$[1]* (Google Speech) in this chat. Thank you!': {
+    ge: '👍 Jetzt *stimmig* spricht *$[1]* (Google Speech) in diesem Chat. Danke!',
     it: '👍 Adesso Voicy parla *$[1]* (Google Speech) in questa chat. Grazie!',
     uz: '👍 Endi *Voicy* bu chatda *$[1]* (Google Speech) tilida gaplasha oladi. Rahmat!',
     fr: '👍 Maintenant *Voicy* parle *$[1]* (Google Speech) dans ce chat. Merci!',
@@ -466,6 +489,7 @@ const localizations = {
     ru: '👍 Теперь *Войси* использует *$[1]* (Google Speech) в этом чате. Спасибо!',
   },
   '_👮 I can\'t recognize voice messages larger than 20 megabytes_': {
+    ge: '_👮 Ich kann nicht erkennen, Voice-Nachrichten, die größer als 20 megabytes_',
     it: '_👮 Non posso riconoscere messaggi vocali più grandi di 20 megabytes_',
     uz: '_👮 Men 20 megabaytdan katta ovozli xabarlarni o�qiy olmayman_',
     fr: '_👮 Je ne peux pas reconnaître les messages vocaux de plus de 20 megabytes_',
@@ -485,6 +509,7 @@ const localizations = {
     ru: '_👮 Я не умею распознавать файлы тяжелее 20 мегабайт_',
   },
   '_🦄 Voice recognition is initiated..._': {
+    ge: '_🦄 Spracherkennung wird initiiert..._',
     it: '_🦄 Il riconoscimento vocale è iniziato..._',
     uz: '_🦄 Ovozni tanih ishga tushdi..._',
     fr: '_🦄 La reconnaissance vocale est initiée`_',
@@ -504,6 +529,7 @@ const localizations = {
     ru: '_🦄 Распознавание речи инициированно..._',
   },
   '_👮 Wit.ai cannot recognize voice messages longer than 50 seconds_': {
+    ge: '_👮 Wit.ai kann nicht länger als 50 Seconds Sprachnachrichten erkennen_',
     it: '_👮 Wit.ai non può riconoscere messaggi vocali più lunghi di 50 secondi_',
     uz: '_👮 Wit.ai 50 soniyadan uzoqroq ovozli xabarlaarni o�qiy olmaydi_',
     fr: '_👮 Wit.ai ne peux pas reconnaître les messages vocaux de plus de 50 secondes_',
@@ -523,6 +549,7 @@ const localizations = {
     ru: '_👮 Wit.ai не умеет распознавать сообщения длиннее 50 секунд_',
   },
   '_👮 Please, speak clearly, I couldn\'t recognize that_': {
+    ge: '_👮 Bitte deutlich sprechen, ich konnte nicht erkenne, that_',
     it: '_👮 Per favore, parla chiaramente, non sono riuscito a riconoscerlo_',
     uz: '_👮 Iltimos, Aniq va tiniq o�qing, Men tushuna olmayapman_',
     fr: '_👮 Parlez clairement, s\'il vous plaît, je ne pouvais pas le reconnaître_',
@@ -542,6 +569,7 @@ const localizations = {
     ru: '_👮 Пожалуйста, говорите четче_',
   },
   '_👮 I couldn\'t recognize that_': {
+    ge: '_👮 Ich konnte nicht erkenn_',
     it: '_👮 Non sono riuscito a riconoscerlo_',
     uz: '_👮 Men tushuna olmayapman_',
     fr: '_👮 Je ne pouvais pas le reconnaître_',
@@ -561,6 +589,7 @@ const localizations = {
     ru: '_👮 У меня не получилось это распознать_',
   },
   '😮 Please, set up google credentials with the /google command or change the engine with the /engine command. Your credentials are not set up yet.': {
+    ge: '😮 Bitte richten Sie Google-Anmeldeinformationen mit dem /google Befehl ein oder ändern Sie des Motors mit dem /engine Befehl. Ihre Zugangsdaten sind noch nicht Setup.',
     it: '😮 Per favore, imposta le credenziali di Google con il comando /google oppure cambia motore con il comando /engine. Le tue credenziali non sono ancora impostate.',
     uz: '😮 Google shaxsiy ma�lumotlrini /google command yordamida sozlang yoki /engine command yordamida tizimni almashtiring. Shaxsiy ma�lumotlaringiz haligacha sozlanmagan.',
     fr: '😮 Installez, s\'il vous plaît, les informations d\'identification avec la commande de google ou changez le moteur avec la commande engine.',
@@ -599,6 +628,7 @@ const languages = {
     French: 'fr',
     Uzbek: 'uz',
     Italian: 'it',
+    German: 'ge',
   },
   google: {
     'ru-RU': 'ru',
@@ -667,6 +697,7 @@ const languages = {
     'fr-CA': 'fr',
     'fr-FR': 'fr',
     'it-IT': 'it',
+    'de-DE': 'ge',
   },
   yandex: {
     'ru-RU': 'ru',
