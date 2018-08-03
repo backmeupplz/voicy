@@ -22,14 +22,14 @@ const languageMap = {
  */
 async function getText(flacPath, chat, duration) {
   if (chat.engine === 'wit') {
-    return await wit(language.witLanguages()[chat.witLanguage], flacPath)
+    return wit(language.witLanguages()[chat.witLanguage], flacPath)
   } else if (chat.engine === 'google') {
-    return await google(flacPath, chat)
+    return google(flacPath, chat)
   }
   // Try wit if yandex couldn't make it
   const yandexResult = await yandex(flacPath, chat)
   if (!yandexResult && duration <= 50) {
-    return await wit(language.witLanguages()[languageMap[chat.yandexLanguage]], flacPath)
+    return wit(language.witLanguages()[languageMap[chat.yandexLanguage]], flacPath)
   }
   return yandexResult
 }

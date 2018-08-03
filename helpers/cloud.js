@@ -10,6 +10,7 @@ const Storage = require('@google-cloud/storage')
 function getStorage(key) {
   return new Storage({
     credentials: key,
+    projectId: key.project_id,
   })
 }
 
@@ -19,11 +20,42 @@ function getStorage(key) {
  * @param {Mongoose:Chat} chat Chat with credentials
  * @returns end link of the uploaded file
  */
-function put(filePath, chat) {
+async function put(filePath, chat) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const key = JSON.parse(chat.googleKey)
+      const storage = getStorage(key)
+      const bucket = storage.bucket(key.project_id)
+      const exists = await bucket.exists()
+      if (!exists[0]) {
+        bucket.create(async (err) => {
+          if (err) {
+            reject(err)
+            return
+          }
+          try {
+            const uri = await upload(bucket, filePath, key)
+            resolve(uri)
+          } catch (err) {
+            reject(err)
+          }
+        })
+      } else {
+        try {
+          const uri = await upload(bucket, filePath, key)
+          resolve(uri)
+        } catch (err) {
+          reject(err)
+        }
+      }
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+function upload(bucket, filePath, key) {
   return new Promise((resolve, reject) => {
-    const key = JSON.parse(chat.googleKey)
-    const storage = getStorage(key)
-    const bucket = storage.bucket(key.project_id)
     bucket.upload(filePath, (err, file) => {
       if (err) {
         reject(err)

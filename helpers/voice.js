@@ -37,7 +37,11 @@ async function handleMessage(ctx) {
   const voiceUrl = await urlFinder.fileUrl(fileData.file_path)
   // Send action or transcription depending on whether chat is silent
   if (chat.silent) {
-    await sendAction(ctx, voiceUrl, chat)
+    try {
+      await sendAction(ctx, voiceUrl, chat)
+    } catch (err) {
+      // Do nothing
+    }
   } else {
     await sendTranscription(ctx, voiceUrl, chat)
   }
@@ -81,7 +85,7 @@ async function sendTranscription(ctx, url, chat) {
     const data = await download(url)
     fs.writeFileSync(ogaPath, data)
   } catch (err) {
-    await updateMessagewithError(ctx, sentMessage, chat)
+    await updateMessagewithError(ctx, sentMessage, chat, err)
     return
   }
 
@@ -93,7 +97,7 @@ async function sendTranscription(ctx, url, chat) {
     flacPath = result.flacPath
     duration = result.duration
   } catch (err) {
-    await updateMessagewithError(ctx, sentMessage, chat)
+    await updateMessagewithError(ctx, sentMessage, chat, err)
     return
   }
 
@@ -138,7 +142,7 @@ async function sendTranscription(ctx, url, chat) {
     await addVoice(url, text, chat, duration)
   } catch (err) {
     // In case of error, send it
-    await updateMessagewithError(ctx, sentMessage, chat)
+    await updateMessagewithError(ctx, sentMessage, chat, err)
   }
 }
 
@@ -260,16 +264,22 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
  * @param {Telegraf:Context} ctx Context of the message
  * @param {Telegraf:Message} msg Message to be updated
  * @param {Mongoose:Chat} chat Relevant chat
+ * @param {Error} error Error of this message
  */
-async function updateMessagewithError(ctx, msg, chat) {
+async function updateMessagewithError(ctx, msg, chat, error) {
   // Setup localizations
   const strings = require('./strings')()
   strings.setChat(chat)
+  // Get text
+  let text = strings.translate('_👮 I couldn\'t recognize that_');
+  if (chat.engine === 'google') {
+    text = `${text}\n\n\`\`\` ${JSON.stringify(error, undefined, 2)}\`\`\``
+  }
   // Edit message
   await ctx.telegram.editMessageText(msg.chat.id,
     msg.message_id,
     null,
-    strings.translate('_👮 I couldn\'t recognize that_'),
+    text,
     { parse_mode: 'Markdown' })
 }
 
