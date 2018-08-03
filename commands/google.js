@@ -23,7 +23,7 @@ function setupGoogle(bot) {
     const strings = require('../helpers/strings')()
     strings.setChat(chat)
     // Send message
-    const msg = await ctx.replyWithMarkdown(strings.translate('Reply to this message with the Google Cloud credentials file (.json) to set up Google Speech voice recognition. Not sure what is this and how to get it? Check out [our quick tutorial](https://google.com).'))
+    const msg = await ctx.replyWithMarkdown(strings.translate('Reply to this message with the Google Cloud credentials file (.json) to set up Google Speech voice recognition. Not sure what is this and how to get it? Check out [our quick tutorial](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).'))
     // Save msg to chat
     chat.googleSetupMessageId = msg.message_id
     chat.save()
