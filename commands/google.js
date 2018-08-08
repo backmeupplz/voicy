@@ -59,7 +59,6 @@ function setupCheckingCredentials(bot) {
           // Check mime type
           if (!msg.document.mime_type || msg.document.mime_type !== 'text/plain') {
             await ctx.reply(strings.translate('Sorry, document\'s mime type should be \'text/plain\'.'))
-            throw new Error()
           }
           // Download the file
           const fileData = await ctx.telegram.getFile(msg.document.file_id)
