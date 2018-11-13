@@ -287,7 +287,8 @@ async function updateMessagewithError(ctx, msg, chat, error) {
   // Get text
   let text = strings.translate("_👮 I couldn't recognize that_")
   if (chat.engine === 'google') {
-    text = `${text}\n\n\`\`\` ${JSON.stringify(error, undefined, 2)}\`\`\``
+    text = `${text}\n\n\`\`\` ${error.message ||
+      JSON.stringify(error, undefined, 2)}\`\`\``
   }
   // Edit message
   await ctx.telegram.editMessageText(msg.chat.id, msg.message_id, null, text, {
