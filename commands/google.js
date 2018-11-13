@@ -69,8 +69,7 @@ function setupCheckingCredentials(bot) {
             throw new Error()
           }
           // Check file name
-          if (!msg.document.file_name || msg.document.file_name.indexOf('json') < 0)
-          ) {
+          if (!msg.document.file_name || msg.document.file_name.indexOf('json') < 0) {
             return ctx.reply(
               strings.translate(
                 "Sorry, document's mime type should be 'text/plain'."
