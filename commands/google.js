@@ -71,6 +71,8 @@ function setupCheckingCredentials(bot) {
           // Check mime type
           if (
             !msg.document.mime_type ||
+            (msg.document.mime_type !== 'application/octet-stream' &&
+              msg.document.file_name.indexOf('json') < 0) ||
             (msg.document.mime_type !== 'text/plain' &&
               msg.document.mime_type.indexOf('json') < 0)
           ) {
