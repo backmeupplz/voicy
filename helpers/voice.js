@@ -20,16 +20,19 @@ async function handleMessage(ctx) {
   // Get message
   const message = ctx.message || ctx.update.channel_post
   // Get voice message
-  const voice = message.voice ||
-    message.document ||
-    message.audio ||
-    message.video_note
+  const voice =
+    message.voice || message.document || message.audio || message.video_note
   // Send an error to user if file is larger than 20 mb
   if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
-    await ctx.replyWithMarkdown(strings.translate('_👮 I can\'t recognize voice messages larger than 20 megabytes_'), {
-      parse_mode: 'Markdown',
-      reply_to_message_id: message.message_id,
-    })
+    await ctx.replyWithMarkdown(
+      strings.translate(
+        "_👮 I can't recognize voice messages larger than 20 megabytes_"
+      ),
+      {
+        parse_mode: 'Markdown',
+        reply_to_message_id: message.message_id,
+      }
+    )
     return
   }
   // Get full url to the voice message
@@ -60,9 +63,12 @@ async function sendTranscription(ctx, url, chat) {
   // Get message
   const message = ctx.message || ctx.update.channel_post
   // Send initial message
-  const sentMessage = await ctx.replyWithMarkdown(strings.translate('_🦄 Voice recognition is initiated..._'), {
-    reply_to_message_id: message.message_id,
-  })
+  const sentMessage = await ctx.replyWithMarkdown(
+    strings.translate('_🦄 Voice recognition is initiated..._'),
+    {
+      reply_to_message_id: message.message_id,
+    }
+  )
   // Get language
   let lan
   if (chat.engine === 'google') {
@@ -103,11 +109,17 @@ async function sendTranscription(ctx, url, chat) {
 
   // Check if ok with google engine
   if (chat.engine === 'google' && !chat.googleKey) {
-    await updateMessagewithTranscription(ctx,
+    await updateMessagewithTranscription(
+      ctx,
       sentMessage,
-      strings.translate(strings.translate('😮 Please, set up google credentials with the /google command or change the engine with the /engine command. Your credentials are not set up yet.')),
+      strings.translate(
+        strings.translate(
+          '😮 Please, set up google credentials with the /google command or change the engine with the /engine command. Your credentials are not set up yet.'
+        )
+      ),
       chat,
-      true)
+      true
+    )
     // Unlink (delete) files
     fs.unlink(flacPath, () => {})
     fs.unlink(ogaPath, () => {})
@@ -116,11 +128,15 @@ async function sendTranscription(ctx, url, chat) {
 
   // Check limits
   if (chat.engine === 'wit' && duration > 50) {
-    await updateMessagewithTranscription(ctx,
+    await updateMessagewithTranscription(
+      ctx,
       sentMessage,
-      strings.translate('_👮 Wit.ai cannot recognize voice messages longer than 50 seconds_'),
+      strings.translate(
+        '_👮 Wit.ai cannot recognize voice messages longer than 50 seconds_'
+      ),
       chat,
-      true)
+      true
+    )
     // Unlink (delete) files
     fs.unlink(flacPath, () => {})
     fs.unlink(ogaPath, () => {})
@@ -226,11 +242,16 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
     options.parse_mode = 'Markdown'
   }
   // Edit message
-  await ctx.telegram.editMessageText(msg.chat.id,
+  await ctx.telegram.editMessageText(
+    msg.chat.id,
     msg.message_id,
     null,
-    text || strings.translate('_👮 Please, speak clearly, I couldn\'t recognize that_'),
-    options)
+    text ||
+      strings.translate(
+        "_👮 Please, speak clearly, I couldn't recognize that_"
+      ),
+    options
+  )
 }
 
 /**
@@ -271,16 +292,14 @@ async function updateMessagewithError(ctx, msg, chat, error) {
   const strings = require('./strings')()
   strings.setChat(chat)
   // Get text
-  let text = strings.translate('_👮 I couldn\'t recognize that_');
+  let text = strings.translate("_👮 I couldn't recognize that_")
   if (chat.engine === 'google') {
     text = `${text}\n\n\`\`\` ${JSON.stringify(error, undefined, 2)}\`\`\``
   }
   // Edit message
-  await ctx.telegram.editMessageText(msg.chat.id,
-    msg.message_id,
-    null,
-    text,
-    { parse_mode: 'Markdown' })
+  await ctx.telegram.editMessageText(msg.chat.id, msg.message_id, null, text, {
+    parse_mode: 'Markdown',
+  })
 }
 
 // Exports
