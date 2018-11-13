@@ -10,7 +10,7 @@ const { checkDate } = require('../helpers/filter')
  * @param {Telegraf:Bot} bot Bot that should get google setup
  */
 function setupGoogle(bot) {
-  bot.command('google', async (ctx) => {
+  bot.command('google', async ctx => {
     // Check if less than 5 minutes ago
     if (!checkDate(ctx)) return
 
@@ -23,7 +23,11 @@ function setupGoogle(bot) {
     const strings = require('../helpers/strings')()
     strings.setChat(chat)
     // Send message
-    const msg = await ctx.replyWithMarkdown(strings.translate('Reply to this message with the Google Cloud credentials file (.json) to set up Google Speech voice recognition. Not sure what is this and how to get it? Check out [our quick tutorial](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).'))
+    const msg = await ctx.replyWithMarkdown(
+      strings.translate(
+        'Reply to this message with the Google Cloud credentials file (.json) to set up Google Speech voice recognition. Not sure what is this and how to get it? Check out [our quick tutorial](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).'
+      )
+    )
     // Save msg to chat
     chat.googleSetupMessageId = msg.message_id
     chat.save()
@@ -40,25 +44,40 @@ function setupCheckingCredentials(bot) {
       // Get messahe
       const msg = ctx.message || ctx.update.channel_post
       // Check if reply to bot
-      if (msg &&
+      if (
+        msg &&
         msg.reply_to_message &&
-        msg.reply_to_message.from.username === process.env.USERNAME) {
+        msg.reply_to_message.from.username === process.env.USERNAME
+      ) {
         // Get chat
         const chat = await findChat(ctx.chat.id)
         // Check if reply to setup message
-        if (chat.googleSetupMessageId &&
-          chat.googleSetupMessageId === msg.reply_to_message.message_id) {
+        if (
+          chat.googleSetupMessageId &&
+          chat.googleSetupMessageId === msg.reply_to_message.message_id
+        ) {
           // Setup localizations
           const strings = require('../helpers/strings')()
           strings.setChat(chat)
           // Check if document
           if (!msg.document) {
-            await ctx.reply(strings.translate('Sorry, you should reply with a credentials document.'))
+            await ctx.reply(
+              strings.translate(
+                'Sorry, you should reply with a credentials document.'
+              )
+            )
             throw new Error()
           }
           // Check mime type
-          if (!msg.document.mime_type || msg.document.mime_type !== 'text/plain') {
-            await ctx.reply(strings.translate('Sorry, document\'s mime type should be \'text/plain\'.'))
+          if (
+            !msg.document.mime_type ||
+            msg.document.mime_type !== 'text/plain'
+          ) {
+            await ctx.reply(
+              strings.translate(
+                "Sorry, document's mime type should be 'text/plain'."
+              )
+            )
           }
           // Download the file
           const fileData = await ctx.telegram.getFile(msg.document.file_id)
@@ -69,7 +88,12 @@ function setupCheckingCredentials(bot) {
           chat.googleKey = data.toString('utf8')
           await chat.save()
           // Reply with confirmation
-          await ctx.replyWithMarkdown(strings.translate('Congratulations! *Voicy* got the credentials file for the *$[1]* Google Cloud Project. Now you are able to use Google Speech recognition.', JSON.parse(chat.googleKey).project_id))
+          await ctx.replyWithMarkdown(
+            strings.translate(
+              'Congratulations! *Voicy* got the credentials file for the *$[1]* Google Cloud Project. Now you are able to use Google Speech recognition.',
+              JSON.parse(chat.googleKey).project_id
+            )
+          )
         }
       }
     } catch (err) {
