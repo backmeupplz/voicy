@@ -85,6 +85,22 @@ async function sendTranscription(ctx, url, chat) {
     return
   }
 
+  // Check if ok with google engine
+  if (chat.engine === 'google' && !chat.googleKey) {
+    await updateMessagewithTranscription(
+      ctx,
+      sentMessage,
+      strings.translate(
+        strings.translate(
+          '😮 Please, set up google credentials with the /google command or change the engine with the /engine command. Your credentials are not set up yet.'
+        )
+      ),
+      chat,
+      true
+    )
+    return
+  }
+
   // Download audio file
   const ogaPath = temp.path({ suffix: '.oga' })
   try {
@@ -104,25 +120,6 @@ async function sendTranscription(ctx, url, chat) {
     duration = result.duration
   } catch (err) {
     await updateMessagewithError(ctx, sentMessage, chat, err)
-    return
-  }
-
-  // Check if ok with google engine
-  if (chat.engine === 'google' && !chat.googleKey) {
-    await updateMessagewithTranscription(
-      ctx,
-      sentMessage,
-      strings.translate(
-        strings.translate(
-          '😮 Please, set up google credentials with the /google command or change the engine with the /engine command. Your credentials are not set up yet.'
-        )
-      ),
-      chat,
-      true
-    )
-    // Unlink (delete) files
-    fs.unlink(flacPath, () => {})
-    fs.unlink(ogaPath, () => {})
     return
   }
 
@@ -188,6 +185,10 @@ async function sendAction(ctx, url, chat) {
     await sendMessageWithTranscription(ctx, dbvoice.text, chat)
     return
   }
+  // Check if ok with google engine
+  if (chat.engine === 'google' && !chat.googleKey) {
+    return
+  }
 
   // Download audio file
   const ogaPath = temp.path({ suffix: '.oga' })
@@ -196,14 +197,6 @@ async function sendAction(ctx, url, chat) {
 
   // Convert audio file to flac
   const { flacPath, duration } = await flac(ogaPath, chat)
-
-  // Check if ok with google engine
-  if (chat.engine === 'google' && !chat.googleKey) {
-    // Unlink (delete) files
-    fs.unlink(flacPath, () => {})
-    fs.unlink(ogaPath, () => {})
-    return
-  }
 
   // Check limits
   if (chat.engine === 'wit' && duration > 50) {
