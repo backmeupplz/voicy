@@ -71,7 +71,8 @@ function setupCheckingCredentials(bot) {
           // Check mime type
           if (
             !msg.document.mime_type ||
-            msg.document.mime_type !== 'text/plain'
+            (msg.document.mime_type !== 'text/plain' &&
+              msg.document.mime_type.indexOf('json') < 0)
           ) {
             await ctx.reply(
               strings.translate(
