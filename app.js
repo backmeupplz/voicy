@@ -30,7 +30,7 @@ setupPromises()
 setupMongoose()
 
 // Setup checking for google credentials
-setupCheckingCredentials(bot)
+// setupCheckingCredentials(bot)
 // Setup audio handler
 setupAudioHandler(bot)
 
