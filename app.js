@@ -30,7 +30,7 @@ setupPromises()
 setupMongoose()
 
 // Setup checking for google credentials
-// setupCheckingCredentials(bot)
+setupCheckingCredentials(bot)
 // Setup audio handler
 // setupAudioHandler(bot)
 
@@ -45,7 +45,7 @@ setupSilent(bot)
 setupGoogle(bot)
 
 // Setup keyboard callback handler
-// setupCallbackHandler(bot)
+setupCallbackHandler(bot)
 
 // Bot catch
 bot.catch((err) => {
