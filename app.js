@@ -1,6 +1,9 @@
 // Load env variables
 require('dotenv').config({ path: `${__dirname}/.env` })
 
+// Stop EPIPE from giving us troubles
+require('epipebomb')()
+
 // Dependencies
 const Telegraf = require('telegraf')
 const setupPromises = require('./helpers/setupPromises')
