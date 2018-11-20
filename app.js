@@ -45,7 +45,7 @@ setupSilent(bot)
 setupGoogle(bot)
 
 // Setup keyboard callback handler
-setupCallbackHandler(bot)
+// setupCallbackHandler(bot)
 
 // Bot catch
 bot.catch((err) => {
@@ -57,8 +57,3 @@ bot.startPolling()
 
 // Console that everything is fine
 console.info('Bot is up and running')
-
-
-// DEBUG
-// const { check } = require('./helpers/stringsConstants')
-// check(bot)
