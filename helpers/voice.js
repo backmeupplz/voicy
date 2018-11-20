@@ -12,41 +12,45 @@ const { findChat, findVoice, addVoice } = require('./db')
  * @param {Telegraf:Context} ctx Context of the request
  */
 async function handleMessage(ctx) {
-  // Get chat
-  const chat = await findChat(ctx.chat.id)
-  // Prepare localizations
-  const strings = require('./strings')()
-  strings.setChat(chat)
-  // Get message
-  const message = ctx.message || ctx.update.channel_post
-  // Get voice message
-  const voice =
-    message.voice || message.document || message.audio || message.video_note
-  // Send an error to user if file is larger than 20 mb
-  if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
-    await ctx.replyWithMarkdown(
-      strings.translate(
-        "_👮 I can't recognize voice messages larger than 20 megabytes_"
-      ),
-      {
-        parse_mode: 'Markdown',
-        reply_to_message_id: message.message_id,
-      }
-    )
-    return
-  }
-  // Get full url to the voice message
-  const fileData = await ctx.telegram.getFile(voice.file_id)
-  const voiceUrl = await urlFinder.fileUrl(fileData.file_path)
-  // Send action or transcription depending on whether chat is silent
-  if (chat.silent) {
-    try {
-      await sendAction(ctx, voiceUrl, chat)
-    } catch (err) {
-      // Do nothing
+  try {
+    // Get chat
+    const chat = await findChat(ctx.chat.id)
+    // Prepare localizations
+    const strings = require('./strings')()
+    strings.setChat(chat)
+    // Get message
+    const message = ctx.message || ctx.update.channel_post
+    // Get voice message
+    const voice =
+      message.voice || message.document || message.audio || message.video_note
+    // Send an error to user if file is larger than 20 mb
+    if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
+      await ctx.replyWithMarkdown(
+        strings.translate(
+          "_👮 I can't recognize voice messages larger than 20 megabytes_"
+        ),
+        {
+          parse_mode: 'Markdown',
+          reply_to_message_id: message.message_id,
+        }
+      )
+      return
     }
-  } else {
-    await sendTranscription(ctx, voiceUrl, chat)
+    // Get full url to the voice message
+    const fileData = await ctx.telegram.getFile(voice.file_id)
+    const voiceUrl = await urlFinder.fileUrl(fileData.file_path)
+    // Send action or transcription depending on whether chat is silent
+    if (chat.silent) {
+      try {
+        await sendAction(ctx, voiceUrl, chat)
+      } catch (err) {
+        // Do nothing
+      }
+    } else {
+      await sendTranscription(ctx, voiceUrl, chat)
+    }
+  } catch (err) {
+    // Do nothing
   }
 }
 
