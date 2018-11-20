@@ -6,7 +6,7 @@
   "private": true,
   "license": "MIT",
   "engines": {
-    "node": ">=10.7"
+    "node": ">=10.0"
   },
   "scripts": {
     "start": "node app.js",
