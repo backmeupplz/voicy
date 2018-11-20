@@ -32,7 +32,7 @@ setupMongoose()
 // Setup checking for google credentials
 // setupCheckingCredentials(bot)
 // Setup audio handler
-setupAudioHandler(bot)
+// setupAudioHandler(bot)
 
 // Setup commands
 setupHelp(bot)
