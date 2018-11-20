@@ -44,6 +44,11 @@ setupGoogle(bot)
 // Setup keyboard callback handler
 setupCallbackHandler(bot)
 
+// Bot catch
+bot.catch((err) => {
+  // Do nothing
+})
+
 // Start bot
 bot.startPolling()
 
