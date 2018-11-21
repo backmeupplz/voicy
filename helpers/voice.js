@@ -6,6 +6,7 @@ const temp = require('temp')
 const fs = require('fs')
 const flac = require('./flac')
 const { findChat, findVoice, addVoice } = require('./db')
+const report = require('./report')
 
 /**
  * Handles any message that comes with voice
