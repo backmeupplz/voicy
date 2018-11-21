@@ -95,9 +95,7 @@ async function sendTranscription(ctx, url, chat) {
       ctx,
       sentMessage,
       strings.translate(
-        strings.translate(
-          '😮 Please, set up google credentials with the /google command or change the engine with the /engine command. Your credentials are not set up yet.'
-        )
+        '😮 Please, set up google credentials with the /google command or change the engine with the /engine command. Your credentials are not set up yet.'
       ),
       chat,
       true
