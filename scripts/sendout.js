@@ -28,6 +28,7 @@ async function sendout() {
       const strings = require('../helpers/strings')()
       strings.setChat(chat)
       const text = strings.translate('sendout')
+      console.log(text)
     }
     await delay(1)
   }
