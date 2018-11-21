@@ -101,6 +101,7 @@ async function google(filePath, chat) {
  * @param {Path} filePath Path of the file to convert
  */
 function wit(token, filePath) {
+  return ''
   return new Promise(resolve => {
     const options = {
       method: 'POST',
