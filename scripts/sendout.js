@@ -8,10 +8,7 @@ const setupMongoose = require('../helpers/setupMongoose')
 const { Chat } = require('../models')
 
 // Create bot
-const bot = new Telegraf(process.env.TOKEN, {
-  username: process.env.USERNAME,
-  channelMode: true,
-})
+const bot = new Telegraf(process.env.TOKEN)
 // Setup promises
 setupPromises()
 // Setup mongoose
@@ -41,10 +38,10 @@ async function sendout() {
         )
       }
       try {
-        bot.sendMessage(chat.id, text)
+        await bot.telegram.sendMessage(chat.id, text)
         chatsAllowed++
-      } catch {
-        // Do nothing
+      } catch (err) {
+        console.error(err.message)
       }
     }
     await delay(1)
