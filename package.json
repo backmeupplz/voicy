@@ -21,7 +21,6 @@
     "dotenv": "^5.0.1",
     "download": "^5.0.2",
     "easy-file-manager": "^0.1.3",
-    "epipebomb": "^1.0.0",
     "fluent-ffmpeg": "^2.1.0",
     "localize": "^0.4.7",
     "lodash": "^4.17.2",
