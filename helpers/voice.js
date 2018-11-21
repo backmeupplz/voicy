@@ -45,17 +45,17 @@ async function handleMessage(ctx) {
       try {
         await sendAction(ctx, voiceUrl, chat)
       } catch (err) {
-        report(bot, err, 'sendAction')
+        report(ctx, err, 'sendAction')
       }
     } else {
       try {
         await sendTranscription(ctx, voiceUrl, chat)
       } catch (err) {
-        report(bot, err, 'sendTranscription')
+        report(ctx, err, 'sendTranscription')
       }
     }
   } catch (err) {
-    report(bot, err, 'handleMessage')
+    report(ctx, err, 'handleMessage')
   }
 }
 
@@ -113,7 +113,7 @@ async function sendTranscription(ctx, url, chat) {
     fs.writeFileSync(ogaPath, data)
   } catch (err) {
     await updateMessagewithError(ctx, sentMessage, chat, err)
-    report(ctx.telegram, err, 'sendTranscription.downloadAudioFile')
+    report(ctx, err, 'sendTranscription.downloadAudioFile')
     return
   }
 
@@ -126,7 +126,7 @@ async function sendTranscription(ctx, url, chat) {
     duration = result.duration
   } catch (err) {
     await updateMessagewithError(ctx, sentMessage, chat, err)
-    report(ctx.telegram, err, 'sendTranscription.convertAudioFile')
+    report(ctx, err, 'sendTranscription.convertAudioFile')
     return
   }
 
@@ -163,7 +163,7 @@ async function sendTranscription(ctx, url, chat) {
   } catch (err) {
     // In case of error, send it
     await updateMessagewithError(ctx, sentMessage, chat, err)
-    report(ctx.telegram, err, 'sendTranscription.convertFlacToText')
+    report(ctx, err, 'sendTranscription.convertFlacToText')
   }
 }
 
