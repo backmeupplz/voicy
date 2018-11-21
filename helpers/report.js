@@ -9,6 +9,7 @@ module.exports = function(bot, err, prefix) {
       'MESSAGE_ID_INVALID',
       'Invalid duration',
       'bot was kicked',
+      'Could not find codec parameters for stream',
     ]
     for (const item of bypassList) {
       if (err.message && err.message.indexOf(item) > -1) {
