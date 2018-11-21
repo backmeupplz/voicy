@@ -6,7 +6,8 @@ module.exports = function(bot, err, prefix) {
         return
       }
     }
-    bot.sendMessage(
+    const telegram = bot.telegram ? bot.telegram : bot
+    telegram.sendMessage(
       process.env.ADMIN_ID,
       `*Voicy*${prefix ? ` (prefix)` : ''}:\n\`\`\`${JSON.stringify(
         err,

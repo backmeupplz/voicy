@@ -44,13 +44,17 @@ async function handleMessage(ctx) {
       try {
         await sendAction(ctx, voiceUrl, chat)
       } catch (err) {
-        // Do nothing
+        report(bot, err, 'sendAction')
       }
     } else {
-      await sendTranscription(ctx, voiceUrl, chat)
+      try {
+        await sendTranscription(ctx, voiceUrl, chat)
+      } catch (err) {
+        report(bot, err, 'sendTranscription')
+      }
     }
   } catch (err) {
-    // Do nothing
+    report(bot, err, 'handleMessage')
   }
 }
 
@@ -85,13 +89,12 @@ async function sendTranscription(ctx, url, chat) {
   // Try to find existing voice message
   const dbvoice = await findVoice(url, lan, chat.engine)
   if (dbvoice && lan === dbvoice.language && dbvoice.engine === chat.engine) {
-    await updateMessagewithTranscription(ctx, sentMessage, dbvoice.text, chat)
-    return
+    return updateMessagewithTranscription(ctx, sentMessage, dbvoice.text, chat)
   }
 
   // Check if ok with google engine
   if (chat.engine === 'google' && !chat.googleKey) {
-    await updateMessagewithTranscription(
+    return updateMessagewithTranscription(
       ctx,
       sentMessage,
       strings.translate(
@@ -100,7 +103,6 @@ async function sendTranscription(ctx, url, chat) {
       chat,
       true
     )
-    return
   }
 
   // Download audio file
@@ -110,6 +112,7 @@ async function sendTranscription(ctx, url, chat) {
     fs.writeFileSync(ogaPath, data)
   } catch (err) {
     await updateMessagewithError(ctx, sentMessage, chat, err)
+    report(ctx.telegram, err, 'sendTranscription.downloadAudioFile')
     return
   }
 
@@ -122,6 +125,7 @@ async function sendTranscription(ctx, url, chat) {
     duration = result.duration
   } catch (err) {
     await updateMessagewithError(ctx, sentMessage, chat, err)
+    report(ctx.telegram, err, 'sendTranscription.convertAudioFile')
     return
   }
 
@@ -158,6 +162,7 @@ async function sendTranscription(ctx, url, chat) {
   } catch (err) {
     // In case of error, send it
     await updateMessagewithError(ctx, sentMessage, chat, err)
+    report(ctx.telegram, err, 'sendTranscription.convertFlacToText')
   }
 }
 

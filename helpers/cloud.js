@@ -28,7 +28,7 @@ async function put(filePath, chat) {
       const bucket = storage.bucket(key.project_id)
       const exists = await bucket.exists()
       if (!exists[0]) {
-        bucket.create(async (err) => {
+        bucket.create(async err => {
           if (err) {
             reject(err)
             return
@@ -73,17 +73,21 @@ function upload(bucket, filePath, key) {
  */
 function del(uri, chat) {
   return new Promise((resolve, reject) => {
-    const key = JSON.parse(chat.googleKey)
-    const storage = getStorage(key)
-    const bucket = storage.bucket(key.project_id)
-    const file = bucket.file(path.basename(uri))
-    file.delete((err) => {
-      if (err) {
-        reject(err)
-        return
-      }
-      resolve()
-    })
+    try {
+      const key = JSON.parse(chat.googleKey)
+      const storage = getStorage(key)
+      const bucket = storage.bucket(key.project_id)
+      const file = bucket.file(path.basename(uri))
+      file.delete(err => {
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve()
+      })
+    } catch (err) {
+      reject(err)
+    }
   })
 }
 

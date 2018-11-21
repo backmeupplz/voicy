@@ -4,6 +4,7 @@ const fs = require('fs')
 const https = require('https')
 const language = require('./language')
 const cloud = require('./cloud')
+const report = require('./report')
 
 // Language map
 const languageMap = {
@@ -29,7 +30,10 @@ async function getText(flacPath, chat, duration) {
   // Try wit if yandex couldn't make it
   const yandexResult = await yandex(flacPath, chat)
   if (!yandexResult && duration <= 50) {
-    return wit(language.witLanguages()[languageMap[chat.yandexLanguage]], flacPath)
+    return wit(
+      language.witLanguages()[languageMap[chat.yandexLanguage]],
+      flacPath
+    )
   }
   return yandexResult
 }
@@ -51,27 +55,43 @@ async function google(filePath, chat) {
     credentials: JSON.parse(chat.googleKey),
   })
 
-  return new Promise((resolve) => {
-    speech.startRecognition(uri, {
-      encoding: 'LINEAR16',
-      sampleRateHertz: 16000,
-      languageCode: chat.googleLanguage,
-    }, (err, operation) => {
-      if (err) {
-        resolve()
-        cloud.del(uri, chat)
-        return
-      }
-      operation
-        .on('error', () => {
+  return new Promise(resolve => {
+    speech.startRecognition(
+      uri,
+      {
+        encoding: 'LINEAR16',
+        sampleRateHertz: 16000,
+        languageCode: chat.googleLanguage,
+      },
+      async (err, operation) => {
+        if (err) {
           resolve()
-          cloud.del(uri, chat)
-        })
-        .on('complete', (result) => {
-          resolve(result)
-          cloud.del(uri, chat)
-        })
-    })
+          try {
+            await cloud.del(uri, chat)
+          } catch (err) {
+            // Do nothing
+          }
+          return
+        }
+        operation
+          .on('error', async () => {
+            resolve()
+            try {
+              await cloud.del(uri, chat)
+            } catch (err) {
+              // Do nothing
+            }
+          })
+          .on('complete', async result => {
+            resolve(result)
+            try {
+              await cloud.del(uri, chat)
+            } catch (err) {
+              // Do nothing
+            }
+          })
+      }
+    )
   })
 }
 
@@ -81,7 +101,7 @@ async function google(filePath, chat) {
  * @param {Path} filePath Path of the file to convert
  */
 function wit(token, filePath) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const options = {
       method: 'POST',
       hostname: 'api.wit.ai',
@@ -89,24 +109,43 @@ function wit(token, filePath) {
       path: '/speech?v=20170307',
       headers: {
         authorization: `Bearer ${token}`,
-        'content-type': 'audio/raw;encoding=signed-integer;bits=16;rate=16000;endian=little',
+        'content-type':
+          'audio/raw;encoding=signed-integer;bits=16;rate=16000;endian=little',
         'cache-control': 'no-cache',
       },
     }
-    const req = https.request(options, (res) => {
+    const req = https.request(options, res => {
       const chunks = []
 
-      res.on('data', (chunk) => {
+      res.on('data', chunk => {
         chunks.push(chunk)
       })
 
       res.on('end', () => {
         const body = Buffer.concat(chunks)
-        resolve(JSON.parse(body.toString())._text)
+        try {
+          resolve(JSON.parse(body.toString())._text)
+        } catch (err) {
+          // Do nothing
+        }
       })
     })
 
-    fs.createReadStream(filePath).pipe(req)
+    const stream = fs.createReadStream(filePath)
+    stream.pipe(req)
+    let error
+    stream.on('error', err => {
+      error = err
+    })
+    stream.on('close', () => {
+      if (error) {
+        try {
+          resolve('')
+        } catch (err) {
+          // Do nothing
+        }
+      }
+    })
   })
 }
 
@@ -116,9 +155,11 @@ function wit(token, filePath) {
  * @param {Mongoose:Chat} chat Relevant chat
  */
 function yandex(filePath, chat) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const exec = require('child_process').exec
-    const args = `asrclient-cli.py --key=${process.env.YANDEX_KEY} --lang=${chat.yandexLanguage} --silent ${filePath}`
+    const args = `asrclient-cli.py --key=${process.env.YANDEX_KEY} --lang=${
+      chat.yandexLanguage
+    } --silent ${filePath}`
 
     exec(args, (error, stdout) => {
       if (error) {

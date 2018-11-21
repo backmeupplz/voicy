@@ -62,12 +62,11 @@ function setupCheckingCredentials(bot) {
           strings.setChat(chat)
           // Check if document
           if (!msg.document) {
-            await ctx.reply(
+            return ctx.reply(
               strings.translate(
                 'Sorry, you should reply with a credentials document.'
               )
             )
-            throw new Error()
           }
           // Check file name
           if (
