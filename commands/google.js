@@ -98,7 +98,7 @@ function setupCheckingCredentials(bot) {
         }
       }
     } catch (err) {
-      report(bot, err)
+      report(bot, err, 'setupCheckingCredentials')
     }
     // Continue
     next()
