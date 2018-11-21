@@ -4,6 +4,7 @@ const { checkAdminLock } = require('../helpers/admins')
 const { fileUrl } = require('../helpers/url')
 const download = require('download')
 const { checkDate } = require('../helpers/filter')
+const report = require('../helpers/report')
 
 /**
  * Setting up google command
@@ -69,7 +70,10 @@ function setupCheckingCredentials(bot) {
             throw new Error()
           }
           // Check file name
-          if (!msg.document.file_name || msg.document.file_name.indexOf('json') < 0) {
+          if (
+            !msg.document.file_name ||
+            msg.document.file_name.indexOf('json') < 0
+          ) {
             return ctx.reply(
               strings.translate(
                 "Sorry, document's mime type should be 'text/plain'."
@@ -94,7 +98,7 @@ function setupCheckingCredentials(bot) {
         }
       }
     } catch (err) {
-      // Do nothing
+      report(bot, err)
     }
     // Continue
     next()

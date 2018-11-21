@@ -15,6 +15,7 @@ const { setupFiles } = require('./commands/files')
 const { setupSilent } = require('./commands/silent')
 const { setupGoogle, setupCheckingCredentials } = require('./commands/google')
 const { setupCallbackHandler } = require('./helpers/callback')
+const report = require('./helpers/report')
 
 // Create bot
 const bot = new Telegraf(process.env.TOKEN, {
@@ -29,7 +30,7 @@ setupMongoose()
 // Setup checking for google credentials
 setupCheckingCredentials(bot)
 // Setup audio handler
-// setupAudioHandler(bot)
+setupAudioHandler(bot)
 
 // Setup commands
 setupHelp(bot)
@@ -46,7 +47,7 @@ setupCallbackHandler(bot)
 
 // Bot catch
 bot.catch(err => {
-  // Do nothing
+  report(bot, err, 'bot.catch')
 })
 
 // Start bot
