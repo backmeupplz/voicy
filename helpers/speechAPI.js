@@ -129,6 +129,22 @@ function wit(token, filePath) {
           // Do nothing
         }
       })
+
+      res.on('error', () => {
+        try {
+          resolve('')
+        } catch (err) {
+          // Do nothing
+        }
+      })
+    })
+
+    req.on('error', () => {
+      try {
+        resolve('')
+      } catch (err) {
+        // Do nothing
+      }
     })
 
     const stream = fs.createReadStream(filePath)

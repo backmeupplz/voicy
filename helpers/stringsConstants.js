@@ -28,7 +28,7 @@ async function send(text, bot) {
 }
 
 const localizations = {
-  sendout: {
+  'Hi there! Just wanted to let you know that we will no longer annoy you with sending messages on behalf of @voicybot because we have created a special channel — @borodutch_support — where we will post the most important updates about the @voicybot (i.e. if anything is broken, check there first). Thank you a lot for using @voicybot. Cheers!': {
     en:
       'Hi there! Just wanted to let you know that we will no longer annoy you with sending messages on behalf of @voicybot because we have created a special channel — @borodutch_support — where we will post the most important updates about the @voicybot (i.e. if anything is broken, check there first). Thank you a lot for using @voicybot. Cheers!',
     ru:
