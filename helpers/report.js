@@ -3,6 +3,7 @@ module.exports = function(bot, err, prefix) {
     const bypassList = [
       'message to edit not found',
       'does not contain any stream',
+      'Invalid data found',
     ]
     for (const item of bypassList) {
       if (err.message && err.message.indexOf(item) > -1) {
