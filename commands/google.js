@@ -48,6 +48,7 @@ function setupCheckingCredentials(bot) {
       if (
         msg &&
         msg.reply_to_message &&
+        msg.reply_to_message.from &&
         msg.reply_to_message.from.username === process.env.USERNAME
       ) {
         // Get chat
