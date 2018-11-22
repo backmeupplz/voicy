@@ -6,6 +6,7 @@ const Telegraf = require('telegraf')
 const setupPromises = require('./helpers/setupPromises')
 const setupMongoose = require('./helpers/setupMongoose')
 const { setupAudioHandler } = require('./helpers/handler')
+const setupCounter = require('./models/stats')
 const { setupHelp } = require('./commands/help')
 const { setupStart } = require('./commands/start')
 const { setupLanguage } = require('./commands/language')
@@ -31,6 +32,8 @@ setupMongoose()
 setupCheckingCredentials(bot)
 // Setup audio handler
 setupAudioHandler(bot)
+// Setup stats counter
+setupCounter(bot)
 
 // Setup commands
 setupHelp(bot)
