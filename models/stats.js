@@ -4,7 +4,7 @@ const { Lock } = require('semaphore-async-await')
 
 // Schema
 const Schema = mongoose.Schema
-const statsSchema = new Schema(
+const messageStatsSchema = new Schema(
   {
     date: {
       type: Date,
@@ -19,21 +19,21 @@ const statsSchema = new Schema(
   },
   { timestamps: true }
 )
-const Stats = mongoose.model('stats', statsSchema)
+const MessageStats = mongoose.model('messageStats', messageStatsSchema)
 
 async function countMessage() {
   const lock = new Lock(1)
   lock.acquire()
   try {
     const today = dateToEpoch(new Date())
-    let stats = await Stats.findOne({ date: today })
-    if (!stats) {
-      stats = new Stats()
-      stats.count = 0
-      stats.date = today
+    let messageStats = await MessageStats.findOne({ date: today })
+    if (!messageStats) {
+      messageStats = new MessageStats()
+      messageStats.count = 0
+      messageStats.date = today
     }
-    stats.count = stats.count + 1
-    await stats.save()
+    messageStats.count = messageStats.count + 1
+    await messageStats.save()
   } catch {
     // Do nothing
   } finally {
