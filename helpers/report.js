@@ -15,6 +15,10 @@ module.exports = function(bot, err, prefix) {
       'does not have storage.buckets.create access',
       'Too Many Requests',
       'need administrator rights in the channel',
+      'Conversion failed',
+      'wrong file id',
+      'End of file',
+      'does not have storage.buckets.create access to project',
     ]
     for (const item of bypassList) {
       if (err.message && err.message.indexOf(item) > -1) {
