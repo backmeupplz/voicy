@@ -12,6 +12,9 @@ module.exports = function(bot, err, prefix) {
       'Could not find codec parameters for stream',
       'CHAT_WRITE_FORBIDDEN',
       'have no rights to send a message',
+      'does not have storage.buckets.create access',
+      'Too Many Requests',
+      'need administrator rights in the channel',
     ]
     for (const item of bypassList) {
       if (err.message && err.message.indexOf(item) > -1) {

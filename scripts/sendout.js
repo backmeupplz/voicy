@@ -15,9 +15,11 @@ setupPromises()
 setupMongoose()
 
 async function sendout() {
-  let chatsAllowed = 0
+  let chatsAllowed = 62238
+  console.log('Getting chats count')
   const chatsCount = await Chat.count({})
-  for (let i = 0; i < chatsCount; i += 30) {
+  console.log(`Got ${chatsCount} chats`)
+  for (let i = 257490; i < chatsCount; i += 30) {
     console.log(`Sending message to ${i}`)
     const chats = await Chat.find({})
       .skip(i)
