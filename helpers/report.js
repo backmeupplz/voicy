@@ -19,6 +19,7 @@ module.exports = function(bot, err, prefix) {
       'wrong file id',
       'End of file',
       'does not have storage.buckets.create access to project',
+      'bot is not a member',
     ]
     for (const item of bypassList) {
       if (err.message && err.message.indexOf(item) > -1) {
