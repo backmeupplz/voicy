@@ -72,7 +72,8 @@ function setupCheckingCredentials(bot) {
           // Check file name
           if (
             !msg.document.file_name ||
-            msg.document.file_name.indexOf('json') < 0
+            (msg.document.file_name.indexOf('json') < 0 &&
+              msg.document.file_name.indexOf('txt') < 0)
           ) {
             return ctx.reply(
               strings.translate(
