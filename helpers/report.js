@@ -21,6 +21,7 @@ module.exports = function(bot, err, prefix) {
       'does not have storage.buckets.create access to project',
       'bot is not a member',
       'Gateway',
+      'message not found',
     ]
     for (const item of bypassList) {
       if (err.message && err.message.indexOf(item) > -1) {
