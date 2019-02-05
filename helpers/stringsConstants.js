@@ -33,6 +33,8 @@ const localizations = {
       'Hi there! Just wanted to let you know that we will no longer annoy you with sending messages on behalf of @voicybot because we have created a special channel — @borodutch_support — where we will post the most important updates about the @voicybot (i.e. if anything is broken, check there first). Thank you a lot for using @voicybot. Cheers!',
     ru:
       'Всем привет! Мы больше не будем доставать вас сообщениями, отправленными от лица @voicybot, потому что мы создали для этого отдельный канал — @borodutch_support — куда и будем постить все важные новости (если что не работает — проверьте сначала на канале). Спасибо большое за вашу поддержку. Удачи!',
+	tr:
+      'Merhaba! Artık, @voicybot adına mesaj gönderirken sizi rahatsız etmeyeceğimizi bildirmek istedim. Çünkü @voicybot hakkındaki en önemli güncellemeleri yayınlayacağımız @borodutch_support adlı özel bir kanal oluşturduk (Yani, bir şey bozulursa, önce orayı kontrol edin). @voicybot'u kullandığınız için teşekkür ederiz. Şerefe!',
   },
   '📁 Wonderful! *Voicy* will *ignore* all audio files in this chat since now.': {
     fa:
@@ -56,7 +58,8 @@ const localizations = {
       '📁 Möhtəşəm! Bu andan etibarən “Voicy” bu söhbətdəki bütün səs fayllarını “görməməzlikdən gələcək”.',
     am:
       '📁 Հիանալի է! Այս պահից սկսած *Voicy*-ն *կանտեսի* այս չատում եղած բոլոր աուդիոֆայլերը.',
-    ch: '📁 太好了！从现在起，*Voicy*将*ignore*这个对话中的所有语音档。',
+    ch:
+	  '📁 太好了！从现在起，*Voicy*将*ignore*这个对话中的所有语音档。',
     ua:
       '📁 Чудово! Відтепер *Войсі* буде *ігнорувати* всі аудіофайли в цьому чаті.',
     no:
@@ -64,7 +67,7 @@ const localizations = {
     ja:
       '📁 さいこう！ *ヴォイシー * は、チャット内の音声ファイルを全部 *無視* するよ。',
     tr:
-      '📁 Harika! *Voicy* artık bu konuşmadaki bütün ses dosyalarını *yoksayacak*',
+      '📁 Harika! Voicy, şu andan itibaren bu sohbetteki tüm ses dosyalarını *görmezden gelecektir*.',
     sv:
       '📁 Underbart! *Voicy* kommer *ignorera* alla ljudfiler i den h�r chatten fr�n och med nu.',
     pt:
@@ -81,7 +84,8 @@ const localizations = {
       '\u200F📁 عالیه! وُیسی تلاش میکنه تمام فایل های صوتی در این چت از الآن رو شناسایی کنه.',
     hi:
       '📁 शानदार! *Voicy* इस चैट में अब आगे से सारी ऑडियो फाइल्स को पहचानने की कोशिश करेगा।',
-    et: '📁 ድንቅ ! *Voicy* ከአሁን ጀምሮ በዚህ ምልልስ ውስጥ ያሉ ፋይሎችን*እውቅና ለመስጠት ይሞክራል*፡፡',
+    et:
+	  '📁 ድንቅ ! *Voicy* ከአሁን ጀምሮ በዚህ ምልልስ ውስጥ ያሉ ፋይሎችን*እውቅና ለመስጠት ይሞክራል*፡፡',
     ge:
       '📁 Wunderbar! *Voicy* wird ab sofort versuchen, alle Audio-Dateien in diesem Chat zu *erkennen*.',
     it:
@@ -98,7 +102,8 @@ const localizations = {
       '📁 Möhtəşəm! Bu andan tibarən “Voicy” bu söhbətdəki bütün audio faylarını “tanımağa çalışacaq”.',
     am:
       '📁 Հիանալի է! Այս պահից սկսած *Voicy*-ն *կփորձի ճանաչել* այս չատում եղած բոլոր աուդիոֆայլերը.',
-    ch: '📁 太好了！从现在起，*Voicy*将*recognize*这个对话中的所有语音档。',
+    ch:
+	  '📁 太好了！从现在起，*Voicy*将*recognize*这个对话中的所有语音档。',
     ua:
       '📁 Чудово! Відтепер *Войсі* буде *намагатися розпізнати* всі аудіо файли в цьому чаті.',
     no:
@@ -106,7 +111,7 @@ const localizations = {
     ja:
       '📁 いいねぇ！ *ヴォイシー* は、チャット内の音声ファイルを全部 *理解* するよ。',
     tr:
-      '📁 Harika! *Voicy* artık bu konuşmadaki bütün ses doysalarını *tanımlayamaya çalışacak*.',
+      '📁 Harika! Voicy, şu andan itibaren bu sohbetteki tüm ses dosyalarını *tanımaya çalışacaktır*.',
     sv:
       '📁 Underbart! *Voicy* kommer *f�rs�ka k�nna igen* alla ljudfiler i den h�r chatten fr�n och med nu.',
     pt:
@@ -150,7 +155,7 @@ const localizations = {
     ja:
       'グーグルクラウド専用ファイル (.json) を使って返信をし、グーグルスピーチ音声認識をセットアップしましょう。これが何かわからず、どう取得すればいいかわからない？ [簡単チュートリアル](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8)をご覧ください。',
     tr:
-      'Google Speech ses tanımayı kurmak için bu mesajı Google Cloud kimlik dosyası (.json) ile yanıtlayınız. Ne olduğundan ve nasıl bulacağınızdan emin değil misiniz? [Eğitim sayfasına](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8) bir göz atın.',
+      'Google Speech ses tanımayı ayarlamak için, bu mesajı Google Cloud kimlik bilgileri dosyası (.json) ile yanıtlayın. Bunun ne olduğundan ve nasıl bulunacağından emin değil misin? [Eğitim sayfasına](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8) bir göz atın.',
     sv:
       'Svara p� det h�r meddelandet med autentiseringsuppgifterna f�r Google Cloud (.json) f�r att konfigurera Google taligenk�nning. Inte s�ker p� vad det h�r �r eller hur man skaffar det? Se v�r[snabbguide](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).',
     pt:
@@ -181,7 +186,7 @@ const localizations = {
     ua: 'Вибачте, ви повинні відповісти з документом ідентифікації особи.',
     no: 'Beklager, du bør svare med et et legitimasjonsdokument.',
     ja: 'すみません、専用ファイルを用いてください。',
-    tr: 'Üzgünüm, bir kimlik belgesi dosyası ile yanıtlamalısınız.',
+    tr: 'Üzgünüm, ama bir kimlik dosyası ile yanıt vermelisiniz.',
     sv: 'F�rl�t, du skulle svara med ett dokument f�r autentisering.',
     pt: 'Lamentamos, mas deve responder com o documento das credenciais.',
     en: 'Sorry, you should reply with a credentials document.',
@@ -206,7 +211,7 @@ const localizations = {
     ua: "Вибачте, тип документа повинен бути 'text/plain'.",
     no: "Beklager, dokument sine mime type burde være 'tekst/plain'.",
     ja: "すみません、document's mimeは 'text/plain'であるべきです。",
-    tr: "Üzgünüm, ancak belgein mimi 'text/plain' olarak yazılmalıdır.",
+    tr: "Üzgünüm, ama belgenin mime türü 'text/plain' olmalıdır.",
     sv: "F�rl�t, dokumentets filtyp ska vara 'text/plain'.",
     pt: "Lamentamos, o formato do documento deve ser 'texto/simples'.",
     en: "Sorry, document's mime type should be 'text/plain'.",
@@ -245,7 +250,7 @@ const localizations = {
     ja:
       'よくできました！ *ヴォイシー* は *$[1]* グーグルクラウドプロジェクトの専用ファイルを認識しました。グーグル音声認識が使えるようになりました。',
     tr:
-      'Tebrikler! *Voicy* *$[1]* Google Cloud Projesi için kimlik dosyalarını aldı.',
+      'Tebrikler! Voicy, *$[1]* Google Cloud Projesi için kimlik bilgileri dosyasını aldı. Artık Google konuşma tanıma özelliğini kullanabilirsiniz.',
     sv:
       'Grattis! *Voicy* fick autentisieringsuppgifterna f�r *$[1]* Google Cloud Project. Du kan nu anv�nda Google taligenk�nning.',
     pt:
@@ -289,7 +294,7 @@ const localizations = {
     ja:
       '😎 *ヴォイシー* はどんな音声ファイル (.ogg, .flac, .wav, .mp3) やボイスメッセージからも文字をおこすことができます。 *ヴォイシー* と個人ででも、グループチャットでも話せます。\n\nもしこのボットをプライベートチャットで利用したいなら、誰かとプライベートグループを作成し、そこに*ヴォイシー*を追加してあげてください。 *ヴォイシー* をグループチャットに追加たい場合、参加者として追加するか、 *ヴォイシー* のプロフィールにあるグループを選択してください。\n\n/help — これを表示する 😱\n/engine — 音声認識エンジンを選択させてくれる: wit.ai, Yandex SpeechKit か Google Speech ⚙\n/language — 音声認識の言語を選択させてくれる。 📣\n/lock — グループチャットの主催者のコマンドをロック、解除する 🔑\n/files — ボットが音声ファイルを変換するかしないか 📁\n/silent — `音声認識が始まりました` などの追加メッセージがない限りサイレントモードになる 😶\n/google — グーグルスピーチのためグーグル資格情報を設定する 🦆\n\nこのボット、気に入りましたか? レビューをお願いします。[こちら](https://telegram.me/storebot?start=voicybot) 👍\n\nお困りでしたら、創設者にひとこと — @borodutch\\_support 🦄',
     tr:
-      '😎 *Voicy* herhangi bir sesli mesajdaki ya da alınan ses dosyasındaki (.ogg, .flac, .wav, .mp3) konuşmayı metne çevirir. *Voicy* ile kişisel bir konuşmada konuşabilir ya da bir grup konuşmasına ekleyebilirsiniz.\n\nEğer bu botu özel konuşmada kullanmak istiyorsanız, lütfen birisiyle özel bir grup yaratınız ve *Voicy* i oraya ekleyiniz. Eğer *Voicy*i bir grup konuşmasına eklemek isterseniz, lütfen onu grup profiline bir katılımcı olarak ya da grubu *Voicy* bot profiline ekleyiniz.\n\n/help — Bu mesajı gösterir 😱\n/engine — Ses tanıma motoru seçmenizi sağlar: wit.ai, Yandex SpeechKit ya da Google Speech ⚙\n/language — Ses tanıma dilini seçmenizi sağlar 📣\n/lock — Admin olmayanların grup konuşmalarında komutları kullanıp kullanamayacağını belirler. 🔑\n/files — Botun konuşmadaki ses dosyalarını çevirmeye çalışmasını ya da yoksaymasını sağlar 📁\n/silent — `Ses tanımlama başlatıldı` gibi gönderilen ilave bir mesajları kapatmak için sessiz modu devreye sokar ya da kapatır 😶\n/google — Google Speech için google kimlik bilgilerinin kurulumunu yapar 🦆\n\nBu botu beğendiniz mi? Lütfen bir değerlendirme bırakınız, [buraya](https://telegram.me/storebot?start=voicybot) 👍\n\nHerhangi bir sorun ve öneriniz için lütfen yaratıcım ile iletişime geçin — @borodutch\\_support 🦄',
+      '😎 *Voicy*, aldığı tüm sesli mesajlardan ve ses dosyalarından (.ogg, .flac, .wav, .mp3) gelen konuşmaları metne dönüştürür. Özel sohbette Voicy ile konuşabilir veya bir gruba ekleyebilirsiniz.\n\nBu botu özel mesajlarda kullanmak istiyorsanız, lütfen biriyle özel bir grup oluşturun ve buraya *Voicy* ekleyin. Bir grup sohbetine *Voicy* eklemek istiyorsanız, lütfen onu grup profiline katılımcı olarak ekleyin ya da *Voicy* bot profilindeki gruba ekleyin.\n\n/help — Bu mesajı gösterir 😱\n/engine — Bir ses tanıma motoru seçmenizi sağlar: wit.ai, Yandex SpeechKit ya da Google Speech ⚙\n/language — Bir ses tanıma dili seçmenizi sağlar 📣\n/lock — Grup sohbetlerinde komutları kullanarak yönetici olmayanların kilidini açın veya kapatın 🔑\n/files — Botun ses dosyalarını dönüştürmeye çalışması ya da onları görmezden gelmesi seçeneğini değiştirin  📁\n/silent — 'Ses tanıma başlatıldı' gibi ek bir mesaj gönderilmediğinde sessiz moda geçer 😶\n/google — Google Speech için Google kimlik bilgilerini ayarlayın 🦆\n\nBu botu beğendiniz mi? Lütfen, [buraya](https://telegram.me/storebot?start=voicybot) bir inceleme bırakın 👍\n\nHerhangi bir kaygı ve sorununuzu geliştiricimle paylaşın — @borodutch\\_support 🦄',
     sv:
       '😎 *Voicy* konverterar tal till text fr�n alla typer av r�stmeddelanden och ljudfiler (.ogg, .flac, .wav, .mp3) den tar emot. Du kan antingen prata med *Voicy* i den privata chatten eller l�gga till den i en grupp.\n\nOm du vill anv�nda denna bot i privata meddelanden, var god skapa en privat grupp med alla och l�gg till *Voicy* d�r. Om du vill l�gga till *Voicy* till en gruppchatt, var god, l�gg till den som en deltagare i grupprofilen eller till gruppen i *Voicy* bot profil.\n\n/help — Visar det h�r meddelandet 😱\n/engine — L�ter dig v�lja en leverant�r f�r r�stigenk�nning: wit.ai, Yandex SpeechKit or Google Speech ⚙\n/language — L�ter dig v�lja spr�k f�r r�stigenk�nning 📣\n/lock — Reglaget l�ser upp eller l�ser m�jligheten f�r icke- administrat�rer att anv�nda kommandon i gruppchatter 🔑\n/files — Reglaget reglerar om boten ska f�rs�ka konvertera ljudfiler eller bara ignorera dem 📁\n/silent — V�lj ljudl�s n�r inga extra meddelanden som `R�stigenk�nning �r initierad` �nskas 😶\n/google — St�ll in google autentisieringsuppgifter Google Speech 🦆\n\nGillar denna bot? L�mna ett omd�mme [here](https://telegram.me/storebot?start=voicybot) 👍\n\nOm du har fr�goer eller funderingar skickas dessa till botens skapare — @borodutch\\_support 🦄',
     pt:
@@ -321,7 +326,7 @@ const localizations = {
     ua: '😅 Вибачте, але ця команда діє тільки для групових чатів.',
     no: '😅 Beklager, men denne kommandoen fungerer kun i gruppechatt.',
     ja: '😅 ごめんなさい、このコマンドはグループチャットでしか使えません。',
-    tr: '😅 Üzgünüm, bu komut sadece grup konuşmalarında geçerlidir.',
+    tr: '😅 Üzgünüm, ama bu komut sadece grup sohbetlerinde çalışır.',
     sv: '😅 Detta kommandot fungerar tyv�rr bara i gruppchatter.',
     pt: '😅 Lamento, mas este comando só funciona em chats de grupo.',
     en: '😅 Sorry, but this command only works in group chats.',
@@ -358,7 +363,7 @@ const localizations = {
       '🔑 Flott! *Voicy* skal nå svare kun på kommandoer som sendes av *admins* i denne chatten.',
     ja: '🔑 了解！ *ヴォイシー* は *主催者* のコマンドにしか応じないよ。',
     tr:
-      '🔑 Harika! *Voicy* bu konuşmada artık sadece *yöneticiler* in komutlarını yerine getirecek.',
+      '🔑 Harika! *Voicy* artık sadece bu sohbetteki *yöneticiler* tarafından gönderilen komut çağrılarına cevap verecektir.',
     sv:
       '🔑 Bra! *Voicy* kommer nu bara svara p� kommandon skickade av *administrat�rer* i den h�r chatten.',
     pt:
@@ -399,7 +404,7 @@ const localizations = {
       '🔑 Flott! *Voicy* skal nå svare kun på kommandoer som sendes av *noen som helst* i denne chatten.',
     ja: '🔑 了解! *ヴォイシー* は *みなさん* のコマンドに応じるよ。',
     tr:
-      '🔑 Harika! *Voicy* artık bu konuşmadaki *herhangi biri* nin komutlarını yerine getirecek.',
+      '🔑 Harika! *Voicy* artık bu sohbetteki *herkesin* gönderdiği komut çağrılarına cevap verecektir.',
     sv:
       '🔑 Bra! *Voicy* kommer nu svara endast p� samtal fr�n *alla* i den h�r cahtten.',
     pt:
@@ -443,7 +448,7 @@ const localizations = {
     ja:
       '😶 いいねぇ！ *ヴォイシー* はこれから *サイレントモード*: 音声テキスト以外は送信しないよ。',
     tr:
-      '😶 Muhteşem! *Voicy* artık *sessiz mod* ile çalışacak: Konuşmaya ses transkripsiyonu dışında başka bir mesaj göndermeyecek.',
+      '😶 Muhteşem! *Voicy* artık *sessiz modda* çalışacak: Gerçek sesli transkripsiyonlar haricinde sohbete herhangi bir mesaj göndermez.',
     sv:
       '😶 Fantastiskt! *Voicy* kommer nu vara i *tyst l�ge*: den kommer inte s�nda n�gra meddelanden till chatten f�rutom de faktiska r�st transkriptionerna.',
     pt:
@@ -487,7 +492,7 @@ const localizations = {
     ja:
       '😏 いいねぇ！ *ヴォイシー* は *通常モード*:ボイスメッセージを受信たときに `音声認識を開始しました` と言うよ。',
     tr:
-      '😏 Muhteşem! *Voicy* artık *olağan mod* ile çalışacak: Sesli mesajların hemen ardından `Ses tanımlama başlatıldı` mesajı iletilecek.',
+      '😏 Muhteşem! *Voicy* artık *normal modda* çalışacaktır:  Sesli mesajlar aldıktan hemen sonra 'Ses tanıma başlatıldı' mesajlarını gönderecektir.',
     sv:
       '😏 Fantastiskt! *Voicy* kommer nu fungera i *normalt l�ge*: den kommer skicka `R�stigenk�nning �r initierad` meddelanden direkt efter att den tar emot r�stmeddelanden.',
     pt:
@@ -531,7 +536,7 @@ const localizations = {
     ja:
       '👋 やっほー！ *ヴォイシー* はボイスメッセージや音声ファイル (.ogg, .flac, .wav, .mp3)を文字におこす音声認識ボットです。\n\n*ヴォイシー* は三種類の音声認識エンジンが使えます: wit.ai, Yandex SpeechKit と Google Speech.。もともとは wit.ai を利用していたのですが、 Google Speech や Yandex SpeechKit を /engine　として利用することもできます。 詳細はこちらで /help.',
     tr:
-      "👋 Merhabalar! *Voicy* bir ses tanımlama botudur. Bütün sesli mesajları ve ses dosyalarını (.ogg, .flac, .wav, .mp3) metne çevirir. \n\n*Voicy* üç farklı ses tanımlama motorunu desteklemektedir: wit.ai, Yandex SpeechKit ve Google Speech. Kurulumla beraber wit.ai kullanmaya başlar, ancak /engine komutu ile istediğiniz zaman Google Speech ya Yandex SpeechKit'e geçebilirsiniz. Daha fazla bilgi için /help.",
+      "👋 Merhaba! *Voicy*, tüm sesli mesajları ve ses dosyalarını (.ogg, .flac, .wav, .mp3) metne dönüştüren bir ses tanıma botudur.\n\n*Voicy* üç ses tanıma motorunu destekler: wit.ai, Yandex SpeechKit ve Google Speech. Başlangıçta wit.ai kullanmaya ayarlanmıştır. Ancak /engine ile istediğiniz zaman Google Speech veya Yandex SpeechKit’e geçebilirsiniz. Daha fazla bilgi için /help.",
     sv:
       '👋 Hej d�r! *Voicy* �r en r�stigenk�nnings bot som konverterar alla r�stmeddelanden och ljudfiler (.ogg, .flac, .wav, .mp3) den f�r till text.\n\n*Voicy* har st�d f�r tre r�stigenk�nningsmotorer: wit.ai, Yandex SpeechKit and Google Speech. Fr�n b�rjan �r den inst�lld p� att anv�nda wit.ai men du kan byta till Google Speech eller Yandex SpeechKit n�r som helst i /engine. Mer information i /help.',
     pt:
@@ -575,7 +580,7 @@ const localizations = {
     ja:
       '👋 音声認識エンジンを選択してください。Google Speech はとても正確で５０秒以上の音声認識することができますが、Google Cloud credentials とセットアップする必要があります(少し面倒)。 Yandex SpeechKit はまぁまぁ正確、無料、プライベートであり５０秒以上の音声をサポートすることが多いですが、言語が限られています。 Wit.ai はあまり正確ではなく、無料、そして ５０秒以上の音声は認識できませんが、たくさんの言語が選べます。三種類とも複数の言語を認識できますので、自分に合ったものを選んでください。',
     tr:
-      '👋 Lütfen bir ses tanımlama motoru seçiniz. Google Speech daha hatasız ve 50 saniyeden fazla ses dosyalarını desteklemektedir, ancak Google Cloud kimlik bilgileriyle kurulum yapılmak zorundadur (biraz meşakkatli). Yandex SpeechKit de oldukça hatasız ve ücretsizdir, kişiseldir ve çoğu zaman 50 saniyenin üzerinde ses dosyalarını desteklemektedir. Ancak sınırlı bir dil seçeneği vardır. Wit.ai ise daha çok hataya meyillidir. Ücretsizdir ancak 50 saniyeden fazla ses dosyalarını desteklemez. Bunun yanında oldukça geniş dil seçeneği sunar. Üç motorun da farklı dilleri desteklediğine dikkat ediniz, size en uygun olanını seçiniz.',
+      '👋 Lütfen, konuşma tanıma motorunu seçin. Google Speech, daha doğru ve 50 saniyeden daha uzun sesleri destekler. Ancak Google Cloud kimlik bilgilerinizle (biraz sıkıcı) kurulması gerekir. Yandex SpeechKit oldukça doğru, ücretsiz, kişisel ve çoğu zaman 50 saniyeden uzun sesleri destekler. Ancak sınırlı dil listesine sahiptir. Wit.ai daha az doğru, ücretsiz ve 50 saniyeden daha uzun sesleri desteklemiyor. Ancak çok sayıda dil seçeneği vardır. Lütfen, üçünün de farklı dilleri desteklediğini unutmayın. Bu nedenle size en uygun olanı seçin.',
     sv:
       '👋 Var god, v�lj motorn f�r r�stigenk�nning. Google Speech �r mer exakt och st�djer audio l�ngre �n 50 sekunder, men m�ste konfigureras med google cloud autentiseringsuppgifter (lite omst�ndigt). Yandex SpeechKit �r ganska exakt, gratis, privat och st�djer f�r det mesta audio �ver 50 sekunder, men st�djer ett begr�nsat antal spr�k. Wit.ai �r inte lika exakt, gratis, och st�djer inte audio l�ngre �n 50 sekunder, men st�djer m�nga olika spr�k. Var god l�gg m�rke till att alla tre st�djer olika spr�k, s� v�lj den som passar dig b�st.',
     pt:
@@ -644,7 +649,7 @@ const localizations = {
     ja:
       '👍 *ヴォイシー* はチャットで *$[1]* を使うよ。ありがとう！/languageを忘れないで。',
     tr:
-      '👍*Voicy* artık bu konuşmada *$[1]* kullanacaktır. Teşekkürler! Lütfen dil ayarlarını yapmayı unutmayınız /language.',
+      '👍*Voicy* artık bu sohbette *$[1]* kullanıyor. Teşekkürler! Dili ayarlamayı unutmayın: /language.',
     sv:
       '👍 *Voicy* anv�nder nu *$[1]* i den h�r chatten. Tack! Gl�m inte att st�lla in /language.',
     pt:
@@ -672,7 +677,7 @@ const localizations = {
     ua: '👋 Будь-ласка, оберіть мову розпізнавання мовлення для $[1]',
     no: '👋 Vennligst velg språk for talegjenkjenning for $[1]',
     ja: '👋 $[1]の音声認識言語を選択してください。',
-    tr: '👋 Lütfen $[1] ses tanımlama için bir dil seçiniz',
+    tr: '👋 Lütfen $[1] için konuşma tanıma dilini seçin',
     sv: '👋 Var god v�lj spr�k f�r r�stigenk�nning f�r $[1]',
     pt:
       '👋 Por favor, selecione o idioma para o reconhecimento de voz para $[1]',
@@ -696,7 +701,7 @@ const localizations = {
     ua: '👋 Будь-ласка, оберіть мову розпізнавання мовлення',
     no: '👋 Vennligst velg språk for talegjenkjenning',
     ja: '👋 の音声認識言語を選択してください。',
-    tr: '👋 Lütfen konuşma tanımlamanın dilini seçniz',
+    tr: '👋 Lütfen konuşma tanıma dilini seçin',
     sv: '👋 Var god v�lj spr�k f�r r�stigenk�nningen',
     pt: '👋 Por favor, selecione o idioma para o reconhecimento de voz',
     en: '👋 Please select the language of speech recognition',
@@ -731,7 +736,7 @@ const localizations = {
     ja:
       '👍 これで *ヴォイシー* は *$[1]* (Yandex SpeechKit) を話せるよ。ありがとう！',
     tr:
-      '👍 Artık *Voicy* bu konuşmada *$[1]* (Yandex SpeechKit) kullanacaktır. Teşekkürler!',
+      '👍 Artık *Voicy* bu sohbette *$[1]* (Yandex SpeechKit) kullanıyor. Teşekkürler!',
     sv:
       '👍 *Voicy* talar nu f�r *$[1]* (Yandex SpeechKit) i den h�r chatten. Tack!',
     pt: '👍 Agora *Voicy* fala *$[1]* (Yandex SpeechKit) neste chat. Obrigado!',
@@ -760,7 +765,7 @@ const localizations = {
     ua: '👋 Будь-ласка, оберіть мову розпізнавання мовлення для wit.ai.',
     no: '👋 Vennligst velg språk for talegjenkjenning for wit.ai.',
     ja: '👋 wit.ai. のための音声認識言語を選択してください。',
-    tr: '👋 Lütfen wit.ai konuşma tanımlama için dil seçiniz.',
+    tr: '👋 Lütfen wit.ai için konuşma tanıma dilini seçin.',
     sv: '👋 Var god v�lj spr�k f�r r�stigenk�nning f�r wit.ai.',
     pt:
       '👋 Por favor selecione o idioma para o reconhecimento de voz para o wit.ai.',
@@ -788,7 +793,7 @@ const localizations = {
     no: '👍 Nå *Voicy* snakker *$[1]* (wit.ai) i denne chatten. Takk!',
     ja: '👍 これで *ヴォイシー* は *$[1]* (wit.ai) を話せるよ。ありがとう！',
     tr:
-      '👍 Artık *Voicy* bu konuşmada *$[1]* (wit.ai) kullancaktır. Teşekkürler.',
+      '👍 Artık *Voicy* bu sohbette *$[1]* (wit.ai) kullanıyor. Teşekkürler.',
     sv:
       '👍 *Voicy* talar nu *$[1]* (wit.ai) i den h�r chatten. Tack s� mycket!',
     pt: '👍 Agora *Voicy* fala *$[1]* (wit.ai) neste chat. Obrigado!',
@@ -814,7 +819,7 @@ const localizations = {
     ua: '👋 Будь-ласка, оберіть мову розпізнавання мовлення для Google Speech.',
     no: '👋 Vennligst velg språk for talegjenkjenning for Google Speech.',
     ja: '👋 Google Speech のための音声認識言語を選択してください。',
-    tr: '👋 Lütfen Google Speech konuşma tanımlama için bir dil seçniz.',
+    tr: '👋 Lütfen Google Speech için konuşma tanıma dilini seçin.',
     sv: '👋 Var god v�lj spr�ket f�r r�stigenk�nning f�r Google Speech.',
     pt:
       '👋 Por favor selecione o idioma para reconhecimento de voz para o Google Speech.',
@@ -849,7 +854,7 @@ const localizations = {
     no: '👍 Na *Voicy* snakker *$[1]* (Google Speech) i denne chatten. Takk!',
     ja: '👍 これで *ヴォイシー* は*$[1]* (Google Speech)を話すよ。ありがとう！',
     tr:
-      '👍 Artık *Voicy* bu konuşmada *$[1]* (Google Speech) kullancaktır. Teşekkürler!',
+      '👍 Artık *Voicy* bu sohbette *$[1]* (Google Speech) kullanıyor. Teşekkürler!',
     sv: '👍 *Voicy* talar nu *$[1]* (Google Speech) i den h�r chatten. Tack!',
     pt: '👍 Agora *Voicy* fala *$[1]* (Google Speech) neste chat. Obrigado!',
     en: '👍 Now *Voicy* speaks *$[1]* (Google Speech) in this chat. Thank you!',
@@ -877,7 +882,7 @@ const localizations = {
     no:
       '_👮 Jeg kan ikke gjenkjenne talemeldinger som er større enn 20 megabytes_',
     ja: '_👮 ぼく、２０MB以上のボイスメッセージはわからないんだ_',
-    tr: "_👮 20 Megabyte'dan büyük dosyları tanımlayamam_",
+    tr: "_👮 20 MB'tan büyük sesli mesajları tanıyamıyorum_",
     sv:
       '_👮 Jag kan inte k�nna igen r�stmeddelanden som �r st�rre �n 20 megabytes_',
     pt: '_👮 Não consigo reconhecer mensagens de voz com mais de 20 megabytes_',
@@ -901,7 +906,7 @@ const localizations = {
     ua: '_🦄 Розпізнавання голосу встановлюється ..._',
     no: '_🦄 Stemmegjenkjenning er initiert..._',
     ja: '_🦄 音声認識をはじめます..._',
-    tr: '_🦄 Ses tanımlama başlatıldı..._',
+    tr: '_🦄 Ses tanıma başlatıldı..._',
     sv: '_🦄 R�stigenk�nning �r initierad..._',
     pt: '_🦄 Reconhecimento de voz iniciado..._',
     en: '_🦄 Voice recognition is initiated..._',
@@ -930,7 +935,7 @@ const localizations = {
       '_👮 Wit.ai не може розпізнавати голосові повідомлення довше 50 секунд_',
     no: '_👮 Wit.ai kan ikke gjenkjenne talemeldinger lenger enn 50 sekunder_',
     ja: '_👮 Wit.ai は５０秒以上のボイスメッセージを認識できません_',
-    tr: '_👮 Wit.ai 50 saniyeden uzun sesli mesajları tanımlayamaz_',
+    tr: '_👮 Wit.ai 50 saniyeden uzun sesli mesajları tanıyamıyor_',
     sv:
       '_👮 Wit.ai kan inte k�nna igen r�stmeddelanden som �r l�ngre �n 50 sekunder_',
     pt:
@@ -957,7 +962,7 @@ const localizations = {
     ua: '_👮 Будь-ласка, говоріть чіткіше, я не можу це розпізнати_',
     no: '_👮 Vennligst, snakk tydelig, jeg kunne ikke gjenkjenne det_',
     ja: '_👮 わかりませんでした。もう少しはっきり話してください_',
-    tr: '_👮 Lütfen daha net konuşunuz. Bunu tanımlayamadım_',
+    tr: '_👮 Lütfen, daha net konuşun, bunu tanıyamadım_',
     sv: '_👮 Var god prata tydligt, jag kunde inte k�nna igen vad du sa_',
     pt: '_👮 Por favor, fale com clareza, não consegui reconhecer a mensagem_',
     en: "_👮 Please, speak clearly, I couldn't recognize that_",
@@ -980,7 +985,7 @@ const localizations = {
     ua: '_👮 Я не можу це розпізнати_',
     no: "_👮 Jeg kunne ikke't gjenkjenne det_",
     ja: '_👮 わかりませんでした_',
-    tr: '_👮 Bunu tanımlayamadım_',
+    tr: '_👮 Bunu tanıyamadım_',
     sv: '_👮 Jag kunde inte k�nna igen det_',
     pt: '_👮 Não consegui reconhecer a mensagem_',
     en: "_👮 I couldn't recognize that_",
@@ -1019,7 +1024,7 @@ const localizations = {
     ja:
       '😮 /google コマンドでグーグルクレデンシャルを設定するか、/engine コマンドでエンジンを変更してください。クレデンシャルのセットアップができていません。',
     tr:
-      '😮 Lütfen /google komutunu kullanarak google kimlik bilgilerinizi yükleyiniz ya da /engine komutuyla ses tanıma motorunu değiştiriniz. Kimlik bilgileriniz henüz yüklenmedi.',
+      '😮 Lütfen /google komutunu kullanarak Google kimlik bilgilerinizi ayarlayın ya da motoru /engine komutuyla değiştirin. Kimlik bilgileriniz henüz ayarlanmamış.',
     sv:
       '😮 Var god, st�ll in google autentiseringsuppgifter med /google command eller byt motor med /engine command. Dina autentiseringsuppgifter �r inte inst�llda �n.',
     pt:
