@@ -58,8 +58,7 @@ const localizations = {
       '📁 Möhtəşəm! Bu andan etibarən “Voicy” bu söhbətdəki bütün səs fayllarını “görməməzlikdən gələcək”.',
     am:
       '📁 Հիանալի է! Այս պահից սկսած *Voicy*-ն *կանտեսի* այս չատում եղած բոլոր աուդիոֆայլերը.',
-    ch:
-      '📁 太好了！从现在起，*Voicy*将*ignore*这个对话中的所有语音档。',
+    ch: '📁 太好了！从现在起，*Voicy*将*ignore*这个对话中的所有语音档。',
     ua:
       '📁 Чудово! Відтепер *Войсі* буде *ігнорувати* всі аудіофайли в цьому чаті.',
     no:
