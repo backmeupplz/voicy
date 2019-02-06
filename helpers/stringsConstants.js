@@ -92,8 +92,7 @@ const localizations = {
       '📁 Möhtəşəm! Bu andan tibarən “Voicy” bu söhbətdəki bütün audio faylarını “tanımağa çalışacaq”.',
     am:
       '📁 Հիանալի է! Այս պահից սկսած *Voicy*-ն *կփորձի ճանաչել* այս չատում եղած բոլոր աուդիոֆայլերը.',
-    ch:
-	  '📁 太好了！从现在起，*Voicy*将*recognize*这个对话中的所有语音档。',
+    ch: '📁 太好了！从现在起，*Voicy*将*recognize*这个对话中的所有语音档。',
     ua:
       '📁 Чудово! Відтепер *Войсі* буде *намагатися розпізнати* всі аудіо файли в цьому чаті.',
     no:
