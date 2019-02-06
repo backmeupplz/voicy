@@ -58,7 +58,7 @@ const localizations = {
     ja:
       '📁 さいこう！ *ヴォイシー * は、チャット内の音声ファイルを全部 *無視* するよ。',
     tr:
-      '📁 Harika! Voicy, şu andan itibaren bu sohbetteki tüm ses dosyalarını *görmezden gelecektir*.',
+      '📁 Harika! *Voicy*, şu andan itibaren bu sohbetteki tüm ses dosyalarını *görmezden gelecektir*.',
     sv:
       '📁 Underbart! *Voicy* kommer *ignorera* alla ljudfiler i den h�r chatten fr�n och med nu.',
     pt:
