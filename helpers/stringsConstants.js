@@ -33,7 +33,7 @@ const localizations = {
       'Hi there! Just wanted to let you know that we will no longer annoy you with sending messages on behalf of @voicybot because we have created a special channel — @borodutch_support — where we will post the most important updates about the @voicybot (i.e. if anything is broken, check there first). Thank you a lot for using @voicybot. Cheers!',
     ru:
       'Всем привет! Мы больше не будем доставать вас сообщениями, отправленными от лица @voicybot, потому что мы создали для этого отдельный канал — @borodutch_support — куда и будем постить все важные новости (если что не работает — проверьте сначала на канале). Спасибо большое за вашу поддержку. Удачи!',
-	tr:
+    tr:
       'Merhaba! Artık, @voicybot adına mesaj gönderirken sizi rahatsız etmeyeceğimizi bildirmek istedim. Çünkü @voicybot hakkındaki en önemli güncellemeleri yayınlayacağımız @borodutch_support adlı özel bir kanal oluşturduk (Yani, bir şey bozulursa, önce orayı kontrol edin). @voicybot\'u kullandığınız için teşekkür ederiz. Şerefe!',
   },
   '📁 Wonderful! *Voicy* will *ignore* all audio files in this chat since now.': {
