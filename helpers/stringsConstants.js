@@ -900,7 +900,7 @@ const localizations = {
     pt: '_🦄 Reconhecimento de voz iniciado..._',
     en: '_🦄 Voice recognition is initiated..._',
     es: '_🦄 Reconocimiento de voz iniciado..._',
-    ru: '_🦄 Распознавание речи инициированно..._',
+    ru: '_🦄 Распознавание речи инициировано..._',
   },
   '_👮 Wit.ai cannot recognize voice messages longer than 50 seconds_': {
     fa:
