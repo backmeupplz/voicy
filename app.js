@@ -23,6 +23,10 @@ const bot = new Telegraf(process.env.TOKEN, {
   username: process.env.USERNAME,
   channelMode: true,
 })
+// Get bot's username
+bot.telegram.getMe().then(info => {
+  bot.options.username = info.username
+})
 // Setup promises
 setupPromises()
 // Setup mongoose
