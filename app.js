@@ -17,6 +17,7 @@ const { setupSilent } = require('./commands/silent')
 const { setupGoogle, setupCheckingCredentials } = require('./commands/google')
 const { setupCallbackHandler } = require('./helpers/callback')
 const report = require('./helpers/report')
+const cluster = require('cluster')
 
 // Create bot
 const bot = new Telegraf(process.env.TOKEN, {
@@ -57,8 +58,9 @@ bot.catch(err => {
   report(bot, err, 'bot.catch')
 })
 
-// Start bot
-bot.startPolling()
-
-// Console that everything is fine
-console.info('Bot is up and running')
+if (cluster.isMaster) {
+  // Start bot
+  bot.startPolling()
+  // Console that everything is fine
+  console.info('Bot is up and running')
+}

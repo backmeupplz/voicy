@@ -1,6 +1,7 @@
 // Dependencies
 const ffmpeg = require('fluent-ffmpeg')
 const temp = require('temp')
+const fs = require('fs')
 
 // Exports
 module.exports = filepath =>
@@ -15,7 +16,10 @@ module.exports = filepath =>
       const output = temp.path({ suffix: '.flac' })
 
       ffmpeg()
-        .on('error', error => reject(error))
+        .on('error', error => {
+          tryDeletingFile(output)
+          reject(error)
+        })
         .on('end', () => resolve({ flacPath: output, duration: fileSize }))
         .input(filepath)
         .setStartTime(0)
@@ -26,3 +30,11 @@ module.exports = filepath =>
         .run()
     })
   })
+
+function tryDeletingFile(path) {
+  try {
+    fs.unlinkSync(path)
+  } catch (err) {
+    // do nothing
+  }
+}

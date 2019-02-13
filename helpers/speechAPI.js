@@ -29,6 +29,7 @@ async function getText(flacPath, chat, duration) {
   }
   // Try wit if yandex couldn't make it
   const yandexResult = await yandex(flacPath, chat)
+  // TODO: remove 50 secs limit
   if (!yandexResult && duration <= 50) {
     return wit(
       language.witLanguages()[languageMap[chat.yandexLanguage]],
@@ -39,7 +40,7 @@ async function getText(flacPath, chat, duration) {
 }
 
 /**
- * COnvert filepath to text with google
+ * Convert filepath to text with google
  * @param {Path} filePath Path of the file
  * @param {Mongoose:Chat} chat Chat to convert
  */

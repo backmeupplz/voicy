@@ -1,3 +1,6 @@
+// Dependencies
+const Telegraf = require('telegraf')
+
 module.exports = function(bot, err, prefix) {
   try {
     const bypassList = [
@@ -30,7 +33,12 @@ module.exports = function(bot, err, prefix) {
         return
       }
     }
-    const telegram = bot.telegram ? bot.telegram : bot
+    const telegram = bot
+      ? bot.telegram || bot
+      : new Telegraf(process.env.TOKEN, {
+          username: process.env.USERNAME,
+          channelMode: true,
+        }).telegram
     telegram.sendMessage(
       process.env.ADMIN_ID,
       `*Voicy*${prefix ? ` (${prefix})` : ''}:\nMessage: ${
