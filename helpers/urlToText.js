@@ -35,6 +35,7 @@ async function urlToText(url, chat) {
     clusterNumber = 0
   }
   const worker = workers[clusterNumber]
+  clusterNumber++
   lock.release()
   // Create promise and send the message to worker
   return new Promise((res, rej) => {
