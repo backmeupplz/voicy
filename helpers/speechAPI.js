@@ -170,8 +170,16 @@ async function wit(token, filePath, duration) {
       })
     )
   }
-  const responses = await Promise.all(promises)
-  return responses.join(' ').trim()
+  try {
+    const responses = await Promise.all(promises)
+    return responses.join(' ').trim()
+  } catch (err) {
+    throw err
+  } finally {
+    for (const path of paths) {
+      tryDeletingFile(path)
+    }
+  }
 }
 
 function splitPath(path, duration) {
@@ -226,6 +234,14 @@ function yandex(filePath, chat) {
       resolve(result)
     })
   })
+}
+
+function tryDeletingFile(path) {
+  try {
+    fs.unlinkSync(path)
+  } catch (err) {
+    // do nothing
+  }
 }
 
 // Exports
