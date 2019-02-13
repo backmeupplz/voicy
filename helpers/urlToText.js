@@ -102,13 +102,11 @@ async function convert(url, chat) {
     report(undefined, err, 'sendTranscription.convertAudioFile')
     throw err
   }
-  // No need for oga file anymore
-  fs.unlinkSync(ogaPath)
 
   // Convert flac file to speech
   try {
     // Get transcription
-    const text = await speechAPI.getText(flacPath, chat, duration)
+    const text = await speechAPI.getText(flacPath, chat, duration, ogaPath)
     // Unlink (delete) flac file
     tryDeletingFile(flacPath)
     // Return result
@@ -120,6 +118,9 @@ async function convert(url, chat) {
     tryDeletingFile(flacPath)
     report(undefined, err, 'sendTranscription.convertFlacToText')
     throw err
+  } finally {
+    // No need for oga file anymore
+    fs.unlinkSync(ogaPath)
   }
 }
 

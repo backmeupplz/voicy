@@ -1,10 +1,10 @@
 // Dependencies
 const fs = require('fs')
-// const cloud = require('./cloud')
 const https = require('https')
 const language = require('./language')
 const cloud = require('./cloud')
-const report = require('./report')
+const ffmpeg = require('fluent-ffmpeg')
+const temp = require('temp')
 
 // Language map
 const languageMap = {
@@ -21,19 +21,19 @@ const languageMap = {
  * @param {Int} duration Duration of audio file
  * @return {String} Result text
  */
-async function getText(flacPath, chat, duration) {
+async function getText(flacPath, chat, duration, ogaPath) {
   if (chat.engine === 'wit') {
-    return wit(language.witLanguages()[chat.witLanguage], flacPath)
+    return wit(language.witLanguages()[chat.witLanguage], ogaPath, duration)
   } else if (chat.engine === 'google') {
     return google(flacPath, chat)
   }
   // Try wit if yandex couldn't make it
   const yandexResult = await yandex(flacPath, chat)
-  // TODO: remove 50 secs limit
-  if (!yandexResult && duration <= 50) {
+  if (!yandexResult) {
     return wit(
       language.witLanguages()[languageMap[chat.yandexLanguage]],
-      flacPath
+      ogaPath,
+      duration
     )
   }
   return yandexResult
@@ -101,69 +101,104 @@ async function google(filePath, chat) {
  * @param {String} token Token of the wit.ai language
  * @param {Path} filePath Path of the file to convert
  */
-function wit(token, filePath) {
-  return new Promise(resolve => {
-    const options = {
-      method: 'POST',
-      hostname: 'api.wit.ai',
-      port: null,
-      path: '/speech?v=20170307',
-      headers: {
-        authorization: `Bearer ${token}`,
-        'content-type':
-          'audio/raw;encoding=signed-integer;bits=16;rate=16000;endian=little',
-        'cache-control': 'no-cache',
-      },
-    }
-    const req = https.request(options, res => {
-      const chunks = []
-
-      res.on('data', chunk => {
-        chunks.push(chunk)
-      })
-
-      res.on('end', () => {
-        const body = Buffer.concat(chunks)
-        try {
-          resolve(JSON.parse(body.toString())._text)
-        } catch (err) {
-          // Do nothing
+async function wit(token, filePath, duration) {
+  const paths = await splitPath(filePath, duration)
+  const promises = []
+  for (const path of paths) {
+    promises.push(
+      new Promise(resolve => {
+        const options = {
+          method: 'POST',
+          hostname: 'api.wit.ai',
+          port: null,
+          path: '/speech?v=20170307',
+          headers: {
+            authorization: `Bearer ${token}`,
+            'content-type':
+              'audio/raw;encoding=signed-integer;bits=16;rate=16000;endian=little',
+            'cache-control': 'no-cache',
+          },
         }
+        const req = https.request(options, res => {
+          const chunks = []
+
+          res.on('data', chunk => {
+            chunks.push(chunk)
+          })
+
+          res.on('end', () => {
+            const body = Buffer.concat(chunks)
+            try {
+              resolve(JSON.parse(body.toString())._text)
+            } catch (err) {
+              // Do nothing
+            }
+          })
+
+          res.on('error', () => {
+            try {
+              resolve('')
+            } catch (err) {
+              // Do nothing
+            }
+          })
+        })
+
+        req.on('error', () => {
+          try {
+            resolve('')
+          } catch (err) {
+            // Do nothing
+          }
+        })
+
+        const stream = fs.createReadStream(path)
+        stream.pipe(req)
+        let error
+        stream.on('error', err => {
+          error = err
+        })
+        stream.on('close', () => {
+          if (error) {
+            try {
+              resolve('')
+            } catch (err) {
+              // Do nothing
+            }
+          }
+        })
       })
+    )
+  }
+  const responses = await Promise.all(promises)
+  return responses.join(' ')
+}
 
-      res.on('error', () => {
-        try {
-          resolve('')
-        } catch (err) {
-          // Do nothing
-        }
+function splitPath(path, duration) {
+  const trackLength = 50
+  const lastTrackLength = duration % trackLength
+
+  const promises = []
+  for (let i = 0; i < duration; i += trackLength) {
+    const output = temp.path({ suffix: '.flac' })
+    promises.push(
+      new Promise((res, rej) => {
+        ffmpeg()
+          .input(path)
+          .on('error', error => {
+            rej(error)
+          })
+          .on('end', () => res(output))
+          .output(output)
+          .setStartTime(i)
+          .duration(i + trackLength < duration ? trackLength : lastTrackLength)
+          .audioFrequency(16000)
+          .toFormat('s16le')
+          .run()
       })
-    })
-
-    req.on('error', () => {
-      try {
-        resolve('')
-      } catch (err) {
-        // Do nothing
-      }
-    })
-
-    const stream = fs.createReadStream(filePath)
-    stream.pipe(req)
-    let error
-    stream.on('error', err => {
-      error = err
-    })
-    stream.on('close', () => {
-      if (error) {
-        try {
-          resolve('')
-        } catch (err) {
-          // Do nothing
-        }
-      }
-    })
-  })
+    )
+  }
+  return Promise.all(promises)
 }
 
 /**
