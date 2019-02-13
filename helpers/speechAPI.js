@@ -171,7 +171,7 @@ async function wit(token, filePath, duration) {
     )
   }
   const responses = await Promise.all(promises)
-  return responses.join(' ')
+  return responses.join(' ').trim()
 }
 
 function splitPath(path, duration) {
