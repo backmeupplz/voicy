@@ -9,6 +9,7 @@ const { checkDate } = require('../helpers/filter')
  */
 function setupHelp(bot) {
   bot.help(async ctx => {
+    console.log('Got help')
     // Check if less than 5 minutes ago
     if (!checkDate(ctx)) return
     // Get chat
