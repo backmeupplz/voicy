@@ -59,11 +59,11 @@ bot.catch(err => {
   report(bot, err, 'bot.catch')
 })
 
-if (cluster.isMaster) {
+// if (cluster.isMaster) {
   // Start bot
   if (process.env.USE_WEBHOOK === 'true') {
     const domain = process.env.WEBHOOK_DOMAIN;
-    bot.launch({ webhook: { domain, port: 5000 } })
+    bot.launch({ webhook: { domain, port: 5000, hookPath: 'mahook' } })
       .then(async () => {
         const webhookInfo = await bot.telegram.getWebhookInfo()
         console.info('Bot is up and running with webhooks', webhookInfo)
@@ -74,4 +74,4 @@ if (cluster.isMaster) {
     // Console that everything is fine
     console.info('Bot is up and running')
   }
-}
+// }
