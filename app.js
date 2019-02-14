@@ -18,6 +18,7 @@ const { setupGoogle, setupCheckingCredentials } = require('./commands/google')
 const { setupCallbackHandler } = require('./helpers/callback')
 const report = require('./helpers/report')
 const cluster = require('cluster')
+const fs = require('fs')
 
 // Create bot
 const bot = new Telegraf(process.env.TOKEN, {
@@ -60,7 +61,19 @@ bot.catch(err => {
 
 if (cluster.isMaster) {
   // Start bot
-  bot.startPolling()
+  if (process.env.USE_WEBHOOK === 'true') {
+    const secret = process.env.WEBHOOK_SECRET;
+    const host = process.env.WEBHOOK_HOST;
+    bot.telegram.setWebhook(`https://${host}:8443/${secret}`, {
+      source: `${__dirname}/cert/server-cert.pem`,
+    })
+    bot.startWebhook(`/${secret}`, {
+      key: fs.readFileSync(`${__dirname}/cert/server-key.pem`),
+      cert: fs.readFileSync(`${__dirname}/cert/server-cert.pem`),
+    }, 8443)
+  } else {
+    bot.startPolling()
+  }
   // Console that everything is fine
   console.info('Bot is up and running')
 }
