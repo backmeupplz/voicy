@@ -142,17 +142,36 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   if (!text || markdown) {
     options.parse_mode = 'Markdown'
   }
-  // Edit message
-  await ctx.telegram.editMessageText(
-    msg.chat.id,
-    msg.message_id,
-    null,
-    text ||
-      strings.translate(
-        "_👮 Please, speak clearly, I couldn't recognize that_"
-      ),
-    options
-  )
+  if (!text || text.length <= 4000) {
+    // Edit message
+    await ctx.telegram.editMessageText(
+      msg.chat.id,
+      msg.message_id,
+      null,
+      text ||
+        strings.translate(
+          "_👮 Please, speak clearly, I couldn't recognize that_"
+        ),
+      options
+    )
+  } else {
+    // Get chunks
+    const chunks = text.match(/.{1,4000}/g)
+    // Edit message
+    await ctx.telegram.editMessageText(
+      msg.chat.id,
+      msg.message_id,
+      null,
+      chunks.shift(),
+      options
+    )
+    // Send the rest of text
+    for (const chunk of chunks) {
+      await ctx.reply(chunk, {
+        reply_to_message_id: msg.message_id,
+      })
+    }
+  }
 }
 
 /**
@@ -176,8 +195,23 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
     options.parse_mode = 'Markdown'
   }
   // Send message
-  if (text) {
+  if (text && text.length < 4000) {
     await ctx.telegram.sendMessage(chat.id, text, options)
+  } else if (text) {
+    // Get chunks
+    const chunks = text.match(/.{1,4000}/g)
+    // Edit message
+    const message = await ctx.telegram.sendMessage(
+      chat.id,
+      chunks.shift(),
+      options
+    )
+    // Send the rest of text
+    for (const chunk of chunks) {
+      await ctx.reply(chunk, {
+        reply_to_message_id: message.message_id,
+      })
+    }
   }
 }
 

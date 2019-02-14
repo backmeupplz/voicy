@@ -103,87 +103,45 @@ async function google(filePath, chat) {
  */
 async function wit(token, filePath, duration) {
   const paths = await splitPath(filePath, duration)
-  const promises = []
-  for (const path of paths) {
-    promises.push(
-      new Promise(resolve => {
-        const options = {
-          method: 'POST',
-          hostname: 'api.wit.ai',
-          port: null,
-          path: '/speech?v=20170307',
-          headers: {
-            authorization: `Bearer ${token}`,
-            'content-type':
-              'audio/raw;encoding=signed-integer;bits=16;rate=16000;endian=little',
-            'cache-control': 'no-cache',
-          },
-        }
-        const req = https.request(options, res => {
-          const chunks = []
-
-          res.on('data', chunk => {
-            chunks.push(chunk)
-          })
-
-          res.on('end', () => {
-            const body = Buffer.concat(chunks)
+  let result = []
+  while (paths.length) {
+    const pathsToRecognize = paths.splice(0, 5)
+    const promises = []
+    for (const path of pathsToRecognize) {
+      promises.push(
+        new Promise(async (res, rej) => {
+          let triesCount = 10
+          let error
+          while (triesCount > 0) {
             try {
-              resolve(JSON.parse(body.toString())._text)
+              const text = await recognizePath(path, token)
+              return res(text)
             } catch (err) {
-              // Do nothing
-            }
-          })
-
-          res.on('error', () => {
-            try {
-              resolve('')
-            } catch (err) {
-              // Do nothing
-            }
-          })
-        })
-
-        req.on('error', () => {
-          try {
-            resolve('')
-          } catch (err) {
-            // Do nothing
-          }
-        })
-
-        const stream = fs.createReadStream(path)
-        stream.pipe(req)
-        let error
-        stream.on('error', err => {
-          error = err
-        })
-        stream.on('close', () => {
-          if (error) {
-            try {
-              resolve('')
-            } catch (err) {
-              // Do nothing
+              error = err
+              triesCount--
+              console.log(`Retrying ${path}, attempts left — ${triesCount}`)
             }
           }
+          rej(error)
         })
-      })
-    )
-  }
-  try {
-    const responses = await Promise.all(promises)
-    return responses.join(' ').trim()
-  } catch (err) {
-    throw err
-  } finally {
-    for (const path of paths) {
-      tryDeletingFile(path)
+      )
+    }
+    try {
+      const responses = await Promise.all(promises)
+      result = result.concat(responses.map(r => (r || '').trim()))
+    } catch (err) {
+      throw err
+    } finally {
+      for (const path of pathsToRecognize) {
+        tryDeletingFile(path)
+      }
     }
   }
+  return result.join('. ').trim()
 }
 
 function splitPath(path, duration) {
-  const trackLength = 50
+  const trackLength = duration > 50 ? 30 : 50
   const lastTrackLength = duration % trackLength
 
   const promises = []
@@ -242,6 +200,78 @@ function tryDeletingFile(path) {
   } catch (err) {
     // do nothing
   }
+}
+
+async function recognizePath(path, token) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      method: 'POST',
+      hostname: 'api.wit.ai',
+      port: null,
+      path: '/speech?v=20170307',
+      headers: {
+        authorization: `Bearer ${token}`,
+        'content-type':
+          'audio/raw;encoding=signed-integer;bits=16;rate=16000;endian=little',
+        'cache-control': 'no-cache',
+      },
+    }
+    const req = https.request(options, res => {
+      const chunks = []
+
+      res.on('data', chunk => {
+        chunks.push(chunk)
+      })
+
+      res.on('end', () => {
+        const body = Buffer.concat(chunks)
+        const json = JSON.parse(body.toString())
+        try {
+          if (json.error) {
+            const error = new Error(json.error)
+            error.code = json.code
+            reject(error)
+          } else {
+            resolve(json._text)
+          }
+        } catch (err) {
+          // Do nothing
+        }
+      })
+
+      res.on('error', err => {
+        try {
+          reject(err)
+        } catch (err) {
+          // Do nothing
+        }
+      })
+    })
+
+    req.on('error', err => {
+      try {
+        reject(err)
+      } catch (err) {
+        // Do nothing
+      }
+    })
+
+    const stream = fs.createReadStream(path)
+    stream.pipe(req)
+    let error
+    stream.on('error', err => {
+      error = err
+    })
+    stream.on('close', () => {
+      if (error) {
+        try {
+          reject(error)
+        } catch (err) {
+          // Do nothing
+        }
+      }
+    })
+  })
 }
 
 // Exports
