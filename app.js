@@ -18,7 +18,6 @@ const { setupGoogle, setupCheckingCredentials } = require('./commands/google')
 const { setupCallbackHandler } = require('./helpers/callback')
 const report = require('./helpers/report')
 const cluster = require('cluster')
-const fs = require('fs')
 
 // Create bot
 const bot = new Telegraf(process.env.TOKEN, {
@@ -26,7 +25,7 @@ const bot = new Telegraf(process.env.TOKEN, {
   channelMode: true,
 })
 bot.use((ctx, next) => {
-  console.log(ctx.message)
+  console.log('1')
   next()
 })
 // Get bot's username
@@ -37,6 +36,10 @@ bot.telegram.getMe().then(info => {
 setupPromises()
 // Setup mongoose
 setupMongoose()
+bot.use((ctx, next) => {
+  console.log('2')
+  next()
+})
 
 // Setup checking for google credentials
 setupCheckingCredentials(bot)
@@ -44,6 +47,10 @@ setupCheckingCredentials(bot)
 setupAudioHandler(bot)
 // Setup stats counter
 setupCounter(bot)
+bot.use((ctx, next) => {
+  console.log('3')
+  next()
+})
 
 // Setup commands
 setupHelp(bot)
@@ -54,6 +61,10 @@ setupLock(bot)
 setupFiles(bot)
 setupSilent(bot)
 setupGoogle(bot)
+bot.use((ctx, next) => {
+  console.log('4')
+  next()
+})
 
 // Setup keyboard callback handler
 setupCallbackHandler(bot)
