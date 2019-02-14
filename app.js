@@ -64,13 +64,13 @@ if (cluster.isMaster) {
   if (process.env.USE_WEBHOOK === 'true') {
     const secret = process.env.WEBHOOK_SECRET;
     const host = process.env.WEBHOOK_HOST;
-    bot.telegram.setWebhook(`https://${host}:8443/${secret}`, {
-      source: `${__dirname}/cert/server-cert.pem`,
-    })
-    bot.startWebhook(`/${secret}`, {
-      key: fs.readFileSync(`${__dirname}/cert/server-key.pem`),
-      cert: fs.readFileSync(`${__dirname}/cert/server-cert.pem`),
-    }, 8443)
+    bot.telegram.setWebhook(`https://${host}:8443/${secret}`)
+      .then(() => {
+        bot.startWebhook(`/${secret}`, null, 5000)
+      })
+      .catch((err) => {
+        console.error('Error setting webhooks', err);
+      })
   } else {
     bot.startPolling()
   }
