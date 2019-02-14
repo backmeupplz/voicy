@@ -21,9 +21,10 @@ const cluster = require('cluster')
 
 // Create bot
 const bot = new Telegraf(process.env.TOKEN, {
-  username: process.env.USERNAME,
   channelMode: true,
-  replyWebhook: false,
+  telegram: {
+    replyWebhook: false,
+  },
 })
 // Get bot's username
 bot.telegram.getMe().then(info => {
