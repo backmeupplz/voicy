@@ -1,7 +1,6 @@
 // Dependencies
 const { setLanguage } = require('./language')
 const { setEngine } = require('./engine')
-const { checkDate } = require('./filter')
 
 /**
  * Setting up an endpoint for callbacks
@@ -9,9 +8,6 @@ const { checkDate } = require('./filter')
  */
 function setupCallbackHandler(bot) {
   bot.action(async (data, ctx) => {
-    // Check if less than 5 minutes ago
-    if (!checkDate(ctx)) return
-    
     const options = data.split('~')
     const inline = options[0]
     try {
