@@ -64,10 +64,11 @@ if (cluster.isMaster) {
   if (process.env.USE_WEBHOOK === 'true') {
     const domain = process.env.WEBHOOK_DOMAIN;
     bot.launch({ webhook: { domain, port: 5000 } })
+      .then(() => console.info('Bot is up and running with webhooks'))
       .catch(err => console.error('Bot launch error', err))
   } else {
     bot.startPolling()
+    // Console that everything is fine
+    console.info('Bot is up and running')
   }
-  // Console that everything is fine
-  console.info('Bot is up and running')
 }
