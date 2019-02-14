@@ -2906,7 +2906,7 @@ tar@^4:
     safe-buffer "^5.1.2"
     yallist "^3.0.2"
 
-telegraf@^3.22.1:
+telegraf@^3.27.1:
   version "3.27.1"
   resolved "https://registry.yarnpkg.com/telegraf/-/telegraf-3.27.1.tgz#67fbd87a6b4f414a204820f8cb30160e2078b39c"
   dependencies:
