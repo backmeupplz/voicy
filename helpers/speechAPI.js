@@ -224,18 +224,30 @@ async function recognizePath(path, token) {
       })
 
       res.on('end', () => {
-        const body = Buffer.concat(chunks)
-        const json = JSON.parse(body.toString())
         try {
+          const body = Buffer.concat(chunks)
+          const json = JSON.parse(body.toString())
           if (json.error) {
             const error = new Error(json.error)
             error.code = json.code
-            reject(error)
+            try {
+              reject(error)
+            } catch (err) {
+              // Do nothing
+            }
           } else {
-            resolve(json._text)
+            try {
+              resolve(json._text)
+            } catch (err) {
+              // Do nothing
+            }
           }
         } catch (err) {
-          // Do nothing
+          try {
+            reject(err);
+          } catch (err) {
+            // Do nothing
+          }
         }
       })
 
