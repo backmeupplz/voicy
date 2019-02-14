@@ -22,8 +22,8 @@ const messageStatsSchema = new Schema(
 const MessageStats = mongoose.model('messageStats', messageStatsSchema)
 
 async function countMessage() {
-  const lock = new Lock(1)
-  lock.acquire()
+  const lock = new Lock(2)
+  await lock.acquire()
   try {
     const today = dateToEpoch(new Date())
     let messageStats = await MessageStats.findOne({ date: today })
