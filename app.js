@@ -23,10 +23,7 @@ const cluster = require('cluster')
 const bot = new Telegraf(process.env.TOKEN, {
   username: process.env.USERNAME,
   channelMode: true,
-})
-bot.use((ctx, next) => {
-  console.log('1')
-  next()
+  replyWebhook: false,
 })
 // Get bot's username
 bot.telegram.getMe().then(info => {
@@ -36,10 +33,6 @@ bot.telegram.getMe().then(info => {
 setupPromises()
 // Setup mongoose
 setupMongoose()
-bot.use((ctx, next) => {
-  console.log('2')
-  next()
-})
 
 // Setup checking for google credentials
 setupCheckingCredentials(bot)
@@ -47,10 +40,6 @@ setupCheckingCredentials(bot)
 setupAudioHandler(bot)
 // Setup stats counter
 setupCounter(bot)
-bot.use((ctx, next) => {
-  console.log('3')
-  next()
-})
 
 // Setup commands
 setupHelp(bot)
@@ -61,10 +50,6 @@ setupLock(bot)
 setupFiles(bot)
 setupSilent(bot)
 setupGoogle(bot)
-bot.use((ctx, next) => {
-  console.log('4')
-  next()
-})
 
 // Setup keyboard callback handler
 setupCallbackHandler(bot)
