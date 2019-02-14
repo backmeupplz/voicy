@@ -27,6 +27,7 @@ module.exports = function(bot, err, prefix) {
       'message not found',
       'bot was blocked',
       'group chat was upgraded to a supergroup chat',
+      'Timeout',
     ]
     for (const item of bypassList) {
       if (err.message && err.message.indexOf(item) > -1) {
