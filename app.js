@@ -64,7 +64,10 @@ if (cluster.isMaster) {
   if (process.env.USE_WEBHOOK === 'true') {
     const domain = process.env.WEBHOOK_DOMAIN;
     bot.launch({ webhook: { domain, port: 5000 } })
-      .then(() => console.info('Bot is up and running with webhooks'))
+      .then(async () => {
+        const webhookInfo = await bot.telegram.getWebhookInfo()
+        console.info('Bot is up and running with webhooks', webhookInfo)
+      })
       .catch(err => console.error('Bot launch error', err))
   } else {
     bot.startPolling()
