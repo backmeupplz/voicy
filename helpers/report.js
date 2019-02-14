@@ -49,7 +49,7 @@ module.exports = function(bot, err, prefix) {
         parse_mode: 'Markdown',
       }
     )
-  } catch {
+  } catch (err) {
     // Do nothing
   }
 }

@@ -48,7 +48,7 @@ function setupStart(bot) {
  * @param {Telegraf:Context} ctx Context to respond
  * @param {Mongoose:Chat} chat Relevant chat
  */
-function sendStart(ctx, chat) {
+async function sendStart(ctx, chat) {
   // Get localization strings and set it up
   const strings = require('../helpers/strings')()
   strings.setChat(chat)
