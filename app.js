@@ -34,6 +34,12 @@ setupPromises()
 // Setup mongoose
 setupMongoose()
 
+// DEBUG: Cut it for now
+let i = 0;
+bot.use((ctx, next) => {
+  console.log(`Acknowledged ${i++}`)
+})
+
 // Setup checking for google credentials
 setupCheckingCredentials(bot)
 // Setup audio handler
@@ -72,7 +78,6 @@ if (cluster.isMaster) {
         console.info('Bot is up and running with webhooks', webhookInfo)
       })
       .catch(err => console.error('Bot launch error', err))
-      
   } else {
     bot.startPolling()
     // Console that everything is fine
