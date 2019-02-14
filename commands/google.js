@@ -32,6 +32,8 @@ function setupGoogle(bot) {
     // Save msg to chat
     chat.googleSetupMessageId = msg.message_id
     chat.save()
+    // Log time
+    console.info(`/google answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
   })
 }
 
@@ -99,6 +101,8 @@ function setupCheckingCredentials(bot) {
               JSON.parse(chat.googleKey).project_id
             )
           )
+          // Log time
+          console.info(`credentials check answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
         }
       }
     } catch (err) {

@@ -54,7 +54,9 @@ function sendStart(ctx, chat) {
   strings.setChat(chat)
   // Send start message
   const text = strings.translate('👋 Hello there! *Voicy* is a voice recognition bot that converts all voice messages and audio files (.ogg, .flac, .wav, .mp3) it gets into text.\n\n*Voicy* supports three voice recognition engines: wit.ai, Yandex SpeechKit and Google Speech. Initially it\'s set to use wit.ai but you can switch to Google Speech or Yandex SpeechKit anytime in /engine. More information in /help.')
-  ctx.replyWithMarkdown(text)
+  await ctx.replyWithMarkdown(text)
+  // Log time
+  console.info(`/start answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
 }
 
 // Exports

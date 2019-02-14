@@ -14,6 +14,8 @@ function setupAudioHandler(bot) {
     if (!checkDate(ctx)) return
     // Handle voice
     handleMessage(ctx)
+    // Log time
+    console.info(`audio message answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
   })
   // Audio handler
   bot.on(['audio', 'document'], async ctx => {
@@ -21,6 +23,8 @@ function setupAudioHandler(bot) {
     if (!checkDate(ctx)) return
     // Handle voice
     handleDocumentOrAudio(ctx)
+    // Log time
+    console.info(`audio message answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
   })
 }
 

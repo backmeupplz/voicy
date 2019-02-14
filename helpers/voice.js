@@ -86,6 +86,9 @@ async function sendTranscription(ctx, url, chat) {
     // In case of error, send it
     await updateMessagewithError(ctx, sentMessage, chat, err)
     report(ctx, err, 'sendTranscription')
+  } finally {
+    // Log time
+    console.info(`audio message processed in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
   }
 }
 
@@ -122,6 +125,9 @@ async function sendAction(ctx, url, chat) {
   } catch (err) {
     // In case of error, log it
     report(ctx, err, 'sendTranscription.silent')
+  } finally {
+    // Log time
+    console.info(`audio message processed in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
   }
 }
 

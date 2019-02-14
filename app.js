@@ -40,25 +40,25 @@ bot.use((ctx, next) => {
   next();
 })
 
-// // Setup checking for google credentials
-// setupCheckingCredentials(bot)
-// // Setup audio handler
-// setupAudioHandler(bot)
-// // Setup stats counter
-// setupCounter(bot)
+// Setup checking for google credentials
+setupCheckingCredentials(bot)
+// Setup audio handler
+setupAudioHandler(bot)
+// Setup stats counter
+setupCounter(bot)
 
 // Setup commands
 setupHelp(bot)
-// setupStart(bot)
-// setupLanguage(bot)
-// setupEngine(bot)
-// setupLock(bot)
-// setupFiles(bot)
-// setupSilent(bot)
-// setupGoogle(bot)
+setupStart(bot)
+setupLanguage(bot)
+setupEngine(bot)
+setupLock(bot)
+setupFiles(bot)
+setupSilent(bot)
+setupGoogle(bot)
 
 // Setup keyboard callback handler
-// setupCallbackHandler(bot)
+setupCallbackHandler(bot)
 
 // Bot catch
 bot.catch(err => {
