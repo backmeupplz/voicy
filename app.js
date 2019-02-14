@@ -36,7 +36,7 @@ setupMongoose()
 
 // Add time received to the ctx
 bot.use((ctx, next) => {
-  ctx.timeReceived = newDate();
+  ctx.timeReceived = new Date();
   next();
 })
 
