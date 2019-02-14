@@ -34,12 +34,6 @@ setupPromises()
 // Setup mongoose
 setupMongoose()
 
-// DEBUG: Cut it for now
-let i = 0;
-bot.use((ctx, next) => {
-  console.log(`Acknowledged ${i++}`)
-})
-
 // Setup checking for google credentials
 setupCheckingCredentials(bot)
 // Setup audio handler
