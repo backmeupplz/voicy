@@ -26,7 +26,7 @@ const bot = new Telegraf(process.env.TOKEN, {
   channelMode: true,
 })
 bot.use((ctx, next) => {
-  console.log('noice')
+  console.log(ctx.message)
   next()
 })
 // Get bot's username
