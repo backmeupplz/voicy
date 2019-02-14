@@ -63,9 +63,8 @@ if (cluster.isMaster) {
   // Start bot
   if (process.env.USE_WEBHOOK === 'true') {
     const domain = process.env.WEBHOOK_DOMAIN;
-    bot.telegram.deleteWebhook()
-      .then(async() => {
-        await bot.launch({ webhook: { domain, port: 5000 } })
+    bot.launch({ webhook: { domain, port: 5000 } })
+      .then(async () => {
         const webhookInfo = await bot.telegram.getWebhookInfo()
         console.info('Bot is up and running with webhooks', webhookInfo)
       })
