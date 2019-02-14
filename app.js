@@ -18,6 +18,7 @@ const { setupGoogle, setupCheckingCredentials } = require('./commands/google')
 const { setupCallbackHandler } = require('./helpers/callback')
 const report = require('./helpers/report')
 const cluster = require('cluster')
+const uuid = require('uuid/v4')
 
 // Create bot
 const bot = new Telegraf(process.env.TOKEN, {
@@ -62,12 +63,16 @@ if (cluster.isMaster) {
   // Start bot
   if (process.env.USE_WEBHOOK === 'true') {
     const domain = process.env.WEBHOOK_DOMAIN;
-    bot.launch({ webhook: { domain, port: 5000 } })
+    bot.telegram.deleteWebhook()
       .then(async () => {
+        const secretPath = uuid()
+        bot.startWebhook(`/${secretPath}`, undefined, 5000)
+        await bot.telegram.setWebhook(`https://${domain}/${secretPath}`, undefined, 100)
         const webhookInfo = await bot.telegram.getWebhookInfo()
         console.info('Bot is up and running with webhooks', webhookInfo)
       })
       .catch(err => console.error('Bot launch error', err))
+      
   } else {
     bot.startPolling()
     // Console that everything is fine
