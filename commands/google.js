@@ -41,8 +41,11 @@ function setupGoogle(bot) {
  */
 function setupCheckingCredentials(bot) {
   bot.use(async (ctx, next) => {
+    // Continue
+    next()
+    // Check credentials
     try {
-      // Get messahe
+      // Get message
       const msg = ctx.message || ctx.update.channel_post
       // Check if reply to bot
       if (
@@ -101,8 +104,6 @@ function setupCheckingCredentials(bot) {
     } catch (err) {
       report(bot, err, 'setupCheckingCredentials')
     }
-    // Continue
-    next()
   })
 }
 

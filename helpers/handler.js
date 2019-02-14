@@ -19,16 +19,21 @@ function setupAudioHandler(bot) {
   bot.on(['audio', 'document'], async ctx => {
     // Check if less than 5 minutes ago
     if (!checkDate(ctx)) return
-    // Check if files banned
-    const chat = await findChat(ctx.chat.id)
-    if (chat.filesBanned) return
-    // Check if correct format
-    if (!isCorrectDocument(ctx)) {
-      return
-    }
     // Handle voice
-    handleMessage(ctx)
+    handleDocumentOrAudio(ctx)
   })
+}
+
+async function handleDocumentOrAudio(ctx) {
+  // Check if files banned
+  const chat = await findChat(ctx.chat.id)
+  if (chat.filesBanned) return
+  // Check if correct format
+  if (!isCorrectDocument(ctx)) {
+    return
+  }
+  // Handle voice
+  handleMessage(ctx)
 }
 
 function isCorrectDocument(ctx) {
