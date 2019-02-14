@@ -62,15 +62,8 @@ bot.catch(err => {
 if (cluster.isMaster) {
   // Start bot
   if (process.env.USE_WEBHOOK === 'true') {
-    const secret = process.env.WEBHOOK_SECRET;
-    const host = process.env.WEBHOOK_HOST;
-    bot.telegram.setWebhook(`https://${host}:8443/${secret}`)
-      .then(() => {
-        bot.startWebhook(`/${secret}`, null, 5000)
-      })
-      .catch((err) => {
-        console.error('Error setting webhooks', err);
-      })
+    const domain = process.env.WEBHOOK_DOMAIN;
+    bot.launch({ webhook: { domain, port: 5000 } })
   } else {
     bot.startPolling()
   }
