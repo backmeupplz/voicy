@@ -120,7 +120,7 @@ async function wit(token, filePath, duration, language) {
             } catch (err) {
               error = err
               triesCount--
-              console.log(`Retrying ${language} ${path}, attempts left — ${triesCount}, error: ${JSON.stringify(err)}`)
+              console.log(`Retrying ${language} ${path}, attempts left — ${triesCount}, error: ${err.message} (${err.code})`)
             }
           }
           rej(error)
