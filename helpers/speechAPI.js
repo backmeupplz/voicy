@@ -23,7 +23,7 @@ const languageMap = {
  */
 async function getText(flacPath, chat, duration, ogaPath) {
   if (chat.engine === 'wit') {
-    return wit(language.witLanguages()[chat.witLanguage], ogaPath, duration)
+    return wit(language.witLanguages()[chat.witLanguage], ogaPath, duration, chat.witLanguage)
   } else if (chat.engine === 'google') {
     return google(flacPath, chat)
   }
@@ -33,7 +33,8 @@ async function getText(flacPath, chat, duration, ogaPath) {
     return wit(
       language.witLanguages()[languageMap[chat.yandexLanguage]],
       ogaPath,
-      duration
+      duration,
+      languageMap[chat.yandexLanguage]
     )
   }
   return yandexResult
@@ -101,7 +102,7 @@ async function google(filePath, chat) {
  * @param {String} token Token of the wit.ai language
  * @param {Path} filePath Path of the file to convert
  */
-async function wit(token, filePath, duration) {
+async function wit(token, filePath, duration, language) {
   const paths = await splitPath(filePath, duration)
   let result = []
   while (paths.length) {
@@ -119,7 +120,7 @@ async function wit(token, filePath, duration) {
             } catch (err) {
               error = err
               triesCount--
-              console.log(`Retrying ${path}, attempts left — ${triesCount}`)
+              console.log(`Retrying ${language} ${path}, attempts left — ${triesCount}`)
             }
           }
           rej(error)
