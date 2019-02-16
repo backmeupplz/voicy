@@ -32,23 +32,65 @@ function setupGoogle(bot) {
   })
 
   bot.command('enableGoogle', checkDate, async ctx => {
-    // Get chat
+    // Get sender and chat
+    const sender = await findChat(ctx.from.id)
     const chat = await findChat(ctx.chat.id)
     // Check if admin locked
-    const adminLockCheck = await checkAdminLock(chat, ctx)
-    if (!adminLockCheck) return
+    if (!(await checkAdminLock(chat, ctx))) return
     // Setup localizations
     const strings = require('../helpers/strings')()
     strings.setChat(chat)
+    // Check if google key exists on user
+    if (!sender.googleKey) {
+      return ctx.replyWithMarkdown(
+        strings.translate(
+          'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.'
+        )
+      )
+    }
+    // Setup google key
+    chat.googleKey = sender.googleKey
+    await chat.save()
     // Send message
-    const msg = await ctx.replyWithMarkdown(
+    await ctx.replyWithMarkdown(
       strings.translate(
-        'Reply to this message with the Google Cloud credentials file (.json) to set up Google Speech voice recognition. Not sure what is this and how to get it? Check out [our quick tutorial](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).'
+        'Wonderful. Your Google Cloud credentials will now be used in this chat.'
       )
     )
-    // Save msg to chat
-    chat.googleSetupMessageId = msg.message_id
-    chat.save()
+  })
+
+  bot.command('disableGoogle', checkDate, async ctx => {
+    // Get sender and chat
+    const sender = await findChat(ctx.from.id)
+    const chat = await findChat(ctx.chat.id)
+    // Check if admin locked
+    if (!(await checkAdminLock(chat, ctx))) return
+    // Setup localizations
+    const strings = require('../helpers/strings')()
+    strings.setChat(chat)
+    // Check if google key exists on user
+    if (!sender.googleKey) {
+      return ctx.replyWithMarkdown(
+        strings.translate(
+          'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.'
+        )
+      )
+    }
+    // Check if google key is the same
+    if (sender.googleKey !== chat.googleKey) {
+      return ctx.replyWithMarkdown(
+        strings.translate("This chat doesn't use your credentials already.")
+      )
+    }
+    // Setup google key
+    chat.googleKey = undefined
+    await chat.save()
+    // Send message
+    await ctx.replyWithMarkdown(
+      strings.translate(
+        'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.'
+      )
+    )
   })
 }
 

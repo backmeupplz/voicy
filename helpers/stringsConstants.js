@@ -1024,6 +1024,205 @@ const localizations = {
     ru:
       '😮 Пожалуйста, установите аутентификационный файл для Google Cloud через команду /google или смените движок распознавания речи через /engine. Аутентификационный файл еще не установлен.',
   },
+  'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.': {
+    fa:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    hi:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    et:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    ge:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    it:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    uz:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    fr:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    ko:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    ar:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    az:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    am:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    ch:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    ua:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    no:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    ja:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    tr:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    sv:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    pt:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    en:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    es:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.',
+    ru:
+      'Похоже вы еще не установили персональные ключи для Google Cloud. Пожалуйста, установите их в личке @voicybot перед тем, как использовать ключи в этом чате.',
+  },
+  'Wonderful. Your Google Cloud credentials will now be used in this chat.': {
+    fa:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    hi:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    et:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    ge:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    it:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    uz:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    fr:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    ko:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    ar:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    az:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    am:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    ch:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    ua:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    no:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    ja:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    tr:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    sv:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    pt:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    en:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    es:
+      'Wonderful. Your Google Cloud credentials will now be used in this chat.',
+    ru:
+      'Отлично. Ваш ключ от Google Cloud теперь будет использован в этом чате.',
+  },
+  'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.': {
+    fa:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    hi:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    et:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    ge:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    it:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    uz:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    fr:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    ko:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    ar:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    az:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    am:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    ch:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    ua:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    no:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    ja:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    tr:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    sv:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    pt:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    en:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    es:
+      'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.',
+    ru:
+      'Похоже вы еще не установили персональные ключи для Google Cloud. Пожалуйста, установите их в личке @voicybot перед тем, как пытаться отключить ключ в этом чате.',
+  },
+  "This chat doesn't use your credentials already.": {
+    fa: "This chat doesn't use your credentials already.",
+    hi: "This chat doesn't use your credentials already.",
+    et: "This chat doesn't use your credentials already.",
+    ge: "This chat doesn't use your credentials already.",
+    it: "This chat doesn't use your credentials already.",
+    uz: "This chat doesn't use your credentials already.",
+    fr: "This chat doesn't use your credentials already.",
+    ko: "This chat doesn't use your credentials already.",
+    ar: "This chat doesn't use your credentials already.",
+    az: "This chat doesn't use your credentials already.",
+    am: "This chat doesn't use your credentials already.",
+    ch: "This chat doesn't use your credentials already.",
+    ua: "This chat doesn't use your credentials already.",
+    no: "This chat doesn't use your credentials already.",
+    ja: "This chat doesn't use your credentials already.",
+    tr: "This chat doesn't use your credentials already.",
+    sv: "This chat doesn't use your credentials already.",
+    pt: "This chat doesn't use your credentials already.",
+    en: "This chat doesn't use your credentials already.",
+    es: "This chat doesn't use your credentials already.",
+    ru: 'Этот чат уже не использует ваш ключ.',
+  },
+  'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.': {
+    fa:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    hi:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    et:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    ge:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    it:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    uz:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    fr:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    ko:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    ar:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    az:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    am:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    ch:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    ua:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    no:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    ja:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    tr:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    sv:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    pt:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    en:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    es:
+      'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.',
+    ru:
+      'Отлично. Ваш Google Cloud ключ больше не будет использоваться этим чатом.',
+  },
 }
 
 const languages = {
