@@ -31,7 +31,12 @@ function setupLock(bot) {
     const text = chat.adminLocked
       ? '🔑 Great! *Voicy* will now respond only to command calls sent by *admins* in this chat.'
       : '🔑 Great! *Voicy* will now respond only to command calls from *anyone* in this chat.'
-    ctx.replyWithMarkdown(strings.translate(text))
+    await ctx.replyWithMarkdown(strings.translate(text))
+    // Log time
+    console.info(
+      `/lock answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) /
+        1000}s`
+    )
   })
 }
 

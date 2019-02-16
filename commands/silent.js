@@ -26,6 +26,8 @@ function setupSilent(bot) {
       ? '😶 Magnificent! *Voicy* will now work in *silent mode*: it will not send any messages to the chat except for the actual voice transcriptions.'
       : '😏 Magnificent! *Voicy* will now work in *usual mode*: it will send `Voice recognition is initiated` messages right after it receives voice messages.'
     await ctx.replyWithMarkdown(strings.translate(text))
+    // Log time
+    console.info(`/silent answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
   })
 }
 

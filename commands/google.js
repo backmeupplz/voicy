@@ -29,6 +29,8 @@ function setupGoogle(bot) {
     // Save msg to chat
     chat.googleSetupMessageId = msg.message_id
     chat.save()
+    // Log time
+    console.info(`/google answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
   })
 
   bot.command('enableGoogle', checkDate, async ctx => {
@@ -100,8 +102,11 @@ function setupGoogle(bot) {
  */
 function setupCheckingCredentials(bot) {
   bot.use(async (ctx, next) => {
+    // Continue
+    next()
+    // Check credentials
     try {
-      // Get messahe
+      // Get message
       const msg = ctx.message || ctx.update.channel_post
       // Check if reply to bot
       if (
@@ -155,13 +160,13 @@ function setupCheckingCredentials(bot) {
               JSON.parse(chat.googleKey).project_id
             )
           )
+          // Log time
+          console.info(`credentials check answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
         }
       }
     } catch (err) {
       report(bot, err, 'setupCheckingCredentials')
     }
-    // Continue
-    next()
   })
 }
 

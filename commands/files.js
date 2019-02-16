@@ -25,7 +25,13 @@ function setupFiles(bot) {
     const text = chat.filesBanned
       ? '📁 Wonderful! *Voicy* will *ignore* all audio files in this chat since now.'
       : '📁 Wonderful! *Voicy* will *try to recognize* all audio files in this chat since now.'
-    ctx.replyWithMarkdown(strings.translate(text))
+    await ctx.replyWithMarkdown(strings.translate(text))
+    // Log time
+    console.info(
+      `/engine answered in ${(new Date().getTime() -
+        ctx.timeReceived.getTime()) /
+        1000}s`
+    )
   })
 }
 

@@ -34,6 +34,8 @@ async function sendEngine(ctx) {
   options.reply_markup = JSON.stringify(options.reply_markup)
   // Reply with the keyboard
   await ctx.replyWithMarkdown(text, options)
+  // Log time
+  console.info(`/engine answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
 }
 
 /**
@@ -99,6 +101,8 @@ async function setEngine(data, ctx) {
   } catch (err) {
     // Do nothing
   }
+  // Log time
+  console.info(`engine set in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
 }
 
 // Exports
