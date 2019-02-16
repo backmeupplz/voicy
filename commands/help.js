@@ -8,10 +8,7 @@ const { checkDate } = require('../helpers/filter')
  * @param {Telegraf:Bot} bot Bot that should get help setup
  */
 function setupHelp(bot) {
-  bot.help(async ctx => {
-    // Check if less than 5 minutes ago
-    if (!checkDate(ctx)) return
-
+  bot.help(checkDate, async ctx => {
     // Get chat
     const chat = await findChat(ctx.chat.id)
     // Check if admin locked

@@ -11,10 +11,27 @@ const report = require('../helpers/report')
  * @param {Telegraf:Bot} bot Bot that should get google setup
  */
 function setupGoogle(bot) {
-  bot.command('google', async ctx => {
-    // Check if less than 5 minutes ago
-    if (!checkDate(ctx)) return
+  bot.command('google', checkDate, async ctx => {
+    // Get chat
+    const chat = await findChat(ctx.chat.id)
+    // Check if admin locked
+    const adminLockCheck = await checkAdminLock(chat, ctx)
+    if (!adminLockCheck) return
+    // Setup localizations
+    const strings = require('../helpers/strings')()
+    strings.setChat(chat)
+    // Send message
+    const msg = await ctx.replyWithMarkdown(
+      strings.translate(
+        'Reply to this message with the Google Cloud credentials file (.json) to set up Google Speech voice recognition. Not sure what is this and how to get it? Check out [our quick tutorial](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).'
+      )
+    )
+    // Save msg to chat
+    chat.googleSetupMessageId = msg.message_id
+    chat.save()
+  })
 
+  bot.command('enableGoogle', checkDate, async ctx => {
     // Get chat
     const chat = await findChat(ctx.chat.id)
     // Check if admin locked

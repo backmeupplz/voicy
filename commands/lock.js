@@ -8,10 +8,7 @@ const { checkDate } = require('../helpers/filter')
  * @param {Telegraf:Bot} bot Bot that should get lock setup
  */
 function setupLock(bot) {
-  bot.command('lock', async (ctx) => {
-    // Check if less than 5 minutes ago
-    if (!checkDate(ctx)) return
-
+  bot.command('lock', checkDate, async ctx => {
     // Get chat
     let chat = await findChat(ctx.chat.id)
     // Check if admin locked
@@ -31,9 +28,9 @@ function setupLock(bot) {
     // Save chat
     chat = await chat.save()
     // Reply with the new setting
-    const text = chat.adminLocked ?
-      '🔑 Great! *Voicy* will now respond only to command calls sent by *admins* in this chat.' :
-      '🔑 Great! *Voicy* will now respond only to command calls from *anyone* in this chat.'
+    const text = chat.adminLocked
+      ? '🔑 Great! *Voicy* will now respond only to command calls sent by *admins* in this chat.'
+      : '🔑 Great! *Voicy* will now respond only to command calls from *anyone* in this chat.'
     ctx.replyWithMarkdown(strings.translate(text))
   })
 }

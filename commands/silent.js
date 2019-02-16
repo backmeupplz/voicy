@@ -8,10 +8,7 @@ const { checkDate } = require('../helpers/filter')
  * @param {Telegraf:Bot} bot Bot that should get silent setup
  */
 function setupSilent(bot) {
-  bot.command('silent', async (ctx) => {
-    // Check if less than 5 minutes ago
-    if (!checkDate(ctx)) return
-
+  bot.command('silent', checkDate, async ctx => {
     // Get chat
     let chat = await findChat(ctx.chat.id)
     // Check if admin locked
@@ -25,9 +22,9 @@ function setupSilent(bot) {
     // Save chat
     chat = await chat.save()
     // Send new setting
-    const text = chat.silent ?
-      '😶 Magnificent! *Voicy* will now work in *silent mode*: it will not send any messages to the chat except for the actual voice transcriptions.' :
-      '😏 Magnificent! *Voicy* will now work in *usual mode*: it will send `Voice recognition is initiated` messages right after it receives voice messages.'
+    const text = chat.silent
+      ? '😶 Magnificent! *Voicy* will now work in *silent mode*: it will not send any messages to the chat except for the actual voice transcriptions.'
+      : '😏 Magnificent! *Voicy* will now work in *usual mode*: it will send `Voice recognition is initiated` messages right after it receives voice messages.'
     await ctx.replyWithMarkdown(strings.translate(text))
   })
 }

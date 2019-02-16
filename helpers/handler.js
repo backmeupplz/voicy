@@ -9,16 +9,12 @@ const { checkDate } = require('./filter')
  */
 function setupAudioHandler(bot) {
   // Voice handler
-  bot.on(['voice', 'video_note'], ctx => {
-    // Check if less than 5 minutes ago
-    if (!checkDate(ctx)) return
+  bot.on(['voice', 'video_note'], checkDate, ctx => {
     // Handle voice
     handleMessage(ctx)
   })
   // Audio handler
-  bot.on(['audio', 'document'], async ctx => {
-    // Check if less than 5 minutes ago
-    if (!checkDate(ctx)) return
+  bot.on(['audio', 'document'], checkDate, async ctx => {
     // Check if files banned
     const chat = await findChat(ctx.chat.id)
     if (chat.filesBanned) return

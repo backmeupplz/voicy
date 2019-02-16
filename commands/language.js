@@ -9,10 +9,7 @@ const { checkDate } = require('../helpers/filter')
  * @param {Telegraf:Bot} bot Bot that should get language setup
  */
 function setupLanguage(bot) {
-  bot.command('language', async (ctx) => {
-    // Check if less than 5 minutes ago
-    if (!checkDate(ctx)) return
-
+  bot.command('language', checkDate, async ctx => {
     // Get chat
     const chat = await findChat(ctx.chat.id)
     // Check if admin locked
