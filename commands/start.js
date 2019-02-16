@@ -10,10 +10,7 @@ const { checkDate } = require('../helpers/filter')
  */
 function setupStart(bot) {
   // Start command
-  bot.start(async (ctx) => {
-    // Check if less than 5 minutes ago
-    if (!checkDate(ctx)) return
-
+  bot.start(checkDate, async ctx => {
     // Get chat
     let chat = await findChat(ctx.chat.id)
     // Check if admin locked
@@ -29,9 +26,11 @@ function setupStart(bot) {
     }
   })
   // Enter chat
-  bot.on('new_chat_members', async (ctx) => {
-    if (ctx.message.new_chat_participant &&
-      ctx.message.new_chat_participant.username === process.env.USERNAME) {
+  bot.on('new_chat_members', async ctx => {
+    if (
+      ctx.message.new_chat_participant &&
+      ctx.message.new_chat_participant.username === process.env.USERNAME
+    ) {
       // Get chat
       const chat = await findChat(ctx.chat.id)
       // Check if admin locked
@@ -53,10 +52,15 @@ async function sendStart(ctx, chat) {
   const strings = require('../helpers/strings')()
   strings.setChat(chat)
   // Send start message
-  const text = strings.translate('👋 Hello there! *Voicy* is a voice recognition bot that converts all voice messages and audio files (.ogg, .flac, .wav, .mp3) it gets into text.\n\n*Voicy* supports three voice recognition engines: wit.ai, Yandex SpeechKit and Google Speech. Initially it\'s set to use wit.ai but you can switch to Google Speech or Yandex SpeechKit anytime in /engine. More information in /help.')
+  const text = strings.translate(
+    "👋 Hello there! *Voicy* is a voice recognition bot that converts all voice messages and audio files (.ogg, .flac, .wav, .mp3) it gets into text.\n\n*Voicy* supports three voice recognition engines: wit.ai, Yandex SpeechKit and Google Speech. Initially it's set to use wit.ai but you can switch to Google Speech or Yandex SpeechKit anytime in /engine. More information in /help."
+  )
   await ctx.replyWithMarkdown(text)
   // Log time
-  console.info(`/start answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
+  console.info(
+    `/start answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) /
+      1000}s`
+  )
 }
 
 // Exports

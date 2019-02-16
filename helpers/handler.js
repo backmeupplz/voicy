@@ -21,9 +21,7 @@ function setupAudioHandler(bot) {
   })
   // Audio handler
 
-  bot.on(['audio', 'document'], async ctx => {
-    // Check if less than 5 minutes ago
-    if (!checkDate(ctx)) return
+  bot.on(['audio', 'document'], checkDate, async ctx => {
     // Handle voice
     handleDocumentOrAudio(ctx)
     // Log time
