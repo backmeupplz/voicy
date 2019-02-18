@@ -17,5 +17,6 @@ module.exports = {
     'comma-dangle': 0,
     'space-before-function-paren': 0,
     'no-restricted-syntax': 0,
+    'no-mixed-operators': 0,
   },
 }

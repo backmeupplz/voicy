@@ -1,9 +1,10 @@
 module.exports = function setupCheckDate(bot) {
   bot.use((ctx, next) => {
     if (ctx.update.callback_query) {
-      return next()
+      next()
+      return
     }
-    let message =
+    const message =
       ctx.update.message || ctx.update.channel_post || ctx.update.callback_query
     if (!message) {
       console.info(
@@ -20,6 +21,8 @@ module.exports = function setupCheckDate(bot) {
         JSON.stringify(message, undefined, 2)
       )
     }
-    return isMsgNew ? next() : undefined
+    if (isMsgNew) {
+      next()
+    }
   })
 }
