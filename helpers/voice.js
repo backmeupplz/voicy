@@ -88,7 +88,11 @@ async function sendTranscription(ctx, url, chat) {
     report(ctx, err, 'sendTranscription')
   } finally {
     // Log time
-    console.info(`audio message processed in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
+    console.info(
+      `audio message processed in ${(new Date().getTime() -
+        ctx.timeReceived.getTime()) /
+        1000}s`
+    )
   }
 }
 
@@ -127,7 +131,11 @@ async function sendAction(ctx, url, chat) {
     report(ctx, err, 'sendTranscription.silent')
   } finally {
     // Log time
-    console.info(`audio message processed in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
+    console.info(
+      `audio message processed in ${(new Date().getTime() -
+        ctx.timeReceived.getTime()) /
+        1000}s`
+    )
   }
 }
 
@@ -314,6 +322,4 @@ function sanitizeChat(chat) {
 }
 
 // Exports
-module.exports = {
-  handleMessage,
-}
+module.exports = handleMessage

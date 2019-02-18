@@ -5,37 +5,26 @@ const {
   witCodes,
   googleLanguages,
 } = require('./languageConstants')
-const { findChat } = require('./db')
+const logAnswerTime = require('./logAnswerTime')
 
-/**
- * Sends start message
- * @param {Telegraf:Context} ctx Context to respond
- * @param {Mongoose:Chat} chat Relevant chat
- */
-function sendStart(ctx, chat) {
-  // Get localization strings and set it up
-  const strings = require('../helpers/strings')()
-  strings.setChat(chat)
-  // Send start message
-  const text = strings.translate('👋 Hello there! *Voicy* is a voice recognition bot that converts all voice messages and audio files (.ogg, .flac, .wav, .mp3) it gets into text.\n\n*Voicy* supports three voice recognition engines: wit.ai, Yandex SpeechKit and Google Speech. Initially it\'s set to use wit.ai but you can switch to Google Speech or Yandex SpeechKit anytime in /engine. More information in /help.')
-  ctx.replyWithMarkdown(text)
-  // Log time
-  console.info(`/start answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
+async function sendStart(ctx) {
+  await ctx.replyWithMarkdown(ctx.i18n.t('start'))
+  logAnswerTime(ctx, '/start')
 }
 
 /**
  * Sets up language code for a particular chat
- * @param {Mongoose:Chat} chat Chat to set code to
- * @param {String} code COde received from Telegram
  */
-async function setLanguageCode(chat, code) {
+async function setLanguageCode(ctx, code) {
+  // Get chat
+  const chat = ctx.dbchat
   // Get first part of the code
   code = code.split('-')[0]
   // Prepare dummy result
   const result = {}
   // Get yandex language
   const yandex = yandexLanguages()
-  Object.keys(yandex).forEach((key) => {
+  Object.keys(yandex).forEach(key => {
     const value = yandex[key]
     if (value.includes(code)) {
       result.yandex = value
@@ -44,7 +33,7 @@ async function setLanguageCode(chat, code) {
   if (!result.yandex) result.yandex = 'en-US'
   // Get google language
   const google = googleLanguages()
-  Object.keys(google).forEach((key) => {
+  Object.keys(google).forEach(key => {
     const value = google[key]
     if (value.includes(code)) {
       result.google = value
@@ -55,7 +44,7 @@ async function setLanguageCode(chat, code) {
   }
   // Get wit language
   const wit = witCodes()
-  Object.keys(wit).forEach((key) => {
+  Object.keys(wit).forEach(key => {
     if (code.includes(key)) {
       result.wit = wit[key]
     }
@@ -67,8 +56,10 @@ async function setLanguageCode(chat, code) {
   chat.witLanguage = result.wit
   chat.googleLanguage = result.google
   chat.yandexLanguage = result.yandex
+  // Setup i18n
+  ctx.i18n.locale(code)
   // Save chat and return
-  return await chat.save()
+  return chat.save()
 }
 
 /**
@@ -92,12 +83,17 @@ async function sendLanguage(ctx, isCommand) {
     engineString = 'Yandex SpeechKit'
   }
   // Get text
-  const text = isCommand ?
-    strings.translate('👋 Please select the language of speech recognition for $[1]', engineString) :
-    strings.translate('👋 Please select the language of speech recognition')
+  const text = isCommand
+    ? strings.translate(
+        '👋 Please select the language of speech recognition for $[1]',
+        engineString
+      )
+    : strings.translate('👋 Please select the language of speech recognition')
   // Create keyboard options
   const options = {
-    reply_markup: { inline_keyboard: languageKeyboard(chat.engine, 0, isCommand) },
+    reply_markup: {
+      inline_keyboard: languageKeyboard(chat.engine, 0, isCommand),
+    },
   }
   options.reply_markup = JSON.stringify(options.reply_markup)
   // Reply to the message
@@ -107,7 +103,11 @@ async function sendLanguage(ctx, isCommand) {
   // Reply with keyboard
   await ctx.replyWithMarkdown(text, options)
   // Log time
-  console.info(`/language answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
+  console.info(
+    `/language answered in ${(new Date().getTime() -
+      ctx.timeReceived.getTime()) /
+      1000}s`
+  )
 }
 
 /**
@@ -122,10 +122,12 @@ async function setLanguage(data, ctx) {
   const engine = options[2]
   const isCommand = parseInt(options[1], 10) === 1
   // Check if callback to reply
-  if (ctx.update &&
+  if (
+    ctx.update &&
     ctx.update.callback_query &&
     ctx.update.callback_query.message &&
-    ctx.update.callback_query.message.reply_to_message) {
+    ctx.update.callback_query.message.reply_to_message
+  ) {
     // Check if original caller
     const msg = ctx.update.callback_query.message.reply_to_message
     if (msg.from.id !== ctx.from.id) {
@@ -133,7 +135,12 @@ async function setLanguage(data, ctx) {
       const chat = await findChat(ctx.chat.id)
       strings.setChat(chat)
       // Send error
-      await ctx.telegram.answerCbQuery(ctx.callbackQuery.id, strings.translate('Only the person who started command can select options'))
+      await ctx.telegram.answerCbQuery(
+        ctx.callbackQuery.id,
+        strings.translate(
+          'Only the person who started command can select options'
+        )
+      )
       return
     }
   }
@@ -141,7 +148,9 @@ async function setLanguage(data, ctx) {
   if (engine === 'yandex') {
     // Get extra options
     const language = options[3]
-    const name = Object.keys(yandexLanguages())[Object.values(yandexLanguages()).indexOf(language)]
+    const name = Object.keys(yandexLanguages())[
+      Object.values(yandexLanguages()).indexOf(language)
+    ]
     // Get chat
     let chat = await findChat(ctx.chat.id)
     // Set language
@@ -152,9 +161,15 @@ async function setLanguage(data, ctx) {
     strings.setChat(chat)
     // Edit message
     try {
-      await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (Yandex SpeechKit) in this chat. Thank you!', name), {
-        parse_mode: 'Markdown',
-      })
+      await ctx.editMessageText(
+        strings.translate(
+          '👍 Now *Voicy* speaks *$[1]* (Yandex SpeechKit) in this chat. Thank you!',
+          name
+        ),
+        {
+          parse_mode: 'Markdown',
+        }
+      )
     } catch (err) {
       // Do nothing
     }
@@ -171,10 +186,18 @@ async function setLanguage(data, ctx) {
       // Setup localization
       strings.setChat(chat)
       // Get text
-      const text = strings.translate('👋 Please select the language of speech recognition for wit.ai.')
+      const text = strings.translate(
+        '👋 Please select the language of speech recognition for wit.ai.'
+      )
       // Get keyboard options
       const opts = {
-        reply_markup: { inline_keyboard: languageKeyboard(engine, name === '<' ? page - 1 : page + 1, isCommand) },
+        reply_markup: {
+          inline_keyboard: languageKeyboard(
+            engine,
+            name === '<' ? page - 1 : page + 1,
+            isCommand
+          ),
+        },
         parse_mode: 'Markdown',
       }
       opts.reply_markup = JSON.stringify(opts.reply_markup)
@@ -193,9 +216,15 @@ async function setLanguage(data, ctx) {
       strings.setChat(chat)
       // Edit message
       try {
-        await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (wit.ai) in this chat. Thank you!', name), {
-          parse_mode: 'Markdown',
-        })
+        await ctx.editMessageText(
+          strings.translate(
+            '👍 Now *Voicy* speaks *$[1]* (wit.ai) in this chat. Thank you!',
+            name
+          ),
+          {
+            parse_mode: 'Markdown',
+          }
+        )
       } catch (err) {
         // Do nothing
       }
@@ -214,13 +243,21 @@ async function setLanguage(data, ctx) {
       // Setup localization
       strings.setChat(chat)
       // Get text
-      const text = strings.translate('👋 Please select the language of speech recognition for Google Speech.')
+      const text = strings.translate(
+        '👋 Please select the language of speech recognition for Google Speech.'
+      )
       // Construct options for the keyaborad
       const opts = {
-        reply_markup: { inline_keyboard: languageKeyboard(engine, language === '<' ? page - 1 : page + 1, isCommand) },
+        reply_markup: {
+          inline_keyboard: languageKeyboard(
+            engine,
+            language === '<' ? page - 1 : page + 1,
+            isCommand
+          ),
+        },
         parse_mode: 'Markdown',
-      };
-      opts.reply_markup = JSON.stringify(opts.reply_markup);
+      }
+      opts.reply_markup = JSON.stringify(opts.reply_markup)
       // Edit message
       try {
         await ctx.editMessageText(text, opts)
@@ -230,18 +267,26 @@ async function setLanguage(data, ctx) {
       }
     } else {
       // Set language
-      chat.googleLanguage = language;
+      chat.googleLanguage = language
       // Safe chat
       chat = await chat.save()
       // Get name
-      name = Object.keys(googleLanguages())[Object.values(googleLanguages()).indexOf(language)]
+      name = Object.keys(googleLanguages())[
+        Object.values(googleLanguages()).indexOf(language)
+      ]
       // Setup localization
       strings.setChat(chat)
       // Edit message
       try {
-        await ctx.editMessageText(strings.translate('👍 Now *Voicy* speaks *$[1]* (Google Speech) in this chat. Thank you!', name), {
-          parse_mode: 'Markdown',
-        })
+        await ctx.editMessageText(
+          strings.translate(
+            '👍 Now *Voicy* speaks *$[1]* (Google Speech) in this chat. Thank you!',
+            name
+          ),
+          {
+            parse_mode: 'Markdown',
+          }
+        )
       } catch (err) {
         // Do nothing
       }
@@ -250,7 +295,10 @@ async function setLanguage(data, ctx) {
     }
   }
   // Log time
-  console.info(`language set in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
+  console.info(
+    `language set in ${(new Date().getTime() - ctx.timeReceived.getTime()) /
+      1000}s`
+  )
 }
 
 /**
@@ -273,35 +321,41 @@ function languageKeyboard(engine, page, isCommand) {
 
   let temp = []
   let i = 0
-  const count = Object.keys(list).slice(page * 10, (page * 10) + 10).length
-  Object.keys(list).slice(page * 10, (page * 10) + 10).forEach((name) => {
-    const code = list[name]
-    const data = (engine === 'wit') ?
-      `li~${(isCommand ? 1 : 0)}~${engine}~${name}~${page}` :
-      `li~${(isCommand ? 1 : 0)}~${engine}~${code}~???~${page}`
-    if (engine === 'wit') {
-      temp.push({
-        text: name,
-        callback_data: data,
-      })
+  const count = Object.keys(list).slice(page * 10, page * 10 + 10).length
+  Object.keys(list)
+    .slice(page * 10, page * 10 + 10)
+    .forEach(name => {
+      const code = list[name]
+      const data =
+        engine === 'wit'
+          ? `li~${isCommand ? 1 : 0}~${engine}~${name}~${page}`
+          : `li~${isCommand ? 1 : 0}~${engine}~${code}~???~${page}`
+      if (engine === 'wit') {
+        temp.push({
+          text: name,
+          callback_data: data,
+        })
 
-      if (i % 2 === 1 || i === count - 1) {
-        keyboard.push(temp)
-        temp = []
+        if (i % 2 === 1 || i === count - 1) {
+          keyboard.push(temp)
+          temp = []
+        }
+        i += 1
+      } else {
+        keyboard.push([
+          {
+            text: name,
+            callback_data: data,
+          },
+        ])
       }
-      i += 1
-    } else {
-      keyboard.push([{
-        text: name,
-        callback_data: data,
-      }])
-    }
-  })
+    })
 
   const nav = []
-  const data1 = (engine === 'wit') ?
-    `li~${(isCommand ? 1 : 0)}~${engine}~<~${page}` :
-    `li~${(isCommand ? 1 : 0)}~${engine}~<~<~${page}`
+  const data1 =
+    engine === 'wit'
+      ? `li~${isCommand ? 1 : 0}~${engine}~<~${page}`
+      : `li~${isCommand ? 1 : 0}~${engine}~<~<~${page}`
   if (page > 0) {
     nav.push({
       text: '<',
@@ -309,10 +363,11 @@ function languageKeyboard(engine, page, isCommand) {
     })
   }
 
-  const data2 = (engine === 'wit') ?
-    `li~${(isCommand ? 1 : 0)}~${engine}~>~${page}` :
-    `li~${(isCommand ? 1 : 0)}~${engine}~>~>~${page}`
-  if (page < ((Object.keys(list).length / 10) - 1)) {
+  const data2 =
+    engine === 'wit'
+      ? `li~${isCommand ? 1 : 0}~${engine}~>~${page}`
+      : `li~${isCommand ? 1 : 0}~${engine}~>~>~${page}`
+  if (page < Object.keys(list).length / 10 - 1) {
     nav.push({
       text: '>',
       callback_data: data2,

@@ -1,0 +1,53 @@
+
+files_false: "📁 Fantástico! A partir de agora, *Voicy* vai *ignorar* todos os ficheiros de áudio nesta conversa."
+files_true: "📁 Fantástico! A partir de agora, *Voicy* vai *tentar reconhecer* todos os ficheiros áudio nesta conversa."
+google: "Responda a esta mensagem com o ficheiro das credenciais Google Cloud (.json) para configurar o reconhecimento de voz Google Speech. Desconhece o ficheiro e como obtê-lo? Confira [o nosso tutorial rápido](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8)."
+google_error_doc: "Lamentamos, mas deve responder com o documento das credenciais."
+google_error_mime: "Lamentamos, o formato do documento deve ser 'texto/simples'."
+google_success: "Parabéns! *Voicy* recebeu o ficheiro das credenciais para o *$[1]* Projeto Google Cloud. Agora pode usar o reconhecimento Google Speech."
+help: "|
+  😎 *Voicy* converte áudio em texto, a partir de qualquer mensagem ou ficheiro de áudio (.ogg, .flac, .wav, .mp3) que receba. Pode falar para o *Voicy* no chat privado ou num grupo.
+
+Se deseja usar este bot em mensagens privadas, por favor crie um grupo privado com alguém e adicione o *Voicy*. Se deseja adicionar *Voicy* a uma conversa de grupo, por favor adicione-o como um participante no perfil do grupo ou no perfil do bot *Voicy*.
+
+/help — Exibe esta mensagem 😱
+/engine — Permite selecionar um motor de reconhecimento de voz: wit.ai, Yandex SpeechKit ou Google Speech ⚙
+/language — Permite selecionar o idioma para reconhecimento de voz 📣
+/lock — Bloqueia ou desbloqueia comandos nos chats de grupo para não-administradores 🔑
+/files — Indique se o bot deve tentar converter ficheiros áudio ou ignorá-los 📁
+/silent — Ative o modo silencioso quando mensagens como `Reconhecimento de Voz Iniciado` são enviadas 😶
+/google — Configure as credenciais para o Google Speech 🦆
+
+Gosta deste bot? Avalie [aqui](https://telegram.me/storebot?start=voicybot) 👍
+
+Deixe qualquer sugestão ou questão ao meu programador — @borodutch\_support 🦄"
+error_group: "😅 Lamento, mas este comando só funciona em chats de grupo."
+lock_true: "🔑 Boa! Agora, *Voicy* só vai responder a comandos enviados por *administradores* neste chat."
+lock_false: "🔑 Boa! Agora, *Voicy* vai responder a comandos de *qualquer pessoa* neste chat."
+silent_true: "😶 Ótimo! *Voicy* vai funcionar no *modo silêncio*: não vai enviar mensagens para o chat, exceto para transcrições de voz."
+silent_false: "😏 Fantástico! *Voicy* vai trabalhar no *modo normal*: vai enviar mensagens `Reconhecimento de Voz Iniciado` depois de receber mensagens de voz."
+start: "|
+  👋 Olá! *Voicy* é um bot de reconhecimento de voz que converte todas as mensagens e ficheiros de áudio (.ogg, .flac, .wav, .mp3) que recebe em texto.
+
+*Voicy* suporta três motores de reconhecimento de voz: wit.ai, Yandex SpeechKit e Google Speech. O bot é predefinido para usar wit.ai, mas pode alterar para o Google Speech ou Yandex SpeechKit a qualquer altura. Mais informações em /help."
+engine: "👋 Por favor, selecione o motor de reconhecimento de voz. O Google Speech é mais preciso e suporta áudios com mais de 50 segundos, mas tem de ser configurado com as suas credenciais Google Cloud (um pouco entediante). O Yandex SpeechKit é bastante preciso, grátis, privado e na maior parte do tempo suporta áudios com mais de 50 segundos, mas tem uma lista limitada de idiomas. O Wit.ai é menos preciso, é grátis, e não suporta áudios com mais de 50 segundos, mas tem muitos idiomas. Por favor, repare que os três motores suportam vários idiomas, por isso escolha o que melhor se adequa às suas necessidades."
+callback_error: "Só quem iniciou o comando pode selecionar opções"
+engine_success: "👍 Agora *Voicy* usa *$[1]* neste chat. Obrigado! Não se esqueça de definir o /language."
+language: "👋 Por favor, selecione o idioma para o reconhecimento de voz para $[1]"
+language_without_engine: "👋 Por favor, selecione o idioma para o reconhecimento de voz"
+language_yandex: "👍 Agora *Voicy* fala *$[1]* (Yandex SpeechKit) neste chat. Obrigado!"
+language_wit: "👋 Por favor selecione o idioma para o reconhecimento de voz para o wit.ai."
+language_success_wit: "👍 Agora *Voicy* fala *$[1]* (wit.ai) neste chat. Obrigado!"
+language_google: "👋 Por favor selecione o idioma para reconhecimento de voz para o Google Speech."
+language_success_google: "👍 Agora *Voicy* fala *$[1]* (Google Speech) neste chat. Obrigado!"
+error_twenty: "_👮 Não consigo reconhecer mensagens de voz com mais de 20 megabytes_"
+initiated: "_🦄 Reconhecimento de voz iniciado..._"
+undefined: "_👮 Wit.ai não consegue reconhecer mensagens de voz com mais de 50 segundos_"
+speak_clearly: "_👮 Por favor, fale com clareza, não consegui reconhecer a mensagem_"
+error: "_👮 Não consegui reconhecer a mensagem_"
+google_error_creds: "😮 Por favor, configure as credenciais Google com o comando /google ou altere o motor com o comando /engine. As suas credenciais ainda não foram configuradas."
+google_enable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat."
+google_enable_success: "Wonderful. Your Google Cloud credentials will now be used in this chat."
+google_disable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat."
+google_disable_error_wrong_key: "This chat doesn't use your credentials already."
+google_disable_success: "Wonderful. Your Google Cloud credentials will not be used in this chat anymore."

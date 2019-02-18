@@ -1,0 +1,53 @@
+
+files_false: "📁 Herlig! *Voicy* skal *ignorere* alle lydfiler i denne chatten fra nå av."
+files_true: "📁 Herlig! *Voicy* skal *prøv å gjenkjenne* alle lydfiler i denne chatten fra nå av."
+google: "Svar på denne melding med din Google Cloud sine legitimasjon fil (.json) for å konfigurere Google-stemmegjenkjenning. Ikke sikker på hva er dette, og hvordan får man det? Sjekk ut [vår enkel tutorial](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8)."
+google_error_doc: "Beklager, du bør svare med et et legitimasjonsdokument."
+google_error_mime: "Beklager, dokument sine mime type burde være 'tekst/plain'."
+google_success: "Gratulerer! *Voicy* fikk legitimasjonsfilen for *$[1]* Google Cloud Prosjekt. Nå du kan bruke Google talegjenkjenning."
+help: "|
+  😎 *Voicy* konverterer tale til tekst fra alle talemeldinger og lydfiler (.ogg, .flac, .wav, .mp3) den mottar. Du kan enten prata med *Voicy* i private chat eller tilføj det til en gruppe.
+
+Hvis du vil bruke dette bot i private meldinger, vennligst opprett en privat gruppe med noen og legg *Voicy* til der. Hvis du vil legge *Voicy* til gruppechat, vennligst, legg det til som deltaker i gruppeprofilen eller til gruppen i *Voicy* bot profil.
+
+/help — Viser denne meldingen 😱
+/engine — Lar deg velge en talegjenkjenningsmotor: wit.ai, Yandex SpeechKit or Google Speech ⚙
+/language — Lar deg velge et talegjenkjenning språk 📣
+/lock — Bytter lås eller opplås for ikke-administratorer ved hjelp av kommandoer i gruppechat. 🔑
+/files — bytter hvis botet skulle forsøke å konvertere lydfiler eller bare ignorere dem. 📁
+/silent — Bytter stillemodus når ingen ekstra meldinger som `Talegjenkjenning er initiert` sendes 😶
+/google — Oppsett google legitimasjon for Google Speech 🦆
+
+Liker deg dette bot? Legg igjen en anmeldelse [her](https://telegram.me/storebot?start=voicybot) 👍
+
+Adresse eventuelle bekymringer og spørsmål til min skaperen — @borodutch\_support 🦄"
+error_group: "😅 Beklager, men denne kommandoen fungerer kun i gruppechatt."
+lock_true: "🔑 Flott! *Voicy* skal nå svare kun på kommandoer som sendes av *admins* i denne chatten."
+lock_false: "🔑 Flott! *Voicy* skal nå svare kun på kommandoer som sendes av *noen som helst* i denne chatten."
+silent_true: "😶 Storslått! *Voicy* skal nå fungere i *stille modus*: det skal ikke sende meldinger til chatten bortsett fra faktiske stemme transkripsjonene."
+silent_false: "😏 Storslått! *Voicy* skal nå fungere i *vanlig modus*: det skal sende `Talegjenkjenning er initiert` meldinger rett etter at det mottar talemeldinger."
+start: "|
+  👋 Hei der! *Voicy* er en stemmegjenkjennings bot som konverterer alle talemeldinger og lydfiler (.ogg, .flac, .wav, .mp3) det mottar til tekst.
+
+*Voicy* støtter tre stemmegjenkjenning motorer: wit.ai, Yandex SpeechKit and Google Speech. Først det satt til bruke wit.ai men du kan bytte til Google Speech eller Yandex SpeechKit når som helst i /engine. Mer informasjon i /help."
+engine: "👋 Vennligst, velg motoren for talegjenkjenning. Google Speech er mer nøyaktig og støtter lyd lenger enn 50 sekunder, men må settes opp med din Google Cloud legitimasjon (litt kjedelig). Yandex SpeechKit er ganske nøyaktig, gratis, privat og det meste støtter lyd lengre enn 50 sekunder, men har begrenset liste over språk. Wit.ai er mindre nøyaktig, gratis, og støtter ikke lyd lenger enn 50 sekunder, men det har mange språk. Vær oppmerksom på at alle tre støtter forskjellige språk, så velg den som passer deg best."
+callback_error: "Kun den personen som startet kommandoen, kan velge alternativer"
+engine_success: "👍 Nå *Voicy* bruker *$[1]* i denne chatten. Takk! Ikke glem å sette /language."
+language: "👋 Vennligst velg språk for talegjenkjenning for $[1]"
+language_without_engine: "👋 Vennligst velg språk for talegjenkjenning"
+language_yandex: "👍 Nå *Voicy* snakker *$[1]* (Yandex SpeechKit) i denne chatten. Takk!"
+language_wit: "👋 Vennligst velg språk for talegjenkjenning for wit.ai."
+language_success_wit: "👍 Nå *Voicy* snakker *$[1]* (wit.ai) i denne chatten. Takk!"
+language_google: "👋 Vennligst velg språk for talegjenkjenning for Google Speech."
+language_success_google: "👍 Na *Voicy* snakker *$[1]* (Google Speech) i denne chatten. Takk!"
+error_twenty: "_👮 Jeg kan ikke gjenkjenne talemeldinger som er større enn 20 megabytes_"
+initiated: "_🦄 Stemmegjenkjenning er initiert..._"
+undefined: "_👮 Wit.ai kan ikke gjenkjenne talemeldinger lenger enn 50 sekunder_"
+speak_clearly: "_👮 Vennligst, snakk tydelig, jeg kunne ikke gjenkjenne det_"
+error: "_👮 Jeg kunne ikke't gjenkjenne det_"
+google_error_creds: "😮 Vennligst, oppsett google legitimasjon med /google kommandoen eller endre motoren med /engine kommandoen. Din legitimasjon er ikke satt opp ennå."
+google_enable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat."
+google_enable_success: "Wonderful. Your Google Cloud credentials will now be used in this chat."
+google_disable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat."
+google_disable_error_wrong_key: "This chat doesn't use your credentials already."
+google_disable_success: "Wonderful. Your Google Cloud credentials will not be used in this chat anymore."

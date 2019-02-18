@@ -1,41 +1,21 @@
 // Dependencies
-const { findChat } = require('../helpers/db')
-const { checkAdminLock } = require('../helpers/admins')
-const { checkDate } = require('../helpers/filter')
+const logAnswerTime = require('../helpers/logAnswerTime')
+const checkAdminLock = require('../middlewares/adminLock')
 
-/**
- * Setting up files command
- * @param {Telegraf:Bot} bot Bot that should get files setup
- */
 function setupFiles(bot) {
-  bot.command('files', checkDate, async ctx => {
-    // Get chat
-    let chat = await findChat(ctx.chat.id)
-    // Check if admin locked
-    const adminLockCheck = await checkAdminLock(chat, ctx)
-    if (!adminLockCheck) return
-    // Setup localizations
-    const strings = require('../helpers/strings')()
-    strings.setChat(chat)
+  bot.command('files', checkAdminLock, async ctx => {
     // Reverse files field
-    chat.filesBanned = !chat.filesBanned
+    ctx.dbchat.filesBanned = !ctx.dbchat.filesBanned
     // Save chat
-    chat = await chat.save()
+    ctx.dbchat = await ctx.dbchat.save()
     // Reply with the new setting
-    const text = chat.filesBanned
-      ? '📁 Wonderful! *Voicy* will *ignore* all audio files in this chat since now.'
-      : '📁 Wonderful! *Voicy* will *try to recognize* all audio files in this chat since now.'
-    await ctx.replyWithMarkdown(strings.translate(text))
-    // Log time
-    console.info(
-      `/engine answered in ${(new Date().getTime() -
-        ctx.timeReceived.getTime()) /
-        1000}s`
+    await ctx.replyWithMarkdown(
+      ctx.i18n.t(ctx.dbchat.filesBanned ? 'files_true' : 'files_false')
     )
+    // Log time
+    logAnswerTime(ctx, '/files')
   })
 }
 
 // Exports
-module.exports = {
-  setupFiles,
-}
+module.exports = setupFiles

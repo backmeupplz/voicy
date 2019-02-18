@@ -1,42 +1,27 @@
 // Dependencies
-const { handleMessage } = require('./voice')
-const { findChat } = require('./db')
-const { checkDate } = require('./filter')
+const handleMessage = require('./voice')
+const logAnswerTime = require('../helpers/logAnswerTime')
 
-/**
- * Setting up audio handling
- * @param bot Bot to setup handling
- */
 function setupAudioHandler(bot) {
   // Voice handler
-  bot.on(['voice', 'video_note'], checkDate, ctx => {
+  bot.on(['voice', 'video_note'], ctx => {
     // Handle voice
     handleMessage(ctx)
     // Log time
-    console.info(
-      `audio message answered in ${(new Date().getTime() -
-        ctx.timeReceived.getTime()) /
-        1000}s`
-    )
+    logAnswerTime(ctx, 'voice')
   })
   // Audio handler
 
-  bot.on(['audio', 'document'], checkDate, async ctx => {
+  bot.on(['audio', 'document'], async ctx => {
     // Handle voice
     handleDocumentOrAudio(ctx)
     // Log time
-    console.info(
-      `audio message answered in ${(new Date().getTime() -
-        ctx.timeReceived.getTime()) /
-        1000}s`
-    )
+    logAnswerTime(ctx, 'voice.document')
   })
 }
 
 async function handleDocumentOrAudio(ctx) {
-  // Check if files banned
-  const chat = await findChat(ctx.chat.id)
-  if (chat.filesBanned) return
+  if (ctx.dbchat.filesBanned) return
   // Check if correct format
   if (!isCorrectDocument(ctx)) {
     return
@@ -61,6 +46,4 @@ function isCorrectDocument(ctx) {
 }
 
 // Exports
-module.exports = {
-  setupAudioHandler,
-}
+module.exports = setupAudioHandler

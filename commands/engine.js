@@ -1,26 +1,12 @@
 // Dependencies
 const { sendEngine } = require('../helpers/engine')
-const { findChat } = require('../helpers/db')
-const { checkAdminLock } = require('../helpers/admins')
-const { checkDate } = require('../helpers/filter')
+const checkAdminLock = require('../middlewares/adminLock')
 
-/**
- * Setting up engine command
- * @param {Telegraf:Bot} bot Bot that should get engine setup
- */
 function setupEngine(bot) {
-  bot.command('engine', checkDate, async ctx => {
-    // Get chat
-    const chat = await findChat(ctx.chat.id)
-    // Check if admin locked
-    const adminLockCheck = await checkAdminLock(chat, ctx)
-    if (!adminLockCheck) return
-    // Respond
+  bot.command('engine', checkAdminLock, async ctx => {
     sendEngine(ctx)
   })
 }
 
 // Exports
-module.exports = {
-  setupEngine,
-}
+module.exports = setupEngine

@@ -1,53 +1,41 @@
 // Load env variables
 require('dotenv').config({ path: `${__dirname}/.env` })
 
-// Dependencies
-const Telegraf = require('telegraf')
-const setupPromises = require('./helpers/setupPromises')
-const setupMongoose = require('./helpers/setupMongoose')
-const { setupAudioHandler } = require('./helpers/handler')
-const setupCounter = require('./models/stats')
-const { setupHelp } = require('./commands/help')
+// Init
+const setupPromises = require('./init/setupPromises')
+const setupMongoose = require('./init/setupMongoose')
+const { bot, startBot } = require('./init/bot')
+// Middlewares
+const setupCheckDate = require('./middlewares/checkDate')
+const setupTimeReceived = require('./middlewares/timeReceived')
+const setupCounter = require('./middlewares/counter')
+const setupAttachChat = require('./middlewares/attachChat')
+const setupI18N = require('./middlewares/i18n')
+// Commands
+const setupHelp = require('./commands/help')
 const { setupStart } = require('./commands/start')
-const { setupLanguage } = require('./commands/language')
-const { setupEngine } = require('./commands/engine')
-const { setupLock } = require('./commands/lock')
-const { setupFiles } = require('./commands/files')
-const { setupSilent } = require('./commands/silent')
+const setupLanguage = require('./commands/language')
+const setupEngine = require('./commands/engine')
+const setupLock = require('./commands/lock')
+const setupFiles = require('./commands/files')
+const setupSilent = require('./commands/silent')
 const { setupGoogle, setupCheckingCredentials } = require('./commands/google')
-const { setupCallbackHandler } = require('./helpers/callback')
-const report = require('./helpers/report')
-const cluster = require('cluster')
-const uuid = require('uuid/v4')
+// Audio handler
+const setupAudioHandler = require('./helpers/handler')
+// Callbacks
+const setupCallbackHandler = require('./helpers/callback')
 
-// Create bot
-const bot = new Telegraf(process.env.TOKEN, {
-  channelMode: true,
-})
-bot.webhookReply = false
-// Get bot's username
-bot.telegram.getMe().then(info => {
-  bot.options.username = info.username
-})
-// Setup promises
+// Init
 setupPromises()
-// Setup mongoose
 setupMongoose()
-
-// Add time received to the ctx
-bot.use((ctx, next) => {
-  ctx.timeReceived = new Date();
-  next();
-})
-
-// Setup checking for google credentials
-setupCheckingCredentials(bot)
-// Setup audio handler
-setupAudioHandler(bot)
-// Setup stats counter
+// Middlewares
+setupCheckDate(bot)
+setupTimeReceived(bot)
 setupCounter(bot)
-
-// Setup commands
+setupAttachChat(bot)
+setupI18N(bot)
+setupCheckingCredentials(bot)
+// Commands
 setupHelp(bot)
 setupStart(bot)
 setupLanguage(bot)
@@ -56,31 +44,10 @@ setupLock(bot)
 setupFiles(bot)
 setupSilent(bot)
 setupGoogle(bot)
-
-// Setup keyboard callback handler
+// Audio handler
+setupAudioHandler(bot)
+// Callbacks
 setupCallbackHandler(bot)
 
-// Bot catch
-bot.catch(err => {
-  report(bot, err, 'bot.catch')
-})
-
-if (cluster.isMaster) {
-  // Start bot
-  if (process.env.USE_WEBHOOK === 'true') {
-    const domain = process.env.WEBHOOK_DOMAIN;
-    bot.telegram.deleteWebhook()
-      .then(async () => {
-        const secretPath = uuid()
-        bot.startWebhook(`/${secretPath}`, undefined, 5000)
-        await bot.telegram.setWebhook(`https://${domain}/${secretPath}`, undefined, 100)
-        const webhookInfo = await bot.telegram.getWebhookInfo()
-        console.info('Bot is up and running with webhooks', webhookInfo)
-      })
-      .catch(err => console.error('Bot launch error', err))
-  } else {
-    bot.startPolling()
-    // Console that everything is fine
-    console.info('Bot is up and running')
-  }
-}
+// Let's rock!
+startBot()

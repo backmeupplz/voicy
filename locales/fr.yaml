@@ -1,0 +1,53 @@
+
+files_false: "📁 Merveilleux! *Voicy* *ignorera* tous les fichiers audio dans cette conversation depuis maintenant."
+files_true: "📁 Merveilleux! *Voicy* *essaiera de reconnaître* tous les fichiers audio dans cette conversation depuis maintenant."
+google: "Répondez à ce message avec le fichier (.json) d'informations d'identification de Google Cloud pour configurer reconnaissance vocale de Google Speech. Vous ne savez pas ce que c'est et comment l'obtenir? Consultez notre tutoriel rapide (https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8)."
+google_error_doc: "Désolé, vous devez répondre avec un document d'identification."
+google_error_mime: "Désolé, le type mime du document doit être texte ordinaire."
+google_success: "Félicitations! *Voicy* a obtenu le fichier d’informations d’identification pour le *$[1]* projet Google Cloud. Vous êtes maintenant en mesure d’utiliser la reconnaissance vocale de Google Speech."
+help: "|
+  😎 Il convertit les discours au texte à partir des messages vocaux et des fichiers audio (.ogg, .flac, .wav, .mp3) qu'il reçoit. Vous pouvez soit parler à *Voicy* dans le dans le chat privé ou l'ajouter à un groupe. Si vous souhaitez utiliser ce bot en messages privés, créer un groupe privé avec quelqu'un et ajoutez *Voicy* là.
+
+Si vous souhaitez ajouter *Voicy* à un groupe de discussion, s'il vous plaît, ajoutez-le comme un participant sur le profil du groupe ou au groupe dans le profil bot *Voicy*.
+
+/help — Affiche ce message 😱
+/engine — Vous permet de choisir un moteur de reconnaissance vocale: wit.ai, Yandex SpeechKit or Google Speech ⚙
+/language — Vous permet de choisir la langue de reconnaissance vocale 📣
+/lock — Bascule verrouiller ou déverrouiller des non-admins à l'aide de commandes dans les groupe de conversations 🔑
+/files — Bascule si le robot doit essayer de convertir des fichiers audio ou simplement les ignorer 📁
+/silent — Bascule le mode silencieux lorsque aucun message supplémentaire comme `La reconnaissance vocale est initiée` est envoyé 😶
+/google — Configurer les informations d'identification de Google pour Google
+
+Aime ce bot? Laisser un commentaire ici (https://telegram.me/storebot?start=voicybot)
+
+Traiter des préoccupations et des questions à mon créateur — @borodutch\_support 🦄"
+error_group: "😅 Désolé, mais cette commande ne fonctionne que dans le groupe de discussion."
+lock_true: "🔑 Parfait! *Voicy* répondra désormais uniquement aux appels de commande envoyés par *admins*dans ce chat."
+lock_false: "🔑 Parfait! *Voicy* répondra désormais uniquement aux appels de commande envoyés par *personne* dans ce chat."
+silent_true: "😶 Magnifique! *Voicy* fonctionne désormais en *mode silencieux*: il n'enverra pas aucun message sur le chat sauf les messages pour les transcriptions de voix réelles."
+silent_false: "😏 Magnifique! *Voicy* fonctionne désormais en *mode normal*: il enverra des messages `La reconnaissance vocale est initiée` juste après la réception de messages vocaux."
+start: "|
+  👋 Bonjour là-bas. *Voicy* est un bot de reconnaissance vocale qui convertit tous les messages vocaux et les fichiers audio (.ogg, .flac, .wav, .mp3) en texte.
+
+*Voicy* prend en charge trois moteurs de reconnaissance vocale: wit.ai, Yandex SpeechKit and Google Speech. Initialement il est configuré pour utiliser wit.ai mais vous pouvez passer à Google Speech ou Yandex SpeechKit à tout moment à engine. Plus d'informations dans aide /help."
+engine: "👋 S'il vous plaît, sélectionnez le moteur de reconnaissance vocale. Google Speech est plus précis et prend en charge l'audio plus de 50 secondes, mais ce doit être configuré avec vos informations d'identification de Google Cloud (un peu fastidieux).Yandex SpeechKit est assez précis, gratuit, privé et la plupart du temps prend en charge l’audio plu de 50 secondes, mais a liste des langues limité. Wit.ai est moins précis, gratuit et ne supporte pas l'audio plus de 50 secondes, mais il a beaucoup de langues.. Veuillez noter que tous les trois prise en charge différentes langues, alors choisissez celle qui vous convient le mieux."
+callback_error: "Seule la personne qui a lancé la commande pouvez sélectionner des options"
+engine_success: "👍 Maintenant *Voicy* utilise *$[1]* dans ce chat. Merci! Ne pas oublier de mettre la /language."
+language: "👋 Veuillez sélectionner la langue de reconnaissance vocale pour $[1]"
+language_without_engine: "👋 Veuillez sélectionner la langue de reconnaissance vocale"
+language_yandex: "👍 Maintenant *Voicy* parle *$[1]* (Yandex SpeechKit) dans ce chat.Merci!"
+language_wit: "👋 Veuillez sélectionner la langue de reconnaissance vocale pour wit.ai."
+language_success_wit: "👍 Maintenant *Voicy* parle *$[1]* (wit.ai) dans ce chat. Merci!"
+language_google: "👋 Veuillez sélectionner la langue de reconnaissance vocale pour Google Speech."
+language_success_google: "👍 Maintenant *Voicy* parle *$[1]* (Google Speech) dans ce chat. Merci!"
+error_twenty: "_👮 Je ne peux pas reconnaître les messages vocaux de plus de 20 megabytes_"
+initiated: "_🦄 La reconnaissance vocale est initiée`_"
+undefined: "_👮 Wit.ai ne peux pas reconnaître les messages vocaux de plus de 50 secondes_"
+speak_clearly: "_👮 Parlez clairement, s'il vous plaît, je ne pouvais pas le reconnaître_"
+error: "_👮 Je ne pouvais pas le reconnaître_"
+google_error_creds: "😮 Installez, s'il vous plaît, les informations d'identification avec la commande de google ou changez le moteur avec la commande engine."
+google_enable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat."
+google_enable_success: "Wonderful. Your Google Cloud credentials will now be used in this chat."
+google_disable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat."
+google_disable_error_wrong_key: "This chat doesn't use your credentials already."
+google_disable_success: "Wonderful. Your Google Cloud credentials will not be used in this chat anymore."

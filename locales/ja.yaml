@@ -1,0 +1,53 @@
+
+files_false: "📁 さいこう！ *ヴォイシー * は、チャット内の音声ファイルを全部 *無視* するよ。"
+files_true: "📁 いいねぇ！ *ヴォイシー* は、チャット内の音声ファイルを全部 *理解* するよ。"
+google: "グーグルクラウド専用ファイル (.json) を使って返信をし、グーグルスピーチ音声認識をセットアップしましょう。これが何かわからず、どう取得すればいいかわからない？ [簡単チュートリアル](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8)をご覧ください。"
+google_error_doc: "すみません、専用ファイルを用いてください。"
+google_error_mime: "すみません、document's mimeは 'text/plain'であるべきです。"
+google_success: "よくできました！ *ヴォイシー* は *$[1]* グーグルクラウドプロジェクトの専用ファイルを認識しました。グーグル音声認識が使えるようになりました。"
+help: "|
+  😎 *ヴォイシー* はどんな音声ファイル (.ogg, .flac, .wav, .mp3) やボイスメッセージからも文字をおこすことができます。 *ヴォイシー* と個人ででも、グループチャットでも話せます。
+
+もしこのボットをプライベートチャットで利用したいなら、誰かとプライベートグループを作成し、そこに*ヴォイシー*を追加してあげてください。 *ヴォイシー* をグループチャットに追加たい場合、参加者として追加するか、 *ヴォイシー* のプロフィールにあるグループを選択してください。
+
+/help — これを表示する 😱
+/engine — 音声認識エンジンを選択させてくれる: wit.ai, Yandex SpeechKit か Google Speech ⚙
+/language — 音声認識の言語を選択させてくれる。 📣
+/lock — グループチャットの主催者のコマンドをロック、解除する 🔑
+/files — ボットが音声ファイルを変換するかしないか 📁
+/silent — `音声認識が始まりました` などの追加メッセージがない限りサイレントモードになる 😶
+/google — グーグルスピーチのためグーグル資格情報を設定する 🦆
+
+このボット、気に入りましたか? レビューをお願いします。[こちら](https://telegram.me/storebot?start=voicybot) 👍
+
+お困りでしたら、創設者にひとこと — @borodutch\_support 🦄"
+error_group: "😅 ごめんなさい、このコマンドはグループチャットでしか使えません。"
+lock_true: "🔑 了解！ *ヴォイシー* は *主催者* のコマンドにしか応じないよ。"
+lock_false: "🔑 了解! *ヴォイシー* は *みなさん* のコマンドに応じるよ。"
+silent_true: "😶 いいねぇ！ *ヴォイシー* はこれから *サイレントモード*: 音声テキスト以外は送信しないよ。"
+silent_false: "😏 いいねぇ！ *ヴォイシー* は *通常モード*:ボイスメッセージを受信たときに `音声認識を開始しました` と言うよ。"
+start: "|
+  👋 やっほー！ *ヴォイシー* はボイスメッセージや音声ファイル (.ogg, .flac, .wav, .mp3)を文字におこす音声認識ボットです。
+
+*ヴォイシー* は三種類の音声認識エンジンが使えます: wit.ai, Yandex SpeechKit と Google Speech.。もともとは wit.ai を利用していたのですが、 Google Speech や Yandex SpeechKit を /engine　として利用することもできます。 詳細はこちらで /help."
+engine: "👋 音声認識エンジンを選択してください。Google Speech はとても正確で５０秒以上の音声認識することができますが、Google Cloud credentials とセットアップする必要があります(少し面倒)。 Yandex SpeechKit はまぁまぁ正確、無料、プライベートであり５０秒以上の音声をサポートすることが多いですが、言語が限られています。 Wit.ai はあまり正確ではなく、無料、そして ５０秒以上の音声は認識できませんが、たくさんの言語が選べます。三種類とも複数の言語を認識できますので、自分に合ったものを選んでください。"
+callback_error: "コマンドを始めた方のみ、オプション選択できます"
+engine_success: "👍 *ヴォイシー* はチャットで *$[1]* を使うよ。ありがとう！/languageを忘れないで。"
+language: "👋 $[1]の音声認識言語を選択してください。"
+language_without_engine: "👋 の音声認識言語を選択してください。"
+language_yandex: "👍 これで *ヴォイシー* は *$[1]* (Yandex SpeechKit) を話せるよ。ありがとう！"
+language_wit: "👋 wit.ai. のための音声認識言語を選択してください。"
+language_success_wit: "👍 これで *ヴォイシー* は *$[1]* (wit.ai) を話せるよ。ありがとう！"
+language_google: "👋 Google Speech のための音声認識言語を選択してください。"
+language_success_google: "👍 これで *ヴォイシー* は*$[1]* (Google Speech)を話すよ。ありがとう！"
+error_twenty: "_👮 ぼく、２０MB以上のボイスメッセージはわからないんだ_"
+initiated: "_🦄 音声認識をはじめます..._"
+undefined: "_👮 Wit.ai は５０秒以上のボイスメッセージを認識できません_"
+speak_clearly: "_👮 わかりませんでした。もう少しはっきり話してください_"
+error: "_👮 わかりませんでした_"
+google_error_creds: "😮 /google コマンドでグーグルクレデンシャルを設定するか、/engine コマンドでエンジンを変更してください。クレデンシャルのセットアップができていません。"
+google_enable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat."
+google_enable_success: "Wonderful. Your Google Cloud credentials will now be used in this chat."
+google_disable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat."
+google_disable_error_wrong_key: "This chat doesn't use your credentials already."
+google_disable_success: "Wonderful. Your Google Cloud credentials will not be used in this chat anymore."

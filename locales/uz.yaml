@@ -1,0 +1,53 @@
+
+files_false: "📁 Ajoyib! *Voicy* bu chatdagi barcha audio fayllarni hozirdan boshlab *e�tiborsiz qoldiradi*."
+files_true: "📁 Ajoyib! *Voicy* bu chatdagi barcha audio fayllarni hozirdan boshlab *tushunishga harakat qiladi*."
+google: "Google nutqni tushunish xizmatini sozlash uchun bu xabarga Google Cloud xizmatidagi shaxsiy ma�lumotlaringiz fayli (.json) bilan javob qaytaring. Buni qanday amalga oshirishni bilmasangiz, [qo�llanmamiz](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8) bilan tanishing."
+google_error_doc: "Uzr, shaxsiy ma�lumotlaringiz bor hujjat bilan javob qaytaring."
+google_error_mime: "Uzr, hujjatning mime turi 'text/plain' kabi bo�lishi lozim."
+google_success: "Tabriklaymiz! *Voicy* *$[1]* Google Cloud loyihasi uchun shaxsiy ma�lumotlar faylini oldi. Endi siz Google ovozni tushunish xizmatidan foydalishingiz mumkin."
+help: "|
+  😎 *Voicy* qabul qilingan har qanday audio fayllar (.ogg, .flac, .wav, .mp3) va ovozli fayllarni matnga aylantiradi. *Voicy*ga maxfiy chatda gapirishingiz yoki uni guruhga qo�shib ham foydalanishingiz mumkin.
+
+Bu botdan shaxsiy xabarlar uchun foydalanmoqchi bo�lsangiz, suhbatdoshingiz bilan alohida maxfiy guruh yarating va *Voicy*ni ham shu yerga qo�shing. *Voicy*ni guruh chatiga qo�shmoqchi bo�lsangiz, uni guruh profili orqali ishtirokchi sifatida qo�shing yoki *Voicy* bot profilidagi guruhga qo�shishingiz mumkin.
+
+/help — Bu xabarni ko�rsatadi 😱
+/engine — Ovozni tushunish tizimini tanlang: wit.ai, Yandex SpeechKit yoki Google Speech ⚙
+/language — Ovozni tushunish tilini tanlang 📣
+/lock — Administrator bo�lmaganlar uchun guruh chatlarida buyruqlardan foydalanishga ruxsat beradi yoki taqiqlaydi 🔑
+/files — Bot audio fayllarga aylantirishga uringanda yoki rad qilganda yonadi/o�chadi 📁
+/silent — "Ovozni tushunish ishga tushdi" kabi qo�shimcha xabarlar yuborilmasa, sokin rejimga o�tadi 😶
+/google — Google Speech uchun Google shaxsiy ma�lumotlarini sozlash 🦆
+
+Bu bot yoqdimi? Fikr-mulohazalaringizni [bu yerda](https://telegram.me/storebot?start=voicybot) qoldiring 👍
+
+Har qanday muammo yoki savollar bilan meni tuzuvchimga murojaat qiling: — @borodutch\_support 🦄"
+error_group: "😅 Uzr, bu buyruq faqatgina guruh chatlarida ishlaydi."
+lock_true: "🔑 Zo�r! *Voicy* bu chatda faqat *admins* (administratorlar) yuborgan buyruq chaqiruvlariga javob beradi."
+lock_false: "🔑 Zo�r! *Voicy* bu chatda faqat *anyone* (har qanday inson) yuborgan buyruq chaqiruvlariga javob beradi."
+silent_true: "😶 Qoyil! *Voicy* endi *silent mode* (sokin rejim)da ham ishlaydi: u endi chatga amaldagi ovoz transkripsiyasidan boshqa hech qanday xabar yubormaydi."
+silent_false: "😏 Qoyil! *Voicy* endi *usual mode* (odatdagi rejim)da ishlaydi: u audio xabarlarni olganidan keyin "Ovozni tushunish ishga tushdi" xabarini yuboradi."
+start: "|
+  👋 Salom! *Voicy* � ovozni tushunish boti bo�lib, barcha ovozli xabar va audio fayllarni (.ogg, .flac, .wav, .mp3) matnga aylantiradi.
+
+*Voicy* uchta ovozni tushunish tizimi bilan ishlaydi: wit.ai, Yandex SpeechKit and Google Speech. U odatda wit.ai tizimidan foydalanadi, lekin Google Speech yoki Yandex SpeechKit tizimiga /engine orqali almashtirishingiz mumkin. Batafasil ma�lumotni /help orqali olish mumkin."
+engine: "👋 Ovozni tushunish tizimini tanlang. Google Speech ancha yaxshi ishlaydi va 50 soniyadan uzun audio fayllarni ham o�qiy oladi, lekin Google Cloud shaxsiy ma�lumotlari bilan sozlash kerak bo�ladi (biroz vaqt oladi). Yandex SpeechKit ham yaxshi ishlaydi, bepul, xavfsiz va odatda 50 soniyadan uzun audio fayllarni ham o�qiy oladi, lekin ba�zi tillardagina ishlaydi. Wit.ai is juda yaxshi ishlamasa-da, bepul, 50 soniyadan uzun audio fayllarni o�qiy olmaydi, lekin juda ko�p tilda ishlaydi. Uchalasi har xil tilda ishlaydi. O�zingizga mosini tanlang!"
+callback_error: "Buyruqni boshlagan odamgina parametrlarni tanlay oladi"
+engine_success: "👍 Endi *Voicy* *$[1]*dan bu chatda foydalana oladi. Rahmat! Tilni /language orqali sozlashni unutmang."
+language: "👋 $[1] uchun ovozni tushunish tilini tanlang"
+language_without_engine: "👋 Ovozni tushunish tilini tanlang"
+language_yandex: "👍 Endi *Voicy* bu chatda *$[1]* (Yandex SpeechKit) tilida gaplasha oladi. Rahmat!"
+language_wit: "👋 wit.ai uchun ovozni tushunish tilini tanlang."
+language_success_wit: "👍 Endi *Voicy* bu chatda *$[1]* (wit.ai) tilida gaplasha oladi. Rahmat!"
+language_google: "👋 Google Speech uchun ovozni tushunish tilini tanlang."
+language_success_google: "👍 Endi *Voicy* bu chatda *$[1]* (Google Speech) tilida gaplasha oladi. Rahmat!"
+error_twenty: "_👮 Men 20 megabaytdan katta ovozli xabarlarni o�qiy olmayman_"
+initiated: "_🦄 Ovozni tanih ishga tushdi..._"
+undefined: "_👮 Wit.ai 50 soniyadan uzoqroq ovozli xabarlaarni o�qiy olmaydi_"
+speak_clearly: "_👮 Iltimos, Aniq va tiniq o�qing, Men tushuna olmayapman_"
+error: "_👮 Men tushuna olmayapman_"
+google_error_creds: "😮 Google shaxsiy ma�lumotlrini /google command yordamida sozlang yoki /engine command yordamida tizimni almashtiring. Shaxsiy ma�lumotlaringiz haligacha sozlanmagan."
+google_enable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat."
+google_enable_success: "Wonderful. Your Google Cloud credentials will now be used in this chat."
+google_disable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat."
+google_disable_error_wrong_key: "This chat doesn't use your credentials already."
+google_disable_success: "Wonderful. Your Google Cloud credentials will not be used in this chat anymore."

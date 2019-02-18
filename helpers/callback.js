@@ -2,10 +2,6 @@
 const { setLanguage } = require('./language')
 const { setEngine } = require('./engine')
 
-/**
- * Setting up an endpoint for callbacks
- * @param {Telegraf:Bot} bot Bot to setup callback handler
- */
 function setupCallbackHandler(bot) {
   bot.action(async (data, ctx) => {
     const options = data.split('~')
@@ -23,4 +19,4 @@ function setupCallbackHandler(bot) {
 }
 
 // Exports
-module.exports = { setupCallbackHandler }
+module.exports = setupCallbackHandler

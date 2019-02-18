@@ -1,105 +1,70 @@
 // Dependencies
 const { findChat } = require('../helpers/db')
-const { checkAdminLock } = require('../helpers/admins')
 const { fileUrl } = require('../helpers/url')
 const download = require('download')
-const { checkDate } = require('../helpers/filter')
 const report = require('../helpers/report')
+const logAnswerTime = require('../helpers/logAnswerTime')
+const checkAdminLock = require('../middlewares/adminLock')
 
-/**
- * Setting up google command
- * @param {Telegraf:Bot} bot Bot that should get google setup
- */
 function setupGoogle(bot) {
-  bot.command('google', checkDate, async ctx => {
-    // Get chat
-    const chat = await findChat(ctx.chat.id)
-    // Check if admin locked
-    const adminLockCheck = await checkAdminLock(chat, ctx)
-    if (!adminLockCheck) return
-    // Setup localizations
-    const strings = require('../helpers/strings')()
-    strings.setChat(chat)
-    // Send message
-    const msg = await ctx.replyWithMarkdown(
-      strings.translate(
-        'Reply to this message with the Google Cloud credentials file (.json) to set up Google Speech voice recognition. Not sure what is this and how to get it? Check out [our quick tutorial](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).'
-      )
-    )
-    // Save msg to chat
-    chat.googleSetupMessageId = msg.message_id
-    chat.save()
-    // Log time
-    console.info(`/google answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
+  bot.command('google', checkAdminLock, async ctx => {
+    handleGoogle(ctx)
   })
 
-  bot.command('enableGoogle', checkDate, async ctx => {
-    // Get sender and chat
-    const sender = await findChat(ctx.from.id)
-    const chat = await findChat(ctx.chat.id)
-    // Check if admin locked
-    if (!(await checkAdminLock(chat, ctx))) return
-    // Setup localizations
-    const strings = require('../helpers/strings')()
-    strings.setChat(chat)
-    // Check if google key exists on user
-    if (!sender.googleKey) {
-      return ctx.replyWithMarkdown(
-        strings.translate(
-          'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.'
-        )
-      )
-    }
-    // Setup google key
-    chat.googleKey = sender.googleKey
-    await chat.save()
-    // Send message
-    await ctx.replyWithMarkdown(
-      strings.translate(
-        'Wonderful. Your Google Cloud credentials will now be used in this chat.'
-      )
-    )
+  bot.command('enableGoogle', checkAdminLock, async ctx => {
+    handleEnableGoogle(ctx)
   })
 
-  bot.command('disableGoogle', checkDate, async ctx => {
-    // Get sender and chat
-    const sender = await findChat(ctx.from.id)
-    const chat = await findChat(ctx.chat.id)
-    // Check if admin locked
-    if (!(await checkAdminLock(chat, ctx))) return
-    // Setup localizations
-    const strings = require('../helpers/strings')()
-    strings.setChat(chat)
-    // Check if google key exists on user
-    if (!sender.googleKey) {
-      return ctx.replyWithMarkdown(
-        strings.translate(
-          'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.'
-        )
-      )
-    }
-    // Check if google key is the same
-    if (sender.googleKey !== chat.googleKey) {
-      return ctx.replyWithMarkdown(
-        strings.translate("This chat doesn't use your credentials already.")
-      )
-    }
-    // Setup google key
-    chat.googleKey = undefined
-    await chat.save()
-    // Send message
-    await ctx.replyWithMarkdown(
-      strings.translate(
-        'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.'
-      )
-    )
+  bot.command('disableGoogle', checkAdminLock, async ctx => {
+    handleDisableGoogle(ctx)
   })
 }
 
-/**
- * Setting up checking for google credentials
- * @param {Telegraf:Bot} bot Bot that should get check setup
- */
+async function handleGoogle(ctx) {
+  // Send message
+  const msg = await ctx.replyWithMarkdown(ctx.i18n.t('google'))
+  // Save msg to chat
+  ctx.dbchat.googleSetupMessageId = msg.message_id
+  await ctx.dbchat.save()
+  // Log time
+  logAnswerTime(ctx, '/google')
+}
+
+async function handleEnableGoogle(ctx) {
+  // Get sender
+  const sender = await findChat(ctx.from.id)
+  // Check if google key exists on user
+  if (!sender.googleKey) {
+    await ctx.replyWithMarkdown(ctx.i18n.t('google_enable_no_key_error'))
+    return
+  }
+  // Setup google key
+  ctx.dbchat.googleKey = sender.googleKey
+  await ctx.dbchat.save()
+  // Send message
+  await ctx.replyWithMarkdown(ctx.i18n.t('google_enable_success'))
+}
+
+async function handleDisableGoogle(ctx) {
+  // Get sender
+  const sender = await findChat(ctx.from.id)
+  // Check if google key exists on user
+  if (!sender.googleKey) {
+    await ctx.replyWithMarkdown(ctx.i18n.t('google_disable_no_key_error'))
+    return
+  }
+  // Check if google key is the same
+  if (sender.googleKey !== ctx.dbchat.googleKey) {
+    await ctx.replyWithMarkdown(ctx.i18n.t('google_disable_wrong_key_error'))
+    return
+  }
+  // Setup google key
+  ctx.dbchat.googleKey = undefined
+  await ctx.dbchat.save()
+  // Send message
+  await ctx.replyWithMarkdown(ctx.i18n.t('google_disable_success'))
+}
+
 function setupCheckingCredentials(bot) {
   bot.use(async (ctx, next) => {
     // Continue
@@ -115,23 +80,15 @@ function setupCheckingCredentials(bot) {
         msg.reply_to_message.from &&
         msg.reply_to_message.from.username === process.env.USERNAME
       ) {
-        // Get chat
-        const chat = await findChat(ctx.chat.id)
         // Check if reply to setup message
         if (
-          chat.googleSetupMessageId &&
-          chat.googleSetupMessageId === msg.reply_to_message.message_id
+          ctx.dbchat.googleSetupMessageId &&
+          ctx.dbchat.googleSetupMessageId === msg.reply_to_message.message_id
         ) {
-          // Setup localizations
-          const strings = require('../helpers/strings')()
-          strings.setChat(chat)
           // Check if document
           if (!msg.document) {
-            return ctx.reply(
-              strings.translate(
-                'Sorry, you should reply with a credentials document.'
-              )
-            )
+            ctx.reply(ctx.i18n.t('google_credentials_not_document'))
+            return
           }
           // Check file name
           if (
@@ -139,11 +96,8 @@ function setupCheckingCredentials(bot) {
             (msg.document.file_name.indexOf('json') < 0 &&
               msg.document.file_name.indexOf('txt') < 0)
           ) {
-            return ctx.reply(
-              strings.translate(
-                "Sorry, document's mime type should be 'text/plain'."
-              )
-            )
+            ctx.reply(ctx.i18n.t('google_credentials_mime_type'))
+            return
           }
           // Download the file
           const fileData = await ctx.telegram.getFile(msg.document.file_id)
@@ -151,17 +105,16 @@ function setupCheckingCredentials(bot) {
           // Download credentials file
           const data = await download(url)
           // Save to chat
-          chat.googleKey = data.toString('utf8')
-          await chat.save()
+          ctx.dbchat.googleKey = data.toString('utf8')
+          await ctx.dbchat.save()
           // Reply with confirmation
           await ctx.replyWithMarkdown(
-            strings.translate(
-              'Congratulations! *Voicy* got the credentials file for the *$[1]* Google Cloud Project. Now you are able to use Google Speech recognition.',
-              JSON.parse(chat.googleKey).project_id
-            )
+            ctx.i18n.t('google_credentials_success', {
+              projectId: JSON.parse(ctx.dbchat.googleKey).project_id,
+            })
           )
           // Log time
-          console.info(`credentials check answered in ${(new Date().getTime() - ctx.timeReceived.getTime()) / 1000}s`)
+          logAnswerTime(ctx, 'credentials check')
         }
       }
     } catch (err) {
