@@ -1,7 +1,7 @@
 // Dependencies
 const ffmpeg = require('fluent-ffmpeg')
 const temp = require('temp')
-const fs = require('fs')
+const tryDeletingFile = require('./deleteFile')
 
 // Exports
 module.exports = filepath =>
@@ -30,11 +30,3 @@ module.exports = filepath =>
         .run()
     })
   })
-
-function tryDeletingFile(path) {
-  try {
-    fs.unlinkSync(path)
-  } catch (err) {
-    // do nothing
-  }
-}

@@ -1,53 +1,42 @@
-
-files_false: "📁 Möhtəşəm! Bu andan etibarən “Voicy” bu söhbətdəki bütün səs fayllarını “görməməzlikdən gələcək”."
-files_true: "📁 Möhtəşəm! Bu andan tibarən “Voicy” bu söhbətdəki bütün audio faylarını “tanımağa çalışacaq”."
-google: "Google Speech səs tanımasını quraşdırmaq üçün bu mesajı Google Cloud etibarnamə fayl(.json)ı ilə cavablayın. Nə olduğu və necə əldə edəcəyinizi bilmirsiniz? Bunu yoxlayın [qısa təlimimiz](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8)"
-google_error_doc: "Bağışlayın, etibarnamə sənədi ilə cavablamalısınız."
+files_false: '📁 Möhtəşəm! Bu andan etibarən “Voicy” bu söhbətdəki bütün səs fayllarını “görməməzlikdən gələcək”.'
+files_true: '📁 Möhtəşəm! Bu andan tibarən “Voicy” bu söhbətdəki bütün audio faylarını “tanımağa çalışacaq”.'
+google: 'Google Speech səs tanımasını quraşdırmaq üçün bu mesajı Google Cloud etibarnamə fayl(.json)ı ilə cavablayın. Nə olduğu və necə əldə edəcəyinizi bilmirsiniz? Bunu yoxlayın [qısa təlimimiz](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8)'
+google_error_doc: 'Bağışlayın, etibarnamə sənədi ilə cavablamalısınız.'
 google_error_mime: "Bağışlayın, sənədlərin yazılış mimi belə olmalıdır 'text/plain'"
-google_success: "Təbriklər! “Voicy” *$[1]* Google Speech Layihəsi üçün etibarnamə fayllarını əldə etdi. Artıq Google Speech tanımağından istifadə edə biləcəksiniz."
-help: "|
+google_success: 'Təbriklər! “Voicy” *${projectId}* Google Speech Layihəsi üçün etibarnamə fayllarını əldə etdi. Artıq Google Speech tanımağından istifadə edə biləcəksiniz.'
+help: |
   😎 *Voicy* qəbul etdiyi hər cür səsli mesajları və audio faylarda (.ogg, .oflac, .wav, .mp3) olan danışıqları yazılı formata çevirir. “Voicy” ilə şəxsi söhbət otağında danışa, yaxud qrupa əlavə edə bilərsiniz. 
 
-Əgər bu botdan şəxsi mesajlarda istifadə etmək istəyirsinizsə, zəhmət olmasa, kimləsə şəxsi qrup söhbəti açın və *Voicy*ni ora əlavə edin. Əgər *Voicy*ni qrup söhbətinə əlavə etmək istəyirsinizsə, zəhmət olmasa, onu qrup üzvü kimi daxil edin, yaxud qrupla *Voicy* bot profilinə yığışın.
+  Əgər bu botdan şəxsi mesajlarda istifadə etmək istəyirsinizsə, zəhmət olmasa, kimləsə şəxsi qrup söhbəti açın və *Voicy*ni ora əlavə edin. Əgər *Voicy*ni qrup söhbətinə əlavə etmək istəyirsinizsə, zəhmət olmasa, onu qrup üzvü kimi daxil edin, yaxud qrupla *Voicy* bot profilinə yığışın.
 
-/help – Bu mesajı göstərir 😱
-/engine – Gəlin, sizin üçün səs tanıma mühərriki seçək: wit.ai, Yandex SpeechKit yaxud Google Speech. ⚙
-/language – Gəlin, sizin üçün səs tanıması dili seçək 📣
-/lock - adminlərin qrup söhbət otaqlarında əmr verməyini kilidləmə və ya açma çubuğu 🔑
-/files – Bot audio faylları çevirməyə cəhd eləməlidir və ya görməməzlikdən gəlməlidir çubuğu 📁
-/silent – “Səs tanıması başladılmışdır” kimi əlavə mesajlar göndərilmədiyi səssiz rejimə keçmə çubuğu 😶
-/google – Google Speech üçün google etibarnamələrini quraşdırın 🦆
+  /help – Bu mesajı göstərir 😱
+  /engine – Gəlin, sizin üçün səs tanıma mühərriki seçək: wit.ai, Yandex SpeechKit yaxud Google Speech. ⚙
+  /language – Gəlin, sizin üçün səs tanıması dili seçək 📣
+  /lock - adminlərin qrup söhbət otaqlarında əmr verməyini kilidləmə və ya açma çubuğu 🔑
+  /files – Bot audio faylları çevirməyə cəhd eləməlidir və ya görməməzlikdən gəlməlidir çubuğu 📁
+  /silent – “Səs tanıması başladılmışdır” kimi əlavə mesajlar göndərilmədiyi səssiz rejimə keçmə çubuğu 😶
+  /google – Google Speech üçün google etibarnamələrini quraşdırın 🦆
 
-Bot xoşunuza gəlirmi? Rəy bildirin [bura](https://telegram.me/storebot?start=voicybot) 👍
+  Bot xoşunuza gəlirmi? Rəy bildirin [bura](https://telegram.me/storebot?start=voicybot) 👍
 
-Hər cür narahatlıq və suallarınızı yaradıcıma ünvanlayın - @borodutch\_support"
-error_group: "😅 Bağışlayın, bu əmr ancaq qrup söhbətlərində işləyir."
-lock_true: "🔑 Əla! Bundan sonra *Voicy* bu söhbətdə ancaq *adminlər* tərəfindən göndərilən əmr çağırışlarına cavab verəcək."
-lock_false: "🔑 Əla! Bundan sonra *Voicy* bu söhbətdə ancaq *hərkəs* tərəfindən göndərilən əmr çağırışlarına cavab verəcək."
-silent_true: "😶 Şəhanə! Bundan sonra *Voicy* *səssiz rejim*də işləyəcək: əsl səs yazıköçürmələrindən başqa söhbətə heç bir mesaj göndərməyəcək."
-silent_false: "😏 Şəhanə! Bundan sonra *Voicy* *adi rejim*də işləyəcək : səs qəbul edən kimi “Səs tanıması başladılmışdır” mesajı göndərəcək."
-start: "|
+  Hər cür narahatlıq və suallarınızı yaradıcıma ünvanlayın - @borodutch\\_support
+error_group: '😅 Bağışlayın, bu əmr ancaq qrup söhbətlərində işləyir.'
+lock_true: '🔑 Əla! Bundan sonra *Voicy* bu söhbətdə ancaq *adminlər* tərəfindən göndərilən əmr çağırışlarına cavab verəcək.'
+lock_false: '🔑 Əla! Bundan sonra *Voicy* bu söhbətdə ancaq *hərkəs* tərəfindən göndərilən əmr çağırışlarına cavab verəcək.'
+silent_true: '😶 Şəhanə! Bundan sonra *Voicy* *səssiz rejim*də işləyəcək: əsl səs yazıköçürmələrindən başqa söhbətə heç bir mesaj göndərməyəcək.'
+silent_false: '😏 Şəhanə! Bundan sonra *Voicy* *adi rejim*də işləyəcək : səs qəbul edən kimi “Səs tanıması başladılmışdır” mesajı göndərəcək.'
+start: |
   👋 Xoş gördük! *Voicy* qəbul etdiyi hər cür səsli mesajları və audio faylarda (.ogg, .oflac, .wav, .mp3) olan danışıqları yazılı formata çevirən səs tanınması botudur.
 
-*Voicy* üç səs tanıması mühərrikini dəstəkləyir: wit.ai, Yandex SpeechKit və Google Speech. Ilkin olaraq wit.ai istifad etməyə quraşdırılıb, lakin istdiyiniz vaxt buradan Google Speech yaxud Yandex SpeechKit dəyişdirə bilərsiniz /engine. Daha çox məlumat burada /help"
-engine: "👋 Zəhmət olmasa, nitq tanıması mühərrikini seçin. Google Speech daha dəqiqdir və 50 saniyədən artıq səsləri dəstəkləyir, lakin Google Cloud etibarnamələri il quraşdırılmalıdır (bir qədər müşkülpəsəntdir). Yandex SpeechKit kifayət qədər dəqiqdir, pulsuzdur, şəxsidir və çox vaxt 50 saniyədən artıq səsləri dəstəkləyir, lakin dil siyahısı qısadır. Wit.ai çox da dəqiq deyil, pulsuzdur, 50 saniyədən artıq səsləri dəstəkləmir, lakin dil siyahısı uzundur. Zəhmət olmasa, yadda saxlayın ki, hər üçü müxtəlif dilləri dəstəkləyir, odur ki, özünüzə ən uyğun olanı seçin."
-callback_error: "Ancaq əmri başladan şəxs seçimləri edə bilər"
-engine_success: "👍 Artıq *Voicy* *$[1]* bu söhbətdə istifadə edir. Minnətdaram! Quraşdırmağı unutma /language"
-language: "👋 Zəhmət olmasa, $[1] üçün nitq tanıma dilini seçin"
-language_without_engine: "👋 Zəhmət olmasa, nitq tanıma dilini seçin"
-language_yandex: "👍 Artıq *Voicy* bu söhbətdə *$[1]* (Yandex SpeechKit) danışır. Minnətdaram!"
-language_wit: "👋 Zəhmət olmasa, wit.ai üçün nitq tanıma dilini seçin."
-language_success_wit: "👍 Artıq *Voicy* bu söhbətdə *$[1]* (wit.ai) danışır. Minnətdaram!"
-language_google: "👋 Zəhmət olmasa, Google Speech üçün nitq tanıma dilini seçin."
-language_success_google: "👍 Artıq *Voicy* bu söhbətdə *$[1]* (Google Speech) danışır. Minnətdaram!"
-error_twenty: "_👮 20 meqabitdən böyük səsli mesajları tanıya bilirəm_"
-initiated: "_🦄 Səs tanıma başladılır..._"
-undefined: "_👮 Wit.ai 50 saniyədən artıq səsli mesajları tanıya bilmir_"
-speak_clearly: "_👮 Zəhmət olmasa, aydın danışın. Bunu tanıya bilmədim_"
-error: "_👮 Bunu tanıya bilmədim_"
-google_error_creds: "😮 Zəhmət olmasa, google etibarnamələrini /google əmri ilə quraşdırın, yaxud /engine əmri ilə mühərriki dəyişin. Sizin etibarnamələriniz hələ quraşdırılmayıb."
-google_enable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat."
-google_enable_success: "Wonderful. Your Google Cloud credentials will now be used in this chat."
-google_disable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat."
-google_disable_error_wrong_key: "This chat doesn't use your credentials already."
-google_disable_success: "Wonderful. Your Google Cloud credentials will not be used in this chat anymore."
+  *Voicy* üç səs tanıması mühərrikini dəstəkləyir: wit.ai, Yandex SpeechKit və Google Speech. Ilkin olaraq wit.ai istifad etməyə quraşdırılıb, lakin istdiyiniz vaxt buradan Google Speech yaxud Yandex SpeechKit dəyişdirə bilərsiniz /engine. Daha çox məlumat burada /help
+engine: '👋 Zəhmət olmasa, nitq tanıması mühərrikini seçin. Google Speech daha dəqiqdir və 50 saniyədən artıq səsləri dəstəkləyir, lakin Google Cloud etibarnamələri il quraşdırılmalıdır (bir qədər müşkülpəsəntdir). Yandex SpeechKit kifayət qədər dəqiqdir, pulsuzdur, şəxsidir və çox vaxt 50 saniyədən artıq səsləri dəstəkləyir, lakin dil siyahısı qısadır. Wit.ai çox da dəqiq deyil, pulsuzdur, 50 saniyədən artıq səsləri dəstəkləmir, lakin dil siyahısı uzundur. Zəhmət olmasa, yadda saxlayın ki, hər üçü müxtəlif dilləri dəstəkləyir, odur ki, özünüzə ən uyğun olanı seçin.'
+callback_error: 'Ancaq əmri başladan şəxs seçimləri edə bilər'
+engine_success: '👍 Artıq *Voicy* *${engine}* bu söhbətdə istifadə edir. Minnətdaram! Quraşdırmağı unutma /language'
+language: '👋 Zəhmət olmasa, ${engine} üçün nitq tanıma dilini seçin'
+language_without_engine: '👋 Zəhmət olmasa, nitq tanıma dilini seçin'
+language_success: '👍 Artıq *Voicy* bu söhbətdə *${language}* (${engine}) danışır. Minnətdaram!'
+error_twenty: '_👮 20 meqabitdən böyük səsli mesajları tanıya bilirəm_'
+initiated: '_🦄 Səs tanıma başladılır..._'
+speak_clearly: '_👮 Zəhmət olmasa, aydın danışın. Bunu tanıya bilmədim_'
+error: '_👮 Bunu tanıya bilmədim_'
+google_error_creds: '😮 Zəhmət olmasa, google etibarnamələrini /google əmri ilə quraşdırın, yaxud /engine əmri ilə mühərriki dəyişin. Sizin etibarnamələriniz hələ quraşdırılmayıb.'

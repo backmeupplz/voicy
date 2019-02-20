@@ -13,9 +13,6 @@ async function handleMessage(ctx) {
   try {
     // Get chat
     const chat = await findChat(ctx.chat.id)
-    // Prepare localizations
-    const strings = require('./strings')()
-    strings.setChat(chat)
     // Get message
     const message = ctx.message || ctx.update.channel_post
     // Get voice message
@@ -24,7 +21,7 @@ async function handleMessage(ctx) {
     // Send an error to user if file is larger than 20 mb
     if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
       if (!chat.silent) {
-        await sendLargeFileError(ctx, strings, message)
+        await sendLargeFileError(ctx, message)
       }
       return
     }
@@ -57,23 +54,22 @@ async function handleMessage(ctx) {
  * @param {Mongoose:Chat} chat Chat object where message has been received
  */
 async function sendTranscription(ctx, url, chat) {
-  // Prepare localizations
-  const strings = require('./strings')()
-  strings.setChat(chat)
   // Get message
   const message = ctx.message || ctx.update.channel_post
   // Send initial message
-  const sentMessage = await sendVoiceRecognitionMessage(ctx, strings, message)
+  const sentMessage = await sendVoiceRecognitionMessage(ctx, message)
   // Get language
   const lan = languageFromChat(chat)
   // Try to find existing voice message
   const dbvoice = await findVoice(url, lan, chat.engine)
   if (dbvoice) {
-    return updateMessagewithTranscription(ctx, sentMessage, dbvoice.text, chat)
+    updateMessagewithTranscription(ctx, sentMessage, dbvoice.text, chat)
+    return
   }
   // Check if ok with google engine
   if (chat.engine === 'google' && !chat.googleKey) {
-    return updateWithGoogleKeyError(ctx, strings, sentMessage, chat)
+    updateWithGoogleKeyError(ctx, sentMessage, chat)
+    return
   }
   try {
     // Convert url to text
@@ -103,9 +99,6 @@ async function sendTranscription(ctx, url, chat) {
  * @param {Mongoose:Chat} chat Chat object where message has been received
  */
 async function sendAction(ctx, url, chat) {
-  // Prepare localizations
-  const strings = require('./strings')()
-  strings.setChat(chat)
   // Send typing action
   await ctx.replyWithChatAction('typing')
   // Try to find existing voice message
@@ -113,7 +106,8 @@ async function sendAction(ctx, url, chat) {
   // Try to find existing voice message
   const dbvoice = await findVoice(url, lan, chat.engine)
   if (dbvoice) {
-    return sendMessageWithTranscription(ctx, dbvoice.text, chat)
+    sendMessageWithTranscription(ctx, dbvoice.text, chat)
+    return
   }
   // Check if ok with google engine
   if (chat.engine === 'google' && !chat.googleKey) {
@@ -148,9 +142,6 @@ async function sendAction(ctx, url, chat) {
  * @param {Boolean} markdown Whether to support markdown or not
  */
 async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
-  // Get localization
-  const strings = require('./strings')()
-  strings.setChat(chat)
   // Create options
   const options = {}
   if (!text || markdown) {
@@ -162,10 +153,7 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
       msg.chat.id,
       msg.message_id,
       null,
-      text ||
-        strings.translate(
-          "_👮 Please, speak clearly, I couldn't recognize that_"
-        ),
+      text || ctx.i18n.t('speak_clearly'),
       options
     )
   } else {
@@ -196,9 +184,6 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
  * @param {Boolean} markdown Whether should support markdown or not
  */
 async function sendMessageWithTranscription(ctx, text, chat, markdown) {
-  // Setup localizations
-  const strings = require('./strings')()
-  strings.setChat(chat)
   // Get message
   const message = ctx.message || ctx.update.channel_post
   // Create options
@@ -215,7 +200,7 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
     // Get chunks
     const chunks = text.match(/.{1,4000}/g)
     // Edit message
-    const message = await ctx.telegram.sendMessage(
+    const sentMessage = await ctx.telegram.sendMessage(
       chat.id,
       chunks.shift(),
       options
@@ -223,7 +208,7 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
     // Send the rest of text
     for (const chunk of chunks) {
       await ctx.reply(chunk, {
-        reply_to_message_id: message.message_id,
+        reply_to_message_id: sentMessage.message_id,
       })
     }
   }
@@ -238,11 +223,8 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
  */
 async function updateMessagewithError(ctx, msg, chat, error) {
   try {
-    // Setup localizations
-    const strings = require('./strings')()
-    strings.setChat(chat)
     // Get text
-    let text = strings.translate("_👮 I couldn't recognize that_")
+    let text = ctx.i18n.t('error')
     if (chat.engine === 'google') {
       text = `${text}\n\n\`\`\` ${error.message ||
         JSON.stringify(error, undefined, 2)}\`\`\``
@@ -267,39 +249,28 @@ function languageFromChat(chat) {
     return chat.googleLanguage
   } else if (chat.engine === 'wit') {
     return chat.witLanguage
-  } else {
-    return chat.yandexLanguage
   }
+  return chat.yandexLanguage
 }
 
-function sendLargeFileError(ctx, strings, message) {
-  return ctx.replyWithMarkdown(
-    strings.translate(
-      "_👮 I can't recognize voice messages larger than 20 megabytes_"
-    ),
-    {
-      parse_mode: 'Markdown',
-      reply_to_message_id: message.message_id,
-    }
-  )
+function sendLargeFileError(ctx, message) {
+  return ctx.replyWithMarkdown(ctx.i18n.t('error_twenty'), {
+    parse_mode: 'Markdown',
+    reply_to_message_id: message.message_id,
+  })
 }
 
-function sendVoiceRecognitionMessage(ctx, strings, message) {
-  return ctx.replyWithMarkdown(
-    strings.translate('_🦄 Voice recognition is initiated..._'),
-    {
-      reply_to_message_id: message.message_id,
-    }
-  )
+function sendVoiceRecognitionMessage(ctx, message) {
+  return ctx.replyWithMarkdown(ctx.i18n.t('initiated'), {
+    reply_to_message_id: message.message_id,
+  })
 }
 
-function updateWithGoogleKeyError(ctx, strings, sentMessage, chat) {
+function updateWithGoogleKeyError(ctx, sentMessage, chat) {
   updateMessagewithTranscription(
     ctx,
     sentMessage,
-    strings.translate(
-      '😮 Please, set up google credentials with the /google command or change the engine with the /engine command. Your credentials are not set up yet.'
-    ),
+    ctx.i18n.t('google_error_creds'),
     chat,
     true
   )

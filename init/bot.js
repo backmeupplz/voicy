@@ -9,9 +9,12 @@ const bot = new Telegraf(process.env.TOKEN, {
 })
 bot.webhookReply = false
 // Get bot's username
-bot.telegram.getMe().then(info => {
-  bot.options.username = info.username
-})
+bot.telegram
+  .getMe()
+  .then(info => {
+    bot.options.username = info.username
+  })
+  .catch(console.info)
 // Bot catch
 bot.catch(err => {
   report(bot, err, 'bot.catch')
@@ -35,7 +38,7 @@ function startBot() {
           const webhookInfo = await bot.telegram.getWebhookInfo()
           console.info('Bot is up and running with webhooks', webhookInfo)
         })
-        .catch(err => console.error('Bot launch error', err))
+        .catch(err => console.info('Bot launch error', err))
     } else {
       bot.startPolling()
       // Console that everything is fine

@@ -9,23 +9,24 @@ const temp = require('temp')
 const fs = require('fs')
 const flac = require('./flac')
 const report = require('./report')
+const tryDeletingFile = require('./deleteFile')
 
 // Generate cluster workers
 const workers = []
 if (cluster.isMaster) {
-  console.log(`Master ${process.pid} is running`)
-  for (let i = 0; i < numCPUs; i++) {
+  console.info(`Master ${process.pid} is running`)
+  for (let i = 0; i < numCPUs; i += 1) {
     const worker = cluster.fork()
     worker.on('message', masterReceivesMessage)
     workers.push(worker)
   }
 } else {
-  console.log(`Worker ${process.pid} started`)
+  console.info(`Worker ${process.pid} started`)
   process.on('message', workerReceivesMessage)
 }
 
 // Called only from the master
-let recognitionPromises = {}
+const recognitionPromises = {}
 let clusterNumber = 0
 async function urlToText(url, chat) {
   // Obtain worker syncronously
@@ -35,7 +36,7 @@ async function urlToText(url, chat) {
     clusterNumber = 0
   }
   const worker = workers[clusterNumber]
-  clusterNumber++
+  clusterNumber += 1
   lock.release()
   // Create promise and send the message to worker
   return new Promise((res, rej) => {
@@ -67,15 +68,8 @@ function masterReceivesMessage({ text, duration, promiseId, error }) {
     if (promiseFunctions) {
       promiseFunctions.rej(new Error(error))
     }
-  } else {
-    // console.log(
-    //   `(${promiseId}) Master ${
-    //     process.pid
-    //   } got result duration ${duration} and text "${text}"`
-    // )
-    if (promiseFunctions) {
-      promiseFunctions.res({ text, duration })
-    }
+  } else if (promiseFunctions) {
+    promiseFunctions.res({ text, duration })
   }
 }
 
@@ -121,14 +115,6 @@ async function convert(url, chat) {
   } finally {
     // No need for oga file anymore
     fs.unlinkSync(ogaPath)
-  }
-}
-
-function tryDeletingFile(path) {
-  try {
-    fs.unlinkSync(path)
-  } catch (err) {
-    // do nothing
   }
 }
 

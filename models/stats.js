@@ -27,7 +27,7 @@ async function countMessage() {
   await lock.acquire()
   try {
     if (i < 10000) {
-      i++
+      i += 1
     } else {
       const today = dateToEpoch(new Date())
       let messageStats = await MessageStats.findOne({ date: today })
@@ -36,11 +36,11 @@ async function countMessage() {
         messageStats.count = 10000
         messageStats.date = today
       }
-      messageStats.count = messageStats.count + 10000
+      messageStats.count += 10000
       await messageStats.save()
       i = 0
     }
-  } catch {
+  } catch (err) {
     // Do nothing
   } finally {
     lock.release()

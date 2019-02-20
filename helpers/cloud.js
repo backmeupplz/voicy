@@ -36,8 +36,8 @@ async function put(filePath, chat) {
           try {
             const uri = await upload(bucket, filePath, key)
             resolve(uri)
-          } catch (err) {
-            reject(err)
+          } catch (error) {
+            reject(error)
           }
         })
       } else {

@@ -4,7 +4,7 @@
 
 This repository contains the code for one of the most popular bots I've ever built for Telegram — [@voicybot](https://t.me/voicybot). Please, feel free to fork, add features and create pull requests so that everybody (over 600 000 chats) can experience the features you've built.
 
-You can also help by translating the bot to other languages using the strings.txt as a reference.
+You can also help by translating the bot to other languages or fixing some texts in existing languages by modifying the `locales` folder.
 
 # List of repositories
 

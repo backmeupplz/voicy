@@ -1,14 +1,17 @@
 // Dependencies
-const { sendLanguage, setLanguageCode } = require('../helpers/language')
-const logAnswerTime = require('../helpers/logAnswerTime')
+const {
+  sendLanguage,
+  setLanguageCode,
+} = require('../helpers/language/language')
 const checkAdminLock = require('../middlewares/adminLock')
+const sendStart = require('../helpers/sendStart')
 
 function setupStart(bot) {
   // Start command
   bot.start(checkAdminLock, async ctx => {
     // Check if Telegram gives us language code
     if (ctx.from && ctx.from.language_code) {
-      ctx.dbchat = await setLanguageCode(ctx, ctx.from.language_code)
+      ctx.dbchat = await setLanguageCode(ctx)
       sendStart(ctx)
     } else {
       sendLanguage(ctx)
@@ -25,11 +28,6 @@ function setupStart(bot) {
       sendLanguage(ctx)
     }
   })
-}
-
-async function sendStart(ctx) {
-  await ctx.replyWithMarkdown(ctx.i18n.t('start'))
-  logAnswerTime(ctx, '/start')
 }
 
 // Exports

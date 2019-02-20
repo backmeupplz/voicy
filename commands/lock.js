@@ -6,7 +6,7 @@ function setupLock(bot) {
   bot.command('lock', checkAdminLock, async ctx => {
     // Check if private or channel
     if (ctx.chat.type === 'private') {
-      ctx.replyWithMarkdown(ctx.i18n.t('private_lock_error'))
+      ctx.replyWithMarkdown(ctx.i18n.t('error_group'))
       return
     }
     // Reverse admin lock
@@ -15,9 +15,7 @@ function setupLock(bot) {
     ctx.dbchat = await ctx.dbchat.save()
     // Reply with the new setting
     await ctx.replyWithMarkdown(
-      ctx.i18n.t(
-        ctx.dbchat.adminLocked ? 'admin_lock_true' : 'admin_lock_false'
-      )
+      ctx.i18n.t(ctx.dbchat.adminLocked ? 'lock_true' : 'lock_false')
     )
     // Log time
     logAnswerTime(ctx, '/lock')

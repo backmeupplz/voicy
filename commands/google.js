@@ -35,7 +35,7 @@ async function handleEnableGoogle(ctx) {
   const sender = await findChat(ctx.from.id)
   // Check if google key exists on user
   if (!sender.googleKey) {
-    await ctx.replyWithMarkdown(ctx.i18n.t('google_enable_no_key_error'))
+    await ctx.replyWithMarkdown(ctx.i18n.t('google_enable_personal_not_setup'))
     return
   }
   // Setup google key
@@ -50,12 +50,12 @@ async function handleDisableGoogle(ctx) {
   const sender = await findChat(ctx.from.id)
   // Check if google key exists on user
   if (!sender.googleKey) {
-    await ctx.replyWithMarkdown(ctx.i18n.t('google_disable_no_key_error'))
+    await ctx.replyWithMarkdown(ctx.i18n.t('google_disable_personal_not_setup'))
     return
   }
   // Check if google key is the same
   if (sender.googleKey !== ctx.dbchat.googleKey) {
-    await ctx.replyWithMarkdown(ctx.i18n.t('google_disable_wrong_key_error'))
+    await ctx.replyWithMarkdown(ctx.i18n.t('google_disable_error_wrong_key'))
     return
   }
   // Setup google key
@@ -87,7 +87,7 @@ function setupCheckingCredentials(bot) {
         ) {
           // Check if document
           if (!msg.document) {
-            ctx.reply(ctx.i18n.t('google_credentials_not_document'))
+            ctx.reply(ctx.i18n.t('google_error_doc'))
             return
           }
           // Check file name
@@ -96,7 +96,7 @@ function setupCheckingCredentials(bot) {
             (msg.document.file_name.indexOf('json') < 0 &&
               msg.document.file_name.indexOf('txt') < 0)
           ) {
-            ctx.reply(ctx.i18n.t('google_credentials_mime_type'))
+            ctx.reply(ctx.i18n.t('google_error_mime'))
             return
           }
           // Download the file
@@ -109,7 +109,7 @@ function setupCheckingCredentials(bot) {
           await ctx.dbchat.save()
           // Reply with confirmation
           await ctx.replyWithMarkdown(
-            ctx.i18n.t('google_credentials_success', {
+            ctx.i18n.t('google_success', {
               projectId: JSON.parse(ctx.dbchat.googleKey).project_id,
             })
           )

@@ -1,7 +1,7 @@
 // Dependencies
 const Telegraf = require('telegraf')
 
-module.exports = function(bot, err, prefix) {
+module.exports = function report(bot, err, prefix) {
   try {
     const bypassList = [
       'message to edit not found',
@@ -49,7 +49,7 @@ module.exports = function(bot, err, prefix) {
         parse_mode: 'Markdown',
       }
     )
-  } catch (err) {
+  } catch (error) {
     // Do nothing
   }
 }

@@ -1,10 +1,11 @@
 // Dependencies
 const fs = require('fs')
 const https = require('https')
-const language = require('./language')
+const language = require('./language/language')
 const cloud = require('./cloud')
 const ffmpeg = require('fluent-ffmpeg')
 const temp = require('temp')
+const tryDeletingFile = require('./deleteFile')
 
 // Language map
 const languageMap = {
@@ -23,7 +24,12 @@ const languageMap = {
  */
 async function getText(flacPath, chat, duration, ogaPath) {
   if (chat.engine === 'wit') {
-    return wit(language.witLanguages()[chat.witLanguage], ogaPath, duration, chat.witLanguage)
+    return wit(
+      language.witLanguages()[chat.witLanguage],
+      ogaPath,
+      duration,
+      chat.witLanguage
+    )
   } else if (chat.engine === 'google') {
     return google(flacPath, chat)
   }
@@ -70,7 +76,7 @@ async function google(filePath, chat) {
           resolve()
           try {
             await cloud.del(uri, chat)
-          } catch (err) {
+          } catch (error) {
             // Do nothing
           }
           return
@@ -80,7 +86,7 @@ async function google(filePath, chat) {
             resolve()
             try {
               await cloud.del(uri, chat)
-            } catch (err) {
+            } catch (error) {
               // Do nothing
             }
           })
@@ -88,7 +94,7 @@ async function google(filePath, chat) {
             resolve(result)
             try {
               await cloud.del(uri, chat)
-            } catch (err) {
+            } catch (error) {
               // Do nothing
             }
           })
@@ -102,7 +108,7 @@ async function google(filePath, chat) {
  * @param {String} token Token of the wit.ai language
  * @param {Path} filePath Path of the file to convert
  */
-async function wit(token, filePath, duration, language) {
+async function wit(token, filePath, duration, iLanguage) {
   const paths = await splitPath(filePath, duration)
   let result = []
   while (paths.length) {
@@ -116,11 +122,16 @@ async function wit(token, filePath, duration, language) {
           while (triesCount > 0) {
             try {
               const text = await recognizePath(path, token)
-              return res(text)
+              res(text)
+              return
             } catch (err) {
               error = err
-              triesCount--
-              console.log(`Retrying ${language} ${path}, attempts left — ${triesCount}, error: ${err.message} (${err.code})`)
+              triesCount -= 1
+              console.info(
+                `Retrying ${iLanguage} ${path}, attempts left — ${triesCount}, error: ${
+                  err.message
+                } (${err.code})`
+              )
             }
           }
           rej(error)
@@ -195,14 +206,6 @@ function yandex(filePath, chat) {
   })
 }
 
-function tryDeletingFile(path) {
-  try {
-    fs.unlinkSync(path)
-  } catch (err) {
-    // do nothing
-  }
-}
-
 async function recognizePath(path, token) {
   return new Promise((resolve, reject) => {
     const options = {
@@ -245,8 +248,8 @@ async function recognizePath(path, token) {
           }
         } catch (err) {
           try {
-            reject(err);
-          } catch (err) {
+            reject(err)
+          } catch (error) {
             // Do nothing
           }
         }
@@ -255,7 +258,7 @@ async function recognizePath(path, token) {
       res.on('error', err => {
         try {
           reject(err)
-        } catch (err) {
+        } catch (error) {
           // Do nothing
         }
       })
@@ -264,7 +267,7 @@ async function recognizePath(path, token) {
     req.on('error', err => {
       try {
         reject(err)
-      } catch (err) {
+      } catch (error) {
         // Do nothing
       }
     })

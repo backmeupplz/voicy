@@ -1,54 +1,43 @@
-
-files_false: "📁 Wunderbar! *Voicy* wird ab sofort alle Audio-Dateien in diesem Chat *ignorieren*."
-files_true: "📁 Wunderbar! *Voicy* wird ab sofort versuchen, alle Audio-Dateien in diesem Chat zu *erkennen*."
-google: "Antworte auf diese Nachricht mit der JSON-Datei mit den Anmeldeinformationen für die Google Cloud, um die Google Speech-Spracherkennung einzurichten. Nicht ganz sicher, was das ist und woher du die bekommen kannst? Schau dir [unsere Kurzanleitung](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8) an."
-google_error_doc: "Sorry, du solltest mit einem Dokument mit Anmeldeinformationen antworten."
+files_false: '📁 Wunderbar! *Voicy* wird ab sofort alle Audio-Dateien in diesem Chat *ignorieren*.'
+files_true: '📁 Wunderbar! *Voicy* wird ab sofort versuchen, alle Audio-Dateien in diesem Chat zu *erkennen*.'
+google: 'Antworte auf diese Nachricht mit der JSON-Datei mit den Anmeldeinformationen für die Google Cloud, um die Google Speech-Spracherkennung einzurichten. Nicht ganz sicher, was das ist und woher du die bekommen kannst? Schau dir [unsere Kurzanleitung](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8) an.'
+google_error_doc: 'Sorry, du solltest mit einem Dokument mit Anmeldeinformationen antworten.'
 google_error_mime: "Entschuldigung, der MIME-Typ des Dokuments sollte 'text/plain' sein."
-google_success: "Herzlichen Glückwunsch! *Voicy* hat die Anmeldeinformationen-Datei für das *$[1]* Google-Cloud-Projekt erhalten. Jetzt kannst du die Google-Spracherkennung verwenden."
-help: "|
+google_success: 'Herzlichen Glückwunsch! *Voicy* hat die Anmeldeinformationen-Datei für das *${projectId}* Google-Cloud-Projekt erhalten. Jetzt kannst du die Google-Spracherkennung verwenden.'
+help: |
   😎 *Voicy* wandelt von allen erhaltenen Sprachnachrichten und Audio-Dateien (.ogg, .flac, .wav, .mp3) die Sprache zu Text um. Du kannst *Voicy* entweder im direkten Chat nutzen oder ihn oder einer Gruppe hinzufügen.
 
-Wenn du diesen Bot in einem privaten Chat verwenden möchtest, erstell bitte eine private Gruppe mit dieser Person und füg *Voicy* hinzu. Wenn du *Voicy* zu einem Gruppenchat hinzufügen möchtest, kannst du *Voicy* von dem Gruppenprofil oder dem Bot-Profil aus als Mitglied hinzufügen.
+  Wenn du diesen Bot in einem privaten Chat verwenden möchtest, erstell bitte eine private Gruppe mit dieser Person und füg *Voicy* hinzu. Wenn du *Voicy* zu einem Gruppenchat hinzufügen möchtest, kannst du *Voicy* von dem Gruppenprofil oder dem Bot-Profil aus als Mitglied hinzufügen.
 
-/help – zeigt diese Meldung 😱
+  /help – zeigt diese Meldung 😱
 
-/engine – hier kannst du eine der Spracherkennungs-Engines auswählen: wit.ai, Yandex SpeechKit oder Google Speech ⚙
-/language – damit kannst du die Erkennungssprache auswählen 📣
-/lock – umschalten, ob Nicht-Admins in Gruppen-Chats die Befehle verwenden können 🔑 
-/files – umschalten, ob der Bot versuchen sollte, Audiodateien zu konvertieren, oder sie einfach ignoriert 📁
-/silent – schaltet den Stumm-Modus ein, sodass keine zusätzliche Nachrichten wie „Spracherkennung wird gestartet“ gesendet werden 😶
-/google – Google-Anmeldeinformationen für Google Speech einrichten 🦆
+  /engine – hier kannst du eine der Spracherkennungs-Engines auswählen: wit.ai, Yandex SpeechKit oder Google Speech ⚙
+  /language – damit kannst du die Erkennungssprache auswählen 📣
+  /lock – umschalten, ob Nicht-Admins in Gruppen-Chats die Befehle verwenden können 🔑 
+  /files – umschalten, ob der Bot versuchen sollte, Audiodateien zu konvertieren, oder sie einfach ignoriert 📁
+  /silent – schaltet den Stumm-Modus ein, sodass keine zusätzliche Nachrichten wie „Spracherkennung wird gestartet“ gesendet werden 😶
+  /google – Google-Anmeldeinformationen für Google Speech einrichten 🦆
 
- Wie gefällt dir dieser Bot? [Hier](https://telegram.me/storebot?start=voicybot) kannst du eine Bewertung abgeben 👍
+  Wie gefällt dir dieser Bot? [Hier](https://telegram.me/storebot?start=voicybot) kannst du eine Bewertung abgeben 👍
 
-Sende alle Bedenken und Fragen an meinen Schöpfer – @borodutch\_support 🦄 "
-error_group: "😅 Tut mir leid, aber dieser Befehl funktioniert nur in Gruppen-Chats."
-lock_true: "🔑 Wunderbar! *Voicy* reagiert in diesem Chat nun nur noch auf Befehle, die von einem *Administrator* gesendet werden."
-lock_false: "🔑 Wunderbar! *Voicy* reagiert nun auf Befehle von *jedem* in diesem Chat."
-silent_true: "😶 Großartig! *Voicy* funktioniert jetzt im *Stumm-Modus*: Er sendet keine Nachrichten in den Chat mit Ausnahme der tatsächlichen Stimm-Transkriptionen."
-silent_false: "😏 Prächtig! *Voicy* funktioniert jetzt im *normalen Modus*: Er sendet „Spracherkennung wird gestartet“-Nachrichten, direkt nachdem eine Sprachnachrichte empfangen wurde."
-start: "|
+  Sende alle Bedenken und Fragen an meinen Schöpfer – @borodutch\\_support 🦄
+error_group: '😅 Tut mir leid, aber dieser Befehl funktioniert nur in Gruppen-Chats.'
+lock_true: '🔑 Wunderbar! *Voicy* reagiert in diesem Chat nun nur noch auf Befehle, die von einem *Administrator* gesendet werden.'
+lock_false: '🔑 Wunderbar! *Voicy* reagiert nun auf Befehle von *jedem* in diesem Chat.'
+silent_true: '😶 Großartig! *Voicy* funktioniert jetzt im *Stumm-Modus*: Er sendet keine Nachrichten in den Chat mit Ausnahme der tatsächlichen Stimm-Transkriptionen.'
+silent_false: '😏 Prächtig! *Voicy* funktioniert jetzt im *normalen Modus*: Er sendet „Spracherkennung wird gestartet“-Nachrichten, direkt nachdem eine Sprachnachrichte empfangen wurde.'
+start: |
   👋 Hallo! *Voicy* ist ein Stimmerkennungs-Bot, der alle Sprachnachrichten und Audio-Dateien (.ogg, .flac, .wav,. mp3) zu Text umwandelt.
 
-*Voicy* unterstützt drei Stimme-Erkennungs-Engines: wit.ai, Yandex SpeechKit und die Google-Spracherkennung. Vorerst wird wit.ai verwendet, aber du kannst jederzeit mit /engine zu Google Speech oder Yandex SpeechKit wechseln. Weitere Informationen unter /help."
-engine: "👋 Bitte wählen Sie die Spracherkennungs-Engine. Google Speech ist genauer und unterstützt Audio, das länger als 50 Sekunden ist, muss aber mit Google-Cloud-Anmeldeinformationen eingerichtet werden (das ist etwas mühsam). Yandex SpeechKit ist ziemlich genau, kostenlos, privat und unterstützt die meiste Zeit Audio mit mehr als 50 Sekunden, hat aber nur eine begrenzt lange Liste von Sprachen. Wit.ai ist weniger genau, kostenlos, unterstützt nur Audio mit maximal 50 Sekunden, hat aber viele Sprachen. Bitte beachte, dass alle drei verschiedene Sprachen unterstützen, wähl also diejenige, die dir am besten passt."
-callback_error: "Nur die Person, die den Befehl gestartet hat, kann Optionen auswählen"
-engine_success: "👍 *Voicy* verwendet jetzt *$[1]* in diesem Chat. Danke! Vergiss nicht, die Sprache mit /language einzustellen."
-language: "👋 Bitte wähl die Sprache der Spracherkennung für $[1]."
-language_without_engine: "👋 Bitte wähl die Sprache der Spracherkennung."
-language_yandex: "👍 *Voicy* spricht jetzt *$[1]* (Yandex SpeechKit) in diesem Chat. Danke!"
-language_wit: "👋 Bitte wähl die Sprache der Spracherkennung für wit.ai."
-language_success_wit: "👍 *Voicy* spricht jetzt *$[1]* (wit.ai) in diesem Chat. Danke!"
-language_google: "👋 Bitte wähl die Sprache der Spracherkennung für Google Speech."
-language_success_google: "👍 *Voicy* spricht jetzt *$[1]* (Google Speech) in diesem Chat. Danke!"
-error_twenty: "_👮 Ich kann keine Sprachnachrichten erkennen, die größer als 20 Megabytes sind_"
-initiated: "_🦄 Spracherkennung wird gestartet..._"
-undefined: "_👮 Wit.ai kann keine Sprachnachrichten erkennen, die länger als 50 Sekunden sind_"
-speak_clearly: "_👮 Bitte deutlich sprechen, das konnte ich nicht erkennen_"
-error: "_👮 Das konnte ich nicht erkennen_"
-google_error_creds: "😮 Bitte richte die Google-Anmeldeinformationen mit dem /google Befehl ein oder ändere die Engine mit dem Befehl /engine. Deine Zugangsdaten sind noch nicht eingerichtet."
-google_enable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat."
-google_enable_success: "Wonderful. Your Google Cloud credentials will now be used in this chat."
-google_disable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat."
-google_disable_error_wrong_key: "This chat doesn't use your credentials already."
-google_disable_success: "Wonderful. Your Google Cloud credentials will not be used in this chat anymore."
+  *Voicy* unterstützt drei Stimme-Erkennungs-Engines: wit.ai, Yandex SpeechKit und die Google-Spracherkennung. Vorerst wird wit.ai verwendet, aber du kannst jederzeit mit /engine zu Google Speech oder Yandex SpeechKit wechseln. Weitere Informationen unter /help.
+engine: '👋 Bitte wählen Sie die Spracherkennungs-Engine. Google Speech ist genauer und unterstützt Audio, das länger als 50 Sekunden ist, muss aber mit Google-Cloud-Anmeldeinformationen eingerichtet werden (das ist etwas mühsam). Yandex SpeechKit ist ziemlich genau, kostenlos, privat und unterstützt die meiste Zeit Audio mit mehr als 50 Sekunden, hat aber nur eine begrenzt lange Liste von Sprachen. Wit.ai ist weniger genau, kostenlos, unterstützt nur Audio mit maximal 50 Sekunden, hat aber viele Sprachen. Bitte beachte, dass alle drei verschiedene Sprachen unterstützen, wähl also diejenige, die dir am besten passt.'
+callback_error: 'Nur die Person, die den Befehl gestartet hat, kann Optionen auswählen'
+engine_success: '👍 *Voicy* verwendet jetzt *${engine}* in diesem Chat. Danke! Vergiss nicht, die Sprache mit /language einzustellen.'
+language: '👋 Bitte wähl die Sprache der Spracherkennung für ${engine}.'
+language_without_engine: '👋 Bitte wähl die Sprache der Spracherkennung.'
+language_success: '👍 *Voicy* spricht jetzt *${language}* (${engine}) in diesem Chat. Danke!'
+error_twenty: '_👮 Ich kann keine Sprachnachrichten erkennen, die größer als 20 Megabytes sind_'
+initiated: '_🦄 Spracherkennung wird gestartet..._'
+speak_clearly: '_👮 Bitte deutlich sprechen, das konnte ich nicht erkennen_'
+error: '_👮 Das konnte ich nicht erkennen_'
+google_error_creds: '😮 Bitte richte die Google-Anmeldeinformationen mit dem /google Befehl ein oder ändere die Engine mit dem Befehl /engine. Deine Zugangsdaten sind noch nicht eingerichtet.'

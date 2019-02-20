@@ -1,53 +1,42 @@
-
-files_false: "📁 Harika! *Voicy*, şu andan itibaren bu sohbetteki tüm ses dosyalarını *görmezden gelecektir*."
-files_true: "📁 Harika! Voicy, şu andan itibaren bu sohbetteki tüm ses dosyalarını *tanımaya çalışacaktır*."
-google: "Google Speech ses tanımayı ayarlamak için, bu mesajı Google Cloud kimlik bilgileri dosyası (.json) ile yanıtlayın. Bunun ne olduğundan ve nasıl bulunacağından emin değil misin? [Eğitim sayfasına](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8) bir göz atın."
-google_error_doc: "Üzgünüm, ama bir kimlik dosyası ile yanıt vermelisiniz."
+files_false: '📁 Harika! *Voicy*, şu andan itibaren bu sohbetteki tüm ses dosyalarını *görmezden gelecektir*.'
+files_true: '📁 Harika! Voicy, şu andan itibaren bu sohbetteki tüm ses dosyalarını *tanımaya çalışacaktır*.'
+google: 'Google Speech ses tanımayı ayarlamak için, bu mesajı Google Cloud kimlik bilgileri dosyası (.json) ile yanıtlayın. Bunun ne olduğundan ve nasıl bulunacağından emin değil misin? [Eğitim sayfasına](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8) bir göz atın.'
+google_error_doc: 'Üzgünüm, ama bir kimlik dosyası ile yanıt vermelisiniz.'
 google_error_mime: "Üzgünüm, ama belgenin mime türü 'text/plain' olmalıdır."
-google_success: "Tebrikler! Voicy, *$[1]* Google Cloud Projesi için kimlik bilgileri dosyasını aldı. Artık Google konuşma tanıma özelliğini kullanabilirsiniz."
-help: "|
+google_success: 'Tebrikler! Voicy, *${projectId}* Google Cloud Projesi için kimlik bilgileri dosyasını aldı. Artık Google konuşma tanıma özelliğini kullanabilirsiniz.'
+help: |
   😎 *Voicy*, aldığı tüm sesli mesajlardan ve ses dosyalarından (.ogg, .flac, .wav, .mp3) gelen konuşmaları metne dönüştürür. Özel sohbette Voicy ile konuşabilir veya bir gruba ekleyebilirsiniz.
 
-Bu botu özel mesajlarda kullanmak istiyorsanız, lütfen biriyle özel bir grup oluşturun ve buraya *Voicy* ekleyin. Bir grup sohbetine *Voicy* eklemek istiyorsanız, lütfen onu grup profiline katılımcı olarak ekleyin ya da *Voicy* bot profilindeki gruba ekleyin.
+  Bu botu özel mesajlarda kullanmak istiyorsanız, lütfen biriyle özel bir grup oluşturun ve buraya *Voicy* ekleyin. Bir grup sohbetine *Voicy* eklemek istiyorsanız, lütfen onu grup profiline katılımcı olarak ekleyin ya da *Voicy* bot profilindeki gruba ekleyin.
 
-/help — Bu mesajı gösterir 😱
-/engine — Bir ses tanıma motoru seçmenizi sağlar: wit.ai, Yandex SpeechKit ya da Google Speech ⚙
-/language — Bir ses tanıma dili seçmenizi sağlar 📣
-/lock — Grup sohbetlerinde komutları kullanarak yönetici olmayanların kilidini açın veya kapatın 🔑
-/files — Botun ses dosyalarını dönüştürmeye çalışması ya da onları görmezden gelmesi seçeneğini değiştirin  📁
-/silent — `Ses tanıma başlatıldı` gibi ek bir mesaj gönderilmediğinde sessiz moda geçer 😶
-/google — Google Speech için Google kimlik bilgilerini ayarlayın 🦆
+  /help — Bu mesajı gösterir 😱
+  /engine — Bir ses tanıma motoru seçmenizi sağlar: wit.ai, Yandex SpeechKit ya da Google Speech ⚙
+  /language — Bir ses tanıma dili seçmenizi sağlar 📣
+  /lock — Grup sohbetlerinde komutları kullanarak yönetici olmayanların kilidini açın veya kapatın 🔑
+  /files — Botun ses dosyalarını dönüştürmeye çalışması ya da onları görmezden gelmesi seçeneğini değiştirin  📁
+  /silent — `Ses tanıma başlatıldı` gibi ek bir mesaj gönderilmediğinde sessiz moda geçer 😶
+  /google — Google Speech için Google kimlik bilgilerini ayarlayın 🦆
 
-Bu botu beğendiniz mi? Lütfen, [buraya](https://telegram.me/storebot?start=voicybot) bir inceleme bırakın 👍
+  Bu botu beğendiniz mi? Lütfen, [buraya](https://telegram.me/storebot?start=voicybot) bir inceleme bırakın 👍
 
-Herhangi bir kaygı ve sorununuzu geliştiricimle paylaşın — @borodutch\_support 🦄"
-error_group: "😅 Üzgünüm, ama bu komut sadece grup sohbetlerinde çalışır."
-lock_true: "🔑 Harika! *Voicy* artık sadece bu sohbetteki *yöneticiler* tarafından gönderilen komut çağrılarına cevap verecektir."
-lock_false: "🔑 Harika! *Voicy* artık bu sohbetteki *herkesin* gönderdiği komut çağrılarına cevap verecektir."
-silent_true: "😶 Muhteşem! *Voicy* artık *sessiz modda* çalışacak: Gerçek sesli transkripsiyonlar haricinde sohbete herhangi bir mesaj göndermez."
-silent_false: "😏 Muhteşem! *Voicy* artık *normal modda* çalışacaktır:  Sesli mesajlar aldıktan hemen sonra `Ses tanıma başlatıldı` mesajlarını gönderecektir."
-start: "|
+  Herhangi bir kaygı ve sorununuzu geliştiricimle paylaşın — @borodutch\\_support 🦄
+error_group: '😅 Üzgünüm, ama bu komut sadece grup sohbetlerinde çalışır.'
+lock_true: '🔑 Harika! *Voicy* artık sadece bu sohbetteki *yöneticiler* tarafından gönderilen komut çağrılarına cevap verecektir.'
+lock_false: '🔑 Harika! *Voicy* artık bu sohbetteki *herkesin* gönderdiği komut çağrılarına cevap verecektir.'
+silent_true: '😶 Muhteşem! *Voicy* artık *sessiz modda* çalışacak: Gerçek sesli transkripsiyonlar haricinde sohbete herhangi bir mesaj göndermez.'
+silent_false: '😏 Muhteşem! *Voicy* artık *normal modda* çalışacaktır:  Sesli mesajlar aldıktan hemen sonra `Ses tanıma başlatıldı` mesajlarını gönderecektir.'
+start: |
   👋 Merhaba! *Voicy*, tüm sesli mesajları ve ses dosyalarını (.ogg, .flac, .wav, .mp3) metne dönüştüren bir ses tanıma botudur.
 
-*Voicy* üç ses tanıma motorunu destekler: wit.ai, Yandex SpeechKit ve Google Speech. Başlangıçta wit.ai kullanmaya ayarlanmıştır. Ancak /engine ile istediğiniz zaman Google Speech veya Yandex SpeechKit’e geçebilirsiniz. Daha fazla bilgi için /help."
-engine: "👋 Lütfen, konuşma tanıma motorunu seçin. Google Speech, daha doğru ve 50 saniyeden daha uzun sesleri destekler. Ancak Google Cloud kimlik bilgilerinizle (biraz sıkıcı) kurulması gerekir. Yandex SpeechKit oldukça doğru, ücretsiz, kişisel ve çoğu zaman 50 saniyeden uzun sesleri destekler. Ancak sınırlı dil listesine sahiptir. Wit.ai daha az doğru, ücretsiz ve 50 saniyeden daha uzun sesleri desteklemiyor. Ancak çok sayıda dil seçeneği vardır. Lütfen, üçünün de farklı dilleri desteklediğini unutmayın. Bu nedenle size en uygun olanı seçin."
-callback_error: "Sadece komutu başlatan kişi seçenekleri seçebilir"
-engine_success: "👍*Voicy* artık bu sohbette *$[1]* kullanıyor. Teşekkürler! Dili ayarlamayı unutmayın: /language."
-language: "👋 Lütfen $[1] için konuşma tanıma dilini seçin"
-language_without_engine: "👋 Lütfen konuşma tanıma dilini seçin"
-language_yandex: "👍 Artık *Voicy* bu sohbette *$[1]* (Yandex SpeechKit) kullanıyor. Teşekkürler!"
-language_wit: "👋 Lütfen wit.ai için konuşma tanıma dilini seçin."
-language_success_wit: "👍 Artık *Voicy* bu sohbette *$[1]* (wit.ai) kullanıyor. Teşekkürler."
-language_google: "👋 Lütfen Google Speech için konuşma tanıma dilini seçin."
-language_success_google: "👍 Artık *Voicy* bu sohbette *$[1]* (Google Speech) kullanıyor. Teşekkürler!"
+  *Voicy* üç ses tanıma motorunu destekler: wit.ai, Yandex SpeechKit ve Google Speech. Başlangıçta wit.ai kullanmaya ayarlanmıştır. Ancak /engine ile istediğiniz zaman Google Speech veya Yandex SpeechKit’e geçebilirsiniz. Daha fazla bilgi için /help.
+engine: '👋 Lütfen, konuşma tanıma motorunu seçin. Google Speech, daha doğru ve 50 saniyeden daha uzun sesleri destekler. Ancak Google Cloud kimlik bilgilerinizle (biraz sıkıcı) kurulması gerekir. Yandex SpeechKit oldukça doğru, ücretsiz, kişisel ve çoğu zaman 50 saniyeden uzun sesleri destekler. Ancak sınırlı dil listesine sahiptir. Wit.ai daha az doğru, ücretsiz ve 50 saniyeden daha uzun sesleri desteklemiyor. Ancak çok sayıda dil seçeneği vardır. Lütfen, üçünün de farklı dilleri desteklediğini unutmayın. Bu nedenle size en uygun olanı seçin.'
+callback_error: 'Sadece komutu başlatan kişi seçenekleri seçebilir'
+engine_success: '👍*Voicy* artık bu sohbette *${engine}* kullanıyor. Teşekkürler! Dili ayarlamayı unutmayın: /language.'
+language: '👋 Lütfen ${engine} için konuşma tanıma dilini seçin'
+language_without_engine: '👋 Lütfen konuşma tanıma dilini seçin'
+language_success: '👍 Artık *Voicy* bu sohbette *${language}* (${engine}) kullanıyor. Teşekkürler!'
 error_twenty: "_👮 20 MB'tan büyük sesli mesajları tanıyamıyorum_"
-initiated: "_🦄 Ses tanıma başlatıldı..._"
-undefined: "_👮 Wit.ai 50 saniyeden uzun sesli mesajları tanıyamıyor_"
-speak_clearly: "_👮 Lütfen, daha net konuşun, bunu tanıyamadım_"
-error: "_👮 Bunu tanıyamadım_"
-google_error_creds: "😮 Lütfen /google komutunu kullanarak Google kimlik bilgilerinizi ayarlayın ya da motoru /engine komutuyla değiştirin. Kimlik bilgileriniz henüz ayarlanmamış."
-google_enable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat."
-google_enable_success: "Wonderful. Your Google Cloud credentials will now be used in this chat."
-google_disable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat."
-google_disable_error_wrong_key: "This chat doesn't use your credentials already."
-google_disable_success: "Wonderful. Your Google Cloud credentials will not be used in this chat anymore."
+initiated: '_🦄 Ses tanıma başlatıldı..._'
+speak_clearly: '_👮 Lütfen, daha net konuşun, bunu tanıyamadım_'
+error: '_👮 Bunu tanıyamadım_'
+google_error_creds: '😮 Lütfen /google komutunu kullanarak Google kimlik bilgilerinizi ayarlayın ya da motoru /engine komutuyla değiştirin. Kimlik bilgileriniz henüz ayarlanmamış.'

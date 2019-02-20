@@ -1,5 +1,5 @@
 // Dependencies
-const { sendLanguage } = require('../helpers/language')
+const sendLanguage = require('../helpers/language/sendLanguage')
 const checkAdminLock = require('../middlewares/adminLock')
 
 function setupLanguage(bot) {

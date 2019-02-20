@@ -1,53 +1,42 @@
-
-files_false: "📁 太好了！从现在起，*Voicy*将*ignore*这个对话中的所有语音档。"
-files_true: "📁 太好了！从现在起，*Voicy*将*recognize*这个对话中的所有语音档。"
-google: "要设立Google语音辨识，请回覆此讯息，并在讯息中输入Google云端凭证档案（.json格式）。您不知道这是什么吗？还是您不知道如何取得这个档案？来观看我们的[快速教学](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8)吧！"
-google_error_doc: "抱歉！您的回覆需要是云端凭证。"
+files_false: '📁 太好了！从现在起，*Voicy*将*ignore*这个对话中的所有语音档。'
+files_true: '📁 太好了！从现在起，*Voicy*将*recognize*这个对话中的所有语音档。'
+google: '要设立Google语音辨识，请回覆此讯息，并在讯息中输入Google云端凭证档案（.json格式）。您不知道这是什么吗？还是您不知道如何取得这个档案？来观看我们的[快速教学](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8)吧！'
+google_error_doc: '抱歉！您的回覆需要是云端凭证。'
 google_error_mime: "抱歉！档案类型需要是'text/plain'。"
-google_success: "恭喜！*Voicy*已取得*$[1]*Google云端项目的凭证档案。现在，你可以开始使用Google语音辨识了！"
-help: "|
+google_success: '恭喜！*Voicy*已取得*${projectId}*Google云端项目的凭证档案。现在，你可以开始使用Google语音辨识了！'
+help: |
   😎 *Voicy*会把收到的所有语音讯息及语音档（.ogg、.flac、.wav及.mp3）转换成文字。您可在私人对话中使用*Voicy*，也可以把软体加到群组对话。
 
-如果您希望在私人对话中使用这个软体，请与您的对话对象设立一个对话群组，然后把*Voicy*加入该群组。如果您希望把*Voicy*加入群组对话，请在群组档案中加入该软体，或在*Voicy*的软体档案中，把软体加群组内。
+  如果您希望在私人对话中使用这个软体，请与您的对话对象设立一个对话群组，然后把*Voicy*加入该群组。如果您希望把*Voicy*加入群组对话，请在群组档案中加入该软体，或在*Voicy*的软体档案中，把软体加群组内。
 
-/help — 展示这个讯息😱
-/engine — 让您选择语音辨识软体：wit.ai、Yandex SpeechKit或Google Speech ⚙
-/language — 让您选择需要语言辨识的语言📣
-/lock — 封锁或容许管理员以外的人士在群组对话中使用命令🔑
-/files — 指令软体尝试转换语音档案或无视它们📁
-/silent —除非出现类似`语音辨识已启动`的讯息，否则切换至静音模式😶
-/google — 设立Google Speech的云端凭证档案🦆
+  /help — 展示这个讯息😱
+  /engine — 让您选择语音辨识软体：wit.ai、Yandex SpeechKit或Google Speech ⚙
+  /language — 让您选择需要语言辨识的语言📣
+  /lock — 封锁或容许管理员以外的人士在群组对话中使用命令🔑
+  /files — 指令软体尝试转换语音档案或无视它们📁
+  /silent —除非出现类似`语音辨识已启动`的讯息，否则切换至静音模式😶
+  /google — 设立Google Speech的云端凭证档案🦆
 
-您喜欢这个软体吗？请[在这里]为我们留下评语吧(https://telegram.me/storebot?start=voicybot) 👍
+  您喜欢这个软体吗？请[在这里]为我们留下评语吧(https://telegram.me/storebot?start=voicybot) 👍
 
-如果您有任何意见或问题，请与我的设计者联络吧！ — @borodutch\_support 🦄"
-error_group: "😅 抱歉！这项指令只适用于群组对话。"
-lock_true: "🔑 很好！从现在起，*Voicy*只会回应本对话中的*admins*的指令。"
-lock_false: "🔑 很好！从现在起，*Voicy*只会回应本对话中的*anyone*的指令。"
-silent_true: "😶 太棒了！从现在起，您可在*silent mode*中使用*Voicy*：除了语音输入外，它不会传送任何信息。"
-silent_false: "😏 太棒了！从现在起，您可在*usual mode*中使用*Voicy*：在收到语音讯息后，它会发送`语音辨识已启动`的讯息。"
-start: "|
+  如果您有任何意见或问题，请与我的设计者联络吧！ — @borodutch\\_support 🦄
+error_group: '😅 抱歉！这项指令只适用于群组对话。'
+lock_true: '🔑 很好！从现在起，*Voicy*只会回应本对话中的*admins*的指令。'
+lock_false: '🔑 很好！从现在起，*Voicy*只会回应本对话中的*anyone*的指令。'
+silent_true: '😶 太棒了！从现在起，您可在*silent mode*中使用*Voicy*：除了语音输入外，它不会传送任何信息。'
+silent_false: '😏 太棒了！从现在起，您可在*usual mode*中使用*Voicy*：在收到语音讯息后，它会发送`语音辨识已启动`的讯息。'
+start: |
   👋 各位好！ *Voicy*是一个语音辨识系统，它可以把所有语音讯息及语音档（包括.ogg、.flac、.wav及.mp3）转换成文字。
 
-*Voicy*支援三个语音辨识系统：wit.ai、Yandex SpeechKit及Google Speech。系统预设使用wit.ai，但您可在/engine中随时转换至Google Speech或Yandex SpeechKit。如果您需要更多讯息，请参阅/help。"
-engine: "👋 请选择语音辨识系统。 Google Speech的准确性较好，并且支援超过50秒的语音档。然而，您需要花费一点时间设立Google云端凭证。 Yandex SpeechKit是一个免费软体，它的准确性也不错，而且这个程式的隐私度较高。这个软体也支援超过50秒的语音档。然而，这个软体支援的语言较少。 Wit.ai也是一个免费软体，它的准确性较低，而且并不支援超过50秒的语音档。然而，这个软体可支援多种不同语言。请注意，三种软体可支援的语言有所不同，您可根据自己的需要选择最适合您的软体。"
-callback_error: "只有启动命令的人可以从选项中选择"
-engine_success: "👍 现在，*Voicy*可在本对话中使用*$[1]*了！谢谢！可别忘了设定语言呢。"
-language: "👋 请选择您希望$[1]辨识的语言。"
-language_without_engine: "👋 请选择您希望辨识的语言。"
-language_yandex: "👍 现在，*Voicy*可在本对话中说*$[1]* (Yandex SpeechKit)了！谢谢！"
-language_wit: "👋 请选择您希望wit.ai辨识的语言。"
-language_success_wit: "👍 现在，*Voicy*可在本对话中说*$[1]* (wit.ai)了！谢谢！"
-language_google: "👋 请选择您希望Google语音辨识的语言。"
-language_success_google: "👍 现在，*Voicy*可在本对话中说*$[1]* (Google Speech)了！谢谢！"
-error_twenty: "_👮 我无法辨识超过20MB的语音讯息_"
-initiated: "_🦄 语音辨识启动中..._"
-undefined: "_👮 Wit.ai无法辨识超过50秒的语音讯息_"
-speak_clearly: "_👮 您可以说得清楚一点吗？我无法辨识_"
-error: "_👮 我无法辨识_"
-google_error_creds: "😮 请以/google命令设立Google凭证，或以/engine命令更改使用的系统。您尚未设立凭证。"
-google_enable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat."
-google_enable_success: "Wonderful. Your Google Cloud credentials will now be used in this chat."
-google_disable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat."
-google_disable_error_wrong_key: "This chat doesn't use your credentials already."
-google_disable_success: "Wonderful. Your Google Cloud credentials will not be used in this chat anymore."
+  *Voicy*支援三个语音辨识系统：wit.ai、Yandex SpeechKit及Google Speech。系统预设使用wit.ai，但您可在/engine中随时转换至Google Speech或Yandex SpeechKit。如果您需要更多讯息，请参阅/help。
+engine: '👋 请选择语音辨识系统。 Google Speech的准确性较好，并且支援超过50秒的语音档。然而，您需要花费一点时间设立Google云端凭证。 Yandex SpeechKit是一个免费软体，它的准确性也不错，而且这个程式的隐私度较高。这个软体也支援超过50秒的语音档。然而，这个软体支援的语言较少。 Wit.ai也是一个免费软体，它的准确性较低，而且并不支援超过50秒的语音档。然而，这个软体可支援多种不同语言。请注意，三种软体可支援的语言有所不同，您可根据自己的需要选择最适合您的软体。'
+callback_error: '只有启动命令的人可以从选项中选择'
+engine_success: '👍 现在，*Voicy*可在本对话中使用*${engine}*了！谢谢！可别忘了设定语言呢。'
+language: '👋 请选择您希望${engine}辨识的语言。'
+language_without_engine: '👋 请选择您希望辨识的语言。'
+language_success: '👍 现在，*Voicy*可在本对话中说*${language}* (${engine})了！谢谢！'
+error_twenty: '_👮 我无法辨识超过20MB的语音讯息_'
+initiated: '_🦄 语音辨识启动中..._'
+speak_clearly: '_👮 您可以说得清楚一点吗？我无法辨识_'
+error: '_👮 我无法辨识_'
+google_error_creds: '😮 请以/google命令设立Google凭证，或以/engine命令更改使用的系统。您尚未设立凭证。'

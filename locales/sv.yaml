@@ -1,53 +1,42 @@
-
-files_false: "📁 Underbart! *Voicy* kommer *ignorera* alla ljudfiler i den h�r chatten fr�n och med nu."
-files_true: "📁 Underbart! *Voicy* kommer *f�rs�ka k�nna igen* alla ljudfiler i den h�r chatten fr�n och med nu."
-google: "Svara p� det h�r meddelandet med autentiseringsuppgifterna f�r Google Cloud (.json) f�r att konfigurera Google taligenk�nning. Inte s�ker p� vad det h�r �r eller hur man skaffar det? Se v�r[snabbguide](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8)."
-google_error_doc: "F�rl�t, du skulle svara med ett dokument f�r autentisering."
+files_false: '📁 Underbart! *Voicy* kommer *ignorera* alla ljudfiler i den h�r chatten fr�n och med nu.'
+files_true: '📁 Underbart! *Voicy* kommer *f�rs�ka k�nna igen* alla ljudfiler i den h�r chatten fr�n och med nu.'
+google: 'Svara p� det h�r meddelandet med autentiseringsuppgifterna f�r Google Cloud (.json) f�r att konfigurera Google taligenk�nning. Inte s�ker p� vad det h�r �r eller hur man skaffar det? Se v�r[snabbguide](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).'
+google_error_doc: 'F�rl�t, du skulle svara med ett dokument f�r autentisering.'
 google_error_mime: "F�rl�t, dokumentets filtyp ska vara 'text/plain'."
-google_success: "Grattis! *Voicy* fick autentisieringsuppgifterna f�r *$[1]* Google Cloud Project. Du kan nu anv�nda Google taligenk�nning."
-help: "|
+google_success: 'Grattis! *Voicy* fick autentisieringsuppgifterna f�r *${projectId}* Google Cloud Project. Du kan nu anv�nda Google taligenk�nning.'
+help: |
   😎 *Voicy* konverterar tal till text fr�n alla typer av r�stmeddelanden och ljudfiler (.ogg, .flac, .wav, .mp3) den tar emot. Du kan antingen prata med *Voicy* i den privata chatten eller l�gga till den i en grupp.
 
-Om du vill anv�nda denna bot i privata meddelanden, var god skapa en privat grupp med alla och l�gg till *Voicy* d�r. Om du vill l�gga till *Voicy* till en gruppchatt, var god, l�gg till den som en deltagare i grupprofilen eller till gruppen i *Voicy* bot profil.
+  Om du vill anv�nda denna bot i privata meddelanden, var god skapa en privat grupp med alla och l�gg till *Voicy* d�r. Om du vill l�gga till *Voicy* till en gruppchatt, var god, l�gg till den som en deltagare i grupprofilen eller till gruppen i *Voicy* bot profil.
 
-/help — Visar det h�r meddelandet 😱
-/engine — L�ter dig v�lja en leverant�r f�r r�stigenk�nning: wit.ai, Yandex SpeechKit or Google Speech ⚙
-/language — L�ter dig v�lja spr�k f�r r�stigenk�nning 📣
-/lock — Reglaget l�ser upp eller l�ser m�jligheten f�r icke- administrat�rer att anv�nda kommandon i gruppchatter 🔑
-/files — Reglaget reglerar om boten ska f�rs�ka konvertera ljudfiler eller bara ignorera dem 📁
-/silent — V�lj ljudl�s n�r inga extra meddelanden som `R�stigenk�nning �r initierad` �nskas 😶
-/google — St�ll in google autentisieringsuppgifter Google Speech 🦆
+  /help — Visar det h�r meddelandet 😱
+  /engine — L�ter dig v�lja en leverant�r f�r r�stigenk�nning: wit.ai, Yandex SpeechKit or Google Speech ⚙
+  /language — L�ter dig v�lja spr�k f�r r�stigenk�nning 📣
+  /lock — Reglaget l�ser upp eller l�ser m�jligheten f�r icke- administrat�rer att anv�nda kommandon i gruppchatter 🔑
+  /files — Reglaget reglerar om boten ska f�rs�ka konvertera ljudfiler eller bara ignorera dem 📁
+  /silent — V�lj ljudl�s n�r inga extra meddelanden som `R�stigenk�nning �r initierad` �nskas 😶
+  /google — St�ll in google autentisieringsuppgifter Google Speech 🦆
 
-Gillar denna bot? L�mna ett omd�mme [here](https://telegram.me/storebot?start=voicybot) 👍
+  Gillar denna bot? L�mna ett omd�mme [here](https://telegram.me/storebot?start=voicybot) 👍
 
-Om du har fr�goer eller funderingar skickas dessa till botens skapare — @borodutch\_support 🦄"
-error_group: "😅 Detta kommandot fungerar tyv�rr bara i gruppchatter."
-lock_true: "🔑 Bra! *Voicy* kommer nu bara svara p� kommandon skickade av *administrat�rer* i den h�r chatten."
-lock_false: "🔑 Bra! *Voicy* kommer nu svara endast p� samtal fr�n *alla* i den h�r cahtten."
-silent_true: "😶 Fantastiskt! *Voicy* kommer nu vara i *tyst l�ge*: den kommer inte s�nda n�gra meddelanden till chatten f�rutom de faktiska r�st transkriptionerna."
-silent_false: "😏 Fantastiskt! *Voicy* kommer nu fungera i *normalt l�ge*: den kommer skicka `R�stigenk�nning �r initierad` meddelanden direkt efter att den tar emot r�stmeddelanden."
-start: "|
+  Om du har fr�goer eller funderingar skickas dessa till botens skapare — @borodutch\\_support 🦄
+error_group: '😅 Detta kommandot fungerar tyv�rr bara i gruppchatter.'
+lock_true: '🔑 Bra! *Voicy* kommer nu bara svara p� kommandon skickade av *administrat�rer* i den h�r chatten.'
+lock_false: '🔑 Bra! *Voicy* kommer nu svara endast p� samtal fr�n *alla* i den h�r cahtten.'
+silent_true: '😶 Fantastiskt! *Voicy* kommer nu vara i *tyst l�ge*: den kommer inte s�nda n�gra meddelanden till chatten f�rutom de faktiska r�st transkriptionerna.'
+silent_false: '😏 Fantastiskt! *Voicy* kommer nu fungera i *normalt l�ge*: den kommer skicka `R�stigenk�nning �r initierad` meddelanden direkt efter att den tar emot r�stmeddelanden.'
+start: |
   👋 Hej d�r! *Voicy* �r en r�stigenk�nnings bot som konverterar alla r�stmeddelanden och ljudfiler (.ogg, .flac, .wav, .mp3) den f�r till text.
 
-*Voicy* har st�d f�r tre r�stigenk�nningsmotorer: wit.ai, Yandex SpeechKit and Google Speech. Fr�n b�rjan �r den inst�lld p� att anv�nda wit.ai men du kan byta till Google Speech eller Yandex SpeechKit n�r som helst i /engine. Mer information i /help."
-engine: "👋 Var god, v�lj motorn f�r r�stigenk�nning. Google Speech �r mer exakt och st�djer audio l�ngre �n 50 sekunder, men m�ste konfigureras med google cloud autentiseringsuppgifter (lite omst�ndigt). Yandex SpeechKit �r ganska exakt, gratis, privat och st�djer f�r det mesta audio �ver 50 sekunder, men st�djer ett begr�nsat antal spr�k. Wit.ai �r inte lika exakt, gratis, och st�djer inte audio l�ngre �n 50 sekunder, men st�djer m�nga olika spr�k. Var god l�gg m�rke till att alla tre st�djer olika spr�k, s� v�lj den som passar dig b�st."
-callback_error: "Bara personen som startade kommandot kan v�lja inst�llningar"
-engine_success: "👍 *Voicy* anv�nder nu *$[1]* i den h�r chatten. Tack! Gl�m inte att st�lla in /language."
-language: "👋 Var god v�lj spr�k f�r r�stigenk�nning f�r $[1]"
-language_without_engine: "👋 Var god v�lj spr�k f�r r�stigenk�nningen"
-language_yandex: "👍 *Voicy* talar nu f�r *$[1]* (Yandex SpeechKit) i den h�r chatten. Tack!"
-language_wit: "👋 Var god v�lj spr�k f�r r�stigenk�nning f�r wit.ai."
-language_success_wit: "👍 *Voicy* talar nu *$[1]* (wit.ai) i den h�r chatten. Tack s� mycket!"
-language_google: "👋 Var god v�lj spr�ket f�r r�stigenk�nning f�r Google Speech."
-language_success_google: "👍 *Voicy* talar nu *$[1]* (Google Speech) i den h�r chatten. Tack!"
-error_twenty: "_👮 Jag kan inte k�nna igen r�stmeddelanden som �r st�rre �n 20 megabytes_"
-initiated: "_🦄 R�stigenk�nning �r initierad..._"
-undefined: "_👮 Wit.ai kan inte k�nna igen r�stmeddelanden som �r l�ngre �n 50 sekunder_"
-speak_clearly: "_👮 Var god prata tydligt, jag kunde inte k�nna igen vad du sa_"
-error: "_👮 Jag kunde inte k�nna igen det_"
-google_error_creds: "😮 Var god, st�ll in google autentiseringsuppgifter med /google command eller byt motor med /engine command. Dina autentiseringsuppgifter �r inte inst�llda �n."
-google_enable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat."
-google_enable_success: "Wonderful. Your Google Cloud credentials will now be used in this chat."
-google_disable_personal_not_setup: "Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat."
-google_disable_error_wrong_key: "This chat doesn't use your credentials already."
-google_disable_success: "Wonderful. Your Google Cloud credentials will not be used in this chat anymore."
+  *Voicy* har st�d f�r tre r�stigenk�nningsmotorer: wit.ai, Yandex SpeechKit and Google Speech. Fr�n b�rjan �r den inst�lld p� att anv�nda wit.ai men du kan byta till Google Speech eller Yandex SpeechKit n�r som helst i /engine. Mer information i /help.
+engine: '👋 Var god, v�lj motorn f�r r�stigenk�nning. Google Speech �r mer exakt och st�djer audio l�ngre �n 50 sekunder, men m�ste konfigureras med google cloud autentiseringsuppgifter (lite omst�ndigt). Yandex SpeechKit �r ganska exakt, gratis, privat och st�djer f�r det mesta audio �ver 50 sekunder, men st�djer ett begr�nsat antal spr�k. Wit.ai �r inte lika exakt, gratis, och st�djer inte audio l�ngre �n 50 sekunder, men st�djer m�nga olika spr�k. Var god l�gg m�rke till att alla tre st�djer olika spr�k, s� v�lj den som passar dig b�st.'
+callback_error: 'Bara personen som startade kommandot kan v�lja inst�llningar'
+engine_success: '👍 *Voicy* anv�nder nu *${engine}* i den h�r chatten. Tack! Gl�m inte att st�lla in /language.'
+language: '👋 Var god v�lj spr�k f�r r�stigenk�nning f�r ${engine}'
+language_without_engine: '👋 Var god v�lj spr�k f�r r�stigenk�nningen'
+language_success: '👍 *Voicy* talar nu f�r *${language}* (${engine}) i den h�r chatten. Tack!'
+error_twenty: '_👮 Jag kan inte k�nna igen r�stmeddelanden som �r st�rre �n 20 megabytes_'
+initiated: '_🦄 R�stigenk�nning �r initierad..._'
+speak_clearly: '_👮 Var god prata tydligt, jag kunde inte k�nna igen vad du sa_'
+error: '_👮 Jag kunde inte k�nna igen det_'
+google_error_creds: '😮 Var god, st�ll in google autentiseringsuppgifter med /google command eller byt motor med /engine command. Dina autentiseringsuppgifter �r inte inst�llda �n.'

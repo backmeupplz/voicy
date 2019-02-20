@@ -1,5 +1,5 @@
 // Dependencies
-const { sendEngine } = require('../helpers/engine')
+const { sendEngine } = require('../helpers/engine/engine')
 const checkAdminLock = require('../middlewares/adminLock')
 
 function setupEngine(bot) {
