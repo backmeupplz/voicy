@@ -12,7 +12,7 @@ function setupTimecodes(bot) {
 async function handle(ctx) {
   await ctx.replyWithMarkdown(ctx.i18n.t('oops'))
   logAnswerTime(ctx, '/timecodes')
-  reportUsage(ctx, '/url')
+  reportUsage(ctx, '/timecodes')
 }
 
 // Exports
