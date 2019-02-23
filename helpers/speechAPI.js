@@ -16,7 +16,7 @@ const tryDeletingFile = require('./deleteFile')
  */
 async function getText(flacPath, chat, duration, ogaPath) {
   return chat.engine === 'wit'
-    ? wit(witLanguages()[chat.witLanguage], ogaPath, duration, chat.witLanguage)
+    ? wit(witLanguages[chat.witLanguage], ogaPath, duration, chat.witLanguage)
     : google(flacPath, chat)
 }
 
