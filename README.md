@@ -26,7 +26,6 @@ You can also help by translating the bot to other languages or fixing some texts
 - `TOKEN` — Telegram bot token
 - `SALT` — Random salt to generate various encrypted stuff
 - `ADMIN_ID` — Chat id of the person who shall receive valuable logs
-- `YANDEX_KEY` — Key for Yandex SpeechKit voice recognition service
 - `WIT_LANGUAGES` — A map of language names to Wit.ai tokens
 
 Extra info is available in `.env.sample` file.

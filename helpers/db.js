@@ -24,16 +24,16 @@ async function findChat(id) {
  */
 async function addVoice(url, text, chat, duration) {
   // Get language
-  let language
-  if (chat.engine === 'wit') {
-    language = chat.witLanguage
-  } else if (chat.engine === 'google') {
-    language = chat.googleLanguage
-  } else {
-    language = chat.yandexLanguage
-  }
+  const language =
+    chat.engine === 'wit' ? chat.witLanguage : chat.googleLanguage
   // Create and save voice
-  const voice = new Voice({ url, text, language, duration, engine: chat.engine })
+  const voice = new Voice({
+    url,
+    text,
+    language,
+    duration,
+    engine: chat.engine,
+  })
   const dbvoice = await voice.save()
   // Return the voice
   return dbvoice

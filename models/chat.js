@@ -12,7 +12,7 @@ const chatSchema = new Schema(
     engine: {
       type: String,
       required: true,
-      enum: ['wit', 'google', 'yandex'],
+      enum: ['wit', 'google'],
       default: 'wit',
     },
     googleLanguage: {
@@ -24,11 +24,6 @@ const chatSchema = new Schema(
       type: String,
       required: true,
       default: 'English',
-    },
-    yandexLanguage: {
-      type: String,
-      required: true,
-      default: 'en-US',
     },
     adminLocked: {
       type: Boolean,

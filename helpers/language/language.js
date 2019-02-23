@@ -16,7 +16,6 @@ async function setLanguageCode(ctx) {
   // Set languages to chat
   chat.witLanguage = languageForEngineAndCode('wit', code)
   chat.googleLanguage = languageForEngineAndCode('google', code)
-  chat.yandexLanguage = languageForEngineAndCode('yandex', code)
   // Setup i18n
   updateLocale(ctx)
   // Save chat and return

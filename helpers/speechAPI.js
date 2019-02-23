@@ -7,14 +7,6 @@ const ffmpeg = require('fluent-ffmpeg')
 const temp = require('temp')
 const tryDeletingFile = require('./deleteFile')
 
-// Language map
-const languageMap = {
-  'ru-RU': 'Russian',
-  'en-US': 'English',
-  'tr-TR': 'Turkish',
-  'uk-UK': 'Ukrainian',
-}
-
 /**
  * Function that converts url with audio file into text
  * @param {Path} flacPath Flac path of the audio file to convert
@@ -23,27 +15,14 @@ const languageMap = {
  * @return {String} Result text
  */
 async function getText(flacPath, chat, duration, ogaPath) {
-  if (chat.engine === 'wit') {
-    return wit(
-      language.witLanguages()[chat.witLanguage],
-      ogaPath,
-      duration,
-      chat.witLanguage
-    )
-  } else if (chat.engine === 'google') {
-    return google(flacPath, chat)
-  }
-  // Try wit if yandex couldn't make it
-  const yandexResult = await yandex(flacPath, chat)
-  if (!yandexResult) {
-    return wit(
-      language.witLanguages()[languageMap[chat.yandexLanguage]],
-      ogaPath,
-      duration,
-      languageMap[chat.yandexLanguage]
-    )
-  }
-  return yandexResult
+  return chat.engine === 'wit'
+    ? wit(
+        language.witLanguages()[chat.witLanguage],
+        ogaPath,
+        duration,
+        chat.witLanguage
+      )
+    : google(flacPath, chat)
 }
 
 /**
@@ -177,33 +156,6 @@ function splitPath(path, duration) {
     )
   }
   return Promise.all(promises)
-}
-
-/**
- * Function to convert audio to text with Yandex
- * @param {Path} filePath Path of the file to convert
- * @param {Mongoose:Chat} chat Relevant chat
- */
-function yandex(filePath, chat) {
-  return new Promise(resolve => {
-    const exec = require('child_process').exec
-    const args = `asrclient-cli.py --key=${process.env.YANDEX_KEY} --lang=${
-      chat.yandexLanguage
-    } --silent ${filePath}`
-
-    exec(args, (error, stdout) => {
-      if (error) {
-        resolve()
-      }
-      const result = stdout
-        .replace(/from .+ to .+/g, '')
-        .replace(/(^[ \t]*\n)/gm, '')
-        .split('\n')
-        .join(' ')
-        .trim()
-      resolve(result)
-    })
-  })
 }
 
 async function recognizePath(path, token) {

@@ -245,12 +245,7 @@ async function updateMessagewithError(ctx, msg, chat, error) {
 }
 
 function languageFromChat(chat) {
-  if (chat.engine === 'google') {
-    return chat.googleLanguage
-  } else if (chat.engine === 'wit') {
-    return chat.witLanguage
-  }
-  return chat.yandexLanguage
+  return chat.engine === 'google' ? chat.googleLanguage : chat.witLanguage
 }
 
 function sendLargeFileError(ctx, message) {
@@ -282,7 +277,6 @@ function sanitizeChat(chat) {
     'engine',
     'googleLanguage',
     'witLanguage',
-    'yandexLanguage',
     'adminLocked',
     'silent',
     'filesBanned',

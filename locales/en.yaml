@@ -45,7 +45,7 @@ geeky: |
   Welcome to the dark side, I'll be your guide. Please, enjoy the following functions responsibly (or not, you decide). If you have any questions about the geeky functions — bypass the @borodutch\\_support and send requests directly to @borodutch. I value your opinion and suggestions, fellow power users!
 
   /enableGoogle — Share your personal Google credentials with this chat without exposing them
-  /enableGoogle — Remove your personal Google credentials from this chat without exposing them
+  /disableGoogle — Remove your personal Google credentials from this chat without exposing them
   /timecodes — Toggle timecodes in the transcriptions (when *Voicy* specifies the timecodes for each piece of transcribed audio)
   /url — Toggle voice recognition from URL's (*Voicy* will try to download audio files from URL's you send and transcribe them to text)
 google_enable_personal_not_setup: 'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.'

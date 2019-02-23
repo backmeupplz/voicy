@@ -1,10 +1,3 @@
-const yandexLanguages = {
-  Russian: 'ru-RU',
-  English: 'en-US',
-  Turkish: 'tr-TR',
-  Ukrainian: 'uk-UK',
-}
-
 const googleLanguages = {
   'Afrikaans (South Africa)': 'af-ZA',
   'Amharic (Ethiopia)': 'am-ET',
@@ -281,33 +274,15 @@ const languageMaps = {
     'hi-IN': 'hi',
     'fa-IR': 'fa',
   },
-  yandex: {
-    'ru-RU': 'ru',
-    'en-US': 'en',
-    'tr-TR': 'tr',
-    'uk-UK': 'ua',
-  },
   wit: witCodes,
 }
 
 function engineLanguages(engine) {
-  if (engine === 'wit') {
-    return witLanguages
-  } else if (engine === 'google') {
-    return googleLanguages
-  }
-  return yandexLanguages
+  return engine === 'wit' ? witLanguages : googleLanguages
 }
 
 function languageForEngineAndCode(engine, code) {
-  let languages
-  if (engine === 'google') {
-    languages = googleLanguages
-  } else if (engine === 'wit') {
-    languages = witCodes
-  } else {
-    languages = yandexLanguages
-  }
+  const languages = engine === 'google' ? googleLanguages : witCodes
   let result
   Object.keys(languages).forEach(key => {
     const value = languages[key]
@@ -316,11 +291,7 @@ function languageForEngineAndCode(engine, code) {
     }
   })
   if (!result) {
-    if (engine === 'google' || engine === 'yandex') {
-      result = 'en-US'
-    } else {
-      result = 'English'
-    }
+    result = engine === 'google' ? 'en-US' : 'English'
   }
   return result
 }

@@ -20,6 +20,9 @@ const setupLock = require('./commands/lock')
 const setupFiles = require('./commands/files')
 const setupSilent = require('./commands/silent')
 const { setupGoogle, setupCheckingCredentials } = require('./commands/google')
+const setupGeeky = require('./commands/geeky')
+const setupTimecodes = require('./commands/timecodes')
+const setupUrl = require('./commands/url')
 // Audio handler
 const setupAudioHandler = require('./helpers/handler')
 // Callbacks
@@ -44,6 +47,9 @@ setupLock(bot)
 setupFiles(bot)
 setupSilent(bot)
 setupGoogle(bot)
+setupGeeky(bot)
+setupTimecodes(bot)
+setupUrl(bot)
 // Audio handler
 setupAudioHandler(bot)
 // Callbacks

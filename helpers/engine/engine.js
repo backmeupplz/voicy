@@ -9,7 +9,6 @@ async function sendEngine(ctx) {
       inline_keyboard: [
         [{ text: 'wit.ai', callback_data: 'ei~wit' }],
         [{ text: 'Google Speech', callback_data: 'ei~google' }],
-        [{ text: 'Yandex SpeechKit', callback_data: 'ei~yandex' }],
       ],
     },
   }
