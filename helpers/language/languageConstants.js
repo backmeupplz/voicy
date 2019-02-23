@@ -326,4 +326,5 @@ module.exports = {
   updateLocale,
   languageString,
   languageMaps,
+  witLanguages,
 }
