@@ -8,7 +8,7 @@ const download = require('download')
 const temp = require('temp')
 const fs = require('fs')
 const flac = require('./flac')
-const report = require('./report')
+const { report } = require('./report')
 const tryDeletingFile = require('./deleteFile')
 
 // Generate cluster workers

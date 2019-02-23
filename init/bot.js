@@ -1,6 +1,6 @@
 // Dependencies
 const Telegraf = require('telegraf')
-const report = require('../helpers/report')
+const { report } = require('../helpers/report')
 const cluster = require('cluster')
 const uuid = require('uuid/v4')
 // Create bot

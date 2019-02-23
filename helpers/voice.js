@@ -1,7 +1,7 @@
 // Dependencies
 const urlFinder = require('./url')
 const { findChat, findVoice, addVoice } = require('./db')
-const report = require('./report')
+const { report } = require('./report')
 const urlToText = require('./urlToText')
 const _ = require('lodash')
 

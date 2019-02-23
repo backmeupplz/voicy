@@ -2,7 +2,7 @@
 const { findChat } = require('../helpers/db')
 const { fileUrl } = require('../helpers/url')
 const download = require('download')
-const report = require('../helpers/report')
+const { report } = require('../helpers/report')
 const logAnswerTime = require('../helpers/logAnswerTime')
 const checkAdminLock = require('../middlewares/adminLock')
 

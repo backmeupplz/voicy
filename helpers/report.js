@@ -1,7 +1,7 @@
 // Dependencies
 const Telegraf = require('telegraf')
 
-module.exports = function report(bot, err, prefix) {
+async function report(bot, err, prefix) {
   try {
     const bypassList = [
       'message to edit not found',
@@ -40,7 +40,7 @@ module.exports = function report(bot, err, prefix) {
           username: process.env.USERNAME,
           channelMode: true,
         }).telegram
-    telegram.sendMessage(
+    await telegram.sendMessage(
       process.env.ADMIN_ID,
       `*Voicy*${prefix ? ` (${prefix})` : ''}:\nMessage: ${
         err.message
@@ -52,4 +52,23 @@ module.exports = function report(bot, err, prefix) {
   } catch (error) {
     // Do nothing
   }
+}
+
+async function reportUsage(ctx, usage) {
+  try {
+    await ctx.telegram.sendMessage(
+      process.env.ADMIN_ID,
+      `*Voicy*:\n${ctx.from.id} used ${usage}`,
+      {
+        parse_mode: 'Markdown',
+      }
+    )
+  } catch (err) {
+    // Do nothing
+  }
+}
+
+module.exports = {
+  report,
+  reportUsage,
 }
