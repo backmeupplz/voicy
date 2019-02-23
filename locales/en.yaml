@@ -10,14 +10,13 @@ help: |
   If you want to use this bot in private messages, please, create a private group with anyone and add *Voicy* there. If you want to add *Voicy* to a group chat, please, add it as a participant on the group profile or to the group in the *Voicy* bot profile.
 
   /help — Shows this message 😱
-  /engine — Lets you pick a voice recognition engine: wit.ai, Yandex SpeechKit or Google Speech ⚙
+  /engine — Lets you pick a voice recognition engine: wit.ai or Google Speech ⚙
   /language — Lets you pick a voice recognition language 📣
   /lock — Toggles lock or unlock of non-admins using commands in group chats 🔑
   /files — Toggles if the bot should attempt to convert audio files or just ignore them 📁
   /silent — Toggles silent mode when no extra messages like `Voice recognition is initiated` are sent 😶
   /google — Set up google credentials for Google Speech 🦆
-
-  Like this bot? Leave a review [here](https://telegram.me/storebot?start=voicybot) 👍
+  /geeky — The rest of extra functions mostly used by advanced users (like sharing google credentials or bypassing 20mb Telegram limit) 👻
 
   Address any concerns and questions to my creator — @borodutch\\_support 🦄
 error_group: '😅 Sorry, but this command only works in group chats.'
@@ -28,8 +27,8 @@ silent_false: '😏 Magnificent! *Voicy* will now work in *usual mode*: it will 
 start: |
   👋 Hello there! *Voicy* is a voice recognition bot that converts all voice messages and audio files (.ogg, .flac, .wav, .mp3) it gets into text.
 
-  *Voicy* supports three voice recognition engines: wit.ai, Yandex SpeechKit and Google Speech. Initially it's set to use wit.ai but you can switch to Google Speech or Yandex SpeechKit anytime in /engine. More information in /help.
-engine: '👋 Please, select the engine of speech recognition. Google Speech is more accurate, but has to be set up with your Google Cloud credentials (a bit tedious). Yandex SpeechKit is pretty accurate, but has limited list of languages. Wit.ai is less accurate, but has plenty of languages. Please, note that all three support different languages, so pick the one that suits you the best.'
+  *Voicy* supports two voice recognition engines: wit.ai and Google Speech. Initially it's set to use wit.ai but you can switch to Google Speech anytime in /engine. More information in /help.
+engine: '👋 Please, select the engine of speech recognition. Google Speech is more accurate, but has to be set up with your Google Cloud credentials (a bit tedious). Wit.ai is less accurate, but has plenty of languages. Please, note that both of them support different languages, so pick the one that suits you the best.'
 callback_error: 'Only the person who started command can select options'
 engine_success: "👍 Now *Voicy* uses *${engine}* in this chat. Thank you! Don't forget to set /language."
 language: '👋 Please select the language of speech recognition for ${engine}'
@@ -41,8 +40,17 @@ speak_clearly: "_👮 Please, speak clearly, I couldn't recognize that_"
 error: "_👮 I couldn't recognize that_"
 google_error_creds: '😮 Please, set up google credentials with the /google command or change the engine with the /engine command. Your credentials are not set up yet.'
 
+# Geeky
+geeky: |
+  Welcome to the dark side, I'll be your guide. Please, enjoy the following functions responsibly (or not, you decide). If you have any questions about the geeky functions — bypass the @borodutch\\_support and send requests directly to @borodutch. I value your opinion and suggestions, fellow power users!
+
+  /enableGoogle — Share your personal Google credentials with this chat without exposing them
+  /enableGoogle — Remove your personal Google credentials from this chat without exposing them
+  /timecodes — Toggle timecodes in the transcriptions (when *Voicy* specifies the timecodes for each piece of transcribed audio)
+  /url — Toggle voice recognition from URL's (*Voicy* will try to download audio files from URL's you send and transcribe them to text)
 google_enable_personal_not_setup: 'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.'
 google_enable_success: 'Wonderful. Your Google Cloud credentials will now be used in this chat.'
 google_disable_personal_not_setup: 'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.'
 google_disable_error_wrong_key: "This chat doesn't use your credentials already."
 google_disable_success: 'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.'
+oops: "Ooopsie! I haven't implemented this feature yet. But be rest assured: I've received your request for it and will know that you need this feature. Thank you!"
