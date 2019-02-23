@@ -1898,17 +1898,17 @@ js-tokens@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-3.0.2.tgz#9866df395102130e38f7f996bceb65443209c25b"
 
-js-yaml@^3.5.1:
-  version "3.12.0"
-  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.12.0.tgz#eaed656ec8344f10f527c6bfa1b6e2244de167d1"
+js-yaml@^3.12.1, js-yaml@^3.6.1:
+  version "3.12.1"
+  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.12.1.tgz#295c8632a18a23e054cf5c9d3cecafe678167600"
+  integrity sha512-um46hB9wNOKlwkHgiuyEVAybXBjwFUV0Z/RaHJblRd9DXltue9FTYvzCr9ErQrK9Adz5MU4gHWVaNUfdmrC8qA==
   dependencies:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
-js-yaml@^3.6.1:
-  version "3.12.1"
-  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.12.1.tgz#295c8632a18a23e054cf5c9d3cecafe678167600"
-  integrity sha512-um46hB9wNOKlwkHgiuyEVAybXBjwFUV0Z/RaHJblRd9DXltue9FTYvzCr9ErQrK9Adz5MU4gHWVaNUfdmrC8qA==
+js-yaml@^3.5.1:
+  version "3.12.0"
+  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.12.0.tgz#eaed656ec8344f10f527c6bfa1b6e2244de167d1"
   dependencies:
     argparse "^1.0.7"
     esprima "^4.0.0"
@@ -3114,10 +3114,9 @@ tar@^4:
     safe-buffer "^5.1.2"
     yallist "^3.0.2"
 
-telegraf-i18n@^6.4.0:
+telegraf-i18n@backmeupplz/telegraf-i18n#78ee719cb8be9413d64a3a14325209f3a793a541:
   version "6.4.0"
-  resolved "https://registry.yarnpkg.com/telegraf-i18n/-/telegraf-i18n-6.4.0.tgz#1876d27900271c7f1283bd20323b594e15f367fe"
-  integrity sha512-kbP5vQGX99nyfS6q1tlvF/Uc+R8VQsqg429BFiS9D5ytsaKTut21AveQrzfR4QV7E85puWeoMYZ9tibfKxvkeQ==
+  resolved "https://codeload.github.com/backmeupplz/telegraf-i18n/tar.gz/78ee719cb8be9413d64a3a14325209f3a793a541"
   dependencies:
     compile-template "^0.3.1"
     debug "^4.0.1"

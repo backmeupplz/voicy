@@ -23,6 +23,7 @@ const { setupGoogle, setupCheckingCredentials } = require('./commands/google')
 const setupGeeky = require('./commands/geeky')
 const setupTimecodes = require('./commands/timecodes')
 const setupUrl = require('./commands/url')
+const setupAdmin = require('./commands/admin')
 // Audio handler
 const setupAudioHandler = require('./helpers/handler')
 // Callbacks
@@ -50,6 +51,7 @@ setupGoogle(bot)
 setupGeeky(bot)
 setupTimecodes(bot)
 setupUrl(bot)
+setupAdmin(bot)
 // Audio handler
 setupAudioHandler(bot)
 // Callbacks

@@ -325,4 +325,5 @@ module.exports = {
   languageForEngineAndCode,
   updateLocale,
   languageString,
+  languageMaps,
 }

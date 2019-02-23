@@ -22,11 +22,12 @@
     "easy-file-manager": "^0.1.3",
     "fluent-ffmpeg": "^2.1.2",
     "grpc": "^1.18.0",
+    "js-yaml": "^3.12.1",
     "lodash": "^4.17.2",
     "mongoose": "^4.9.4",
     "semaphore-async-await": "^1.5.1",
     "telegraf": "^3.27.1",
-    "telegraf-i18n": "^6.4.0",
+    "telegraf-i18n": "backmeupplz/telegraf-i18n#78ee719cb8be9413d64a3a14325209f3a793a541",
     "temp": "^0.8.3",
     "uuid": "^3.3.2"
   },

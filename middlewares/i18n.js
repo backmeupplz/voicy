@@ -8,6 +8,8 @@ const i18n = new I18N({
   sessionName: 'session',
   useSession: false,
   allowMissing: true,
+  skipPluralize: true,
+  fallbackToDefaultLanguage: true,
 })
 
 function setupI18N(bot) {
