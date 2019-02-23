@@ -28,7 +28,7 @@ start: |
   👋 Hello there! *Voicy* is a voice recognition bot that converts all voice messages and audio files (.ogg, .flac, .wav, .mp3) it gets into text.
 
   *Voicy* supports two voice recognition engines: wit.ai and Google Speech. Initially it's set to use wit.ai but you can switch to Google Speech anytime in /engine. More information in /help.
-engine: '👋 Please, select the engine of speech recognition. Google Speech is more accurate, but has to be set up with your Google Cloud credentials (a bit tedious). Wit.ai is less accurate, but has plenty of languages. Please, note that both of them support different languages, so pick the one that suits you the best.'
+engine: '👋 Please, select the engine of speech recognition. Google Speech is more accurate, but has to be set up with your Google Cloud credentials (a bit tedious). Wit.ai is less accurate, but free. Please, note that both of them support different languages, so pick the one that suits you the best.'
 callback_error: 'Only the person who started command can select options'
 engine_success: "👍 Now *Voicy* uses *${engine}* in this chat. Thank you! Don't forget to set /language."
 language: '👋 Please select the language of speech recognition for ${engine}'
