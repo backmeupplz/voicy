@@ -42,7 +42,13 @@ const chatSchema = new Schema(
     },
     googleSetupMessageId: Number,
     googleKey: String,
-    language: String, // added just as a virtual variable
+    timestampsEnabled: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    // Added just as a virtual variable
+    language: String,
   },
   { timestamps: true }
 )

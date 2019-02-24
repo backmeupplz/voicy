@@ -1,8 +1,6 @@
 // Dependencies
-const {
-  sendLanguage,
-  setLanguageCode,
-} = require('../helpers/language/language')
+const { setLanguageCode } = require('../helpers/language/language')
+const sendLanguage = require('../helpers/language/sendLanguage')
 const checkAdminLock = require('../middlewares/adminLock')
 const sendStart = require('../helpers/sendStart')
 
