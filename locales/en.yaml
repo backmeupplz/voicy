@@ -54,3 +54,5 @@ google_disable_personal_not_setup: 'Looks like your personal Google Cloud creden
 google_disable_error_wrong_key: "This chat doesn't use your credentials already."
 google_disable_success: 'Wonderful. Your Google Cloud credentials will not be used in this chat anymore.'
 oops: "Ooopsie! I haven't implemented this feature yet. But be rest assured: I've received your request for it and will know that you need this feature. Thank you!"
+timecodes_true: 'Nice! Now *Voicy* will add timecodes to the recognized text.'
+timecodes_false: 'Nice! Now *Voicy* will not add timecodes to the recognized text.'

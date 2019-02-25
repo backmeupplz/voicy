@@ -78,7 +78,7 @@ function setupCheckingCredentials(bot) {
         msg &&
         msg.reply_to_message &&
         msg.reply_to_message.from &&
-        msg.reply_to_message.from.username === process.env.USERNAME
+        msg.reply_to_message.from.username === bot.options.username
       ) {
         // Check if reply to setup message
         if (

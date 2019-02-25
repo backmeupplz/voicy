@@ -12,12 +12,11 @@ const tryDeletingFile = require('./deleteFile')
  * @param {Path} flacPath Flac path of the audio file to convert
  * @param {Mongoose:Chat} Chat where audio was fetched
  * @param {Int} duration Duration of audio file
- * @return {String} Result text
  */
 async function getText(flacPath, chat, duration, ogaPath) {
   return chat.engine === 'wit'
     ? wit(witLanguages[chat.witLanguage], ogaPath, duration, chat.witLanguage)
-    : google(flacPath, chat)
+    : google(flacPath, chat, duration)
 }
 
 /**
@@ -25,7 +24,7 @@ async function getText(flacPath, chat, duration, ogaPath) {
  * @param {Path} filePath Path of the file
  * @param {Mongoose:Chat} chat Chat to convert
  */
-async function google(filePath, chat) {
+async function google(filePath, chat, duration) {
   // Check if chat has google credentials
   if (!chat.googleKey) {
     throw new Error('No google credentials')
@@ -37,7 +36,7 @@ async function google(filePath, chat) {
     credentials: JSON.parse(chat.googleKey),
   })
 
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     speech.startRecognition(
       uri,
       {
@@ -47,8 +46,8 @@ async function google(filePath, chat) {
       },
       async (err, operation) => {
         if (err) {
-          resolve()
           try {
+            reject(err)
             await cloud.del(uri, chat)
           } catch (error) {
             // Do nothing
@@ -56,17 +55,17 @@ async function google(filePath, chat) {
           return
         }
         operation
-          .on('error', async () => {
-            resolve()
+          .on('error', async e => {
             try {
+              reject(e)
               await cloud.del(uri, chat)
             } catch (error) {
               // Do nothing
             }
           })
           .on('complete', async result => {
-            resolve(result)
             try {
+              resolve([[`0-${parseInt(duration, 10)}`, result]])
               await cloud.del(uri, chat)
             } catch (error) {
               // Do nothing
@@ -123,7 +122,19 @@ async function wit(token, filePath, duration, iLanguage) {
       }
     }
   }
-  return result.join('. ').trim()
+  const splitDuration = 30
+  return result.length < 2
+    ? [[`0-${parseInt(duration, 10)}`, result[0]]]
+    : result.reduce((p, c, i, a) => {
+        if (a.length - 1 === i) {
+          return p.concat([
+            [`${i * splitDuration}-${parseInt(duration, 10)}`, c],
+          ])
+        }
+        return p.concat([
+          [`${i * splitDuration}-${(i + 1) * splitDuration}`, c],
+        ])
+      }, [])
 }
 
 function splitPath(path, duration) {

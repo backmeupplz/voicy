@@ -63,7 +63,12 @@ async function sendTranscription(ctx, url, chat) {
   // Try to find existing voice message
   const dbvoice = await findVoice(url, lan, chat.engine)
   if (dbvoice) {
-    updateMessagewithTranscription(ctx, sentMessage, dbvoice.text, chat)
+    const text = chat.timecodesEnabled
+      ? dbvoice.textWithTimecodes
+        ? dbvoice.textWithTimecodes.map(t => `${t[0]}:\n${t[1]}`).join('\n')
+        : dbvoice.text
+      : dbvoice.text
+    updateMessagewithTranscription(ctx, sentMessage, text, chat)
     return
   }
   // Check if ok with google engine
@@ -73,11 +78,23 @@ async function sendTranscription(ctx, url, chat) {
   }
   try {
     // Convert url to text
-    const { text, duration } = await urlToText(url, sanitizeChat(chat))
+    const { textWithTimecodes, duration } = await urlToText(
+      url,
+      sanitizeChat(chat)
+    )
     // Send trancription to user
+    const text = chat.timecodesEnabled
+      ? textWithTimecodes.map(t => `${t[0]}:\n${t[1]}`).join('\n')
+      : textWithTimecodes.map(t => t[1]).join('. ')
     await updateMessagewithTranscription(ctx, sentMessage, text, chat)
     // Save voice to db
-    await addVoice(url, text, chat, duration)
+    await addVoice(
+      url,
+      textWithTimecodes.map(t => t[1]).join('. '),
+      chat,
+      duration,
+      textWithTimecodes
+    )
   } catch (err) {
     // In case of error, send it
     await updateMessagewithError(ctx, sentMessage, chat, err)
@@ -106,7 +123,12 @@ async function sendAction(ctx, url, chat) {
   // Try to find existing voice message
   const dbvoice = await findVoice(url, lan, chat.engine)
   if (dbvoice) {
-    sendMessageWithTranscription(ctx, dbvoice.text, chat)
+    const text = chat.timecodesEnabled
+      ? dbvoice.textWithTimecodes
+        ? dbvoice.textWithTimecodes.map(t => `${t[0]}:\n${t[1]}`).join('\n')
+        : dbvoice.text
+      : dbvoice.text
+    sendMessageWithTranscription(ctx, text, chat)
     return
   }
   // Check if ok with google engine
@@ -115,11 +137,23 @@ async function sendAction(ctx, url, chat) {
   }
   try {
     // Convert utl to text
-    const { text, duration } = await urlToText(url, sanitizeChat(chat))
+    const { textWithTimecodes, duration } = await urlToText(
+      url,
+      sanitizeChat(chat)
+    )
     // Send trancription to user
+    const text = chat.timecodesEnabled
+      ? textWithTimecodes.map(t => `${t[0]}:\n${t[1]}`).join('\n')
+      : textWithTimecodes.map(t => t[1]).join('. ')
     await sendMessageWithTranscription(ctx, text, chat)
     // Save voice to db
-    await addVoice(url, text, chat, duration)
+    await addVoice(
+      url,
+      textWithTimecodes.map(t => t[1]).join('. '),
+      chat,
+      duration,
+      textWithTimecodes
+    )
   } catch (err) {
     // In case of error, log it
     report(ctx, err, 'sendTranscription.silent')

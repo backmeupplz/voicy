@@ -24,6 +24,7 @@ const voiceSchema = new Schema(
       required: true,
     },
     text: String,
+    textWithTimecodes: [[String]],
   },
   { timestamps: true }
 )

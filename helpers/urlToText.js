@@ -59,7 +59,12 @@ async function workerReceivesMessage({ url, promiseId, chat }) {
   }
 }
 
-function masterReceivesMessage({ text, duration, promiseId, error }) {
+function masterReceivesMessage({
+  textWithTimecodes,
+  duration,
+  promiseId,
+  error,
+}) {
   // Get promise functions
   const promiseFunctions = recognitionPromises[promiseId]
   // Log message received
@@ -69,7 +74,7 @@ function masterReceivesMessage({ text, duration, promiseId, error }) {
       promiseFunctions.rej(new Error(error))
     }
   } else if (promiseFunctions) {
-    promiseFunctions.res({ text, duration })
+    promiseFunctions.res({ textWithTimecodes, duration })
   }
 }
 
@@ -100,12 +105,17 @@ async function convert(url, chat) {
   // Convert flac file to speech
   try {
     // Get transcription
-    const text = await speechAPI.getText(flacPath, chat, duration, ogaPath)
+    const textWithTimecodes = await speechAPI.getText(
+      flacPath,
+      chat,
+      duration,
+      ogaPath
+    )
     // Unlink (delete) flac file
     tryDeletingFile(flacPath)
     // Return result
     return {
-      text,
+      textWithTimecodes,
       duration,
     }
   } catch (err) {

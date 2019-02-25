@@ -42,7 +42,7 @@ const chatSchema = new Schema(
     },
     googleSetupMessageId: Number,
     googleKey: String,
-    timestampsEnabled: {
+    timecodesEnabled: {
       type: Boolean,
       required: true,
       default: false,

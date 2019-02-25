@@ -1,7 +1,6 @@
 // Dependencies
 const logAnswerTime = require('../helpers/logAnswerTime')
 const checkAdminLock = require('../middlewares/adminLock')
-const { reportUsage } = require('../helpers/report')
 
 function setupTimecodes(bot) {
   bot.command('timecodes', checkAdminLock, ctx => {
@@ -10,9 +9,17 @@ function setupTimecodes(bot) {
 }
 
 async function handle(ctx) {
-  await ctx.replyWithMarkdown(ctx.i18n.t('oops'))
+  // Reverse timestamps
+  ctx.dbchat.timecodesEnabled = !ctx.dbchat.timecodesEnabled
+  // Save chat
+  ctx.dbchat = await ctx.dbchat.save()
+  // Reply with the new setting
+  await ctx.replyWithMarkdown(
+    ctx.i18n.t(
+      ctx.dbchat.timecodesEnabled ? 'timecodes_true' : 'timecodes_false'
+    )
+  )
   logAnswerTime(ctx, '/timecodes')
-  reportUsage(ctx, '/timecodes')
 }
 
 // Exports
