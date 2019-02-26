@@ -40,9 +40,14 @@ function startBot() {
         })
         .catch(err => console.info('Bot launch error', err))
     } else {
-      bot.startPolling()
-      // Console that everything is fine
-      console.info('Bot is up and running')
+      bot.telegram
+        .deleteWebhook()
+        .then(async () => {
+          bot.startPolling()
+          // Console that everything is fine
+          console.info('Bot is up and running')
+        })
+        .catch(err => console.info('Bot launch error', err))
     }
   }
 }
