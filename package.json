@@ -26,7 +26,7 @@
     "lodash": "^4.17.2",
     "mongoose": "^4.9.4",
     "semaphore-async-await": "^1.5.1",
-    "telegraf": "backmeupplz/telegraf#e063b645e3e14bd77c52f2fcf85f4e46681493bc",
+    "telegraf": "backmeupplz/telegraf#0e806e80d5365d445c26c63ddc0fe2b8d735ee06",
     "telegraf-i18n": "backmeupplz/telegraf-i18n#78ee719cb8be9413d64a3a14325209f3a793a541",
     "temp": "^0.8.3",
     "uuid": "^3.3.2"
