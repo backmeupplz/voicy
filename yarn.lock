@@ -3122,9 +3122,9 @@ telegraf-i18n@backmeupplz/telegraf-i18n#78ee719cb8be9413d64a3a14325209f3a793a541
     debug "^4.0.1"
     js-yaml "^3.6.1"
 
-telegraf@backmeupplz/telegraf#909160dce3c6f0c39d85a891e373423d05db56ae:
+telegraf@backmeupplz/telegraf#e063b645e3e14bd77c52f2fcf85f4e46681493bc:
   version "3.27.1"
-  resolved "https://codeload.github.com/backmeupplz/telegraf/tar.gz/909160dce3c6f0c39d85a891e373423d05db56ae"
+  resolved "https://codeload.github.com/backmeupplz/telegraf/tar.gz/e063b645e3e14bd77c52f2fcf85f4e46681493bc"
   dependencies:
     "@types/node" "^10.1.2"
     debug "^4.0.1"
