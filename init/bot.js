@@ -6,7 +6,6 @@ const uuid = require('uuid/v4')
 // Create bot
 const bot = new Telegraf(process.env.TOKEN, {
   channelMode: true,
-  noUpdateWaiting: true,
 })
 bot.webhookReply = false
 // Get bot's username
