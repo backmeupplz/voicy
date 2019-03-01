@@ -6,7 +6,11 @@ module.exports = function setupAddingTimeReceived(bot) {
     next()
     
     if (ctx.update.message && ctx.update.message.date) {
-      fs.appendFile(`${__dirname}/updates.log`, `${Math.floor(Date.now() / 1000)} — ${Math.floor(Date.now() / 1000) - ctx.update.date}s`);
+      fs.appendFile(`${__dirname}/updates.log`, `${Math.floor(Date.now() / 1000)} — ${Math.floor(Date.now() / 1000) - ctx.update.date}s`, (err) => {
+        if (err) {
+          console.error(err)
+        }
+      });
     }
   })
 }
