@@ -90,7 +90,7 @@ async function wit(token, filePath, duration, iLanguage) {
     for (const path of pathsToRecognize) {
       promises.push(
         new Promise(async (res, rej) => {
-          let triesCount = 10
+          let triesCount = 5
           let error
           while (triesCount > 0) {
             try {
