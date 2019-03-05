@@ -122,7 +122,7 @@ async function wit(token, filePath, duration, iLanguage) {
       }
     }
   }
-  const splitDuration = 30
+  const splitDuration = 20
   return result.length < 2
     ? [[`0-${parseInt(duration, 10)}`, result[0]]]
     : result.reduce((p, c, i, a) => {
@@ -138,7 +138,7 @@ async function wit(token, filePath, duration, iLanguage) {
 }
 
 function splitPath(path, duration) {
-  const trackLength = duration > 50 ? 30 : 50
+  const trackLength = 20
   const lastTrackLength = duration % trackLength
 
   const promises = []
