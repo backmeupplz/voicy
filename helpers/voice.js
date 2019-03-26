@@ -49,7 +49,6 @@ async function handleMessage(ctx) {
         await sendTranscription(ctx, voiceUrl, chat)
       } catch (err) {
         report(ctx, err, 'sendTranscription')
-        ctx.forwardMessage(process.env.ADMIN_ID)
       }
     }
   } catch (err) {
@@ -109,7 +108,6 @@ async function sendTranscription(ctx, url, chat) {
     // In case of error, send it
     await updateMessagewithError(ctx, sentMessage, chat, err)
     report(ctx, err, 'sendTranscription')
-    ctx.forwardMessage(process.env.ADMIN_ID)
   } finally {
     // Log time
     console.info(
