@@ -101,14 +101,14 @@ async function wit(token, filePath, duration, iLanguage) {
             } catch (err) {
               error = err
               triesCount -= 1
+              if (err.message.indexOf('Max audio length is 20 seconds') > -1) {
+                break
+              }
               console.info(
                 `Retrying ${iLanguage} ${path}, attempts left — ${triesCount}, error: ${
                   err.message
                 } (${err.code})`
               )
-              if (err.message.indexOf('Max audio length is 20 seconds') > -1) {
-                break
-              }
             }
           }
           error.message = `${error.message} (${duration}s)`
