@@ -94,12 +94,18 @@ async function sendTranscription(ctx, url, chat) {
     // Send trancription to user
     const text = chat.timecodesEnabled
       ? textWithTimecodes.map(t => `${t[0]}:\n${t[1]}`).join('\n')
-      : textWithTimecodes.map(t => t[1]).join('. ')
+      : textWithTimecodes
+          .map(t => t[1].trim())
+          .filter(v => !!v)
+          .join('. ')
     await updateMessagewithTranscription(ctx, sentMessage, text, chat)
     // Save voice to db
     await addVoice(
       url,
-      textWithTimecodes.map(t => t[1]).join('. '),
+      textWithTimecodes
+        .map(t => t[1].trim())
+        .filter(v => !!v)
+        .join('. '),
       chat,
       duration,
       textWithTimecodes
@@ -153,12 +159,18 @@ async function sendAction(ctx, url, chat) {
     // Send trancription to user
     const text = chat.timecodesEnabled
       ? textWithTimecodes.map(t => `${t[0]}:\n${t[1]}`).join('\n')
-      : textWithTimecodes.map(t => t[1]).join('. ')
+      : textWithTimecodes
+          .map(t => t[1].trim())
+          .filter(v => !!v)
+          .join('. ')
     await sendMessageWithTranscription(ctx, text, chat)
     // Save voice to db
     await addVoice(
       url,
-      textWithTimecodes.map(t => t[1]).join('. '),
+      textWithTimecodes
+        .map(t => t[1].trim())
+        .filter(v => !!v)
+        .join('. '),
       chat,
       duration,
       textWithTimecodes
