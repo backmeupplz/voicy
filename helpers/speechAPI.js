@@ -90,7 +90,7 @@ async function wit(token, filePath, duration, iLanguage) {
     for (const path of pathsToRecognize) {
       promises.push(
         new Promise(async (res, rej) => {
-          let triesCount = 5
+          let triesCount = 2
           let error
           while (triesCount > 0) {
             try {
@@ -107,6 +107,7 @@ async function wit(token, filePath, duration, iLanguage) {
               )
             }
           }
+          error.message = `${error.message} (${duration}s)`
           rej(error)
         })
       )
@@ -115,6 +116,9 @@ async function wit(token, filePath, duration, iLanguage) {
       const responses = await Promise.all(promises)
       result = result.concat(responses.map(r => (r || '').trim()))
     } catch (err) {
+      for (const path of pathsToRecognize) {
+        tryDeletingFile(path)
+      }
       throw err
     } finally {
       for (const path of pathsToRecognize) {
@@ -122,7 +126,7 @@ async function wit(token, filePath, duration, iLanguage) {
       }
     }
   }
-  const splitDuration = 30
+  const splitDuration = 15
   return result.length < 2
     ? [[`0-${parseInt(duration, 10)}`, result[0]]]
     : result.reduce((p, c, i, a) => {
@@ -138,7 +142,7 @@ async function wit(token, filePath, duration, iLanguage) {
 }
 
 function splitPath(path, duration) {
-  const trackLength = duration > 50 ? 30 : 50
+  const trackLength = 15
   const lastTrackLength = duration % trackLength
 
   const promises = []
