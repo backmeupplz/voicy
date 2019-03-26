@@ -29,6 +29,7 @@ async function report(bot, err, prefix) {
       'group chat was upgraded to a supergroup chat',
       'Timeout',
       '20 seconds',
+      'A bucket name is needed to use Google Cloud Storage',
     ]
     for (const item of bypassList) {
       if (err.message && err.message.indexOf(item) > -1) {
