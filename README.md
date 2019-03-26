@@ -17,8 +17,9 @@ You can also help by translating the bot to other languages or fixing some texts
 1. Clone this repo: `git clone https://github.com/backmeupplz/voicy`
 2. Launch the [mongo database](https://www.mongodb.com/) locally
 3. Create `.env` file with the environment variables listed below
-4. Run `yarn install` in the root folder
-5. Run `yarn start`
+4. Install ffmpeg on your machine
+5. Run `yarn install` in the root folder
+6. Run `yarn start`
 
 # Environment variables in `.env` file
 
