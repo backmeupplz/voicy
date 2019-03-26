@@ -5,7 +5,7 @@ const { setEngine } = require('./engine/engine')
 function setupCallbackHandler(bot) {
   bot.action(async (data, ctx) => {
     const msg = ctx.update.callback_query.message.reply_to_message
-    if (msg.from.id !== ctx.from.id) {
+    if (msg && msg.from.id !== ctx.from.id) {
       ctx.telegram.answerCbQuery(
         ctx.callbackQuery.id,
         ctx.i18n.t('callback_error')
