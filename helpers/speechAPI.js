@@ -91,7 +91,7 @@ async function wit(token, filePath, duration, iLanguage) {
     for (const path of pathsToRecognize) {
       promises.push(
         new Promise(async (res, rej) => {
-          let triesCount = 2
+          let triesCount = 3
           let error
           while (triesCount > 0) {
             try {
@@ -106,6 +106,9 @@ async function wit(token, filePath, duration, iLanguage) {
                   err.message
                 } (${err.code})`
               )
+              if (err.message.indexOf('Max audio length is 20 seconds') > -1) {
+                break
+              }
             }
           }
           error.message = `${error.message} (${duration}s)`

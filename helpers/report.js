@@ -28,6 +28,7 @@ async function report(bot, err, prefix) {
       'bot was blocked',
       'group chat was upgraded to a supergroup chat',
       'Timeout',
+      '20 seconds',
     ]
     for (const item of bypassList) {
       if (err.message && err.message.indexOf(item) > -1) {

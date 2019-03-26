@@ -47,10 +47,6 @@ async function urlToText(url, chat) {
 }
 
 async function workerReceivesMessage({ url, promiseId, chat }) {
-  // Log message received
-  // console.log(
-  //   `(${promiseId}) Worker ${process.pid} processes audio url ${url}...`
-  // )
   try {
     const result = await convert(url, chat)
     process.send({ ...result, promiseId })
@@ -69,7 +65,6 @@ function masterReceivesMessage({
   const promiseFunctions = recognitionPromises[promiseId]
   // Log message received
   if (error) {
-    // console.log(`(${promiseId}) Master ${process.pid} got error "${error}"`)
     if (promiseFunctions) {
       promiseFunctions.rej(new Error(error))
     }
