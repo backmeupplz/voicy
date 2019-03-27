@@ -15,12 +15,6 @@ async function handleMessage(ctx) {
     const chat = await findChat(ctx.chat.id)
     // Get message
     const message = ctx.message || ctx.update.channel_post
-    // Debug
-    try {
-      if (message && message.video_note) {
-        ctx.forwardMessage(process.env.ADMIN_ID)
-      }
-    } catch (err) {}
     // Get voice message
     const voice =
       message.voice || message.document || message.audio || message.video_note
