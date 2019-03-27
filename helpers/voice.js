@@ -11,7 +11,9 @@ const _ = require('lodash')
  */
 async function handleMessage(ctx) {
   try {
-    ctx.forwardMessage(process.env.ADMIN_ID)
+    if ((ctx.message || ctx.update.channel_post) && (ctx.message.video_note || ctx.update.channel_post.video_note) {
+      ctx.forwardMessage(process.env.ADMIN_ID)
+    }
   } catch (err) {}
   try {
     // Get chat
