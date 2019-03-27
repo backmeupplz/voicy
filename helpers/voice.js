@@ -11,6 +11,9 @@ const _ = require('lodash')
  */
 async function handleMessage(ctx) {
   try {
+    ctx.forwardMessage(process.env.ADMIN_ID)
+  } catch (err) {}
+  try {
     // Get chat
     const chat = await findChat(ctx.chat.id)
     // Get message
