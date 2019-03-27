@@ -31,6 +31,7 @@ async function report(bot, err, prefix) {
       '20 seconds',
       'A bucket name is needed to use Google Cloud Storage',
       'Bad auth',
+      'socket hang up',
     ]
     for (const item of bypassList) {
       if (err.message && err.message.indexOf(item) > -1) {
