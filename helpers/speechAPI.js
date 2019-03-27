@@ -182,6 +182,7 @@ async function recognizePath(path, token) {
           'audio/raw;encoding=signed-integer;bits=16;rate=16000;endian=little',
         'cache-control': 'no-cache',
       },
+      timeout: 120 * 1000,
     }
     const req = https.request(options, res => {
       const chunks = []
