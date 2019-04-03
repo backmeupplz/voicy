@@ -327,4 +327,6 @@ module.exports = {
   languageString,
   languageMaps,
   witLanguages,
+  googleLanguages,
+  witCodes,
 }
