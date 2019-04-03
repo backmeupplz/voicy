@@ -48,6 +48,8 @@ geeky: |
   /disableGoogle — Remove your personal Google credentials from this chat without exposing them
   /timecodes — Toggle timecodes in the transcriptions (when *Voicy* specifies the timecodes for each piece of transcribed audio)
   /url — Toggle voice recognition from URL's (*Voicy* will try to download audio files from URL's you send and transcribe them to text)
+  /l — the same as /language
+  `/l en` — shortcut to change language, try it out with different language codes
 google_enable_personal_not_setup: 'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to enable your Google key in this chat.'
 google_enable_success: 'Wonderful. Your Google Cloud credentials will now be used in this chat.'
 google_disable_personal_not_setup: 'Looks like your personal Google Cloud credentials were not set yet. Please, do so in @voicybot before trying to disable your Google key in this chat.'
