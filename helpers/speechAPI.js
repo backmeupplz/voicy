@@ -83,10 +83,10 @@ async function google(filePath, chat, duration) {
  */
 async function wit(token, filePath, duration, iLanguage) {
   const paths = await splitPath(filePath, duration)
-  const pathsToDelete = paths.slice()
   let result = []
   while (paths.length) {
     const pathsToRecognize = paths.splice(0, 5)
+    const pathsToDelete = pathsToRecognize.slice()
     const promises = []
     for (const path of pathsToRecognize) {
       promises.push(
