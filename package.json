@@ -14,7 +14,7 @@
     "sendout": "node sendout.js"
   },
   "dependencies": {
-    "@google-cloud/speech": "^0.9.3",
+    "@google-cloud/speech": "^2.3.1",
     "@google-cloud/storage": "^0.5.0",
     "bluebird": "^3.4.6",
     "dotenv": "^5.0.1",

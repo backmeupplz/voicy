@@ -32,48 +32,48 @@ async function google(filePath, chat, duration) {
   // Upload to drive
   const uri = await cloud.put(filePath, chat)
   // Transcribe
-  const speech = require('@google-cloud/speech')({
+  const SpeechClient = require('@google-cloud/speech').SpeechClient
+  const speech = new SpeechClient({
     credentials: JSON.parse(chat.googleKey),
   })
 
-  return new Promise((resolve, reject) => {
-    speech.startRecognition(
+  const request = {
+    config: {
+      enableWordTimeOffsets: true,
+      encoding: 'LINEAR16',
+      sampleRateHertz: 16000,
+      languageCode: chat.googleLanguage,
+    },
+    audio: {
       uri,
-      {
-        encoding: 'LINEAR16',
-        sampleRateHertz: 16000,
-        languageCode: chat.googleLanguage,
-      },
-      async (err, operation) => {
-        if (err) {
-          try {
-            reject(err)
-            await cloud.del(uri, chat)
-          } catch (error) {
-            // Do nothing
-          }
-          return
-        }
-        operation
-          .on('error', async e => {
-            try {
-              reject(e)
-              await cloud.del(uri, chat)
-            } catch (error) {
-              // Do nothing
-            }
-          })
-          .on('complete', async result => {
-            try {
-              resolve([[`0-${parseInt(duration, 10)}`, result]])
-              await cloud.del(uri, chat)
-            } catch (error) {
-              // Do nothing
-            }
-          })
+    },
+  }
+  try {
+    const [operation] = await speech.longRunningRecognize(request)
+    const [response] = await operation.promise()
+    const resultingStrings = []
+    response.results.forEach(result => {
+      if (!result.alternatives[0].words.length) {
+        return
       }
-    )
-  })
+      const firstWord = result.alternatives[0].words[0]
+      const lastWord =
+        result.alternatives[0].words[result.alternatives[0].words.length - 1]
+      const startTime = `${firstWord.startTime.seconds}.${firstWord.startTime
+        .nanos / 100000000}`
+      const endTime = `${lastWord.endTime.seconds}.${lastWord.endTime.nanos /
+        100000000}`
+      const text = result.alternatives[0].transcript.trim()
+      if (text) {
+        resultingStrings.push([`${startTime}-${endTime}`, text])
+      }
+    })
+    return resultingStrings
+  } catch (err) {
+    throw err
+  } finally {
+    await cloud.del(uri, chat)
+  }
 }
 
 /**
