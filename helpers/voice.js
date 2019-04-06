@@ -204,7 +204,7 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
     )
   } else {
     // Get chunks
-    const chunks = text.match(/.{1,4000}/g)
+    const chunks = text.match(/[\s\S]{1,4000}/g)
     // Edit message
     await ctx.telegram.editMessageText(
       msg.chat.id,
