@@ -106,20 +106,18 @@ async function convert(url, chat) {
       duration,
       ogaPath
     )
-    // Unlink (delete) flac file
-    tryDeletingFile(flacPath)
     // Return result
     return {
       textWithTimecodes,
       duration,
     }
   } catch (err) {
-    tryDeletingFile(flacPath)
     report(undefined, err, 'sendTranscription.convertFlacToText')
     throw err
   } finally {
+    tryDeletingFile(flacPath)
     // No need for oga file anymore
-    fs.unlinkSync(ogaPath)
+    tryDeletingFile(ogaPath)
   }
 }
 

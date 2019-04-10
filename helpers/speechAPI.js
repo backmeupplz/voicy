@@ -83,63 +83,73 @@ async function google(filePath, chat, duration) {
  */
 async function wit(token, filePath, duration, iLanguage) {
   const paths = await splitPath(filePath, duration)
-  let result = []
-  while (paths.length) {
-    const pathsToRecognize = paths.splice(0, 5)
-    const pathsToDelete = pathsToRecognize.slice()
-    const promises = []
-    for (const path of pathsToRecognize) {
-      promises.push(
-        new Promise(async (res, rej) => {
-          let triesCount = 5
-          let error
-          while (triesCount > 0) {
-            try {
-              const text = await recognizePath(path, token)
-              res(text)
-              return
-            } catch (err) {
-              error = err
-              triesCount -= 1
-              if (err.message.indexOf('Max audio length is 20 seconds') > -1) {
-                break
+  const savedPaths = paths.slice()
+  try {
+    let result = []
+    while (paths.length) {
+      const pathsToRecognize = paths.splice(0, 5)
+      const pathsToDelete = pathsToRecognize.slice()
+      const promises = []
+      for (const path of pathsToRecognize) {
+        promises.push(
+          new Promise(async (res, rej) => {
+            let triesCount = 5
+            let error
+            while (triesCount > 0) {
+              try {
+                const text = await recognizePath(path, token)
+                res(text)
+                return
+              } catch (err) {
+                error = err
+                triesCount -= 1
+                if (
+                  err.message.indexOf('Max audio length is 20 seconds') > -1
+                ) {
+                  break
+                }
+                console.info(
+                  `Retrying ${iLanguage} ${path}, attempts left — ${triesCount}, error: ${
+                    err.message
+                  } (${err.code})`
+                )
               }
-              console.info(
-                `Retrying ${iLanguage} ${path}, attempts left — ${triesCount}, error: ${
-                  err.message
-                } (${err.code})`
-              )
             }
-          }
-          error.message = `${error.message} (${duration}s)`
-          rej(error)
-        })
-      )
-    }
-    try {
-      const responses = await Promise.all(promises)
-      result = result.concat(responses.map(r => (r || '').trim()))
-    } catch (err) {
-      throw err
-    } finally {
-      for (const path of pathsToDelete) {
-        tryDeletingFile(path)
+            error.message = `${error.message} (${duration}s)`
+            rej(error)
+          })
+        )
+      }
+      try {
+        const responses = await Promise.all(promises)
+        result = result.concat(responses.map(r => (r || '').trim()))
+      } catch (err) {
+        throw err
+      } finally {
+        for (const path of pathsToDelete) {
+          tryDeletingFile(path)
+        }
       }
     }
-  }
-  const splitDuration = 15
-  return result.length < 2
-    ? [[`0-${parseInt(duration, 10)}`, result[0]]]
-    : result.reduce((p, c, i, a) => {
-        if (a.length - 1 === i) {
+    const splitDuration = 15
+    return result.length < 2
+      ? [[`0-${parseInt(duration, 10)}`, result[0]]]
+      : result.reduce((p, c, i, a) => {
+          if (a.length - 1 === i) {
+            return p.concat([
+              [`${i * splitDuration}-${parseInt(duration, 10)}`, c],
+            ])
+          }
           return p.concat([
-            [`${i * splitDuration}-${parseInt(duration, 10)}`, c],
+            [`${i * splitDuration}-${(i + 1) * splitDuration}`, c],
           ])
-        }
-        return p.concat([
-          [`${i * splitDuration}-${(i + 1) * splitDuration}`, c],
-        ])
-      }, [])
+        }, [])
+  } finally {
+    // Try deleting the files one more time
+    for (const path of savedPaths) {
+      tryDeletingFile(path)
+    }
+  }
 }
 
 function splitPath(path, duration) {
