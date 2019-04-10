@@ -35,6 +35,7 @@ async function report(bot, err, prefix) {
       'Long running operation has finished',
       'does not have storage.buckets.get',
       'oes not have storage.objects.delete',
+      'The project to be billed is associated with a closed billing account',
     ]
     for (const item of bypassList) {
       if (err.message && err.message.indexOf(item) > -1) {
