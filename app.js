@@ -52,6 +52,7 @@ setupGeeky(bot)
 setupTimecodes(bot)
 setupUrl(bot)
 setupAdmin(bot)
+bot.command('validation', ctx => ctx.reply('success'))
 // Audio handler
 setupAudioHandler(bot)
 // Callbacks
