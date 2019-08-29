@@ -24,6 +24,7 @@ const setupGeeky = require('./commands/geeky')
 const setupTimecodes = require('./commands/timecodes')
 const setupUrl = require('./commands/url')
 const setupAdmin = require('./commands/admin')
+const setupPrivacy = require('./commands/privacy')
 // Audio handler
 const setupAudioHandler = require('./helpers/handler')
 // Callbacks
@@ -52,6 +53,7 @@ setupGeeky(bot)
 setupTimecodes(bot)
 setupUrl(bot)
 setupAdmin(bot)
+setupPrivacy(bot)
 bot.command('validation', ctx => ctx.reply('success'))
 // Audio handler
 setupAudioHandler(bot)
