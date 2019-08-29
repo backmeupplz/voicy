@@ -3,7 +3,7 @@ const checkAdminLock = require('../middlewares/adminLock')
 
 function setupPrivacy(bot) {
   bot.command('privacy', checkAdminLock, async ctx => {
-    ctx.reply(`Privacy Policy of Todorant
+    ctx.reply(`Privacy Policy of Voicy
 Voicy operates the @voicybot bot, which provides the SERVICE.
 
 This page is used to inform website visitors regarding our policies with the collection, use, and disclosure of Personal Information if anyone decided to use our Service, the @voicybot bot.
