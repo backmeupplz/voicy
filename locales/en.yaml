@@ -17,6 +17,7 @@ help: |
   /silent — Toggles silent mode when no extra messages like `Voice recognition is initiated` are sent 😶
   /google — Set up google credentials for Google Speech 🦆
   /geeky — The rest of extra functions mostly used by advanced users (like sharing google credentials or bypassing 20mb Telegram limit) 👻
+  /privacy — Privacy policy
 
   Address any concerns and questions to my creator — @borodutch\\_support 🦄
 error_group: '😅 Sorry, but this command only works in group chats.'
