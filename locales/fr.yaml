@@ -17,7 +17,7 @@ help: |
   /silent — Bascule le mode silencieux lorsque aucun message supplémentaire comme `La reconnaissance vocale est initiée` est envoyé 😶
   /google — Configurer les informations d'identification de Google pour Google
 
-  Vous aimez ce bot ? Laissez un commentaire [ici](https://telegram.me/storebot?start=voicybot).
+  Vous aimez ce bot? Laissez un commentaire [ici](https://telegram.me/storebot?start=voicybot).
 
   Si vous rencontrez des bugs, ou si vous avez des questions, faîtes en part à mon créateur — @borodutch\\_support 🦄
 error_group: '😅 Désolé, mais cette commande ne fonctionne que dans le groupe de discussion.'
