@@ -165,7 +165,7 @@ async function ashmanov(path, duration) {
   const formData = new FormData()
   formData.append('model_type', 'ASR')
   formData.append('filename', '67006370772')
-  formData.append('audio_blob', fs.ReadStream(path))
+  formData.append('audio_blob', fs.readFileSync(path))
 
   const response = await axios({
     method: 'post',
