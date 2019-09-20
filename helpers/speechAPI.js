@@ -168,9 +168,9 @@ async function ashmanov(path, duration) {
   formData.append('filename', '67006370772')
 
   const buffer = fs.readFileSync(path)
-  const blob = Blob.createBlob(Uint8Array.from(buffer).buffer)
+  // const blob = Blob.createBlob(Uint8Array.from(buffer).buffer)
 
-  formData.append('audio_blob', blob)
+  formData.append('audio_blob', Uint8Array.from(buffer).buffer)
 
   const response = await axios({
     method: 'post',
