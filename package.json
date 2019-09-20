@@ -30,8 +30,7 @@
     "telegraf-i18n": "backmeupplz/telegraf-i18n#78ee719cb8be9413d64a3a14325209f3a793a541",
     "temp": "^0.8.3",
     "uuid": "^3.3.2",
-    "axios": "^0.19.0",
-    "fetch-blob": "^1.0.3"
+    "axios": "^0.19.0"
   },
   "devDependencies": {
     "eslint": "^3.12.2",
