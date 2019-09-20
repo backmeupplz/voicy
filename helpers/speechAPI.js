@@ -175,18 +175,14 @@ async function ashmanov(path, duration) {
     Authorization: 'Basic YW5uOjVDdWlIT0NTMlpRMQ==',
   }
 
-  try {
-    const response = await axios({
-      method: 'post',
-      url: 'https://asr.ashmanov.org/asr/',
-      data: formData,
-      headers: JSON.parse(JSON.stringify(headers)),
-    })
-    return [[`0-${parseInt(duration, 10)}`, JSON.stringify(response)]]
-  } catch (err) {
-    console.log(err.message)
-    throw err
-  }
+  const response = await axios({
+    method: 'post',
+    url: 'https://asr.ashmanov.org/asr/',
+    data: formData,
+    headers: JSON.parse(JSON.stringify(headers)),
+  })
+  console.log(response)
+  return [[`0-${parseInt(duration, 10)}`, JSON.stringify(response)]]
 }
 
 function splitPath(path, duration) {
