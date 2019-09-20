@@ -180,9 +180,8 @@ async function ashmanov(path, duration) {
     url: 'https://asr.ashmanov.org/asr/',
     data: formData,
     headers,
-  })).data
-  console.log(response)
-  return [[`0-${parseInt(duration, 10)}`, JSON.stringify(response)]]
+  })).data.response[0].text
+  return [[`0-${parseInt(duration, 10)}`, response]]
 }
 
 function splitPath(path, duration) {
