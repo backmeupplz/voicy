@@ -25,7 +25,11 @@ async function findChat(id) {
 async function addVoice(url, text, chat, duration, textWithTimecodes) {
   // Get language
   const language =
-    chat.engine === 'wit' ? chat.witLanguage : chat.googleLanguage
+    chat.engine === 'wit'
+      ? chat.witLanguage
+      : chat.engine === 'ashmanov'
+      ? 'ashmanov'
+      : chat.googleLanguage
   // Create and save voice
   const voice = new Voice({
     url,
