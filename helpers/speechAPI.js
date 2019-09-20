@@ -7,6 +7,7 @@ const ffmpeg = require('fluent-ffmpeg')
 const temp = require('temp')
 const tryDeletingFile = require('./deleteFile')
 const axios = require('axios')
+const FormData = require('form-data')
 
 /**
  * Function that converts url with audio file into text
