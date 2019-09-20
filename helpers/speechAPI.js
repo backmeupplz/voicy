@@ -165,23 +165,23 @@ async function ashmanov(path, duration) {
   const formData = new FormData()
   formData.append('model_type', 'ASR')
   formData.append('filename', '67006370772')
-  formData.append('audio_blob', fs.createReadStream(path))
+  formData.append('audio_blob', fs.createReadStream(path), {
+    knownLength: fs.statSync(path).size,
+  })
 
-  try {
-    const response = await axios({
-      method: 'post',
-      url: 'https://asr.ashmanov.org/asr/',
-      data: formData,
-      headers: {
-        Authorization: 'Basic YW5uOjVDdWlIT0NTMlpRMQ==',
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-    return [[`0-${parseInt(duration, 10)}`, JSON.stringify(response)]]
-  } catch (err) {
-    console.log(err)
-    throw err
+  const headers = {
+    ...formData.getHeaders(),
+    'Content-Length': formData.getLengthSync(),
+    Authorization: 'Basic YW5uOjVDdWlIT0NTMlpRMQ==',
   }
+
+  const response = await axios({
+    method: 'post',
+    url: 'https://asr.ashmanov.org/asr/',
+    data: formData,
+    headers,
+  })
+  return [[`0-${parseInt(duration, 10)}`, JSON.stringify(response)]]
 }
 
 function splitPath(path, duration) {
