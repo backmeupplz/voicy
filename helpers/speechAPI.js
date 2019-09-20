@@ -165,8 +165,7 @@ async function ashmanov(path, duration) {
   const formData = new FormData()
   formData.append('model_type', 'ASR')
   formData.append('filename', '67006370772')
-
-  formData.append('audio_blob', fs.readFileSync(path))
+  formData.append('audio_blob', fs.createReadStream(path))
 
   try {
     const response = await axios({
@@ -175,6 +174,7 @@ async function ashmanov(path, duration) {
       data: formData,
       headers: {
         Authorization: 'Basic YW5uOjVDdWlIT0NTMlpRMQ==',
+        'Content-Type': 'multipart/form-data',
       },
     })
     return [[`0-${parseInt(duration, 10)}`, JSON.stringify(response)]]
