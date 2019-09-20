@@ -24,7 +24,7 @@ async function getText(flacPath, chat, duration, ogaPath) {
       chat.witLanguage
     )
   } else if (chat.engine === 'ashmanov') {
-    return ashmanov(flacPath, duration)
+    return ashmanov(ogaPath, duration)
   } else {
     return google(flacPath, chat, duration)
   }
@@ -179,7 +179,7 @@ async function ashmanov(path, duration) {
     method: 'post',
     url: 'https://asr.ashmanov.org/asr/',
     data: formData,
-    headers: JSON.parse(JSON.stringify(headers)),
+    headers,
   })).data
   console.log(response)
   return [[`0-${parseInt(duration, 10)}`, JSON.stringify(response)]]
