@@ -176,7 +176,7 @@ async function ashmanov(path, duration) {
   }
 
   console.log('Checking headers')
-  console.log(JSON(stringify(headers)))
+  console.log(JSON.stringify(headers))
 
   try {
     const response = await axios({
