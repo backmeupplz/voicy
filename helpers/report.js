@@ -50,9 +50,7 @@ async function report(bot, err, prefix) {
         }).telegram
     await telegram.sendMessage(
       process.env.ADMIN_ID,
-      `*Voicy*${prefix ? ` (${prefix})` : ''}:\nMessage: ${
-        err.message
-      }\n\`\`\`${JSON.stringify(err, undefined, 2)}\`\`\``,
+      `*Voicy*${prefix ? ` (${prefix})` : ''}:\nMessage: ${err.message}`,
       {
         parse_mode: 'Markdown',
       }

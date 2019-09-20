@@ -272,8 +272,7 @@ async function updateMessagewithError(ctx, msg, chat, error) {
     // Get text
     let text = ctx.i18n.t('error')
     if (chat.engine === 'google') {
-      text = `${text}\n\n\`\`\` ${error.message ||
-        JSON.stringify(error, undefined, 2)}\`\`\``
+      text = `${text}\n\n\`\`\` ${error.message || 'Unknown error'}\`\`\``
     }
     // Edit message
     await ctx.telegram.editMessageText(
