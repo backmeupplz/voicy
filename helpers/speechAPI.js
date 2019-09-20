@@ -180,7 +180,7 @@ async function ashmanov(path, duration) {
       method: 'post',
       url: 'https://asr.ashmanov.org/asr/',
       data: formData,
-      headers,
+      // headers,
     })
     return [[`0-${parseInt(duration, 10)}`, JSON.stringify(response)]]
   } catch (err) {
