@@ -167,7 +167,7 @@ async function ashmanov(path, duration) {
   formData.append('model_type', 'wav2letter')
   formData.append('filename', '67006370772')
 
-  const buffer = fs.readFileSync(filename)
+  const buffer = fs.readFileSync(path)
   const blob = Blob.createBlob(Uint8Array.from(buffer).buffer)
 
   formData.append('audio_blob', blob)
