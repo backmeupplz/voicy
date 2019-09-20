@@ -8,6 +8,7 @@ const temp = require('temp')
 const tryDeletingFile = require('./deleteFile')
 const axios = require('axios')
 const FormData = require('form-data')
+const Blob = require('fetch-blob')
 
 /**
  * Function that converts url with audio file into text
@@ -165,7 +166,11 @@ async function ashmanov(path, duration) {
   const formData = new FormData()
   formData.append('model_type', 'ASR')
   formData.append('filename', '67006370772')
-  formData.append('audio_blob', fs.readFileSync(path))
+
+  const buffer = fs.readFileSync(path)
+  const blob = new Blob(Uint8Array.from(buffer))
+
+  formData.append('audio_blob', blob)
 
   const response = await axios({
     method: 'post',
