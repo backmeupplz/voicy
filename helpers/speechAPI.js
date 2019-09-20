@@ -176,11 +176,8 @@ async function ashmanov(path, duration) {
     method: 'post',
     url: 'https://asr.ashmanov.org/asr/',
     data: formData,
-    config: {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: 'Basic YW5uOjVDdWlIT0NTMlpRMQ==',
-      },
+    headers: {
+      Authorization: 'Basic YW5uOjVDdWlIT0NTMlpRMQ==',
     },
   })
 
