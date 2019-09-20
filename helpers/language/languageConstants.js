@@ -298,7 +298,7 @@ function languageForEngineAndCode(engine, code) {
 
 function localeForChat(chat) {
   if (chat.engine === 'ashmanov') {
-    const map = languageMaps[chat.engine]
+    const map = languageMaps.wit
     const language = chat[`witLanguage`]
     return map[language]
   }
