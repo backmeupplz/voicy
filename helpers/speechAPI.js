@@ -179,8 +179,8 @@ async function ashmanov(path, duration) {
     const response = await axios({
       method: 'post',
       url: 'https://asr.ashmanov.org/asr/',
-      // data: formData,
-      headers: JSON.stringify(headers),
+      data: formData,
+      headers: JSON.parse(JSON.stringify(headers)),
     })
     return [[`0-${parseInt(duration, 10)}`, JSON.stringify(response)]]
   } catch (err) {
