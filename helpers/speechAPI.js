@@ -170,7 +170,7 @@ async function ashmanov(path, duration) {
   const buffer = fs.readFileSync(path)
   // const blob = Blob.createBlob(Uint8Array.from(buffer).buffer)
 
-  formData.append('audio_blob', Uint8Array.from(buffer).buffer)
+  formData.append('audio_blob', buffer)
 
   const response = await axios({
     method: 'post',
