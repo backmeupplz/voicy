@@ -165,8 +165,7 @@ async function wit(token, filePath, duration, iLanguage) {
 async function ashmanov(path, duration) {
   const formData = new FormData()
   formData.append('model_type', 'wav2letter')
-  const pathComponents = path.split('/')
-  formData.append('filename', pathComponents[(pathComponents.length = 1)])
+  formData.append('filename', '67006370772')
 
   const buffer = fs.readFileSync(filename)
   const blob = Blob.createBlob(Uint8Array.from(buffer).buffer)
