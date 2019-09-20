@@ -41,3 +41,5 @@ initiated: '_🦄 Spracherkennung wird gestartet..._'
 speak_clearly: '_👮 Bitte deutlich sprechen, das konnte ich nicht erkennen_'
 error: '_👮 Das konnte ich nicht erkennen_'
 google_error_creds: '😮 Bitte richte die Google-Anmeldeinformationen mit dem /google Befehl ein oder ändere die Engine mit dem Befehl /engine. Deine Zugangsdaten sind noch nicht eingerichtet.'
+ashmanov_language: Nanosemantics only supports Russian. Please, change /engine to change /language first.
+ashmanov_language: Nanosemantics only supports Russian. Please, change /engine to change /language first.

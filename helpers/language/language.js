@@ -23,6 +23,9 @@ async function setLanguageCode(ctx) {
 }
 
 async function setLanguage(data, ctx) {
+  if (ctx.dbchat.engine === 'ashmanov') {
+    return ctx.reply(ctx.i18n.t('ashmanov_language'))
+  }
   // Get options
   const options = data.split('~')
   const engine = options[2]

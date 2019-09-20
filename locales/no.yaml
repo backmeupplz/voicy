@@ -40,3 +40,4 @@ initiated: '_🦄 Stemmegjenkjenning er initiert..._'
 speak_clearly: '_👮 Vennligst, snakk tydelig, jeg kunne ikke gjenkjenne det_'
 error: "_👮 Jeg kunne ikke't gjenkjenne det_"
 google_error_creds: '😮 Vennligst, oppsett google legitimasjon med /google kommandoen eller endre motoren med /engine kommandoen. Din legitimasjon er ikke satt opp ennå.'
+ashmanov_language: Nanosemantics only supports Russian. Please, change /engine to change /language first.

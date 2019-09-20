@@ -40,3 +40,4 @@ initiated: '_🦄 音声認識をはじめます..._'
 speak_clearly: '_👮 わかりませんでした。もう少しはっきり話してください_'
 error: '_👮 わかりませんでした_'
 google_error_creds: '😮 /google コマンドでグーグルクレデンシャルを設定するか、/engine コマンドでエンジンを変更してください。クレデンシャルのセットアップができていません。'
+ashmanov_language: Nanosemantics only supports Russian. Please, change /engine to change /language first.

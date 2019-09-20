@@ -13,7 +13,7 @@ const voiceSchema = new Schema(
       type: String,
       required: true,
       default: 'google',
-      enum: ['wit', 'google'],
+      enum: ['wit', 'google', 'ashmanov'],
     },
     duration: {
       type: Number,

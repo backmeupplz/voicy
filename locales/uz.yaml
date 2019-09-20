@@ -40,3 +40,4 @@ initiated: '_🦄 Ovozni tanih ishga tushdi..._'
 speak_clearly: '_👮 Iltimos, Aniq va tiniq o�qing, Men tushuna olmayapman_'
 error: '_👮 Men tushuna olmayapman_'
 google_error_creds: '😮 Google shaxsiy ma�lumotlrini /google command yordamida sozlang yoki /engine command yordamida tizimni almashtiring. Shaxsiy ma�lumotlaringiz haligacha sozlanmagan.'
+ashmanov_language: Nanosemantics only supports Russian. Please, change /engine to change /language first.

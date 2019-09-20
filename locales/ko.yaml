@@ -40,3 +40,4 @@ initiated: '_🦄 음성 인식이 시작됩니다…_'
 speak_clearly: '_👮 좀 더 정확하게 말씀해주세요. 인식할 수 없습니다_'
 error: '_👮 인식할 수 없습니다_'
 google_error_creds: '😮 구글 크리덴셜을 /google 명령으로 설정하거나 엔진을 /engine 명령으로 전환하세요. 당신의 크리덴셜이 아직 설정되지 않았습니다.'
+ashmanov_language: Nanosemantics only supports Russian. Please, change /engine to change /language first.

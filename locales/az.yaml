@@ -40,3 +40,4 @@ initiated: '_🦄 Səs tanıma başladılır..._'
 speak_clearly: '_👮 Zəhmət olmasa, aydın danışın. Bunu tanıya bilmədim_'
 error: '_👮 Bunu tanıya bilmədim_'
 google_error_creds: '😮 Zəhmət olmasa, google etibarnamələrini /google əmri ilə quraşdırın, yaxud /engine əmri ilə mühərriki dəyişin. Sizin etibarnamələriniz hələ quraşdırılmayıb.'
+ashmanov_language: Nanosemantics only supports Russian. Please, change /engine to change /language first.

@@ -12,7 +12,7 @@ const chatSchema = new Schema(
     engine: {
       type: String,
       required: true,
-      enum: ['wit', 'google'],
+      enum: ['wit', 'google', 'ashmanov'],
       default: 'wit',
     },
     googleLanguage: {

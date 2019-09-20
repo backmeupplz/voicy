@@ -40,3 +40,4 @@ initiated: '_🦄 R�stigenk�nning �r initierad..._'
 speak_clearly: '_👮 Var god prata tydligt, jag kunde inte k�nna igen vad du sa_'
 error: '_👮 Jag kunde inte k�nna igen det_'
 google_error_creds: '😮 Var god, st�ll in google autentiseringsuppgifter med /google command eller byt motor med /engine command. Dina autentiseringsuppgifter �r inte inst�llda �n.'
+ashmanov_language: Nanosemantics only supports Russian. Please, change /engine to change /language first.

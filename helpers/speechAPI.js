@@ -6,6 +6,7 @@ const cloud = require('./cloud')
 const ffmpeg = require('fluent-ffmpeg')
 const temp = require('temp')
 const tryDeletingFile = require('./deleteFile')
+const axios = require('axios')
 
 /**
  * Function that converts url with audio file into text
@@ -14,9 +15,18 @@ const tryDeletingFile = require('./deleteFile')
  * @param {Int} duration Duration of audio file
  */
 async function getText(flacPath, chat, duration, ogaPath) {
-  return chat.engine === 'wit'
-    ? wit(witLanguages[chat.witLanguage], ogaPath, duration, chat.witLanguage)
-    : google(flacPath, chat, duration)
+  if (chat.engine === 'wit') {
+    return wit(
+      witLanguages[chat.witLanguage],
+      ogaPath,
+      duration,
+      chat.witLanguage
+    )
+  } else if (chat.engine === 'ashmanov') {
+    return ashmanov(flacPath, duration)
+  } else {
+    return google(flacPath, chat, duration)
+  }
 }
 
 /**
@@ -109,9 +119,7 @@ async function wit(token, filePath, duration, iLanguage) {
                   break
                 }
                 console.info(
-                  `Retrying ${iLanguage} ${path}, attempts left — ${triesCount}, error: ${
-                    err.message
-                  } (${err.code})`
+                  `Retrying ${iLanguage} ${path}, attempts left — ${triesCount}, error: ${err.message} (${err.code})`
                 )
               }
             }
@@ -150,6 +158,27 @@ async function wit(token, filePath, duration, iLanguage) {
       tryDeletingFile(path)
     }
   }
+}
+
+async function ashmanov(path, duration) {
+  const formData = new FormData()
+  formData.append('model_type', 'wav2letter')
+  formData.append('filename', path)
+  formData.append('audio_blob', fs.createReadStream(path))
+
+  const response = axios({
+    method: 'post',
+    url: 'https://speech.ashmanov.org/recognition/',
+    data: formData,
+    config: {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Basic YW5uOjVDdWlIT0NTMlpRMQ==',
+      },
+    },
+  })
+
+  return [[`0-${parseInt(duration, 10)}`, JSON.stringify(response)]]
 }
 
 function splitPath(path, duration) {

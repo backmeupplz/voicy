@@ -9,6 +9,7 @@ async function sendEngine(ctx) {
       inline_keyboard: [
         [{ text: 'wit.ai', callback_data: 'ei~wit' }],
         [{ text: 'Google Speech', callback_data: 'ei~google' }],
+        [{ text: 'Nanosemantics (beta)', callback_data: 'ei~ashmanov' }],
       ],
     },
   }
@@ -38,6 +39,11 @@ async function setEngine(data, ctx) {
       parse_mode: 'Markdown',
     }
   )
+  if (ctx.dbchat === 'ashmanov') {
+    ctx.reply(
+      'Пожалуйста, заметьте, что Nanosemantics — это движок распознавания речи в бета-версии никак не аффилированный с Войси. Команда Войси точно не в курсе, насколько сохранны ваши данные при использовании движка Nanosemantics, так что используйте на свои страх и риск. Спасибо!'
+    )
+  }
   // Log time
   logAnswerTime(ctx, 'setting engine')
 }

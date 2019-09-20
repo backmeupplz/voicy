@@ -40,3 +40,4 @@ initiated: '_🦄 语音辨识启动中..._'
 speak_clearly: '_👮 您可以说得清楚一点吗？我无法辨识_'
 error: '_👮 我无法辨识_'
 google_error_creds: '😮 请以/google命令设立Google凭证，或以/engine命令更改使用的系统。您尚未设立凭证。'
+ashmanov_language: Nanosemantics only supports Russian. Please, change /engine to change /language first.

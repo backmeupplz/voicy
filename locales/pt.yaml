@@ -40,3 +40,4 @@ initiated: '_🦄 Reconhecimento de voz iniciado..._'
 speak_clearly: '_👮 Por favor, fale com clareza, não consegui reconhecer a mensagem_'
 error: '_👮 Não consegui reconhecer a mensagem_'
 google_error_creds: '😮 Por favor, configure as credenciais Google com o comando /google ou altere o motor com o comando /engine. As suas credenciais ainda não foram configuradas.'
+ashmanov_language: Nanosemantics only supports Russian. Please, change /engine to change /language first.

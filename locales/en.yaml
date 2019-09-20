@@ -60,3 +60,4 @@ oops: "Ooopsie! I haven't implemented this feature yet. But be rest assured: I'v
 timecodes_true: 'Nice! Now *Voicy* will add timecodes to the recognized text.'
 timecodes_false: 'Nice! Now *Voicy* will not add timecodes to the recognized text.'
 url: 'If you want to bypass the Telegram limit of 20mb per file, you can use voicybot.com directly. Cheers!'
+ashmanov_language: Nanosemantics only supports Russian. Please, change /engine to change /language first.
