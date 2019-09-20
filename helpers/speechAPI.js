@@ -168,7 +168,7 @@ async function ashmanov(path, duration) {
 
   const response = axios({
     method: 'post',
-    url: 'https://speech.ashmanov.org/recognition/',
+    url: 'https://asr.ashmanov.org/asr/',
     data: formData,
     config: {
       headers: {
