@@ -167,7 +167,7 @@ async function ashmanov(path, duration) {
   formData.append('filename', path)
   formData.append('audio_blob', fs.createReadStream(path))
 
-  const response = axios({
+  const response = await axios({
     method: 'post',
     url: 'https://asr.ashmanov.org/asr/',
     data: formData,
