@@ -9,6 +9,9 @@ const {
 
 function setupLanguage(bot) {
   bot.command('language', checkAdminLock, async ctx => {
+    if (ctx.dbchat.engine === 'ashmanov') {
+      return ctx.reply(ctx.i18n.t('ashmanov_language'))
+    }
     sendLanguage(ctx, true)
   })
   bot.command('l', checkAdminLock, async ctx => {
@@ -19,6 +22,9 @@ function setupLanguage(bot) {
       const language = ctx.message.text.substring(3, ctx.message.text.length)
       if (!language) {
         sendLanguage(ctx, true)
+      }
+      if (ctx.dbchat.engine === 'ashmanov') {
+        return ctx.reply(ctx.i18n.t('ashmanov_language'))
       }
       // Get chat
       const chat = ctx.dbchat

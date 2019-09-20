@@ -39,7 +39,7 @@ async function setEngine(data, ctx) {
       parse_mode: 'Markdown',
     }
   )
-  if (ctx.dbchat === 'ashmanov') {
+  if (ctx.dbchat.engine === 'ashmanov') {
     ctx.reply(
       'Пожалуйста, заметьте, что Nanosemantics — это движок распознавания речи в бета-версии никак не аффилированный с Войси. Команда Войси точно не в курсе, насколько сохранны ваши данные при использовании движка Nanosemantics, так что используйте на свои страх и риск. Спасибо!'
     )
