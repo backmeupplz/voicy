@@ -175,12 +175,15 @@ async function ashmanov(path, duration) {
     Authorization: 'Basic YW5uOjVDdWlIT0NTMlpRMQ==',
   }
 
+  console.log('Checking headers')
+  console.log(JSON(stringify(headers)))
+
   try {
     const response = await axios({
       method: 'post',
       url: 'https://asr.ashmanov.org/asr/',
       data: formData,
-      // headers,
+      headers,
     })
     return [[`0-${parseInt(duration, 10)}`, JSON.stringify(response)]]
   } catch (err) {
