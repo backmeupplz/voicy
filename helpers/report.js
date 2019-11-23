@@ -1,6 +1,34 @@
 // Dependencies
 const Telegraf = require('telegraf')
 
+let errorsToReport = []
+
+async function bulkReport() {
+  tempErrorsToReport = errorsToReport
+  errorsToReport = []
+  if (tempErrorsToReport.length > 15) {
+    const reportText = tempErrorsToReport.reduce(
+      (prev, cur) => `${prev}${cur}\n`,
+      ''
+    )
+    const chunks = reportText.match(/[\s\S]{1,4000}/g)
+    for (const chunk of chunks) {
+      const telegram = new Telegraf(process.env.TOKEN, {
+        username: process.env.USERNAME,
+        channelMode: true,
+      }).telegram
+
+      try {
+        await telegram.sendMessage(process.env.ADMIN_ID, chunk)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+  }
+}
+
+setInterval(bulkReport, 60 * 1000)
+
 async function report(bot, err, prefix) {
   try {
     const bypassList = [
@@ -42,39 +70,12 @@ async function report(bot, err, prefix) {
         return
       }
     }
-    const telegram = bot
-      ? bot.telegram || bot
-      : new Telegraf(process.env.TOKEN, {
-          username: process.env.USERNAME,
-          channelMode: true,
-        }).telegram
-    await telegram.sendMessage(
-      process.env.ADMIN_ID,
-      `*Voicy*${prefix ? ` (${prefix})` : ''}:\nMessage: ${err.message}`,
-      {
-        parse_mode: 'Markdown',
-      }
-    )
+    errorsToReport.push(`${prefix ? ` ${prefix}\n:` : ''}${err.message}`)
   } catch (error) {
-    // Do nothing
-  }
-}
-
-async function reportUsage(ctx, usage) {
-  try {
-    await ctx.telegram.sendMessage(
-      process.env.ADMIN_ID,
-      `*Voicy*:\n${ctx.from.id} used ${usage}`,
-      {
-        parse_mode: 'Markdown',
-      }
-    )
-  } catch (err) {
     // Do nothing
   }
 }
 
 module.exports = {
   report,
-  reportUsage,
 }
