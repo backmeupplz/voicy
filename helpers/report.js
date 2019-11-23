@@ -4,7 +4,7 @@ const Telegraf = require('telegraf')
 let errorsToReport = []
 
 async function bulkReport() {
-  tempErrorsToReport = errorsToReport
+  const tempErrorsToReport = errorsToReport
   errorsToReport = []
   if (tempErrorsToReport.length > 15) {
     const reportText = tempErrorsToReport.reduce(
