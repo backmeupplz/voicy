@@ -19,7 +19,7 @@ help: |
 
   このボット、気に入りましたか? レビューをお願いします。[こちら](https://telegram.me/storebot?start=voicybot) 👍
 
-  お困りでしたら、創設者にひとこと — @borodutch\\_support 🦄
+  お困りでしたら、創設者にひとこと — @borodutch\\_support 🦄 P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
 error_group: '😅 ごめんなさい、このコマンドはグループチャットでしか使えません。'
 lock_true: '🔑 了解！ *ヴォイシー* は *主催者* のコマンドにしか応じないよ。'
 lock_false: '🔑 了解! *ヴォイシー* は *みなさん* のコマンドに応じるよ。'

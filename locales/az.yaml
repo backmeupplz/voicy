@@ -19,7 +19,7 @@ help: |
 
   Bot xoşunuza gəlirmi? Rəy bildirin [bura](https://telegram.me/storebot?start=voicybot) 👍
 
-  Hər cür narahatlıq və suallarınızı yaradıcıma ünvanlayın - @borodutch\\_support
+  Hər cür narahatlıq və suallarınızı yaradıcıma ünvanlayın - @borodutch\\_support. P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
 error_group: '😅 Bağışlayın, bu əmr ancaq qrup söhbətlərində işləyir.'
 lock_true: '🔑 Əla! Bundan sonra *Voicy* bu söhbətdə ancaq *adminlər* tərəfindən göndərilən əmr çağırışlarına cavab verəcək.'
 lock_false: '🔑 Əla! Bundan sonra *Voicy* bu söhbətdə ancaq *hərkəs* tərəfindən göndərilən əmr çağırışlarına cavab verəcək.'

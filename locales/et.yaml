@@ -18,7 +18,7 @@ help: |
 
   Like this bot?(ይህንን ቡት ወደውታልን?)እባክዎ አስተያትዎትን በሚከተለው ድረ-ገጽ ላይ ያስፍሩ [እዚህ](https://telegram.me/storebot?start=voicybot) 👍
 
-  Address any concerns and questions to my creator — @borodutch\\_support 🦄
+  Address any concerns and questions to my creator — @borodutch\\_support 🦄 P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
 error_group: '😅 ይቅርታ፡ይህ ትዕዛዝ የሚሰራው በቡድን ምልልስ ብቻ ነው፡፡'
 lock_true: '🔑 ድንቅ! *Voicy* አሁን ምላሽ የሚሰጠው በዚህ ምልልስ ውስጥ ላሉ*admins* የትዕዛዝ ጥሪዎች ብቻ ነው፡፡'
 lock_false: '🔑 ድንቅ ! *Voicy* አሁን ምላሽ የሚሰጠው በዚህ ምልልስ ውስጥ ላሉ *ለማንኛቸውም *ነው፡፡'

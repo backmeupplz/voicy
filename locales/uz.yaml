@@ -19,7 +19,7 @@ help: |
 
   Bu bot yoqdimi? Fikr-mulohazalaringizni [bu yerda](https://telegram.me/storebot?start=voicybot) qoldiring 👍
 
-  Har qanday muammo yoki savollar bilan meni tuzuvchimga murojaat qiling @borodutch\\_support 🦄
+  Har qanday muammo yoki savollar bilan meni tuzuvchimga murojaat qiling @borodutch\\_support 🦄 P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
 error_group: '😅 Uzr, bu buyruq faqatgina guruh chatlarida ishlaydi.'
 lock_true: '🔑 Zo�r! *Voicy* bu chatda faqat *admins* (administratorlar) yuborgan buyruq chaqiruvlariga javob beradi.'
 lock_false: '🔑 Zo�r! *Voicy* bu chatda faqat *anyone* (har qanday inson) yuborgan buyruq chaqiruvlariga javob beradi.'

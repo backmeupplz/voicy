@@ -19,7 +19,7 @@ help: |
   /geeky — The rest of extra functions mostly used by advanced users (like sharing google credentials or bypassing 20mb Telegram limit) 👻
   /privacy — Privacy policy
 
-  Address any concerns and questions to my creator — @borodutch\\_support 🦄
+  Address any concerns and questions to my creator — @borodutch\\_support 🦄 P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
 error_group: '😅 Sorry, but this command only works in group chats.'
 lock_true: '🔑 Great! *Voicy* will now respond only to command calls sent by *admins* in this chat.'
 lock_false: '🔑 Great! *Voicy* will now respond only to command calls from *anyone* in this chat.'

@@ -19,7 +19,7 @@ help: |
 
   Bu botu beğendiniz mi? Lütfen, [buraya](https://telegram.me/storebot?start=voicybot) bir inceleme bırakın 👍
 
-  Herhangi bir kaygı ve sorununuzu geliştiricimle paylaşın — @borodutch\\_support 🦄
+  Herhangi bir kaygı ve sorununuzu geliştiricimle paylaşın — @borodutch\\_support 🦄 P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
 error_group: '😅 Üzgünüm, ama bu komut sadece grup sohbetlerinde çalışır.'
 lock_true: '🔑 Harika! *Voicy* artık sadece bu sohbetteki *yöneticiler* tarafından gönderilen komut çağrılarına cevap verecektir.'
 lock_false: '🔑 Harika! *Voicy* artık bu sohbetteki *herkesin* gönderdiği komut çağrılarına cevap verecektir.'

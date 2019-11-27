@@ -20,7 +20,7 @@ help: |
 
   Wie gefällt dir dieser Bot? [Hier](https://telegram.me/storebot?start=voicybot) kannst du eine Bewertung abgeben 👍
 
-  Sende alle Bedenken und Fragen an meinen Schöpfer – @borodutch\\_support 🦄
+  Sende alle Bedenken und Fragen an meinen Schöpfer – @borodutch\\_support 🦄 P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
 error_group: '😅 Tut mir leid, aber dieser Befehl funktioniert nur in Gruppen-Chats.'
 lock_true: '🔑 Wunderbar! *Voicy* reagiert in diesem Chat nun nur noch auf Befehle, die von einem *Administrator* gesendet werden.'
 lock_false: '🔑 Wunderbar! *Voicy* reagiert nun auf Befehle von *jedem* in diesem Chat.'

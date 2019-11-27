@@ -19,7 +19,7 @@ help: |
 
   Gosta deste bot? Avalie [aqui](https://telegram.me/storebot?start=voicybot) 👍
 
-  Deixe qualquer sugestão ou questão ao meu programador — @borodutch\\_support 🦄
+  Deixe qualquer sugestão ou questão ao meu programador — @borodutch\\_support 🦄 P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
 error_group: '😅 Lamento, mas este comando só funciona em chats de grupo.'
 lock_true: '🔑 Boa! Agora, *Voicy* só vai responder a comandos enviados por *administradores* neste chat.'
 lock_false: '🔑 Boa! Agora, *Voicy* vai responder a comandos de *qualquer pessoa* neste chat.'

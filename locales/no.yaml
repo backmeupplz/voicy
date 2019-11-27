@@ -19,7 +19,7 @@ help: |
 
   Liker deg dette bot? Legg igjen en anmeldelse [her](https://telegram.me/storebot?start=voicybot) 👍
 
-  Adresse eventuelle bekymringer og spørsmål til min skaperen — @borodutch\\_support 🦄
+  Adresse eventuelle bekymringer og spørsmål til min skaperen — @borodutch\\_support 🦄 P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
 error_group: '😅 Beklager, men denne kommandoen fungerer kun i gruppechatt.'
 lock_true: '🔑 Flott! *Voicy* skal nå svare kun på kommandoer som sendes av *admins* i denne chatten.'
 lock_false: '🔑 Flott! *Voicy* skal nå svare kun på kommandoer som sendes av *noen som helst* i denne chatten.'

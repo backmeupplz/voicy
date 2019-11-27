@@ -19,7 +19,7 @@ help: |
 
   Gillar denna bot? L�mna ett omd�mme [here](https://telegram.me/storebot?start=voicybot) 👍
 
-  Om du har fr�goer eller funderingar skickas dessa till botens skapare — @borodutch\\_support 🦄
+  Om du har fr�goer eller funderingar skickas dessa till botens skapare — @borodutch\\_support 🦄 P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
 error_group: '😅 Detta kommandot fungerar tyv�rr bara i gruppchatter.'
 lock_true: '🔑 Bra! *Voicy* kommer nu bara svara p� kommandon skickade av *administrat�rer* i den h�r chatten.'
 lock_false: '🔑 Bra! *Voicy* kommer nu svara endast p� samtal fr�n *alla* i den h�r cahtten.'

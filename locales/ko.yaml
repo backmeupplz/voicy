@@ -20,6 +20,8 @@ help: |
   이 봇을 좋아하세요? 리뷰를 남겨보세요 [여기를 클릭]( https://telegram.me/storebot?start=voicybot) 👍
 
   이 봇의 제작자에게 모든 불편사항 혹은 질문을 설명하실 수 있습니다 — @borodutch\\_support 🦄
+
+  P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
 error_group: '😅 죄송합니다, 이 명령은 그룹 채팅에서만 작동합니다.'
 lock_true: '🔑 좋아요! *Voicy*는 이제 이 채팅의 *관리자*에 의한 명령에만 응답합니다.'
 lock_false: '🔑 좋아요! *Voicy*는 이제 이 채팅의 *모든 사람*에 의한 명령에 응답합니다.'
