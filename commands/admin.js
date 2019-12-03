@@ -66,6 +66,7 @@ async function handleCheckTranslation(ctx, locale) {
     }
   }
   // Log success
+  await ctx.replyWithMarkdown(`${locale} test finished`)
   console.info(`${locale} test finished`)
 }
 
