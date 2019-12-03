@@ -273,6 +273,8 @@ const languageMaps = {
     'am-ET': 'et',
     'hi-IN': 'hi',
     'fa-IR': 'fa',
+    'ur-PK': 'ur',
+    'ur-IN': 'ur',
   },
   wit: witCodes,
 }
