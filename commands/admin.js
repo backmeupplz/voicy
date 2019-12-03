@@ -62,11 +62,12 @@ async function handleCheckTranslation(ctx, locale) {
         parse_mode: 'Markdown',
       })
     } catch (err) {
+      await ctx.reply(`Error (${locale}, ${key}): ${err.message || err}`)
       console.info(`Error (${locale}, ${key}): ${err.message || err}`)
     }
   }
   // Log success
-  await ctx.replyWithMarkdown(`${locale} test finished`)
+  await ctx.reply(`${locale} test finished`)
   console.info(`${locale} test finished`)
 }
 
