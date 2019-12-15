@@ -1,43 +1,63 @@
-files_false: '📁 Harika! *Voicy*, şu andan itibaren bu sohbetteki tüm ses dosyalarını *görmezden gelecektir*.'
-files_true: '📁 Harika! Voicy, şu andan itibaren bu sohbetteki tüm ses dosyalarını *tanımaya çalışacaktır*.'
+files_false: '📁 Olağanüstü! *Voicy* artık bu sohbetteki tüm ses dosyalarını *görmeden gelecek.*'
+files_true: '📁 Olağanüstü! *Voicy* artık bu sohbetteki tüm ses dosyalarını *tanımaya çalışacak.*'
 google: 'Google Speech ses tanımayı ayarlamak için, bu mesajı Google Cloud kimlik bilgileri dosyası (.json) ile yanıtlayın. Bunun ne olduğundan ve nasıl bulunacağından emin değil misin? [Eğitim sayfasına](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8) bir göz atın.'
-google_error_doc: 'Üzgünüm, ama bir kimlik dosyası ile yanıt vermelisiniz.'
+google_error_doc: 'Üzgünüz, bir kimlik belgesiyle yanıtlamanız gerekir.'
 google_error_mime: "Üzgünüm, ama belgenin mime türü 'text/plain' olmalıdır."
 google_success: 'Tebrikler! Voicy, *${projectId}* Google Cloud Projesi için kimlik bilgileri dosyasını aldı. Artık Google konuşma tanıma özelliğini kullanabilirsiniz.'
 help: |
-  😎 *Voicy*, aldığı tüm sesli mesajlardan ve ses dosyalarından (.ogg, .flac, .wav, .mp3) gelen konuşmaları metne dönüştürür. Özel sohbette Voicy ile konuşabilir veya bir gruba ekleyebilirsiniz.
+  😎 *Voicy*, aldığı sesli mesajlardan ve ses dosyalarından (.ogg, .flac, .wav, .mp3) gelen konuşmaları metne dönüştürür. Özel sohbette *Voicy* ile konuşabilir veya bir gruba ekleyebilirsiniz.
 
-  Bu botu özel mesajlarda kullanmak istiyorsanız, lütfen biriyle özel bir grup oluşturun ve buraya *Voicy* ekleyin. Bir grup sohbetine *Voicy* eklemek istiyorsanız, lütfen onu grup profiline katılımcı olarak ekleyin ya da *Voicy* bot profilindeki gruba ekleyin.
+  Bu botu özel mesajlarda kullanmak istiyorsanız, lütfen birisiyle özel bir grup oluşturun ve buraya *Voicy* ekleyin. Bir grup sohbetine *Voicy* eklemek istiyorsanız, lütfen onu grup profiline veya *Voicy* bot profilindeki gruba katılımcı olarak ekleyin.
 
-  /help — Bu mesajı gösterir 😱
-  /engine — Bir ses tanıma motoru seçmenizi sağlar: wit.ai, Yandex SpeechKit ya da Google Speech ⚙
-  /language — Bir ses tanıma dili seçmenizi sağlar 📣
-  /lock — Grup sohbetlerinde komutları kullanarak yönetici olmayanların kilidini açın veya kapatın 🔑
-  /files — Botun ses dosyalarını dönüştürmeye çalışması ya da onları görmezden gelmesi seçeneğini değiştirin  📁
-  /silent — `Ses tanıma başlatıldı` gibi ek bir mesaj gönderilmediğinde sessiz moda geçer 😶
+  /help — Bu iletiyi görüntüler 😱
+  /engine — Bir ses tanıma motoru seçmenize izin verir: wit.ai veya Google Speech ⚙
+  /language — Bir ses tanıma dili seçmenize izin verir 📣
+  /lock — Grup sohbetlerinde komut kullanarak yönetici olmayanların kilidini açın veya kapatın 🔑
+  /files — Botun ses dosyalarını dönüştürmeye çalışması ya da onları görmezden gelmesi seçeneğini değiştirin 📁
+  /silent — `Ses tanıma başlatıldı` gibi bir ek mesaj gönderilmediğinde sessiz moda geçer 😶
   /google — Google Speech için Google kimlik bilgilerini ayarlayın 🦆
+  /geeky — Çoğunlukla ileri düzey kullanıcılar tarafından kullanılan ek işlevlerin geri kalanı (Google kimlik bilgilerini paylaşmak veya 20mb Telegram sınırını atlamak gibi) 👻
+  /privacy — Gizlilik politikası
 
-  Bu botu beğendiniz mi? Lütfen, [buraya](https://telegram.me/storebot?start=voicybot) bir inceleme bırakın 👍
-
-  Herhangi bir kaygı ve sorununuzu geliştiricimle paylaşın — @borodutch\\_support 🦄 P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
-error_group: '😅 Üzgünüm, ama bu komut sadece grup sohbetlerinde çalışır.'
-lock_true: '🔑 Harika! *Voicy* artık sadece bu sohbetteki *yöneticiler* tarafından gönderilen komut çağrılarına cevap verecektir.'
-lock_false: '🔑 Harika! *Voicy* artık bu sohbetteki *herkesin* gönderdiği komut çağrılarına cevap verecektir.'
-silent_true: '😶 Muhteşem! *Voicy* artık *sessiz modda* çalışacak: Gerçek sesli transkripsiyonlar haricinde sohbete herhangi bir mesaj göndermez.'
-silent_false: '😏 Muhteşem! *Voicy* artık *normal modda* çalışacaktır:  Sesli mesajlar aldıktan hemen sonra `Ses tanıma başlatıldı` mesajlarını gönderecektir.'
+  Yaratıcımla ilgili endişelerinizi ve sorularınızı paylaşın — @borodutch\\_support 🦄 NOT: Bu bota yardım etmek isterseniz, [GitHub Sponsorlar programına buradan](https://github.com/sponsors/backmeupplz) bağış yapın.
+error_group: '😅 Üzgünüz, bu komut yalnızca grup sohbetlerinde çalışır.'
+lock_true: '🔑 Harika! *Voicy* artık bu sohbette yalnızca *yöneticiler* tarafından gönderilen komut çağrılarına yanıt verecek.'
+lock_false: '🔑 Harika! *Voicy* artık bu sohbetteki *herhangi birinden* gelen komut çağrılarına yanıt verecek.'
+silent_true: '😶 Muhteşem! *Voicy* artık *sessiz modda* çalışacak: gerçek yazılı mesajlar dışında sohbete hiçbir mesaj göndermeyecek.'
+silent_false: '😏 Muhteşem! *Voicy* artık *normal modda* çalışacak: sesli mesajları aldıktan hemen sonra `Ses tanıma başlatılır` mesajı gönderir.'
 start: |
   👋 Merhaba! *Voicy*, tüm sesli mesajları ve ses dosyalarını (.ogg, .flac, .wav, .mp3) metne dönüştüren bir ses tanıma botudur.
 
-  *Voicy* üç ses tanıma motorunu destekler: wit.ai, Yandex SpeechKit ve Google Speech. Başlangıçta wit.ai kullanmaya ayarlanmıştır. Ancak /engine ile istediğiniz zaman Google Speech veya Yandex SpeechKit’e geçebilirsiniz. Daha fazla bilgi için /help.
-engine: '👋 Lütfen, konuşma tanıma motorunu seçin. Google Speech, daha doğru ve 50 saniyeden daha uzun sesleri destekler. Ancak Google Cloud kimlik bilgilerinizle (biraz sıkıcı) kurulması gerekir. Yandex SpeechKit oldukça doğru, ücretsiz, kişisel ve çoğu zaman 50 saniyeden uzun sesleri destekler. Ancak sınırlı dil listesine sahiptir. Wit.ai daha az doğru, ücretsiz ve 50 saniyeden daha uzun sesleri desteklemiyor. Ancak çok sayıda dil seçeneği vardır. Lütfen, üçünün de farklı dilleri desteklediğini unutmayın. Bu nedenle size en uygun olanı seçin.'
-callback_error: 'Sadece komutu başlatan kişi seçenekleri seçebilir'
-engine_success: '👍*Voicy* artık bu sohbette *${engine}* kullanıyor. Teşekkürler! Dili ayarlamayı unutmayın: /language.'
+  *Voicy* iki ses tanıma motorunu destekler: wit.ai ve Google Speech. Başlangıçta wit.ai kullanmaya ayarlanmıştır, ancak /engine komutu ile istediğiniz zaman Google Speech'e geçebilirsiniz. Daha fazla bilgi için /help.
+engine: '👋 Lütfen, konuşma tanıma motorunu seçin. Google Speech daha doğrudur, ancak Google Cloud kimlik bilgilerinizle (biraz sıkıcı) ayarlanmalıdır. Wit.ai daha az doğru, ancak ücretsizdir. Lütfen, her ikisinin de farklı dilleri desteklediğini unutmayın, bu nedenle size en uygun olanı seçin.'
+callback_error: 'Yalnızca komutu başlatan kişi seçenekleri seçebilir'
+engine_success: "👍 *Voicy* artık bu sohbette *${engine}* kullanıyor. Teşekkürler! Dili ayarlamayı unutmayın: /language."
 language: '👋 Lütfen ${engine} için konuşma tanıma dilini seçin'
 language_without_engine: '👋 Lütfen konuşma tanıma dilini seçin'
-language_success: '👍 Artık *Voicy* bu sohbette *${language}* (${engine}) kullanıyor. Teşekkürler!'
-error_twenty: "_👮 20 MB'tan büyük sesli mesajları tanıyamıyorum_"
+language_success: '👍 Artık *Voicy* bu sohbette *${language}* (${engine}) kullanıyor. Teşekkür ederiz!'
+error_twenty: "_👮 20 megabayttan daha büyük sesli mesajları tanıyamıyorum_"
 initiated: '_🦄 Ses tanıma başlatıldı..._'
-speak_clearly: '_👮 Lütfen, daha net konuşun, bunu tanıyamadım_'
-error: '_👮 Bunu tanıyamadım_'
-google_error_creds: '😮 Lütfen /google komutunu kullanarak Google kimlik bilgilerinizi ayarlayın ya da motoru /engine komutuyla değiştirin. Kimlik bilgileriniz henüz ayarlanmamış.'
-ashmanov_language: Nanosemantics only supports Russian. Please, change /engine to change /language first.
+speak_clearly: "_👮 Lütfen, anlaşılır biçimde konuş, bunu tanıyamadım_"
+error: "_👮 Bunu tanıyamadım_"
+google_error_creds: '😮 Lütfen, /google komutuyla google kimlik bilgilerini ayarlayın veya motoru /engine komutuyla değiştirin. Kimlik bilgileriniz henüz ayarlanmamış.'
+
+# Geeky
+geeky: |
+  Karanlık tarafa hoş geldiniz, rehberiniz olacağım. Lütfen, aşağıdaki fonksiyonlardan sorumlu bir şekilde yararlanın (ya da yararlanmayın, karar sizin). Geeky işlevleri hakkında herhangi bir sorunuz olursa, @borodutch\\_support grubuna gidin ya da direkt olarak @borodutch ile paylaşın. Ben sizin görüş ve önerilerine değer veriyorum, güçlü kullanıcı dostlarım!
+
+  /enableGoogle — Kişisel Google kimlik bilgilerinizi göstermeden bu sohbetle paylaşın
+  /disableGoogle — Kişisel Google kimlik bilgilerinizi göstermeden bu sohbetten kaldırın
+  /timecodes — Transkriptlerdeki zaman kodlarını değiştir (*Voicy* yazılı metnin her bir parçasının zaman kodlarını belirtirse)
+  /url — URL’lerden gelen ses tanımayı değiştir (*Voicy* gönderdiğiniz URL'lerden ses dosyalarını indirmeye ve metne dönüştürmeye çalışır)
+  /l — /language ile aynıdır
+  `/l en` — dili değiştirmek için kısayol, farklı dil kodlarıyla deneyin
+google_enable_personal_not_setup: 'Kişisel Google Cloud kimlik bilgileriniz henüz belirlenmemiş gibi görünüyor. Lütfen, bu sohbette Google anahtarınızı etkinleştirmeyi denemeden önce @voicybot botunda yapın.'
+google_enable_success: 'Olağanüstü. Google Cloud kimlik bilgileriniz şimdi bu sohbette kullanılacak.'
+google_disable_personal_not_setup: 'Kişisel Google Cloud kimlik bilgileriniz henüz belirlenmemiş gibi görünüyor. Lütfen, bu sohbette Google anahtarınızı devre dışı bırakmayı denemeden önce @voicybot botunda yapın.'
+google_disable_error_wrong_key: "Bu sohbet zaten kimlik bilgilerinizi kullanmıyor."
+google_disable_success: 'Olağanüstü. Google Cloud kimlik bilgileriniz artık bu sohbette kullanılmayacak.'
+oops: "Hay aksi! Bu özelliği henüz uygulamadım. Ancak emin olun: Bunun için isteğinizi aldım ve bu özelliğe ihtiyacınız olduğunu biliyorum. Teşekkür ederim!"
+timecodes_true: 'Güzel! Şimdi *Voicy*, tanınan metne zaman kodları ekler.'
+timecodes_false: 'Güzel! Şimdi *Voicy*, tanınan metne zaman kodları eklemeyecek.'
+url: 'Dosya başına 20 MB olan Telegram sınırını atlamak istiyorsanız, doğrudan voicybot.com adresini kullanabilirsiniz. Şerefe!'
+ashmanov_language: Nanosemantikler yalnızca Rusça'yı desteklemektedir. Lütfen önce /language değiştirmeden önce /engine değiştirin
