@@ -64,6 +64,8 @@ async function report(bot, err, prefix) {
       'does not have storage.buckets.get',
       'oes not have storage.objects.delete',
       'The project to be billed is associated with a closed billing account',
+      '180',
+      '240',
     ]
     for (const item of bypassList) {
       if (err.message && err.message.indexOf(item) > -1) {
