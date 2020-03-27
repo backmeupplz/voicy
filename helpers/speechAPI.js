@@ -175,12 +175,14 @@ async function ashmanov(path, duration) {
     Authorization: 'Basic YW5uOjVDdWlIT0NTMlpRMQ==',
   }
 
-  const response = (await axios({
-    method: 'post',
-    url: 'https://asr.ashmanov.org/asr/',
-    data: formData,
-    headers,
-  })).data.response[0].text
+  const response = (
+    await axios({
+      method: 'post',
+      url: 'https://asr.ashmanov.org/asr/',
+      data: formData,
+      headers,
+    })
+  ).data.r[0].response[0].text
   return [[`0-${parseInt(duration, 10)}`, response]]
 }
 
