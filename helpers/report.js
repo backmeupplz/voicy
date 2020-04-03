@@ -72,6 +72,7 @@ async function report(bot, err, prefix) {
         return
       }
     }
+    console.error(err.message)
     errorsToReport.push(`${prefix ? ` ${prefix}\n:` : ''}${err.message}`)
   } catch (error) {
     // Do nothing
