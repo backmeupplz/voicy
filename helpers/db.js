@@ -22,7 +22,7 @@ async function findChat(id) {
  * @param {Mongoose:Chat} chat Chat where audio was recognized
  * @param {Int} duration Duration of this voice message
  */
-async function addVoice(url, text, chat, duration, textWithTimecodes) {
+async function addVoice(url, text, chat, duration, textWithTimecodes, fileId) {
   // Get language
   const language =
     chat.engine === 'wit'
@@ -38,6 +38,7 @@ async function addVoice(url, text, chat, duration, textWithTimecodes) {
     duration,
     engine: chat.engine,
     textWithTimecodes,
+    fileId,
   })
   const dbvoice = await voice.save()
   // Return the voice

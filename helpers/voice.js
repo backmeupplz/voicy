@@ -31,13 +31,13 @@ async function handleMessage(ctx) {
     // Send action or transcription depending on whether chat is silent
     if (chat.silent) {
       try {
-        await sendAction(ctx, voiceUrl, chat)
+        await sendAction(ctx, voiceUrl, chat, voice.file_id)
       } catch (err) {
         report(ctx, err, 'sendAction')
       }
     } else {
       try {
-        await sendTranscription(ctx, voiceUrl, chat)
+        await sendTranscription(ctx, voiceUrl, chat, voice.file_id)
       } catch (err) {
         report(ctx, err, 'sendTranscription')
       }
@@ -53,7 +53,7 @@ async function handleMessage(ctx) {
  * @param {URL} url Url of audio file to transcript
  * @param {Mongoose:Chat} chat Chat object where message has been received
  */
-async function sendTranscription(ctx, url, chat) {
+async function sendTranscription(ctx, url, chat, fileId) {
   // Get message
   const message = ctx.message || ctx.update.channel_post
   // Send initial message
@@ -65,7 +65,7 @@ async function sendTranscription(ctx, url, chat) {
   if (dbvoice) {
     const text = chat.timecodesEnabled
       ? dbvoice.textWithTimecodes
-        ? dbvoice.textWithTimecodes.map(t => `${t[0]}:\n${t[1]}`).join('\n')
+        ? dbvoice.textWithTimecodes.map((t) => `${t[0]}:\n${t[1]}`).join('\n')
         : dbvoice.text
       : dbvoice.text
     updateMessagewithTranscription(ctx, sentMessage, text, chat)
@@ -84,22 +84,23 @@ async function sendTranscription(ctx, url, chat) {
     )
     // Send trancription to user
     const text = chat.timecodesEnabled
-      ? textWithTimecodes.map(t => `${t[0]}:\n${t[1]}`).join('\n')
+      ? textWithTimecodes.map((t) => `${t[0]}:\n${t[1]}`).join('\n')
       : textWithTimecodes
-          .map(t => t[1].trim())
-          .filter(v => !!v)
+          .map((t) => t[1].trim())
+          .filter((v) => !!v)
           .join('. ')
     await updateMessagewithTranscription(ctx, sentMessage, text, chat)
     // Save voice to db
     await addVoice(
       url,
       textWithTimecodes
-        .map(t => t[1].trim())
-        .filter(v => !!v)
+        .map((t) => t[1].trim())
+        .filter((v) => !!v)
         .join('. '),
       chat,
       duration,
-      textWithTimecodes
+      textWithTimecodes,
+      fileId
     )
   } catch (err) {
     // In case of error, send it
@@ -108,9 +109,9 @@ async function sendTranscription(ctx, url, chat) {
   } finally {
     // Log time
     console.info(
-      `audio message processed in ${(new Date().getTime() -
-        ctx.timeReceived.getTime()) /
-        1000}s`
+      `audio message processed in ${
+        (new Date().getTime() - ctx.timeReceived.getTime()) / 1000
+      }s`
     )
   }
 }
@@ -121,7 +122,7 @@ async function sendTranscription(ctx, url, chat) {
  * @param {URL} url Url of audio file to transcript
  * @param {Mongoose:Chat} chat Chat object where message has been received
  */
-async function sendAction(ctx, url, chat) {
+async function sendAction(ctx, url, chat, fileId) {
   // Send typing action
   await ctx.replyWithChatAction('typing')
   // Try to find existing voice message
@@ -131,7 +132,7 @@ async function sendAction(ctx, url, chat) {
   if (dbvoice) {
     const text = chat.timecodesEnabled
       ? dbvoice.textWithTimecodes
-        ? dbvoice.textWithTimecodes.map(t => `${t[0]}:\n${t[1]}`).join('\n')
+        ? dbvoice.textWithTimecodes.map((t) => `${t[0]}:\n${t[1]}`).join('\n')
         : dbvoice.text
       : dbvoice.text
     sendMessageWithTranscription(ctx, text, chat)
@@ -149,22 +150,23 @@ async function sendAction(ctx, url, chat) {
     )
     // Send trancription to user
     const text = chat.timecodesEnabled
-      ? textWithTimecodes.map(t => `${t[0]}:\n${t[1]}`).join('\n')
+      ? textWithTimecodes.map((t) => `${t[0]}:\n${t[1]}`).join('\n')
       : textWithTimecodes
-          .map(t => t[1].trim())
-          .filter(v => !!v)
+          .map((t) => t[1].trim())
+          .filter((v) => !!v)
           .join('. ')
     await sendMessageWithTranscription(ctx, text, chat)
     // Save voice to db
     await addVoice(
       url,
       textWithTimecodes
-        .map(t => t[1].trim())
-        .filter(v => !!v)
+        .map((t) => t[1].trim())
+        .filter((v) => !!v)
         .join('. '),
       chat,
       duration,
-      textWithTimecodes
+      textWithTimecodes,
+      fileId
     )
   } catch (err) {
     // In case of error, log it
@@ -172,9 +174,9 @@ async function sendAction(ctx, url, chat) {
   } finally {
     // Log time
     console.info(
-      `audio message processed in ${(new Date().getTime() -
-        ctx.timeReceived.getTime()) /
-        1000}s`
+      `audio message processed in ${
+        (new Date().getTime() - ctx.timeReceived.getTime()) / 1000
+      }s`
     )
   }
 }
