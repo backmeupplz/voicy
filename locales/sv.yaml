@@ -17,11 +17,9 @@ help: |
   /silent — V�lj ljudl�s n�r inga extra meddelanden som `R�stigenk�nning �r initierad` �nskas 😶
   /google — St�ll in google autentisieringsuppgifter Google Speech 🦆
 
-  Gillar denna bot? L�mna ett omd�mme [here](https://telegram.me/storebot?start=voicybot) 👍
-
   Om du har fr�goer eller funderingar skickas dessa till botens skapare — @borodutch\\_support 🦄
 
-  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant))! It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
+  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant)). It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
 error_group: '😅 Detta kommandot fungerar tyv�rr bara i gruppchatter.'
 lock_true: '🔑 Bra! *Voicy* kommer nu bara svara p� kommandon skickade av *administrat�rer* i den h�r chatten.'
 lock_false: '🔑 Bra! *Voicy* kommer nu svara endast p� samtal fr�n *alla* i den h�r cahtten.'

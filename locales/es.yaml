@@ -17,11 +17,9 @@ help: |
   /silent — Alterna al modo silencio cuando se envían mensajes extras como `Reconocimiento de voz iniciado` 😶
   /google — Establezca credenciales google para Google Speech 🦆
 
-  Le gusta este bot? Deje una reseña [aquí](https://telegram.me/storebot?start=voicybot) 👍
-
   Refiera cualquier asunto o pregunta a mi creador — @borodutch\\_support 🦄
 
-  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant))! It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
+  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant)). It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
 error_group: '😅 Lo siento, pero este comando solo funciona en chat grupales.'
 lock_true: '🔑 ¡Estupendo! *Voicy* responderá ahora solo a los comandos enviados por *administradores* en este chat.'
 lock_false: '🔑 ¡Estupendo! *Voicy* responderá ahora a los comandos de *cualquiera* en este chat.'

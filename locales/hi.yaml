@@ -17,11 +17,9 @@ help: |
   /silent - साइलेंट मोड में टॉगल करता है जब 'वॉयस पहचान शुरू की गयी है' जैसे कोई अतिरिक्त मैसेज नहीं भेजे जाते हैं 😶
   /google - Google Speech के लिए Google क्रेडेंशियल सेट करता है 🦆
 
-  यह बॉट पसंद आया? एक फीडबैक छोड़ें [यहाँ](https://telegram.me/storebot?start=voicybot) 👍
-
   मेरे निर्माता –– @borodutch\\_support 🦄 पर किसी भी तरह का प्रश्न या परेशानी बताएँ-
 
-  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant))! It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
+  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant)). It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
 error_group: '😅 क्षमा करें, लेकिन यह कमांड केवल ग्रुप चैट के लिए ही है।'
 lock_true: '🔑 बहुत बढ़िया! *Voicy* अब इस चैट में एडमिन द्वारा भेजे गए कमांड कॉल का ही जवाब देगा।'
 lock_false: '🔑 बहुत बढ़िया! *Voicy* अब इस चैट में किसी के भी कमांड कॉल का जवाब देगा।'

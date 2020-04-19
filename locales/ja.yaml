@@ -17,11 +17,9 @@ help: |
   /silent — `音声認識が始まりました` などの追加メッセージがない限りサイレントモードになる 😶
   /google — グーグルスピーチのためグーグル資格情報を設定する 🦆
 
-  このボット、気に入りましたか? レビューをお願いします。[こちら](https://telegram.me/storebot?start=voicybot) 👍
-
   お困りでしたら、創設者にひとこと — @borodutch\\_support 🦄
 
-  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant))! It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
+  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant)). It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
 error_group: '😅 ごめんなさい、このコマンドはグループチャットでしか使えません。'
 lock_true: '🔑 了解！ *ヴォイシー* は *主催者* のコマンドにしか応じないよ。'
 lock_false: '🔑 了解! *ヴォイシー* は *みなさん* のコマンドに応じるよ。'

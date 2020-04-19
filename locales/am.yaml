@@ -17,11 +17,9 @@ help: |
   /silent — ընտրել անձայն ռեժիմ, երբ, ոչ մի նմանատիպ `Սկսվել է ձայնի ճանաչումը` լրացուցիչ հաղորդագրություններ չեն ուղարկվել 😶
   /google — Տեղադրել google երաշխավորագրեր Google Speech-ի համար 🦆
 
-  Հավանեցիր այս բոտը? թող քո կարծիքը [այստեղ](https://telegram.me/storebot?start=voicybot)👍
-
   Մտահոգությունների կամ հարցերի դեպքում դիմել հեղինակին - @borodutch\\_support 🦄
 
-  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant))! It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well."
+  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant)). It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well."
 error_group: '😅 Ներողություն, բայց այս հրահանգը գործում է միայն խմբակային չատերում.'
 lock_true: '🔑 Գերազանց է! *Voicy*-ն այսուհետ կպատասխանի միայն հրահանգ-զանգերին՝այս չատի *ադմինների* կողմից ուղարկված.'
 lock_false: '🔑 Գերազանց է! *Voicy*-ն այսուհետ կպատասխանի միայն հրահանգ-զանգերին՝ այս չատում *յուրաքանչյուրի* կողմից ուղարկված.'

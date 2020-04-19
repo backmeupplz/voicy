@@ -17,11 +17,9 @@ help: |
   ‏/silent – هنگامی که هیچ پیام اضافی مانند ‘تشخیص صدا آغاز شده است’ فرستاده میشود به حالت سکوت تغییر وضعیت میدهد 😶
   ‏/google – اعتبارنامه های گوگل برای گفتار گوگل را تنظیم کنید
 
-  ‏این ربات را دوست داشتید؟ نظر خود را [اینجا] بیان کنید (https://telegram.me/storebot?start=voicybot) 👍 
-
   ‏هر گونه نگرانی و سوال را به خالق من ارسال کنید - @borodutch\\_support
 
-  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant))! It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
+  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant)). It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
 error_group: '‏😅 متاسفم، اما این دستور فقط در چت گروهی کار می کند.'
 lock_true: '‏🔑 خیلی خوب! وُیسی اکنون تنها به تماسهای دستوری ارسال شده توسط ادمین ها در این چت واکنش خواهد داد.'
 lock_false: '‏🔑 خیلی خوب! وُیسی اکنون تنها به تماسهای دستوری ارسال شده توسط هر شخصی در این چت واکنش خواهد داد.'

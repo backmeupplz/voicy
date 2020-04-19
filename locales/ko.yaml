@@ -17,11 +17,9 @@ help: |
   /silent — ‘음성 인식이 시작되었습니다’와 같은 메세지가 더 이상 없을 경우 무음 모드 버튼 😶
   /google — 구글 스피치에서 구글 크리덴셜 설정 🦆
 
-  이 봇을 좋아하세요? 리뷰를 남겨보세요 [여기를 클릭]( https://telegram.me/storebot?start=voicybot) 👍
-
   이 봇의 제작자에게 모든 불편사항 혹은 질문을 설명하실 수 있습니다 — @borodutch\\_support 🦄
 
-  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant))! It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
+  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant)). It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
 error_group: '😅 죄송합니다, 이 명령은 그룹 채팅에서만 작동합니다.'
 lock_true: '🔑 좋아요! *Voicy*는 이제 이 채팅의 *관리자*에 의한 명령에만 응답합니다.'
 lock_false: '🔑 좋아요! *Voicy*는 이제 이 채팅의 *모든 사람*에 의한 명령에 응답합니다.'

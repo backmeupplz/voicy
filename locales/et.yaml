@@ -16,11 +16,9 @@ help: |
   /silent —ለምሳሌ እንደ `Voice recognition is initiated`(የድምጽ መለየት እንዲጀምር ተደርጓል) የሚሉ አይነት የውጪ መልዕክቶች ሲመጡ ቁልፉን ድምጽ አልባ ያደርገዋል 😶
   /google —ለጉግል የንግግር አገልግሎት መረጃዎችን ያዘጋጃል 🦆
 
-  Like this bot?(ይህንን ቡት ወደውታልን?)እባክዎ አስተያትዎትን በሚከተለው ድረ-ገጽ ላይ ያስፍሩ [እዚህ](https://telegram.me/storebot?start=voicybot) 👍
-
   Address any concerns and questions to my creator — @borodutch\\_support 🦄
 
-  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant))! It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
+  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant)). It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
 error_group: '😅 ይቅርታ፡ይህ ትዕዛዝ የሚሰራው በቡድን ምልልስ ብቻ ነው፡፡'
 lock_true: '🔑 ድንቅ! *Voicy* አሁን ምላሽ የሚሰጠው በዚህ ምልልስ ውስጥ ላሉ*admins* የትዕዛዝ ጥሪዎች ብቻ ነው፡፡'
 lock_false: '🔑 ድንቅ ! *Voicy* አሁን ምላሽ የሚሰጠው በዚህ ምልልስ ውስጥ ላሉ *ለማንኛቸውም *ነው፡፡'
