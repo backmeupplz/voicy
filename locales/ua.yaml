@@ -19,7 +19,9 @@ help: |
 
   Подобається цей бот? Залишіть відгук [тут] (https://telegram.me/storebot?start=voicybot) 👍
 
-  Будь-які питання та пропозиції надсилайте автору - @borodutch\\_support 🦄 P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
+  Будь-які питання та пропозиції надсилайте автору - @borodutch\\_support 🦄
+
+  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant))! It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
 error_group: '😅 Вибачте, але ця команда діє тільки для групових чатів.'
 lock_true: '🔑 Чудово! Відтепер *Войсі* реагуватиме лише на команди, відправлені *адміністраторами* у цьому чаті.'
 lock_false: '🔑 Чудово! Відтепер *Войсі* реагуватиме лише на команди від *будь-кого* у цьому чаті.'

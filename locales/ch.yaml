@@ -19,7 +19,9 @@ help: |
 
   您喜欢这个软体吗？请[在这里]为我们留下评语吧(https://telegram.me/storebot?start=voicybot) 👍
 
-  如果您有任何意见或问题，请与我的设计者联络吧！ — @borodutch\\_support 🦄 P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
+  如果您有任何意见或问题，请与我的设计者联络吧！ — @borodutch\\_support 🦄
+
+  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant))! It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
 error_group: '😅 抱歉！这项指令只适用于群组对话。'
 lock_true: '🔑 很好！从现在起，*Voicy*只会回应本对话中的*admins*的指令。'
 lock_false: '🔑 很好！从现在起，*Voicy*只会回应本对话中的*anyone*的指令。'

@@ -19,7 +19,9 @@ help: |
 
   Bu bot yoqdimi? Fikr-mulohazalaringizni [bu yerda](https://telegram.me/storebot?start=voicybot) qoldiring 👍
 
-  Har qanday muammo yoki savollar bilan meni tuzuvchimga murojaat qiling @borodutch\\_support 🦄 P.S., if you want to help this bot, please, donate through the [GitHub Sponsors program here](https://github.com/sponsors/backmeupplz).
+  Har qanday muammo yoki savollar bilan meni tuzuvchimga murojaat qiling @borodutch\\_support 🦄
+
+  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant))! It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
 error_group: '😅 Uzr, bu buyruq faqatgina guruh chatlarida ishlaydi.'
 lock_true: '🔑 Zo�r! *Voicy* bu chatda faqat *admins* (administratorlar) yuborgan buyruq chaqiruvlariga javob beradi.'
 lock_false: '🔑 Zo�r! *Voicy* bu chatda faqat *anyone* (har qanday inson) yuborgan buyruq chaqiruvlariga javob beradi.'

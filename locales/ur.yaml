@@ -16,7 +16,9 @@ help: |
   /google — گوگل اسپیچ کے لئے گوگل کی اسناد مرتب کرنے کے لیے 🦆
   /geeky — باقی اضافی کمانڈس زیادہ تر اعلی ٰدرجے کے صارفین استعمال کرتے ہیں (جیسے گوگل اسناد کا اشتراک کرنا یا 20 ایم بی ٹیلی گرام حد کو نظرانداز کرنا) 👻
   /privacy — رازداری کی پالیسی
-  کسی بھی طرح کی پریشانی اور سوالات کے لیے میرے موجد سے کہیں — @borodutch\\_support 🦄 نوٹ: اگر آپ اس بوٹ کی مدد کرنا چاہتے ہیں تو، براہ کرم، [یہاں گِٹ ہب اسپانسرز پروگرام](https://github.com/sponsors/backmeupplz) کے ذریعہ عطیہ کریں۔
+  کسی بھی طرح کی پریشانی اور سوالات کے لیے میرے موجد سے کہیں — @borodutch\\_support 🦄
+
+  Also check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant))! It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.
 error_group: '😅 معذرت، یہ کمانڈ صرف گروپ چیٹس میں کام کرتا ہے۔'
 lock_true: '🔑 بہتر! *وائسی* اب اس چیٹ میں صرف *منتظمین* کے ذریعہ ارسال کردہ کمانڈس کا جواب دے گا۔'
 lock_false: '🔑 بہتر! *وائسی* اب اس چیٹ میں *ہر کسی* کی کمانڈس کا جواب دے گا۔'
