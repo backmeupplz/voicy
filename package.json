@@ -11,11 +11,14 @@
   "scripts": {
     "start": "node app.js",
     "localize": "node localize.js",
-    "sendout": "node sendout.js"
+    "sendout": "node sendout.js",
+    "upload-translations": "node scripts/upload.js",
+    "download-translations": "node scripts/download.js"
   },
   "dependencies": {
     "@google-cloud/speech": "^2.3.1",
     "@google-cloud/storage": "^0.5.0",
+    "axios": "^0.19.0",
     "bluebird": "^3.4.6",
     "dotenv": "^5.0.1",
     "download": "^7.1.0",
@@ -29,8 +32,7 @@
     "telegraf": "^3.27.1",
     "telegraf-i18n": "backmeupplz/telegraf-i18n#78ee719cb8be9413d64a3a14325209f3a793a541",
     "temp": "^0.8.3",
-    "uuid": "^3.3.2",
-    "axios": "^0.19.0"
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "eslint": "^3.12.2",
@@ -38,6 +40,7 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-promise": "^3.4.0",
-    "eslint-plugin-react": "^6.8.0"
+    "eslint-plugin-react": "^6.8.0",
+    "flat": "^5.0.0"
   }
 }
