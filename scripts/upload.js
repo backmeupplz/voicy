@@ -22,8 +22,7 @@ Object.keys(localizations).forEach((language) => {
 
 const result = {}
 
-const firstLanguage = Object.keys(flattenedLocalizations)[0]
-Object.keys(flattenedLocalizations[firstLanguage]).forEach((key) => {
+Object.keys(flattenedLocalizations['en']).forEach((key) => {
   const keyObject = {}
   for (const language in flattenedLocalizations) {
     if (flattenedLocalizations[language][key]) {
