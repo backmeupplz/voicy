@@ -286,7 +286,7 @@ function engineLanguages(engine) {
 function languageForEngineAndCode(engine, code) {
   const languages = engine === 'google' ? googleLanguages : witCodes
   let result
-  Object.keys(languages).forEach(key => {
+  Object.keys(languages).forEach((key) => {
     const value = languages[key]
     if (value.includes(code)) {
       result = engine === 'wit' ? key : value
