@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bash
+
+cd /app/voicybot
+
+screen -D -m -S \
+voicybot s6-setuidgid abc yarn start &
+
+wait

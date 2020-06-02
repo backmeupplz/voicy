@@ -1,0 +1,15 @@
+#!/usr/bin/with-contenv bash
+
+# make folder
+mkdir -p \
+	/config/voicybot/mongodb
+
+[[ ! -e /config/voicybot/.env ]] && \
+	cp /app/voicybot/.env.sample /config/voicybot/.env
+
+cp -f /config/voicybot/.env /app/voicybot/.env
+
+# permissions
+chown -R abc:abc \
+	/config/voicybot \
+	/app/voicybot
