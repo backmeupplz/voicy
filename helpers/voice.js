@@ -196,7 +196,7 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   options.disable_web_page_preview = true
   // Add todorant
   if (text) {
-    text = `\nPowered by [Todorant](https://todorant.com)`
+    text = `${text}\nPowered by [Todorant](https://todorant.com)`
   }
   if (!text || text.length <= 4000) {
     // Edit message
@@ -246,7 +246,7 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
   options.disable_web_page_preview = true
   // Add todorant
   if (text) {
-    text = `\nPowered by [Todorant](https://todorant.com)`
+    text = `${text}\nPowered by [Todorant](https://todorant.com)`
   }
   // Send message
   if (text && text.length < 4000) {
