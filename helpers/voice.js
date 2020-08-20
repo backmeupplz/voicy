@@ -192,8 +192,11 @@ async function sendAction(ctx, url, chat, fileId) {
 async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   // Create options
   const options = {}
-  if (!text || markdown) {
-    options.parse_mode = 'Markdown'
+  options.parse_mode = 'Markdown'
+  options.disable_web_page_preview = true
+  // Add todorant
+  if (text) {
+    text = `\nPowered by [Todorant](https://todorant.com)`
   }
   if (!text || text.length <= 4000) {
     // Edit message
@@ -218,6 +221,7 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
     // Send the rest of text
     for (const chunk of chunks) {
       await ctx.reply(chunk, {
+        ...options,
         reply_to_message_id: msg.message_id,
       })
     }
@@ -238,8 +242,11 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
   const options = {
     reply_to_message_id: message.message_id,
   }
-  if (!text || markdown) {
-    options.parse_mode = 'Markdown'
+  options.parse_mode = 'Markdown'
+  options.disable_web_page_preview = true
+  // Add todorant
+  if (text) {
+    text = `\nPowered by [Todorant](https://todorant.com)`
   }
   // Send message
   if (text && text.length < 4000) {
@@ -256,6 +263,7 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
     // Send the rest of text
     for (const chunk of chunks) {
       await ctx.reply(chunk, {
+        ...options,
         reply_to_message_id: sentMessage.message_id,
       })
     }
