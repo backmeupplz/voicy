@@ -5,6 +5,8 @@ const { report } = require('./report')
 const urlToText = require('./urlToText')
 const _ = require('lodash')
 
+const todorantExceptions = []
+
 /**
  * Handles any message that comes with voice
  * @param {Telegraf:Context} ctx Context of the request
@@ -195,7 +197,7 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   options.parse_mode = 'Markdown'
   options.disable_web_page_preview = true
   // Add todorant
-  if (text) {
+  if (text && !todorantExceptions.includes(ctx.chat.id)) {
     text = `${text}\nPowered by [Todorant](https://todorant.com) ([?](https://t.me/borodutch_support/110))`
   }
   if (!text || text.length <= 4000) {
@@ -245,7 +247,7 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
   options.parse_mode = 'Markdown'
   options.disable_web_page_preview = true
   // Add todorant
-  if (text) {
+  if (text && !todorantExceptions.includes(ctx.chat.id)) {
     text = `${text}\nPowered by [Todorant](https://todorant.com) ([?](https://t.me/borodutch_support/110))`
   }
   // Send message
