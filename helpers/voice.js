@@ -5,7 +5,14 @@ const { report } = require('./report')
 const urlToText = require('./urlToText')
 const _ = require('lodash')
 
-const todorantExceptions = []
+const todorantExceptions = [
+  -1001122726482,
+  -1001140130398,
+  -1001275987479,
+  -1001128503769,
+  -1001179199008,
+  -1001260542215,
+]
 
 /**
  * Handles any message that comes with voice
