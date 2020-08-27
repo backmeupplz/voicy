@@ -14,6 +14,9 @@ const todorantExceptions = [
   -1001260542215,
 ]
 
+const todorantText =
+  'Powered by [Todorant](https://todorant.com/?ref=voicy) ([?](https://t.me/borodutch_support/110))'
+
 /**
  * Handles any message that comes with voice
  * @param {Telegraf:Context} ctx Context of the request
@@ -205,7 +208,7 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   options.disable_web_page_preview = true
   // Add todorant
   if (text && !todorantExceptions.includes(ctx.chat.id)) {
-    text = `${text}\nPowered by [Todorant](https://todorant.com) ([?](https://t.me/borodutch_support/110))`
+    text = `${text}\n${todorantText}`
   }
   if (!text || text.length <= 4000) {
     // Edit message
@@ -255,7 +258,7 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
   options.disable_web_page_preview = true
   // Add todorant
   if (text && !todorantExceptions.includes(ctx.chat.id)) {
-    text = `${text}\nPowered by [Todorant](https://todorant.com) ([?](https://t.me/borodutch_support/110))`
+    text = `${text}\n${todorantText}`
   }
   // Send message
   if (text && text.length < 4000) {
