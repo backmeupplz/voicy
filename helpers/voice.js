@@ -1,6 +1,6 @@
 // Dependencies
 const urlFinder = require('./url')
-const { findChat, findVoice, addVoice } = require('./db')
+const { findChat, addVoice } = require('./db')
 const { report } = require('./report')
 const urlToText = require('./urlToText')
 const _ = require('lodash')
@@ -72,17 +72,6 @@ async function sendTranscription(ctx, url, chat, fileId) {
   const sentMessage = await sendVoiceRecognitionMessage(ctx, message)
   // Get language
   const lan = languageFromChat(chat)
-  // Try to find existing voice message
-  const dbvoice = await findVoice(url, lan, chat.engine)
-  if (dbvoice) {
-    const text = chat.timecodesEnabled
-      ? dbvoice.textWithTimecodes
-        ? dbvoice.textWithTimecodes.map((t) => `${t[0]}:\n${t[1]}`).join('\n')
-        : dbvoice.text
-      : dbvoice.text
-    updateMessagewithTranscription(ctx, sentMessage, text, chat)
-    return
-  }
   // Check if ok with google engine
   if (chat.engine === 'google' && !chat.googleKey) {
     updateWithGoogleKeyError(ctx, sentMessage, chat)
@@ -139,17 +128,6 @@ async function sendAction(ctx, url, chat, fileId) {
   await ctx.replyWithChatAction('typing')
   // Try to find existing voice message
   const lan = languageFromChat(chat)
-  // Try to find existing voice message
-  const dbvoice = await findVoice(url, lan, chat.engine)
-  if (dbvoice) {
-    const text = chat.timecodesEnabled
-      ? dbvoice.textWithTimecodes
-        ? dbvoice.textWithTimecodes.map((t) => `${t[0]}:\n${t[1]}`).join('\n')
-        : dbvoice.text
-      : dbvoice.text
-    sendMessageWithTranscription(ctx, text, chat)
-    return
-  }
   // Check if ok with google engine
   if (chat.engine === 'google' && !chat.googleKey) {
     return
