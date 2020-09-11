@@ -14,8 +14,7 @@ const todorantExceptions = [
   -1001260542215,
 ]
 
-const todorantText =
-  'Powered by [Todorant](https://todorant.com/?ref=voicy) ([?](https://t.me/borodutch_support/110))'
+const todorantText = 'Powered by [Todorant](https://todorant.com/?ref=voicy)'
 
 /**
  * Handles any message that comes with voice
