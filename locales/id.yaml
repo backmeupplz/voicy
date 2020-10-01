@@ -32,12 +32,12 @@ geeky: |
   /url — Alihkan pengenalan suara dari URL (*Voicy* akan mencoba mengunduh file audio dari URL yang Anda kirim dan mentranskripsikannya menjadi teks)
   /l — alias untuk /language
   `/l en` — alias untuk mengganti bahasa, coba dengan kode bahasa yang berbeda
-google_enable_personal_not_setup: 'Sepertinya kredensial Google Cloud Anda belum terpasang. Mohon diatur terlebih dahulu pada @voicybot sebelum mencoba mengaktifkan Google di obrolan ini.'
+google_enable_personal_not_setup: Sepertinya kredensial Google Cloud Anda belum terpasang. Mohon diatur terlebih dahulu pada @voicybot sebelum mencoba mengaktifkan Google di obrolan ini.
 google_enable_success: Keren. Kredensial Google Cloud Anda sekarang digunakan pada obrolan ini.
-google_disable_personal_not_setup: 'Sepertinya kredensial Google Cloud Anda belum terpasang. Mohon diatur terlebih dahulu pada @voicybot sebelum mencoba menonaktifkan Google di obrolan ini.'
+google_disable_personal_not_setup: Sepertinya kredensial Google Cloud Anda belum terpasang. Mohon diatur terlebih dahulu pada @voicybot sebelum mencoba menonaktifkan Google di obrolan ini.
 google_disable_error_wrong_key: Obrolan ini tidak menggunakan kunci Anda lagi.
 google_disable_success: Keren. Kredensial Google Cloud Anda sekarang tidak akan digunakan pada obrolan ini.
-oops: 'Ooopsie! Saya belum mengimplementasikan fitur ini. Namun yakinlah bahwa saya telah menerima permintaan Anda dan Saya akan mengetahui hal ini bahwa anda membutuhkan fitur ini. Terima kasih!'
+oops: Ooopsie! Saya belum mengimplementasikan fitur ini. Namun yakinlah bahwa saya telah menerima permintaan Anda dan Saya akan mengetahui hal ini bahwa anda membutuhkan fitur ini. Terima kasih!
 timecodes_true: Bagus! Sekarang *Voicy* akan menambahkan kode waktu pada teks yang dikenali.
 timecodes_false: Bagus! Sekarang *Voicy* tidak akan menambahkan kode waktu pada teks yang dikenali.
 url: 'Jika anda ingin membypass batas Telegram yang memerlukan file dengan ukuran maksimal 20mb tiap file, Anda dapat menggunakan voicybot.com secara langsung. Selamat mencoba!'
