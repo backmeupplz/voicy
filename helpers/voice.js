@@ -3,7 +3,7 @@ const urlFinder = require('./url')
 const { findChat, addVoice } = require('./db')
 const { report } = require('./report')
 const urlToText = require('./urlToText')
-const isRuChat = require('./isRuChat')
+const { isRuChat } = require('./isRuChat')
 const _ = require('lodash')
 
 const promoExceptions = [
