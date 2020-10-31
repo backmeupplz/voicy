@@ -5,7 +5,7 @@ const { report } = require('./report')
 const urlToText = require('./urlToText')
 const _ = require('lodash')
 
-const todorantExceptions = [
+const promoExceptions = [
   -1001122726482,
   -1001140130398,
   -1001275987479,
@@ -14,7 +14,8 @@ const todorantExceptions = [
   -1001260542215,
 ]
 
-const todorantText = 'Powered by [Todorant](https://todorant.com/?ref=voicy)'
+// const promoText = 'Powered by [Todorant](https://todorant.com/?ref=voicy)'
+const promoText = 'Powered by [Golden Borodutch](https://t.me/golden_borodutch)'
 
 /**
  * Handles any message that comes with voice
@@ -183,9 +184,9 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   const options = {}
   options.parse_mode = 'Markdown'
   options.disable_web_page_preview = true
-  // Add todorant
-  if (text && !todorantExceptions.includes(ctx.chat.id)) {
-    text = `${text}\n${todorantText}`
+  // Add promo
+  if (text && !promoExceptions.includes(ctx.chat.id)) {
+    text = `${text}\n${promoText}`
   }
   if (!text || text.length <= 4000) {
     // Edit message
@@ -233,9 +234,9 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
   }
   options.parse_mode = 'Markdown'
   options.disable_web_page_preview = true
-  // Add todorant
-  if (text && !todorantExceptions.includes(ctx.chat.id)) {
-    text = `${text}\n${todorantText}`
+  // Add promo
+  if (text && !promoExceptions.includes(ctx.chat.id)) {
+    text = `${text}\n${promoText}`
   }
   // Send message
   if (text && text.length < 4000) {
