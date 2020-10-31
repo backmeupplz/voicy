@@ -3,6 +3,7 @@ const urlFinder = require('./url')
 const { findChat, addVoice } = require('./db')
 const { report } = require('./report')
 const urlToText = require('./urlToText')
+const isRuChat = require('./isRuChat')
 const _ = require('lodash')
 
 const promoExceptions = [
@@ -14,8 +15,11 @@ const promoExceptions = [
   -1001260542215,
 ]
 
-// const promoText = 'Powered by [Todorant](https://todorant.com/?ref=voicy)'
-const promoText = 'Powered by [Golden Borodutch](https://t.me/golden_borodutch)'
+const promoTexts = {
+  todorant: 'Powered by [Todorant](https://todorant.com/?ref=voicy)',
+  goldenBorodutch:
+    'Powered by [Golden Borodutch](https://t.me/golden_borodutch)',
+}
 
 /**
  * Handles any message that comes with voice
@@ -186,6 +190,8 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   options.disable_web_page_preview = true
   // Add promo
   if (text && !promoExceptions.includes(ctx.chat.id)) {
+    const promoText =
+      promoTexts[isRuChat(chat) ? 'goldenBorodutch' : 'todorant']
     text = `${text}\n${promoText}`
   }
   if (!text || text.length <= 4000) {
@@ -236,6 +242,8 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
   options.disable_web_page_preview = true
   // Add promo
   if (text && !promoExceptions.includes(ctx.chat.id)) {
+    const promoText =
+      promoTexts[isRuChat(chat) ? 'goldenBorodutch' : 'todorant']
     text = `${text}\n${promoText}`
   }
   // Send message
