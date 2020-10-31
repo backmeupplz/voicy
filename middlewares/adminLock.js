@@ -21,6 +21,14 @@ async function isBotAdmin(ctx, chatId) {
 async function passesAdminLock(ctx) {
   try {
     if (ctx.dbchat.adminLocked && !ctx.update.channel_post) {
+      // Check if anonymous admin
+      if (
+        ctx.from &&
+        ctx.from.username &&
+        ctx.from.username === 'GroupAnonymousBot'
+      ) {
+        return true
+      }
       // Check if user is an admin
       const isUserAdmin = await isAdmin(ctx, ctx.dbchat.id, ctx.from.id)
       if (!isUserAdmin) {
