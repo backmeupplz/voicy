@@ -24,9 +24,8 @@ const promoExceptions = [
 ]
 
 const promoTexts = {
-  todorant: 'Powered by [Todorant](https://todorant.com/?ref=voicy)',
-  goldenBorodutch:
-    'Powered by [Golden Borodutch](https://t.me/golden_borodutch)',
+  en: 'Powered by [Todorant](https://todorant.com/?ref=voicy)',
+  ru: 'Powered by [Todorant](https://todorant.com/?ref=voicy)',
 }
 
 /**
@@ -198,8 +197,7 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   options.disable_web_page_preview = true
   // Add promo
   if (text && !promoExceptions.includes(ctx.chat.id)) {
-    const promoText =
-      promoTexts[isRuChat(chat) ? 'goldenBorodutch' : 'todorant']
+    const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']
     text = `${text}\n${promoText}`
   }
   if (!text || text.length <= 4000) {
@@ -250,8 +248,7 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
   options.disable_web_page_preview = true
   // Add promo
   if (text && !promoExceptions.includes(ctx.chat.id)) {
-    const promoText =
-      promoTexts[isRuChat(chat) ? 'goldenBorodutch' : 'todorant']
+    const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']
     text = `${text}\n${promoText}`
   }
   // Send message
