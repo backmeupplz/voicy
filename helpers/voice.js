@@ -28,8 +28,8 @@ const promoExceptions = [
 ]
 
 const promoTexts = {
-  en: 'При поддержке [Тудуранта](https://todorant.com/?ref=voicy)',
-  ru: 'Powered by [Todorant](https://todorant.com/?ref=voicy)',
+  ru: 'При поддержке [Тудуранта](https://todorant.com/?ref=voicy)',
+  en: 'Powered by [Todorant](https://todorant.com/?ref=voicy)',
 }
 
 /**
