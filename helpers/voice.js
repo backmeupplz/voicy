@@ -29,7 +29,7 @@ const promoExceptions = [
 
 const promoTexts = {
   en: 'Powered by [Todorant](https://todorant.com/?ref=voicy)',
-  ru: 'При поддержке [Золота Бородача](https://t.me/golden_borodutch)',
+  ru: 'Powered by [Todorant](https://todorant.com/?ref=voicy)',
 }
 
 /**
