@@ -5,6 +5,7 @@ const { report } = require('./report')
 const urlToText = require('./urlToText')
 const { isRuChat } = require('./isRuChat')
 const _ = require('lodash')
+const { isOver10000 } = require('./goldenBorodutchSubCount')
 
 const promoExceptions = [
   -1001122726482,
@@ -28,8 +29,11 @@ const promoExceptions = [
 ]
 
 const promoTexts = {
-  ru: 'При поддержке [Тудуранта](https://todorant.com/?utm_source=voicy)',
-  en: 'Powered by [Todorant](https://todorant.com/?utm_source=voicy)',
+  ru: () =>
+    isOver10000()
+      ? 'При поддержке [Тудуранта](https://todorant.com/?utm_source=voicy)'
+      : 'При поддержке [Золота Бородача](https://t.me/golden_borodutch)',
+  en: () => 'Powered by [Todorant](https://todorant.com/?utm_source=voicy)',
 }
 
 /**
@@ -201,7 +205,7 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   options.disable_web_page_preview = true
   // Add promo
   if (text && !promoExceptions.includes(ctx.chat.id)) {
-    const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']
+    const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']()
     text = `${text}\n${promoText}`
   }
   if (!text || text.length <= 4000) {
@@ -252,7 +256,7 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
   options.disable_web_page_preview = true
   // Add promo
   if (text && !promoExceptions.includes(ctx.chat.id)) {
-    const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']
+    const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']()
     text = `${text}\n${promoText}`
   }
   // Send message
