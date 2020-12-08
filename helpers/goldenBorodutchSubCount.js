@@ -2,7 +2,7 @@ const axios = require('axios')
 
 let over10000 = true
 
-export function isOver10000() {
+function isOver10000() {
   return over10000
 }
 
@@ -14,3 +14,5 @@ setInterval(async () => {
     // Do nothing
   }
 }, 60 * 1000)
+
+module.exports = { isOver10000 }
