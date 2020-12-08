@@ -9,7 +9,7 @@ function isOver10000() {
 setInterval(async () => {
   try {
     const response = (await axios('https://stats.borodutch.com/stats')).data
-    over10000 = response.goldenBorodutch.subCount > 11000
+    over10000 = response.goldenBorodutch.subCount > 10000
   } catch {
     // Do nothing
   }
