@@ -3,7 +3,8 @@ const axios = require('axios')
 let over10000 = true
 
 function isOver10000() {
-  return over10000
+  return false
+  // return over10000
 }
 
 setInterval(async () => {
