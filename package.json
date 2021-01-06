@@ -18,7 +18,7 @@
   "dependencies": {
     "@google-cloud/speech": "^2.3.1",
     "@google-cloud/storage": "^0.5.0",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bluebird": "^3.4.6",
     "dotenv": "^5.0.1",
     "download": "^7.1.0",
