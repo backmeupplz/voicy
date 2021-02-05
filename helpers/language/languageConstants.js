@@ -275,6 +275,7 @@ const languageMaps = {
     'fa-IR': 'fa',
     'ur-PK': 'ur',
     'ur-IN': 'ur',
+    'ro-RO': 'ro',
   },
   wit: witCodes,
 }
