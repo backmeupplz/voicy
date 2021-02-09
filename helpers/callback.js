@@ -5,7 +5,16 @@ const { setEngine } = require('./engine/engine')
 function setupCallbackHandler(bot) {
   bot.action(async (data, ctx) => {
     const msg = ctx.update.callback_query.message.reply_to_message
-    if (msg && msg.from.id !== ctx.from.id) {
+    // Check if anonymous admin
+    if (
+      msg &&
+      msg.from.id !== ctx.from.id &&
+      !(
+        ctx.from &&
+        ctx.from.username &&
+        ctx.from.username === 'GroupAnonymousBot'
+      )
+    ) {
       ctx.telegram.answerCbQuery(
         ctx.callbackQuery.id,
         ctx.i18n.t('callback_error')
