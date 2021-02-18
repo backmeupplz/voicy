@@ -1,20 +1,20 @@
-files_false: "\U0001F4C1 Fantástico! A partir de agora, *Voicy* vai *ignorar* todos os ficheiros de áudio nesta conversa."
-files_true: "\U0001F4C1 Fantástico! A partir de agora, *Voicy* vai *tentar reconhecer* todos os ficheiros áudio nesta conversa."
-google: 'Responda a esta mensagem com o ficheiro das credenciais Google Cloud (.json) para configurar o reconhecimento de voz Google Speech. Desconhece o ficheiro e como obtê-lo? Confira [o nosso tutorial rápido](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).'
-google_error_doc: 'Lamentamos, mas deve responder com o documento das credenciais.'
-google_error_mime: 'Lamentamos, o formato do documento deve ser ''texto/simples''.'
-google_success: 'Parabéns! *Voicy* recebeu o ficheiro das credenciais para o *${projectId}* Projeto Google Cloud. Agora pode usar o reconhecimento Google Speech.'
-help: "\U0001F60E *Voicy* converte áudio em texto, a partir de qualquer mensagem ou ficheiro de áudio (.ogg, .flac, .wav, .mp3) que receba. Pode falar para o *Voicy* no chat privado ou num grupo.\n\nSe deseja usar este bot em mensagens privadas, por favor crie um grupo privado com alguém e adicione o *Voicy*. Se deseja adicionar *Voicy* a uma conversa de grupo, por favor adicione-o como um participante no perfil do grupo ou no perfil do bot *Voicy*.\n\n/help — Exibe esta mensagem \U0001F631\n/engine — Permite selecionar um motor de reconhecimento de voz: wit.ai, Yandex SpeechKit ou Google Speech ⚙\n/language — Permite selecionar o idioma para reconhecimento de voz \U0001F4E3\n/lock — Bloqueia ou desbloqueia comandos nos chats de grupo para não-administradores \U0001F511\n/files — Indique se o bot deve tentar converter ficheiros áudio ou ignorá-los \U0001F4C1\n/silent — Ative o modo silencioso quando mensagens como `Reconhecimento de Voz Iniciado` são enviadas \U0001F636\n/google — Configure as credenciais para o Google Speech \U0001F986\n\nDeixe qualquer sugestão ou questão ao meu programador — @borodutch\\\\_support \U0001F984\n\nAlso check out another one of my projects — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant)). It is a smart todo list app that uses cognitive psychology to trick your brain into finishing projects and showing results. It's free for 30 days with no strings attached, so go give it a shot if you want to improve your productivity. It helped me — it can help you as well.\n"
-error_group: "\U0001F605 Lamento, mas este comando só funciona em chats de grupo."
+files_false: "\U0001F4C1 Fantástico! A partir de agora, *Voicy* vai *ignorar* todos os arquivos de áudio nesta conversa."
+files_true: "\U0001F4C1 Fantástico! A partir de agora, *Voicy* vai *tentar reconhecer* todos os arquivos de áudio nesta conversa."
+google: 'Responda a esta mensagem com os arquivos das credenciais Google Cloud (.json) para configurar o reconhecimento de voz do Google Speech. Desconhece o arquivo e como obtê-lo? Confira [o nosso tutorial rápido](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).'
+google_error_doc: 'Desculpe, mas você deve responder com o documento das credenciais.'
+google_error_mime: 'Desculpe, o formato do documento deve ser ''texto/simples''.'
+google_success: 'Parabéns! *Voicy* recebeu o arquivo das credenciais para o *${projectId}* Projeto Google Cloud. Agora você pode usar o reconhecimento Google Speech.'
+help: "\U0001F60E *Voicy* converte áudio em texto, a partir de qualquer mensagem ou arquivo de áudio (.ogg, .flac, .wav, .mp3) que receba. Você pode falar para o *Voicy* no chat privado ou num grupo.\n\nSe deseja usar este bot em mensagens privadas, por favor crie um grupo privado com alguém e adicione o *Voicy*. Se deseja adicionar *Voicy* a uma conversa de grupo, por favor adicione-o como um participante no perfil do grupo ou no perfil do bot *Voicy*.\n\n/help — Exibe esta mensagem \U0001F631\n/engine — Permite selecionar um motor de reconhecimento de voz: wit.ai ou Google Speech ⚙\n/language — Permite selecionar o idioma para reconhecimento de voz \U0001F4E3\n/lock — Bloqueia ou desbloqueia comandos nos chats de grupo para não-administradores \U0001F511\n/files — Indique se o bot deve tentar converter arquivos áudio ou ignorá-los \U0001F4C1\n/silent — Ative o modo silencioso quando nenhuma mensagem extra como `Reconhecimento de Voz Iniciado` for enviada \U0001F636\n/google — Configure as credenciais do Google Speech \U0001F986\n/geeky — Restante das funções extras, usado principalmente por usuários avançados (como compartilhar credenciais do Google ou ultrapassar o limite de 20Mb do Telegram) \U0001F47B\n/privacy — Política de privacidade\n\nDeixe qualquer sugestão ou questão ao meu programador — @borodutch\\\\_support \U0001F984\n\nTambém confira um dos meus projetos — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant)). Ele é um app inteligente de lista de tarefas que utiliza psicologia cognitiva para fazer o seu cérebro querer terminar projetos e mostrar resultados. Ele é gratuito por 30 dias, sem qualquer compromisso, portanto, dê-lhe uma chance se você deseja melhorar sua produtividade. Ele me ajudou — e pode ajudar-lhe também.\n"
+error_group: "\U0001F605 Desculpe, mas este comando só funciona em chats de grupo."
 lock_true: "\U0001F511 Boa! Agora, *Voicy* só vai responder a comandos enviados por *administradores* neste chat."
 lock_false: "\U0001F511 Boa! Agora, *Voicy* vai responder a comandos de *qualquer pessoa* neste chat."
-silent_true: "\U0001F636 Ótimo! *Voicy* vai funcionar no *modo silêncio*: não vai enviar mensagens para o chat, exceto para transcrições de voz."
-silent_false: "\U0001F60F Fantástico! *Voicy* vai trabalhar no *modo normal*: vai enviar mensagens `Reconhecimento de Voz Iniciado` depois de receber mensagens de voz."
-start: "\U0001F44B Olá! *Voicy* é um bot de reconhecimento de voz que converte todas as mensagens e ficheiros de áudio (.ogg, .flac, .wav, .mp3) que recebe em texto.\n\n*Voicy* suporta três motores de reconhecimento de voz: wit.ai, Yandex SpeechKit e Google Speech. O bot é predefinido para usar wit.ai, mas pode alterar para o Google Speech ou Yandex SpeechKit a qualquer altura. Mais informações em /help.\n"
-engine: "\U0001F44B Por favor, selecione o motor de reconhecimento de voz. O Google Speech é mais preciso e suporta áudios com mais de 50 segundos, mas tem de ser configurado com as suas credenciais Google Cloud (um pouco entediante). O Yandex SpeechKit é bastante preciso, grátis, privado e na maior parte do tempo suporta áudios com mais de 50 segundos, mas tem uma lista limitada de idiomas. O Wit.ai é menos preciso, é grátis, e não suporta áudios com mais de 50 segundos, mas tem muitos idiomas. Por favor, repare que os três motores suportam vários idiomas, por isso escolha o que melhor se adequa às suas necessidades."
-callback_error: Só quem iniciou o comando pode selecionar opções
+silent_true: "\U0001F636 Ótimo! *Voicy* vai funcionar no *modo silencioso*: não vai enviar mensagens para o chat, exceto para transcrições de voz."
+silent_false: "\U0001F60F Ótimo! *Voicy* vai trabalhar no *modo normal*: vai enviar as mensagens `Reconhecimento de Voz Iniciado` depois de receber mensagens de voz."
+start: "\U0001F44B Olá! *Voicy* é um bot de reconhecimento de voz que converte em texto todas as mensagens e arquivos de áudio (.ogg, .flac, .wav, .mp3) que recebe.\n\n*Voicy* suporta dois motores de reconhecimento de voz: wit.ai e Google Speech. O bot é predefinido para usar wit.ai, mas se pode alterar para o Google Speech a qualquer momento, usando /engine. Mais informações em /help.\n"
+engine: "\U0001F44B Por favor, selecione o motor de reconhecimento de voz. O Google Speech é mais preciso, mas precisa ser configurado com as suas credenciais do Google Cloud (um pouco entediante). O Wit.ai é menos preciso, porém gratuito. Por favor, note que ambos têm suporte a diferentes idiomas, portanto selecione o que mais se ajuste a você."
+callback_error: Somente quem iniciou o comando pode selecionar opções
 engine_success: "\U0001F44D Agora *Voicy* usa *${engine}* neste chat. Obrigado! Não se esqueça de definir o /language."
-language: "\U0001F44B Por favor, selecione o idioma para o reconhecimento de voz para ${engine}"
+language: "\U0001F44B Por favor, selecione o idioma do reconhecimento de voz para ${engine}"
 language_without_engine: "\U0001F44B Por favor, selecione o idioma para o reconhecimento de voz"
 language_success: "\U0001F44D Agora *Voicy* fala *${language}* (${engine}) neste chat. Obrigado!"
 error_twenty: "_\U0001F46E Não consigo reconhecer mensagens de voz com mais de 20 megabytes_"
@@ -22,4 +22,22 @@ initiated: "_\U0001F984 Reconhecimento de voz iniciado..._"
 speak_clearly: "_\U0001F46E Por favor, fale com clareza, não consegui reconhecer a mensagem_"
 error: "_\U0001F46E Não consegui reconhecer a mensagem_"
 google_error_creds: "\U0001F62E Por favor, configure as credenciais Google com o comando /google ou altere o motor com o comando /engine. As suas credenciais ainda não foram configuradas."
-ashmanov_language: 'Nanosemantics only supports Russian. Please, change /engine to change /language first.'
+ashmanov_language: 'A nanosemântica suporta apenas o Russo. Por favor, altere o /engine para alterar o /language primeiro.'
+geeky: |
+  Bem-vindo ao lado obscuro, eu serei seu guia. Por favor, utilize as seguintes funções com responsabilidade (ou não, se quiser). Se você tiver quaisquer questões sobre as funções geeky — evite o @borodutch\\_support e envie solicitações diretamente a @borodutch. Valorizo suas opiniões e sugestões, amigos power users!
+
+  /enableGoogle — Compartilha suas credenciais pessoais do Google com este chat, sem expô-las
+  /disableGoogle — Remove suas credenciais pessoais do Google deste chat, sem expô-las
+  /timecodes — Altera os timecodes nas transcrições (quando *Voicy* especificar os timecodes para cada parte do áudio transcrito)
+  /url — Altera o reconhecimento de voz das URLs (*Voicy* tentará baixar os arquivos de áudio das URLs que você enviou e transcrevê-los em texto)
+  /l — O mesmo que /language
+  `/l en` — atalho para alterar o idioma, use-o com diferentes códigos de idiomas
+google_enable_personal_not_setup: 'Parece que as suas credenciais pessoais do Google Cloud não foram configuradas ainda. Por favor, faça isso em @voicybot antes de tentar habilitar a sua chave do Google neste chat.'
+google_enable_success: Muito bom. As suas credenciais do Google Cloud serão agora usadas neste chat.
+google_disable_personal_not_setup: 'Parece que as suas credenciais pessoais do Google Cloud não foram configuradas ainda. Por favor, faça isso em @voicybot antes de tentar desabilitar a sua chave do Google neste chat'
+google_disable_error_wrong_key: Este chat ainda não usa suas credenciais.
+google_disable_success: Muito bom. As suas credenciais do Google Cloud não serão mais usadas neste chat.
+oops: 'Ooops! Ainda não implementei essa ferramenta. Mas saiba que: Recebi sua sugestão e sei que você precisa dessa ferramenta. Obrigado!'
+timecodes_true: Ótimo! Agora *Voicy* adicionará timecodes ao texto reconhecido.
+timecodes_false: Ótimo! Agora *Voicy* não adicionará timecodes ao texto reconhecido.
+url: 'Se você quiser ultrapassar o limite de 20 Mb por arquivo do Telegram, você pode usar o voicybot.com diretamente. Abraços!'
