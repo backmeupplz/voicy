@@ -38,6 +38,6 @@ google_disable_personal_not_setup: 'Kişisel Google Cloud kimlik bilgileriniz he
 google_disable_error_wrong_key: Bu sohbet zaten kimlik bilgilerinizi kullanmıyor.
 google_disable_success: Harika. Artık Google Cloud kimlik bilgileriniz bu sohbette kullanılmayacaktır.
 oops: 'Hay aksi! Bu özelliğe henüz sahip değilim. Fakat size söz veriyorum: Bu konudaki talebinizi aldım ve bu özelliğe ihtiyacınız olduğunu hatırlayacağım. Teşekkürler!'
-timecodes_true: 'Güzel! Şimdi *Voicy*, tanınan metne zaman kodları ekleyecek.
-timecodes_false: 'Güzel! Şimdi *Voicy*, tanınan metne zaman kodları eklemeyecek.
+timecodes_true: 'Güzel! Şimdi *Voicy*, tanınan metne zaman kodları ekleyecek.'
+timecodes_false: 'Güzel! Şimdi *Voicy*, tanınan metne zaman kodları eklemeyecek.'
 url: 'Dosya başına 20 MB olan Telegram limitine takılmak istemiyorsanız, doğrudan voicybot.com adresini kullanabilirsiniz. Teşekkürler!'
