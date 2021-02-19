@@ -17,7 +17,7 @@ engine_success: "\U0001F44D Sekarang *Voicy* menggunakan *${engine}* dalam obrol
 language: "\U0001F44B Silakan pilih bahasa pengenalan suara di ${engine}"
 language_without_engine: "\U0001F44B Silakan pilih bahasa pengenalan suara"
 language_success: "\U0001F44D Sekarang *Voicy* berbicara dengan bahasa *${language}* (${engine}) dalam obrolan ini. Terima kasih!"
-error_twenty: "_\U0001F46E Saya tidak dapat mengenali pesan suara yang melebihi 20 MB."
+error_twenty: "_\U0001F46E Saya tidak dapat mengenali pesan suara yang melebihi 20 MB._"
 initiated: "_\U0001F984 Pengenalan suara dimulai..._"
 speak_clearly: "_\U0001F46E Mohon bicara dengan jelas, Saya tidak dapat memahaminya_"
 error: "_\U0001F46E Saya tidak dapat memahaminya_"
