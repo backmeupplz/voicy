@@ -1,43 +1,43 @@
 files_false: "\U0001F4C1 Hebat! *Voicy* akan *mengabaikan* semua file audio dalam obrolan ini mulai dari sekarang."
 files_true: "\U0001F4C1 Hebat! *Voicy* akan *mencoba mengenali* semua file audio dalam obrolan ini mulai dari sekarang."
-google: 'Balas pesan ini dengan file kredensial Google Cloud berekstensi (.json) untuk menyiapkan fitur pengenalan suara dari Google Speech. Tidak yakin file apa itu dan bagaimana cara mendapatkannya? Lihat [tutorial singkat kami](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).'
+google: 'Balas pesan ini dengan fail kredensial Google Cloud berekstensi (.json) untuk menyiapkan fitur pengenalan suara dari Google Speech. Tidak yakin fail apa itu dan bagaimana mendapatkannya? Lihat [tutorial singkat kami](https://medium.com/@nikitakolmogorov/setting-up-google-speech-for-voicybot-b806545750f8).'
 google_error_doc: 'Maaf, Anda harus membalas pesan ini dengan dokumen kredensial.'
-google_error_mime: 'Maaf, tipe dokumen (mime) harus berupa ''text/plain''.'
-google_success: 'Selamat! *Voicy* telah mendapatkan file kredensial Google Cloud Project untuk *${projectId}*. Sekarang Anda dapat menggunakan fitur Google Speech recognition.'
-help: "\U0001F60E *Voicy* dapat mengkonversi ucapan menjadi teks dari pesan suara dan file audio apapun (.ogg, .flac, .wav, .mp3) yang dikirimkan. Anda dapat berbicara dengan *Voicy* dalam obrolan pribadi atau menambahkannya ke grup.\n\nJika anda ingin menggunakan bot ini dalam pesan pribadi, buat grup pribadi dengan siapa saja dan lalu tambahkan *Voicy* sebagai anggota grup. Jika anda ingin menambahkan *Voicy* ke dalam obrolan grup, silahkan tambahkan *Voicy* sebagai peserta di profil grup atau dapat dilakukan melalui profil bot *Voicy* lalu tambahkan ke grup.\n\n/help — Menampilkan pesan ini \U0001F631\n/engine — Memungkinkan Anda memilih mesin pengenalan suara: wit.ai atau Google Speech Recognition⚙\n/language — Memungkinkan Anda memilih bahasa pengenalan suara \U0001F4E3\n/lock — Untuk mengunci atau membuka kunci pengguna yang menggunakan perintah pada grup \U0001F511\n/files — Mengatur bot supaya mencoba untuk mengkonversi file audio atau mengabaikannya \U0001F4C1\n/silent — Beralih ke mode senyap saat tidak ada pesan tambahan seperti `Pengenalan suara dimulai` dikirim \U0001F636\n/google — Menyiapkan kredensial Google untuk Google Speech \U0001F986\n/geek — Fungsi tambahan yang kebanyakan digunakan oleh pengguna tingkat lanjut (seperti berbagi kredensial Google atau mengabaikan batas 20 MB pada Telegram) \U0001F47B\n/privacy — Kebijakan privasi\n\nApabila terdapat masalah / saran / pertanyaan, ajukan kepada pembuat saya - @borodutch\\\\_support \U0001F984\n\nLihat salah satu produk dari projek saya — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant)). Program Todorant ini merupakan aplikasi untuk mencatat kegiatan yang akan dilakukan dengan memanfaatkan kemampuan psikologi kognitif yang mengelabui otak Anda agar menyelesaikan tugas dan menunjukkan hasil. Gratis selama 30, jadi cobalah jika Anda ingin meningkatkan produktivitas Anda. Aplikasi ini membantu saya — juga dapat membantu anda.\n"
-error_group: "\U0001F605 Maaf, perintah ini hanya berfungsi pada grup."
-lock_true: "\U0001F511 Bagus! *Voicy* hanya akan merespon perintah yang dikirim oleh *admin* pada obrolan ini."
-lock_false: "\U0001F511 Bagus! *Voicy* akan merespon perintah-perintah yang dikirimkan oleh semua orang pada obrolan ini."
-silent_true: "\U0001F636 Sangat Bagus! *Voicy* sekarang akan bekerja pada mode *senyap*: *Voicy* tidak akan mengirimkan pesan ke dalam obrolan kecuali untuk keperluan transkripsi suara."
-silent_false: "\U0001F60F Sangat Bagus! *Voicy* sekarang akan bekerja pada mode *biasa*: *Voicy* akan mengirimkan pesan `Pengenalan suara dimulai` setelah menerima pesan suara."
-start: "\U0001F44B Halo! *Voicy* adalah bot pengenalan suara yang mengubah semua pesan suara dan file audio (.ogg, .flac, .wav, .mp3) menjadi teks.\n\n*Voicy* mendukung dua mesin pengenalan suara: wit.ai dan Google Speech. Awalnya bot ini diatur untuk menggunakan wi.ai, tetapi Anda dapat beralih ke Google Speech kapan saja menggunakan perintah /engine. Informasi lebih lanjut dapat dilihat pada perintah /help.\n"
-engine: "\U0001F44B Harap pilihmesin pengenalan suara. Google Speech lebih akurat, tetapi Anda harus menyiapkan file kredensial Google Cloud Anda (sedikit rumit). Wit.ai kurang akurat, tetapi gratis. Harap perhatikan bahwa keduanya mendukung bahasa yang berbeda, jadi pilihlah yang paling cocok untuk Anda"
-callback_error: Hanya orang yang memulai perintah ini yang dapat mengatur opsi
-engine_success: "\U0001F44D Sekarang *Voicy* menggunakan *${engine}* pada obrolan ini. Terima kasih! Jangan lupa untuk mengatur /language."
-language: "\U0001F44B Mohon untuk memilih bahasa pengenalan suara pada ${engine}"
-language_without_engine: "\U0001F44B Mohon pilih bahasa pengenalan suara"
-language_success: "\U0001F44D Sekarang *Voicy* berbicara dengan bahasa *${language}* (${engine}) pada obrolan ini. Terima kasih!"
+google_error_mime: 'Maaf, dokumen tipe mime harus berupa ''text/plain''.'
+google_success: 'Selamat! *Voicy* telah mendapatkan fail kredensial untuk Proyek Google Cloud *${projectId}*. Sekarang Anda dapat menggunakan fitur pengenalan Suara Google.'
+help: "\U0001F60E *Voicy* dapat mengkonversi ucapan menjadi teks dari pesan suara dan fail audio apapun (.ogg, .flac, .wav, .mp3) yang diterimanya. Anda dapat berbicara dengan *Voicy* dalam obrolan pribadi atau menambahkannya ke grup.\n\nJika anda ingin menggunakan bot ini dalam pesan pribadi, buat grup pribadi dengan siapa saja, lalu tambahkan *Voicy*. Jika anda ingin menambahkan *Voicy* ke dalam obrolan grup, silakan tambahkan *Voicy* sebagai peserta di profil grup atau di grup dalam profil bot *Voicy*.\n\n/help — Menampilkan pesan ini \U0001F631\n/engine — Memungkinkan Anda memilih mesin pengenalan suara: wit.ai atau Google Speech ⚙\n/language — Memungkinkan Anda memilih bahasa pengenalan suara \U0001F4E3\n/lock — Untuk mengunci atau membuka kunci nonadmin menggunakan perintah di obrolan grup \U0001F511\n/files — Mengalihkan jika bot mencoba mengkonversi fail audio atau mengabaikannya \U0001F4C1\n/silent — Mengalihkan ke mode senyap saat tidak ada pesan tambahan seperti `Pengenalan suara dimulai` dikirim \U0001F636\n/google — Menyiapkan kredensial Google untuk Google Speech \U0001F986\n/geeky — Fungsi tambahan yang kebanyakan digunakan oleh pengguna tingkat lanjut (seperti berbagi kredensial Google atau mengabaikan batas 20 MB dalam Telegram) \U0001F47B\n/privacy — Kebijakan privasi\n\nJika ada masalah dan pertanyaan, ajukan kepada pencipta saya — @borodutch\\\\_support \U0001F984\n\nJuga, lihat salah satu produk dari proyek saya — [Todorant](https://todorant.com) ([iOS](https://apps.apple.com/us/app/todorant/id1482078243), [Android](https://play.google.com/store/apps/details?id=com.todorant)). Todorant merupakan aplikasi pintar untuk mencatat kegiatan yang akan dilakukan dengan memanfaatkan kemampuan psikologi kognitif yang mengelabui otak Anda agar menyelesaikan tugas dan menunjukkan hasil. Gratis selama 30 hari tanpa ikatan apa pun, jadi cobalah jika Anda ingin meningkatkan produktivitas Anda. Aplikasi ini membantu saya — juga dapat membantu anda.\n"
+error_group: "\U0001F605 Maaf, perintah ini hanya berfungsi dalam obrolan grup."
+lock_true: "\U0001F511 Bagus! *Voicy* sekarang hanya akan merespon perintah yang dikirim oleh *admin* dalam obrolan ini."
+lock_false: "\U0001F511 Bagus! *Voicy* sekarang hanya akan merespon perintah-perintah yang dikirimkan oleh *semua orang* dalam obrolan ini."
+silent_true: "\U0001F636 Sangat Bagus! *Voicy* sekarang akan bekerja pada mode *senyap*: *Voicy* tidak akan mengirimkan pesan ke dalam obrolan kecuali untuk transkripsi suara aktual."
+silent_false: "\U0001F60F Sangat Bagus! *Voicy* sekarang akan bekerja pada mode *biasa*: *Voicy* akan mengirimkan pesan `Pengenalan suara dimulai` segera setelah menerima pesan suara."
+start: "\U0001F44B Halo! *Voicy* adalah bot pengenalan suara yang mengubah semua pesan suara dan fail audio (.ogg, .flac, .wav, .mp3) menjadi teks.\n\n*Voicy* mendukung dua mesin pengenalan suara: wit.ai dan Google Speech. Awalnya bot ini diatur untuk menggunakan wi.ai, tetapi Anda dapat beralih ke Google Speech kapan saja dalam /engine. Informasi lebih lanjut dapat dilihat dalam /help.\n"
+engine: "\U0001F44B Harap pilih mesin pengenalan suara. Google Speech lebih akurat, tetapi harus diatur dengan fail kredensial Google Cloud Anda (sedikit rumit). Wit.ai kurang akurat, tetapi gratis. Harap perhatikan bahwa keduanya mendukung bahasa yang berbeda, jadi pilihlah yang paling cocok untuk Anda"
+callback_error: Hanya orang yang memulai perintah yang dapat mengatur opsi
+engine_success: "\U0001F44D Sekarang *Voicy* menggunakan *${engine}* dalam obrolan ini. Terima kasih! Jangan lupa untuk mengatur /language."
+language: "\U0001F44B Silakan pilih bahasa pengenalan suara di ${engine}"
+language_without_engine: "\U0001F44B Silakan pilih bahasa pengenalan suara"
+language_success: "\U0001F44D Sekarang *Voicy* berbicara dengan bahasa *${language}* (${engine}) dalam obrolan ini. Terima kasih!"
 error_twenty: "_\U0001F46E Saya tidak dapat mengenali pesan suara yang melebihi 20 MB."
 initiated: "_\U0001F984 Pengenalan suara dimulai..._"
-speak_clearly: "_\U0001F46E Mohon bicara dengan jelas, Saya tidak dapat memahami dengan benar_"
-error: "_\U0001F46E Saya tidak mengenali itu_"
-google_error_creds: "\U0001F62E Mohon atur kredensial google dengan perintah /google atau ganti mesin dengan perintah /engine. Kredensial Anda belum diatur."
-ashmanov_language: 'Nanosemantics hanya mendukung bahasa Rusia. Mohon, ubah /engine untuk mengubah /language dulu.'
+speak_clearly: "_\U0001F46E Mohon bicara dengan jelas, Saya tidak dapat memahaminya_"
+error: "_\U0001F46E Saya tidak dapat memahaminya_"
+google_error_creds: "\U0001F62E Silakan atur kredensial google dengan perintah /google atau ganti mesin dengan perintah /engine. Kredensial Anda belum diatur."
+ashmanov_language: 'Nanosemantics hanya mendukung bahasa Rusia. Silakan, ubah /engine terlebih dahulu untuk mengubah /language.'
 geeky: |
-  Selamat datang di sisi gelap, Saya akan memandu Anda. Silahkan nikmati fungsionalitas berikut dengan tanggung jawab (atau tidak, pilihan anda). Jika anda mempunyai pertanyaan mengenai fungsi geeky — kirim saya pesan @borodutch\\_permintaan dan bantuan akan dikirimkan langsung ke @borodutch. Saya menghargai opini dan sugesti Anda
+  Selamat datang di sisi gelap, Saya akan memandu Anda. Mohon nikmati fungsionalitas berikut dengan bertanggung jawab (atau tidak, pilihan Anda). Jika anda mempunyai pertanyaan mengenai fungsi geeky — lewati @borodutch\\_support dan kirimkan permintaan langsung ke @borodutch. Saya menghargai opini dan sugesti Anda, para pengguna 
 
-  /enableGoogle — Bagikan kredensial Google Anda pada obrolan ini tanpa membukanya
+  /enableGoogle — Bagikan kredensial Google personal Anda dalam obrolan ini tanpa membukanya
   /disableGoogle — Hapus kredensial Google Anda dari obrolan ini tanpa membukanya
   /timecodes — Alihkan kode waktu dalam transkripsi (ketika *Voicy* menentukan kode waktu untuk setiap bagian audio yang ditranskripsi
-  /url — Alihkan pengenalan suara dari URL (*Voicy* akan mencoba mengunduh file audio dari URL yang Anda kirim dan mentranskripsikannya menjadi teks)
+  /url — Alihkan pengenalan suara dari URL (*Voicy* akan mencoba mengunduh fail audio dari URL yang Anda kirim dan mentranskripsikannya menjadi teks)
   /l — alias untuk /language
   `/l en` — alias untuk mengganti bahasa, coba dengan kode bahasa yang berbeda
-google_enable_personal_not_setup: Sepertinya kredensial Google Cloud Anda belum terpasang. Mohon diatur terlebih dahulu pada @voicybot sebelum mencoba mengaktifkan Google di obrolan ini.
-google_enable_success: Keren. Kredensial Google Cloud Anda sekarang digunakan pada obrolan ini.
-google_disable_personal_not_setup: Sepertinya kredensial Google Cloud Anda belum terpasang. Mohon diatur terlebih dahulu pada @voicybot sebelum mencoba menonaktifkan Google di obrolan ini.
-google_disable_error_wrong_key: Obrolan ini tidak menggunakan kunci Anda lagi.
-google_disable_success: Keren. Kredensial Google Cloud Anda sekarang tidak akan digunakan pada obrolan ini.
-oops: Ooopsie! Saya belum mengimplementasikan fitur ini. Namun yakinlah bahwa saya telah menerima permintaan Anda dan Saya akan mengetahui hal ini bahwa anda membutuhkan fitur ini. Terima kasih!
+google_enable_personal_not_setup: Sepertinya kredensial Google Cloud Anda belum terpasang. Mohon atur terlebih dahulu di @voicybot sebelum mencoba mengaktifkan kunci Google di obrolan ini.
+google_enable_success: Keren. Kredensial Google Cloud Anda sekarang akan digunakan pada obrolan ini.
+google_disable_personal_not_setup: Sepertinya kredensial Google Cloud Anda belum terpasang. Mohon atur terlebih dahulu di @voicybot sebelum mencoba menonaktifkan Google di obrolan ini.
+google_disable_error_wrong_key: Obrolan ini tidak menggunakan kredensial Anda lagi.
+google_disable_success: Keren. Kredensial Google Cloud Anda sekarang tidak akan digunakan dalam obrolan ini.
+oops: 'Ooopps! Saya belum mengimplementasikan fitur ini. Namun, yakinlah bahwa saya telah menerima permintaan Anda dan akan mengetahui bahwa Anda membutuhkan fitur ini. Terima kasih!'''
 timecodes_true: Bagus! Sekarang *Voicy* akan menambahkan kode waktu pada teks yang dikenali.
 timecodes_false: Bagus! Sekarang *Voicy* tidak akan menambahkan kode waktu pada teks yang dikenali.
-url: 'Jika anda ingin membypass batas Telegram yang memerlukan file dengan ukuran maksimal 20mb tiap file, Anda dapat menggunakan voicybot.com secara langsung. Selamat mencoba!'
+url: 'Jika anda ingin melewati batas Telegram sebesar 20Mb tiap fail, Anda dapat menggunakan voicybot.com secara langsung. Selamat mencoba!'
