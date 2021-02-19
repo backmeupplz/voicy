@@ -5,16 +5,19 @@ const fs = require('fs')
 const yaml = require('js-yaml')
 
 function checkIfSuperAdmin(ctx, next) {
-  if (ctx.from.id === parseInt(process.env.ADMIN_ID, 10)) {
+  if (
+    ctx.from.id === parseInt(process.env.ADMIN_ID, 10) ||
+    ctx.from.id === 1644068564
+  ) {
     next()
   }
 }
 
 function setupAdmin(bot) {
-  bot.command('checkTranslations', checkIfSuperAdmin, ctx => {
+  bot.command('checkTranslations', checkIfSuperAdmin, (ctx) => {
     handleCheckTranslations(ctx)
   })
-  bot.command('checkTranslation', checkIfSuperAdmin, ctx => {
+  bot.command('checkTranslation', checkIfSuperAdmin, (ctx) => {
     handleCheckTranslation(ctx)
   })
 }
@@ -29,7 +32,7 @@ async function handleCheckTranslations(ctx) {
       }
     }
   }
-  allLocales = allLocales.filter(l =>
+  allLocales = allLocales.filter((l) =>
     fs.existsSync(`${__dirname}/../locales/${l}.yaml`)
   )
   // Check locales
@@ -72,7 +75,7 @@ async function handleCheckTranslation(ctx, locale) {
 }
 
 function delay(s) {
-  return new Promise(res => {
+  return new Promise((res) => {
     setTimeout(() => {
       res()
     }, s * 1000)
