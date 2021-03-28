@@ -1,4 +1,3 @@
-// Dependencies
 const languageKeyboard = require('./languageKeyboard')
 const engineString = require('../engine/engineString')
 const logAnswerTime = require('../logAnswerTime')

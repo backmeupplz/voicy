@@ -1,4 +1,3 @@
-// Dependencies
 const sendStart = require('../sendStart')
 const {
   languageForEngineAndCode,
@@ -8,14 +7,16 @@ const {
 const engineString = require('../engine/engineString')
 const languageKeyboard = require('./languageKeyboard')
 const logAnswerTime = require('../logAnswerTime')
+const engines = require('../../engines')
 
 async function setLanguageCode(ctx) {
   const code = ctx.from.language_code.split('-')[0]
   // Get chat
   const chat = ctx.dbchat
   // Set languages to chat
-  chat.witLanguage = languageForEngineAndCode('wit', code)
-  chat.googleLanguage = languageForEngineAndCode('google', code)
+  for (const engine of engines) {
+    chat[`${engine.code}Language`] = engine.languageForTelegramCode(code)
+  }
   // Setup i18n
   updateLocale(ctx)
   // Save chat and return
@@ -36,7 +37,7 @@ async function setLanguage(data, ctx) {
       ? ctx.i18n.t('language', { engine: engineString(engine) })
       : ctx.i18n.t('language_without_engine')
     // Get page
-    const page = parseInt(options[engine === 'wit' ? 4 : 5], 10)
+    const page = parseInt(options[4], 10)
     // Get keyboard options
     const opts = {
       reply_markup: {
@@ -50,7 +51,11 @@ async function setLanguage(data, ctx) {
     }
     opts.reply_markup = JSON.stringify(opts.reply_markup)
     // Edit message
-    await ctx.editMessageText(text, opts)
+    try {
+      await ctx.editMessageText(text, opts)
+    } catch {
+      // Do nothing
+    }
     return
   }
   // Set language

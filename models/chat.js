@@ -1,8 +1,17 @@
-// Dependencies
 const mongoose = require('mongoose')
+const engines = require('../engines')
 
-// Schema
 const Schema = mongoose.Schema
+
+const languages = engines.reduce((p, c) => {
+  p[`${c.code}Language`] = {
+    type: String,
+    required: true,
+    default: c.defaultLanguageCode,
+  }
+  return p
+}, {})
+
 const chatSchema = new Schema(
   {
     id: {
@@ -12,19 +21,10 @@ const chatSchema = new Schema(
     engine: {
       type: String,
       required: true,
-      enum: ['wit', 'google', 'ashmanov'],
+      enum: engines.map((e) => e.code),
       default: 'wit',
     },
-    googleLanguage: {
-      type: String,
-      required: true,
-      default: 'en-US',
-    },
-    witLanguage: {
-      type: String,
-      required: true,
-      default: 'English',
-    },
+    ...languages,
     adminLocked: {
       type: Boolean,
       required: true,
@@ -53,5 +53,4 @@ const chatSchema = new Schema(
   { timestamps: true }
 )
 
-// Exports
 module.exports = mongoose.model('chat', chatSchema)

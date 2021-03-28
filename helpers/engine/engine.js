@@ -1,16 +1,14 @@
-// Dependencies
 const engineString = require('./engineString')
 const logAnswerTime = require('../logAnswerTime')
+const engines = require('../../engines')
 
 async function sendEngine(ctx) {
   // Construct options keyboard
   const options = {
     reply_markup: {
-      inline_keyboard: [
-        [{ text: 'wit.ai', callback_data: 'ei~wit' }],
-        [{ text: 'Google Speech', callback_data: 'ei~google' }],
-        [{ text: 'Nanosemantics (beta)', callback_data: 'ei~ashmanov' }],
-      ],
+      inline_keyboard: engines.map((e) => [
+        { text: e.name, callback_data: `ei~${e.code}` },
+      ]),
     },
   }
   // Reply to the message
@@ -32,23 +30,22 @@ async function setEngine(data, ctx) {
   ctx.dbchat.engine = engine
   // Save chat
   ctx.dbchat = await ctx.dbchat.save()
+  // Get engine
+  const engineObject = engines.find((e) => e.code === engine)
   // Edit message
   await ctx.editMessageText(
-    ctx.i18n.t('engine_success', { engine: engineString(engine) }),
+    ctx.i18n.t('engine_success', { engine: engineObject.name }),
     {
       parse_mode: 'Markdown',
     }
   )
-  if (ctx.dbchat.engine === 'ashmanov') {
-    ctx.reply(
-      'Пожалуйста, заметьте, что Nanosemantics — это движок распознавания речи в бета-версии никак не аффилированный с Войси. Команда Войси точно не в курсе, насколько сохранны ваши данные при использовании движка Nanosemantics, так что используйте на свои страх и риск. Спасибо!'
-    )
+  if (engineObject.messageWhenEngineIsSet) {
+    ctx.reply(engineObject.messageWhenEngineIsSet)
   }
   // Log time
   logAnswerTime(ctx, 'setting engine')
 }
 
-// Exports
 module.exports = {
   sendEngine,
   setEngine,

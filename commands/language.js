@@ -1,60 +1,45 @@
-// Dependencies
 const sendLanguage = require('../helpers/language/sendLanguage')
 const checkAdminLock = require('../middlewares/adminLock')
-const {
-  witCodes,
-  googleLanguages,
-  updateLocale,
-} = require('../helpers/language/languageConstants')
+const { updateLocale } = require('../helpers/language/languageConstants')
+const engines = require('../engines')
 
 function setupLanguage(bot) {
-  bot.command('language', checkAdminLock, async ctx => {
-    if (ctx.dbchat.engine === 'ashmanov') {
-      return ctx.reply(ctx.i18n.t('ashmanov_language'))
+  bot.command('language', checkAdminLock, async (ctx) => {
+    const engineObject = engines.find((e) => e.code === ctx.dbchat.engine)
+    if (engineObject.languageException) {
+      return ctx.reply(ctx.i18n.t(engineObject.languageException))
     }
     sendLanguage(ctx, true)
   })
-  bot.command('l', checkAdminLock, async ctx => {
+  bot.command('l', checkAdminLock, async (ctx) => {
     // Check if just a command
     if (ctx.message.text.length <= 2) {
       sendLanguage(ctx, true)
     } else {
       const language = ctx.message.text.substring(3, ctx.message.text.length)
       if (!language) {
-        sendLanguage(ctx, true)
+        return sendLanguage(ctx, true)
       }
-      if (ctx.dbchat.engine === 'ashmanov') {
-        return ctx.reply(ctx.i18n.t('ashmanov_language'))
+      const engineObject = engines.find((e) => e.code === ctx.dbchat.engine)
+      if (engineObject.languageException) {
+        return ctx.reply(ctx.i18n.t(engineObject.languageException))
       }
-      // Get chat
-      const chat = ctx.dbchat
-      // Set languages to chat
-      let changed = false
-      for (const key of Object.keys(witCodes)) {
-        if (witCodes[key].indexOf(language) > -1) {
-          chat.witLanguage = key
-          changed = true
-          break
-        }
+      // Get actual language
+      const languageObject = engineObject.languages.find(
+        (l) => l.code.toLowerCase().indexOf(language.toLowerCase()) > -1
+      )
+      if (!languageObject) {
+        return sendLanguage(ctx, true)
       }
-      for (const key of Object.keys(googleLanguages)) {
-        if (googleLanguages[key].indexOf(language) > -1) {
-          chat.googleLanguage = googleLanguages[key]
-          changed = true
-          break
-        }
-      }
-      if (!changed) {
-        sendLanguage(ctx, true)
-        return
-      }
+      ctx.dbchat[`${engineObject.code}Language`] = languageObject.code
+      // Save chat
+      ctx.dbchat.save()
       // Setup i18n
       updateLocale(ctx)
-      // Save chat and return
-      chat.save()
+      // Reply
+      ctx.reply('👍')
     }
   })
 }
 
-// Exports
 module.exports = setupLanguage
