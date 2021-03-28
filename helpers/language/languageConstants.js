@@ -3,7 +3,11 @@ const engines = require('../../engines')
 function localeForChat(chat) {
   const engineObject = engines.find((e) => e.code === chat.engine)
   const language = chat[`${chat.engine}Language`]
-  const languageObject = engineObject.languages.find((l) => l.code === language)
+  const languageObject =
+    engineObject.languages.find((l) => l.code === language) ||
+    engineObject.languages.find(
+      (l) => l.code === engineObject.defaultLanguageCode
+    )
   return languageObject.i18nCode
 }
 
