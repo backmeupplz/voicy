@@ -254,10 +254,10 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   options.parse_mode = 'Markdown'
   options.disable_web_page_preview = true
   // Add promo
-  // if (text && !promoExceptions.includes(ctx.chat.id)) {
-  //   const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']()
-  //   text = `${text}\n${promoText}`
-  // }
+  if (text && !promoExceptions.includes(ctx.chat.id)) {
+    const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']()
+    text = `${text}\n${promoText}`
+  }
   if (!text || text.length <= 4000) {
     // Edit message
     await ctx.telegram.editMessageText(
@@ -305,10 +305,10 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
   options.parse_mode = 'Markdown'
   options.disable_web_page_preview = true
   // Add promo
-  // if (text && !promoExceptions.includes(ctx.chat.id)) {
-  //   const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']()
-  //   text = `${text}\n${promoText}`
-  // }
+  if (text && !promoExceptions.includes(ctx.chat.id)) {
+    const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']()
+    text = `${text}\n${promoText}`
+  }
   // Send message
   if (text && text.length < 4000) {
     await ctx.telegram.sendMessage(chat.id, text, options)
