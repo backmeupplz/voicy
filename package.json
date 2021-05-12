@@ -24,7 +24,7 @@
     "download": "^7.1.0",
     "easy-file-manager": "^0.1.3",
     "fluent-ffmpeg": "^2.1.2",
-    "grpc": "^1.18.0",
+    "grpc": "^1.24.9",
     "js-yaml": "^3.12.1",
     "lodash": "^4.17.21",
     "mongoose": "^4.9.4",
