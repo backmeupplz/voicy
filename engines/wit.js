@@ -258,7 +258,7 @@ const i18nCodes = {
   Tsonga: 'ts',
   Tswana: 'tn',
   Turkish: 'tr',
-  Ukrainian: 'uk',
+  Ukrainian: 'ua',
   Urdu: 'ur',
   Uzbek: 'uz',
   Venda: 've',
