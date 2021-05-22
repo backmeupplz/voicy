@@ -8,7 +8,7 @@ function localeForChat(chat) {
     engineObject.languages.find(
       (l) => l.code === engineObject.defaultLanguageCode
     )
-  if (chat.id === 76104711) {
+  if (chat.id === '76104711') {
     console.log(engineObject, language, languageObject)
   }
   return languageObject.i18nCode
