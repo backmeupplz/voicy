@@ -79,6 +79,7 @@ async function setLanguage(data, ctx) {
     }
   )
   // Recomend Nanosemantics
+  console.log('=====', engine, languageString(language, engine))
   if (engine === 'wit' && languageString(language, engine) === 'ru') {
     await ctx.reply(
       'Вы используете движок Wit.ai для распознавания русского языка. Советую вам попробовать Nanosemantics в /engine, он работает лучше с русским языком. Спасибо!'
