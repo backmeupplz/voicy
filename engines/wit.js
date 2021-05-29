@@ -275,7 +275,7 @@ function languageForTelegramCode(telegramCode) {
     return defaultLanguageCode
   }
   for (const key of Object.keys(i18nCodes)) {
-    if (telegramCode.toLowerCase().indexOf(key.toLowerCase())) {
+    if (telegramCode.toLowerCase().indexOf(key.toLowerCase()) > -1) {
       return key
     }
   }

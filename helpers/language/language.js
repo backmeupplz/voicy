@@ -17,6 +17,10 @@ async function setLanguageCode(ctx) {
   for (const engine of engines) {
     chat[`${engine.code}Language`] = engine.languageForTelegramCode(code)
   }
+  // Setup Nanosemantics if needed
+  if (code.toLowerCase().indexOf('ru') > -1) {
+    chat.engine = 'ashmanov'
+  }
   // Setup i18n
   updateLocale(ctx)
   // Save chat and return
@@ -74,6 +78,12 @@ async function setLanguage(data, ctx) {
       parse_mode: 'Markdown',
     }
   )
+  // Recomend Nanosemantics
+  if (engine === 'wit' && languageString(language, engine) === 'ru') {
+    await ctx.reply(
+      'Вы используете движок Wit.ai для распознавания русского языка. Советую вам попробовать Nanosemantics в /engine, он работает лучше с русским языком. Спасибо!'
+    )
+  }
   // If it was not a command, send start
   if (!isCommand) sendStart(ctx)
   // Log time
