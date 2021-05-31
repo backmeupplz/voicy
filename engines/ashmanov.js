@@ -25,7 +25,7 @@ async function recognize(flacPath, chat, duration, path) {
   const response = (
     await axios({
       method: 'post',
-      url: 'https://asr.ashmanov.org/asr/',
+      url: 'https://asr.nanosemantics.ai/asr/',
       data: formData,
       headers,
     })
