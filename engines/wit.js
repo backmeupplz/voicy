@@ -119,9 +119,6 @@ async function recognizePath(path, token) {
 }
 
 async function recognize(flacPath, chat, duration, ogaPath) {
-  if (chat.id === '76104711') {
-    console.log(chat)
-  }
   const token = chat.witToken || witLanguages[chat.witLanguage]
   const iLanguage = chat.witLanguage
   const paths = await splitPath(ogaPath, duration)
