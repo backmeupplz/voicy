@@ -119,7 +119,7 @@ async function recognizePath(path, token) {
 }
 
 async function recognize(flacPath, chat, duration, ogaPath) {
-  const token = witLanguages[chat.witLanguage]
+  const token = chat.witToken || witLanguages[chat.witLanguage]
   const iLanguage = chat.witLanguage
   const paths = await splitPath(ogaPath, duration)
   const savedPaths = paths.slice()

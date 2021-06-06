@@ -25,6 +25,7 @@ const setupTimecodes = require('./commands/timecodes')
 const setupUrl = require('./commands/url')
 const setupAdmin = require('./commands/admin')
 const setupPrivacy = require('./commands/privacy')
+const setupWitToken = require('./commands/witToken')
 // Audio handler
 const setupAudioHandler = require('./helpers/handler')
 // Callbacks
@@ -54,7 +55,8 @@ setupTimecodes(bot)
 setupUrl(bot)
 setupAdmin(bot)
 setupPrivacy(bot)
-bot.command('validation', ctx => ctx.reply('success'))
+setupWitToken(bot)
+bot.command('validation', (ctx) => ctx.reply('success'))
 // Audio handler
 setupAudioHandler(bot)
 // Callbacks
