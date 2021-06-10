@@ -47,9 +47,11 @@ const promoExceptions = [
 const promoTexts = {
   ru: () =>
     isOver10000()
-      ? 'При поддержке [Тудуранта](https://todorant.com/?utm_source=voicy)'
-      : 'При поддержке [Золота Бородача](https://t.me/golden_borodutch)',
-  en: () => 'Powered by [Todorant](https://todorant.com/?utm_source=voicy)',
+      ? // ? 'При поддержке [Тудуранта](https://todorant.com/?utm_source=voicy)'
+        // : 'При поддержке [Золота Бородача](https://t.me/golden_borodutch)',
+        'При поддержке [NordVPN](https://go.nordvpn.net/SH3Nf)'
+      : 'При поддержке [NordVPN](https://go.nordvpn.net/SH3Nf)',
+  en: () => 'Powered by [NordVPN](https://go.nordvpn.net/SH3Nf)',
 }
 
 /**
