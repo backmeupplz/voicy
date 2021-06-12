@@ -49,9 +49,9 @@ const promoTexts = {
     isOver10000()
       ? // ? 'При поддержке [Тудуранта](https://todorant.com/?utm_source=voicy)'
         // : 'При поддержке [Золота Бородача](https://t.me/golden_borodutch)',
-        'При поддержке [NordVPN](https://go.nordvpn.net/SH3Nf)'
-      : 'При поддержке [NordVPN](https://go.nordvpn.net/SH3Nf)',
-  en: () => 'Powered by [NordVPN](https://go.nordvpn.net/SH3Nf)',
+        'При поддержке [Бородач Клуба](https://t.me/golden_borodutch/5340)'
+      : 'При поддержке [Бородач Клуба](https://t.me/golden_borodutch/5340)',
+  en: () => 'Powered by [Todorant](https://todorant.com/?utm_source=voicy)',
 }
 
 /**
