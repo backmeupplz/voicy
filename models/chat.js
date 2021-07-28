@@ -48,7 +48,10 @@ const chatSchema = new Schema(
       required: true,
       default: false,
     },
-    lastVoiceMessageSentAt: Date,
+    lastVoiceMessageSentAt: {
+      type: Date,
+      required: false,
+    },
     // Added just as a virtual variable
     language: String,
   },

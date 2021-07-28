@@ -26,7 +26,7 @@ function setupAudioHandler(bot) {
 
 async function updateLastVoiceMessageSentAt(ctx) {
   await ChatModel.updateOne(
-    { id: ctx.chat.id },
+    { id: `${ctx.chat.id}` },
     {
       lastVoiceMessageSentAt: new Date(),
     }
