@@ -1,7 +1,7 @@
 // Dependencies
 const handleMessage = require('./voice')
 const logAnswerTime = require('../helpers/logAnswerTime')
-const { findChat } = require('./db')
+const { Chat } = require('../models')
 
 function setupAudioHandler(bot) {
   // Voice handler
@@ -25,7 +25,7 @@ function setupAudioHandler(bot) {
 }
 
 async function updateLastVoiceMessageSentAt(ctx) {
-  await ChatModel.updateOne(
+  await Chat.updateOne(
     { id: `${ctx.chat.id}` },
     {
       lastVoiceMessageSentAt: new Date(),
