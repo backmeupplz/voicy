@@ -1,23 +1,36 @@
 // Dependencies
 const handleMessage = require('./voice')
 const logAnswerTime = require('../helpers/logAnswerTime')
+const { findChat } = require('./db')
 
 function setupAudioHandler(bot) {
   // Voice handler
-  bot.on(['voice', 'video_note'], ctx => {
+  bot.on(['voice', 'video_note'], (ctx) => {
     // Handle voice
     handleMessage(ctx)
     // Log time
     logAnswerTime(ctx, 'voice')
+    // Save last voice message sent at
+    updateLastVoiceMessageSentAt(ctx)
   })
   // Audio handler
-
-  bot.on(['audio', 'document'], async ctx => {
+  bot.on(['audio', 'document'], async (ctx) => {
     // Handle voice
     handleDocumentOrAudio(ctx)
     // Log time
     logAnswerTime(ctx, 'voice.document')
+    // Save last voice message sent at
+    updateLastVoiceMessageSentAt(ctx)
   })
+}
+
+async function updateLastVoiceMessageSentAt(ctx) {
+  await ChatModel.updateOne(
+    { id: ctx.chat.id },
+    {
+      lastVoiceMessageSentAt: new Date(),
+    }
+  )
 }
 
 async function handleDocumentOrAudio(ctx) {
