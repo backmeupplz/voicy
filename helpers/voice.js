@@ -70,7 +70,6 @@ async function handleMessage(ctx, messageType = messageTypes.MESSAGE_TEXT) {
     const chat = await findChat(ctx.chat.id)
     // Get message
     const message = ctx.message || ctx.update.channel_post
-    console.log(ctx.from.id)
     
     switch (messageType) {
       case messageTypes.MESSAGE_TEXT:
@@ -128,14 +127,16 @@ async function handleMessage(ctx, messageType = messageTypes.MESSAGE_TEXT) {
  * @param {Mongoose:Chat} chat Chat object where message has been received
  */
 async function sendTranscription(ctx, url, chat, fileId) {
+  console.log("sendTranscription")
   // Get message
   const message = ctx.message || ctx.update.channel_post
-  const sentMessage = null
+  let sentMessage = null
   // Send initial message
   if (chat.voiceToText)
   sentMessage = await sendVoiceRecognitionMessage(ctx, message)
   // Get language
   const lan = languageFromChat(chat)
+
   // Check if ok with google engine
   if (chat.engine === 'google' && !chat.googleKey) {
     updateWithGoogleKeyError(ctx, sentMessage, chat)
@@ -154,13 +155,6 @@ async function sendTranscription(ctx, url, chat, fileId) {
           .map((t) => t[1].trim())
           .filter((v) => !!v)
           .join('. ')
-    if (chat.checkVoiceSpelling) {
-      checkSpelling(ctx, text)
-    }
-    if (!chat.voiceToText)
-    {
-      return
-    }
     await updateMessagewithTranscription(ctx, sentMessage, text, chat)
     // Save voice to db
     // await addVoice(
@@ -253,6 +247,7 @@ async function sendAction(ctx, url, chat, fileId) {
  */
 async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   // Create options
+  console.log("updateMessagewithTranscription")
   const options = {}
   options.parse_mode = 'Markdown'
   options.disable_web_page_preview = true
@@ -307,6 +302,7 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
  */
 async function sendMessageWithTranscription(ctx, text, chat, markdown) {
   // Get message
+  console.log("sendMessageWithTranscription")
   const message = ctx.message || ctx.update.channel_post
   // Create options
   const options = {

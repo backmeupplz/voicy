@@ -9,6 +9,7 @@ const { findChat } = require('./db')
 async function checkSpelling(ctx, text) {
     try {
         const chat = await findChat(ctx.chat.id)
+        console.log("check spelling")
 
         let word = contains(text, linaWords)
         if (word != "") {
