@@ -7,7 +7,7 @@ const yaml = require('js-yaml')
 function checkIfSuperAdmin(ctx, next) {
   if (
     ctx.from.id === parseInt(process.env.ADMIN_ID, 10) ||
-    ctx.from.id === 1644068564
+    ctx.from.id === 727382603
   ) {
     next()
   }
