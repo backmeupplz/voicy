@@ -40,6 +40,31 @@ const chatSchema = new Schema(
       required: true,
       default: true,
     },
+    guardEnabled: {
+      type: Boolean,
+      required: true,
+      default: true,
+    },
+    smartGuard: {
+      type: Boolean,
+      required: true,
+      default: true,
+    },
+    checkVoiceSpelling: {
+      type: Boolean,
+      required: true,
+      default: true,
+    },
+    voiceToText: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    showPromo: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     googleSetupMessageId: Number,
     googleKey: String,
     witToken: String,

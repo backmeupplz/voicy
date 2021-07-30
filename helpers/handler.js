@@ -2,12 +2,13 @@
 const handleMessage = require('./voice')
 const logAnswerTime = require('../helpers/logAnswerTime')
 const { Chat } = require('../models')
+const messageTypes = require('./messageTypes')
 
 function setupAudioHandler(bot) {
   // Voice handler
   bot.on(['voice', 'video_note'], (ctx) => {
     // Handle voice
-    handleMessage(ctx)
+    handleMessage(ctx, messageTypes.MESSAGE_VOICE)
     // Log time
     logAnswerTime(ctx, 'voice')
     // Save last voice message sent at
@@ -21,6 +22,16 @@ function setupAudioHandler(bot) {
     logAnswerTime(ctx, 'voice.document')
     // Save last voice message sent at
     updateLastVoiceMessageSentAt(ctx)
+  })
+
+  // Text handler
+  bot.on('text', async (ctx) => {
+    // Handle voice
+    handleMessage(ctx, messageTypes.MESSAGE_TEXT)
+    // Log time
+    logAnswerTime(ctx, 'text')
+    // Save last voice message sent at
+    // updateLastVoiceMessageSentAt(ctx)
   })
 }
 
@@ -40,7 +51,7 @@ async function handleDocumentOrAudio(ctx) {
     return
   }
   // Handle voice
-  handleMessage(ctx)
+  handleMessage(ctx, messageTypes.MESSAGE_AUDIO)
 }
 
 function isCorrectDocument(ctx) {

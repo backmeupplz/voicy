@@ -1,0 +1,6 @@
+module.exports = {
+    MESSAGE_VOICE: 'MESSAGE_VOICE',
+    MESSAGE_AUDIO: 'MESSAGE_AUDIO',
+    MESSAGE_TEXT: 'MESSAGE_TEXT'
+  }
+  

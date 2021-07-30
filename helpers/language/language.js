@@ -78,12 +78,13 @@ async function setLanguage(data, ctx) {
       parse_mode: 'Markdown',
     }
   )
-  // Recomend Nanosemantics
-  if (engine === 'wit' && languageString(language, engine) === 'Russian') {
-    await ctx.reply(
-      'Вы используете движок Wit.ai для распознавания русского языка. Советую вам попробовать Nanosemantics в /engine, он работает лучше с русским языком. Спасибо!'
-    )
-  }
+  // // Recomend Nanosemantics
+  // if (engine === 'wit' && languageString(language, engine) === 'Russian') {
+  //   await ctx.reply(
+  //     'Вы используете движок Wit.ai для распознавания русского языка. Советую вам попробовать Nanosemantics в /engine, он работает лучше с русским языком. Спасибо!'
+  //   )
+  // }
+  
   // If it was not a command, send start
   if (!isCommand) sendStart(ctx)
   // Log time

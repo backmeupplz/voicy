@@ -6,6 +6,8 @@ const urlToText = require('./urlToText')
 const { isRuChat } = require('./isRuChat')
 const _ = require('lodash')
 const { isOver10000 } = require('./goldenBorodutchSubCount')
+const messageTypes = require('./messageTypes')
+const checkSpelling = require('./spellGuard')
 
 const promoExceptions = [
   -1001122726482, -1001140130398, -1001275987479, -1001128503769,
@@ -62,39 +64,58 @@ const promoTexts = {
  * Handles any message that comes with voice
  * @param {Telegraf:Context} ctx Context of the request
  */
-async function handleMessage(ctx) {
+async function handleMessage(ctx, messageType = messageTypes.MESSAGE_TEXT) {
   try {
     // Get chat
     const chat = await findChat(ctx.chat.id)
     // Get message
     const message = ctx.message || ctx.update.channel_post
-    // Get voice message
-    const voice =
-      message.voice || message.document || message.audio || message.video_note
-    // Send an error to user if file is larger than 20 mb
-    if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
-      if (!chat.silent) {
-        await sendLargeFileError(ctx, message)
-      }
-      return
+    console.log(ctx.from.id)
+    
+    switch (messageType) {
+      case messageTypes.MESSAGE_TEXT:
+        if (!chat.guardEnabled)
+          return
+        checkSpelling(ctx, message.text)
+        break;
+      case messageTypes.MESSAGE_VOICE:
+      case messageTypes.MESSAGE_AUDIO:
+        if (!chat.checkVoiceSpelling && !chat.voiceToText) 
+        {
+          return
+        }
+        // Get voice message
+        const voice =
+        message.voice || message.document || message.audio || message.video_note
+        // Send an error to user if file is larger than 20 mb
+        if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
+          if (!chat.silent) {
+            await sendLargeFileError(ctx, message)
+          }
+          return
+        }
+        // Get full url to the voice message
+        const fileData = await ctx.telegram.getFile(voice.file_id)
+        const voiceUrl = await urlFinder.fileUrl(fileData.file_path)
+        // Send action or transcription depending on whether chat is silent
+        if (chat.silent && !chat.checkVoiceSpelling ) {
+          try {
+              await sendAction(ctx, voiceUrl, chat, voice.file_id)
+          } catch (err) {
+            report(ctx, err, 'sendAction')
+          }
+        } else {
+          try {
+            await sendTranscription(ctx, voiceUrl, chat, voice.file_id)
+          } catch (err) {
+            report(ctx, err, 'sendTranscription')
+          }
+        }
+        break;
+      default:
+        break;
     }
-    // Get full url to the voice message
-    const fileData = await ctx.telegram.getFile(voice.file_id)
-    const voiceUrl = await urlFinder.fileUrl(fileData.file_path)
-    // Send action or transcription depending on whether chat is silent
-    if (chat.silent) {
-      try {
-        await sendAction(ctx, voiceUrl, chat, voice.file_id)
-      } catch (err) {
-        report(ctx, err, 'sendAction')
-      }
-    } else {
-      try {
-        await sendTranscription(ctx, voiceUrl, chat, voice.file_id)
-      } catch (err) {
-        report(ctx, err, 'sendTranscription')
-      }
-    }
+   
   } catch (err) {
     report(ctx, err, 'handleMessage')
   }
@@ -109,8 +130,10 @@ async function handleMessage(ctx) {
 async function sendTranscription(ctx, url, chat, fileId) {
   // Get message
   const message = ctx.message || ctx.update.channel_post
+  const sentMessage = null
   // Send initial message
-  const sentMessage = await sendVoiceRecognitionMessage(ctx, message)
+  if (chat.voiceToText)
+  sentMessage = await sendVoiceRecognitionMessage(ctx, message)
   // Get language
   const lan = languageFromChat(chat)
   // Check if ok with google engine
@@ -131,19 +154,26 @@ async function sendTranscription(ctx, url, chat, fileId) {
           .map((t) => t[1].trim())
           .filter((v) => !!v)
           .join('. ')
+    if (chat.checkVoiceSpelling) {
+      checkSpelling(ctx, text)
+    }
+    if (!chat.voiceToText)
+    {
+      return
+    }
     await updateMessagewithTranscription(ctx, sentMessage, text, chat)
     // Save voice to db
-    await addVoice(
-      url,
-      textWithTimecodes
-        .map((t) => t[1].trim())
-        .filter((v) => !!v)
-        .join('. '),
-      chat,
-      duration,
-      textWithTimecodes,
-      fileId
-    )
+    // await addVoice(
+    //   url,
+    //   textWithTimecodes
+    //     .map((t) => t[1].trim())
+    //     .filter((v) => !!v)
+    //     .join('. '),
+    //   chat,
+    //   duration,
+    //   textWithTimecodes,
+    //   fileId
+    // )
   } catch (err) {
     // In case of error, send it
     await updateMessagewithError(ctx, sentMessage, chat, err)
@@ -166,7 +196,8 @@ async function sendTranscription(ctx, url, chat, fileId) {
  */
 async function sendAction(ctx, url, chat, fileId) {
   // Send typing action
-  await ctx.replyWithChatAction('typing')
+  if (chat.voiceToText)
+    await ctx.replyWithChatAction('typing')
   // Try to find existing voice message
   const lan = languageFromChat(chat)
   // Check if ok with google engine
@@ -188,17 +219,17 @@ async function sendAction(ctx, url, chat, fileId) {
           .join('. ')
     await sendMessageWithTranscription(ctx, text, chat)
     // Save voice to db
-    await addVoice(
-      url,
-      textWithTimecodes
-        .map((t) => t[1].trim())
-        .filter((v) => !!v)
-        .join('. '),
-      chat,
-      duration,
-      textWithTimecodes,
-      fileId
-    )
+    // await addVoice(
+    //   url,
+    //   textWithTimecodes
+    //     .map((t) => t[1].trim())
+    //     .filter((v) => !!v)
+    //     .join('. '),
+    //   chat,
+    //   duration,
+    //   textWithTimecodes,
+    //   fileId
+    // )
   } catch (err) {
     // In case of error, log it
     report(ctx, err, 'sendTranscription.silent')
@@ -226,9 +257,16 @@ async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
   options.parse_mode = 'Markdown'
   options.disable_web_page_preview = true
   // Add promo
-  if (text && !promoExceptions.includes(ctx.chat.id)) {
+  if (chat.showPromo && text && !promoExceptions.includes(ctx.chat.id)) {
     const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']()
     text = `${text}\n${promoText}`
+  }
+  if (chat.checkVoiceSpelling) {
+    checkSpelling(ctx, text)
+  }
+  if (!chat.voiceToText)
+  {
+    return
   }
   if (!text || text.length <= 4000) {
     // Edit message
@@ -277,9 +315,16 @@ async function sendMessageWithTranscription(ctx, text, chat, markdown) {
   options.parse_mode = 'Markdown'
   options.disable_web_page_preview = true
   // Add promo
-  if (text && !promoExceptions.includes(ctx.chat.id)) {
+  if (chat.showPromo && text && !promoExceptions.includes(ctx.chat.id)) {
     const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']()
     text = `${text}\n${promoText}`
+  }
+  if (chat.checkVoiceSpelling) {
+    checkSpelling(ctx, text)
+  }
+  if (!chat.voiceToText)
+  {
+    return
   }
   // Send message
   if (text && text.length < 4000) {
