@@ -9,20 +9,35 @@ const { findChat } = require('./db')
 async function checkSpelling(ctx, text) {
     try {
         const chat = await findChat(ctx.chat.id)
-        console.log("check spelling")
+        let dictionary = []
+        chat.dictionary.map(elem => dictionary.push(elem))  
 
-        let word = contains(text, linaWords)
-        if (word != "") {
-            sendReply(ctx, word)
-            return
-        }
+        console.log(dictionary)
+        let reply = ""
+        
         if (chat.smartGuard) {
-            word = contains(text, linaRegexs, true)
-            if (word != "") {
-                sendReply(ctx, word)
-                return
+            let words = contains(text, linaRegexs, true)
+            if(words.length != 0) {
+                for(let word of words)
+                    reply += word + '(' + word.replace(/е/g, 'и').replace(/Е/g, 'И').replace(/e/g, 'i').replace(/E/g, 'I') + '), ' 
+            }
+        } else {
+            let words = contains(text, linaWords)
+            if (words.length != 0) {
+                for(let word of words)
+                    reply += word + '(' + word.replace(/е/g, 'и').replace(/Е/g, 'И').replace(/e/g, 'i').replace(/E/g, 'I') + '), '  
             }
         }
+        if (reply.lenth > 0)
+            reply = reply.slice(0, -2)
+
+        let words = contains(text, dictionary)
+        if (words.length != 0) {
+            reply += words.join(', ')
+        }
+        console.log(reply)
+        if (reply.length > 0)
+            sendReply(ctx, reply)
     } catch (err) {
         report(ctx, err, 'handleMessage')
     }
@@ -55,14 +70,14 @@ function getRandomInt(max) {
 function contains(str, dictionary, isRegex = false)
 {
     bits = str.toLowerCase().split(/[\s,.-]+/)
+    foundWords = []
 
     if (isRegex) {
-        for (let regex of linaRegexs)
+        for (let regex of dictionary)
         {   
-
             for (i = 0; i < bits.length; i++) {
                 if (regex.test(bits[i]))
-                    return str.split(/[\s,.-]+/)[i]
+                    foundWords.push(str.split(/[\s,.-]+/)[i])
             }   
         }
     
@@ -71,12 +86,12 @@ function contains(str, dictionary, isRegex = false)
         {   
             for (i = 0; i < bits.length; i++) {
                 if (bits[i] == word)
-                    return str.split(/[\s,.-]+/)[i]
+                    foundWords.push(str.split(/[\s,.-]+/)[i])
             }  
         }
     }
 
-    return "";
+    return foundWords;
 }
 
 // Exports

@@ -65,6 +65,7 @@ const chatSchema = new Schema(
       required: true,
       default: false,
     },
+    dictionary: [String],
     googleSetupMessageId: Number,
     googleKey: String,
     witToken: String,
@@ -80,7 +81,7 @@ const chatSchema = new Schema(
     // Added just as a virtual variable
     language: String,
   },
-  { timestamps: true }
+  { timestamps: true, usePushEach: true}
 )
 
 module.exports = mongoose.model('chat', chatSchema)
