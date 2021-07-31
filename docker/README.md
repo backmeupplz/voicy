@@ -7,13 +7,8 @@ https://github.com/backmeupplz/voicy
 ## Usage
 
 ```
-docker create \
-  --name=voicybot \
-  -e PUID=1000 \
-  -e PGID=1000 \
-  -v </path/to/config>:/config \
-  --restart always \
-  tsubus/voicybot
+docker build -t alexeym/lehabot-node .
+docker create --name=voicybot  -e PUID=1000 -e PGID=1000  -v /config:/config --restart always  alexeym/lehabot-node
 ```
 
 ## Configuration

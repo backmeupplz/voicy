@@ -32,8 +32,9 @@ RUN \
 	ffmpeg \
 	mongodb \
 	screen && \
- git clone https://github.com/backmeupplz/voicy.git /app/voicybot && \
+ git clone https://github.com/McMerphy/voicy.git /app/voicybot && \
  cd /app/voicybot && \
+#  git checkout develop && \
  yarn install && \
  echo "**** cleanup ****" && \
  rm -rf \
