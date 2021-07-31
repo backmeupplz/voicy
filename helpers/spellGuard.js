@@ -1,5 +1,5 @@
 const { report } = require('./report')
-const {linaWords, linaRegexs} = require('./dictionary')
+const { linaWords, linaRegexs } = require('./dictionary')
 const { findChat } = require('./db')
 
 /**
@@ -10,34 +10,43 @@ async function checkSpelling(ctx, text) {
     try {
         const chat = await findChat(ctx.chat.id)
         let dictionary = []
-        chat.dictionary.map(elem => dictionary.push(elem))  
+        chat.dictionary.map(elem => dictionary.push(elem))
 
         console.log(dictionary)
         let reply = ""
-        
+
         if (chat.smartGuard) {
-            let words = contains(text, linaRegexs, true)
-            if(words.length != 0) {
-                for(let word of words)
-                    reply += word + '(' + word.replace(/е/g, 'и').replace(/Е/g, 'И').replace(/e/g, 'i').replace(/E/g, 'I') + '), ' 
+            let { words, editedStr } = contains(text, linaRegexs, true, true)
+            if (words.length != 0) {
+                reply += words.join(' ')
+
+                await sendMessage(ctx, editedStr)
             }
         } else {
-            let words = contains(text, linaWords)
+            let { words, editedStr } = contains(text, linaWords, false, true)
             if (words.length != 0) {
-                for(let word of words)
-                    reply += word + '(' + word.replace(/е/g, 'и').replace(/Е/g, 'И').replace(/e/g, 'i').replace(/E/g, 'I') + '), '  
+                reply += words.join(' ')
+
+                await sendMessage(ctx, editedStr)
             }
         }
         if (reply.lenth > 0)
-            reply = reply.slice(0, -2)
+            reply = reply.slice(0, -3)
 
-        let words = contains(text, dictionary)
+        let { words } = contains(text, dictionary)
         if (words.length != 0) {
-            reply += words.join(', ')
+            reply += ' '
+            reply += words.join(' ')
         }
-        console.log(reply)
-        if (reply.length > 0)
+
+        if (reply.length > 0) {
+            console.log("Reply:", reply)
             sendReply(ctx, reply)
+
+            // editMessage(ctx, reply)
+        }
+
+
     } catch (err) {
         report(ctx, err, 'handleMessage')
     }
@@ -55,7 +64,7 @@ async function sendReply(ctx, word) {
         reply_to_message_id: message.message_id,
     }
     options.parse_mode = 'Markdown'
-    options.disable_web_page_preview = true    
+    options.disable_web_page_preview = true
 
     let i = getRandomInt(4)
     let langKey = 'judgemental_' + i
@@ -63,35 +72,84 @@ async function sendReply(ctx, word) {
     await ctx.replyWithMarkdown(ctx.i18n.t(langKey, { word: word }), options)
 }
 
+/**
+ * Sends reply to a message with violating content
+ * @param {Telegraf:Context} ctx Context of the request
+ */
+async function sendMessage(ctx, message) {
+    await ctx.telegram.sendMessage(ctx.message.chat.id, message)
+}
+
+/**
+ * Sends reply to a message with violating content
+ * @param {Telegraf:Context} ctx Context of the request
+ */
+async function editMessage(ctx, word) {
+    const message = ctx.message || ctx.update.channel_post
+    const options = {}
+    options.parse_mode = 'Markdown'
+    options.disable_web_page_preview = true
+    try {
+        await ctx.telegram.editMessageText(
+            message.chat.id,
+            message.message_id,
+            null,
+            "Я мразота конченая пишу плохие слова",
+            options
+        )
+
+    } catch (err) {
+        report(ctx, err, 'handleMessage')
+    }
+}
+
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
-  }
+}
 
-function contains(str, dictionary, isRegex = false)
-{
-    bits = str.toLowerCase().split(/[\s,.-]+/)
-    foundWords = []
+function contains(str, dictionary, isRegex = false, isEdit = false) {
+    let bits = str.toLowerCase().split(/[\s,.-]+/)
+    let bitsRegularCase = str.split(/[\s,.-]+/)
+    let decomposedStr = str.split(/[\s,.-]+/)
+    let foundWords = []
+    let editedStr = str
 
     if (isRegex) {
-        for (let regex of dictionary)
-        {   
+        for (let regex of dictionary) {
             for (i = 0; i < bits.length; i++) {
-                if (regex.test(bits[i]))
+                if (regex.test(bits[i])) {
+                    if (isEdit) {
+                        let fixedWord = bitsRegularCase[i].replace(/^[е|Е|e|E]/g, '')
+                            .replace(/(?<!^)е(?!$)/g, 'и')
+                            .replace(/(?<!^)Е(?!$)/g, 'И')
+                        let regex = new RegExp(bitsRegularCase[i], "g")
+                        console.log(editedStr, ' replace ' + bitsRegularCase[i] + ' with ' + fixedWord)
+                        editedStr = editedStr.replace(regex, "*" + fixedWord)
+                    }
                     foundWords.push(str.split(/[\s,.-]+/)[i])
-            }   
+                }
+
+            }
         }
-    
+
     } else {
-        for (let word of dictionary)
-        {   
+        for (let word of dictionary) {
             for (i = 0; i < bits.length; i++) {
-                if (bits[i] == word)
+                if (bits[i] == word) {
+                    if (isEdit) {
+                        let fixedWord = bitsRegularCase[i].replace(/^[е|Е|e|E]/g, '')
+                            .replace(/(?<!^)е(?!$)/g, 'и')
+                            .replace(/(?<!^)Е(?!$)/g, 'И')
+                        let regex = new RegExp(bitsRegularCase[i], "g")
+                        editedStr.replace(regex, "*" + fixedWord)
+                    }
                     foundWords.push(str.split(/[\s,.-]+/)[i])
-            }  
+                }
+
+            }
         }
     }
-
-    return foundWords;
+    return { words: foundWords, editedStr: editedStr };
 }
 
 // Exports
