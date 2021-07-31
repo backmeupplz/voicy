@@ -209,7 +209,7 @@ async function sendAction(ctx, url, chat, fileId) {
       ? textWithTimecodes.map((t) => `${t[0]}:\n${t[1]}`).join('\n')
       : textWithTimecodes
           .map((t) => t[1].trim())
-          .filter((v) => !!v
+          .filter((v) => !!v)
           .join('. ')
     await sendMessageWithTranscription(ctx, text, chat)
 
