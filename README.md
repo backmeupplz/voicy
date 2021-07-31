@@ -46,3 +46,16 @@ MIT — use for any purpose. Would be great if you could leave a note about the 
 [![Reddit](/img/reddit.png?raw=true)](https://redd.it/5iduzy)
 [![Bot Store](/img/bs.png?raw=true)](https://storebot.me/bot/voicybot)
 [![Product Hunt](/img/ph.png?raw=true)](https://www.producthunt.com/posts/voicy)
+
+
+# List of commands for telegram menu
+
+help - Дапамога
+lock - Дазволіць ці забараніць  выконваць каманды не адіінам
+voice - Уключыць ці выключыць распазнаванне галасавых
+dictionary - паказаць асуджальны слоўнік
+addwords - дабавіць словы ў слоунік
+rmwords - выдаліць словы са слоўніку
+cleandict - Выдаліць усе словы са слоўніка
+guard - Выключыць ці уключыць праверку паведамленняў
+language - выбар мовы для распазнавання
