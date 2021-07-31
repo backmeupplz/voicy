@@ -18,7 +18,7 @@ async function checkSpelling(ctx, text) {
         if (chat.smartGuard) {
             let { words, editedStr } = contains(text, linaRegexs, true, true)
             if (words.length != 0) {
-                reply += words.join(' ')
+                reply += words.join(', ')
 
                 await sendMessage(ctx, editedStr)
             }
@@ -35,8 +35,9 @@ async function checkSpelling(ctx, text) {
 
         let { words } = contains(text, dictionary)
         if (words.length != 0) {
-            reply += ' '
-            reply += words.join(' ')
+            if (reply.length != 0)
+                reply += ', '
+            reply += words.join(', ')
         }
 
         if (reply.length > 0) {
