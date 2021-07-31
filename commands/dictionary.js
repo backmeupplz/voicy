@@ -24,7 +24,7 @@ function setupDictionary(bot) {
     logAnswerTime(ctx, '/cleandict')
   })
 
-  bot.command('rmword', checkAdminLock, async ctx => {
+  bot.command('rmwords', checkAdminLock, async ctx => {
     function removeItemAll(arr, value) {
       var i = 0;
       while (i < arr.length) {
@@ -70,10 +70,10 @@ function setupDictionary(bot) {
 
 
 
-    logAnswerTime(ctx, '/rmword')
+    logAnswerTime(ctx, '/rmwords')
   })
 
-  bot.command('addword', checkAdminLock, async ctx => {
+  bot.command('addwords', checkAdminLock, async ctx => {
 
     console.log(ctx)
 
@@ -108,7 +108,7 @@ function setupDictionary(bot) {
     }
 
 
-    logAnswerTime(ctx, '/addword')
+    logAnswerTime(ctx, '/addwords')
   })
 }
 
