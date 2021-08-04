@@ -46,6 +46,8 @@ const promoExceptions = [
   -1001592468559,
 
   -1001477360782,
+
+  -1001524833305,
 ]
 
 const promoTexts = {
