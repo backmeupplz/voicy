@@ -61,9 +61,9 @@ const promoTexts = {
     isOver10000()
       ? // ? 'При поддержке [Тудуранта](https://todorant.com/?utm_source=voicy)'
         // : 'При поддержке [Золота Бородача](https://t.me/golden_borodutch)',
-        'При поддержке [Бородач Клуба](https://t.me/golden_borodutch/5160)'
-      : 'При поддержке [Бородач Клуба](https://t.me/golden_borodutch/5160)',
-  en: () => 'Powered by [Todorant](https://todorant.com/?utm_source=voicy)',
+        'При поддержке [Бородач Инвест](https://invest.borodutch.com)'
+      : 'При поддержке [Бородач Инвест](https://invest.borodutch.com)',
+  en: () => 'Powered by [Borodutch Invest](https://invest.borodutch.com)',
 }
 
 /**
