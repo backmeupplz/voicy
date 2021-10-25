@@ -1,9 +1,9 @@
 import { Chat } from '@/models/Chat'
 import engines from '@/engines'
 
-export default function getText(
+export default function getTextFromAudio(
   flacPath: string,
-  chat: Chat,
+  chat: Partial<Chat>,
   duration: number,
   ogaPath: string
 ) {

@@ -12,10 +12,12 @@ import checkAdminLock from '@/middlewares/adminLock'
 import checkDocumentType from '@/middlewares/checkDocumentType'
 import checkFilesBanned from '@/middlewares/checkFilesBanned'
 import checkGoogleCredentials from '@/handlers/checkGoogleCredentials'
+import checkSuperAdmin from '@/middlewares/checkSuperAdmin'
 import configureI18n from '@/middlewares/configureI18n'
 import countMessage from '@/middlewares/countMessage'
 import disallowPrivate from '@/middlewares/disallowPrivate'
 import engines from '@/engines'
+import handleAddPromoException from '@/commands/handleAddPromoException'
 import handleAudio from '@/handlers/handleAudio'
 import handleDisableGoogle from '@/commands/handleDisableGoogle'
 import handleEnableGoogle from '@/commands/handleEnableGoogle'
@@ -35,6 +37,7 @@ import handleSilent from '@/commands/handleSilent'
 import handleStart from '@/commands/handleStart'
 import handleTimecodes from '@/commands/handleTimecodes'
 import handleUrl from '@/commands/handleUrl'
+import handleViewPromoExceptions from './commands/handleViewPromoExceptions'
 import handleWitToken from '@/commands/handleWitToken'
 import i18n from '@/helpers/i18n'
 import ignoreOldMessageUpdates from '@/middlewares/ignoreOldMessageUpdates'
@@ -79,6 +82,8 @@ async function runApp() {
   bot.command('disableGoogle', checkAdminLock, handleDisableGoogle)
   bot.command('language', checkAdminLock, handleLanguage)
   bot.command('l', checkAdminLock, handleL)
+  bot.command('addPromoException', checkSuperAdmin, handleAddPromoException)
+  bot.command('viewPromoExceptions', checkSuperAdmin, handleViewPromoExceptions)
   // Callabcks
   bot.callbackQuery(Object.keys(engines), handleSetEngine)
   bot.callbackQuery(/li.+/, handleSetLanguage)

@@ -23,18 +23,23 @@ export class Voice {
 
 export const VoiceModel = getModelForClass(Voice)
 
-export function addVoice(
-  url: string,
-  text: string,
-  chat: Chat,
-  duration: number,
-  textWithTimecodes: RecognitionResultPart[],
+export function addVoice({
+  url,
+  chat,
+  duration,
+  textWithTimecodes,
+  fileId,
+}: {
+  url: string
+  chat: Chat
+  duration: number
+  textWithTimecodes: RecognitionResultPart[]
   fileId: string
-) {
+}) {
   const language = chat.languages[chat.engine]
   return VoiceModel.create({
     url,
-    text,
+    text: textWithTimecodes.reduce((p, c) => `${p} ${c.text}`, ''),
     language,
     duration,
     engine: chat.engine,

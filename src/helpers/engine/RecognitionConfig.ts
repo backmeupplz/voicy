@@ -2,7 +2,7 @@ import { Chat } from '@/models/Chat'
 
 interface RecognitionConfig {
   flacPath: string
-  chat: Chat
+  chat: Partial<Chat>
   duration: number
   ogaPath: string
 }

@@ -1,12 +1,13 @@
+import { Chat } from '@/models/Chat'
 import { Message } from '@grammyjs/types'
+import { addVoice } from '@/models/Voice'
+import { pick } from 'lodash'
 import Context from '@/models/Context'
+import Engine from '@/helpers/engine/Engine'
+import addPromoToText from '@/helpers/addPromoToText'
 import fileUrl from '@/helpers/fileUrl'
 import report from '@/helpers/report'
-
-const promoTexts = {
-  ru: () => 'При поддержке [Бородач Инвест](https://invest.borodutch.com)',
-  en: () => 'Powered by [Borodutch Invest](https://invest.borodutch.com)',
-}
+import urlToText from '@/helpers/urlToText'
 
 export default async function handleAudio(ctx: Context) {
   try {
@@ -66,248 +67,95 @@ async function sendTranscription(ctx: Context, url: string, fileId: string) {
     // Convert utl to text
     const { textWithTimecodes, duration } = await urlToText(
       url,
-      sanitizeChat(chat)
+      sanitizeChat(ctx.dbchat)
     )
     // Send trancription to user
-    const text = chat.timecodesEnabled
+    let text = ctx.dbchat.timecodesEnabled
       ? textWithTimecodes.map((t) => `${t[0]}:\n${t[1]}`).join('\n')
       : textWithTimecodes
           .map((t) => t[1].trim())
           .filter((v) => !!v)
           .join('. ')
-    await sendMessageWithTranscription(ctx, text, chat)
-    // Save voice to db
-    await addVoice(
-      url,
-      textWithTimecodes
-        .map((t) => t[1].trim())
-        .filter((v) => !!v)
-        .join('. '),
-      chat,
-      duration,
-      textWithTimecodes,
-      fileId
-    )
-  } catch (error) {
-    report(error, { ctx, location: 'sendTranscription.silent' })
-  } finally {
-    console.info(
-      `audio message processed in ${
-        (new Date().getTime() - ctx.timeReceived.getTime()) / 1000
-      }s`
-    )
-  }
-}
-
-/**
- * Sends temp message first and then updates that message to the transcription or error
- * @param {Telegraf:Context} ctx Context of the message
- * @param {URL} url Url of audio file to transcript
- * @param {Mongoose:Chat} chat Chat object where message has been received
- */
-async function sendTranscription2(ctx, url, fileId) {
-  // Get message
-  const message = ctx.message || ctx.update.channel_post
-  // Send initial message
-  const sentMessage = await sendVoiceRecognitionMessage(ctx, message)
-  // Get language
-  const lan = languageFromChat(chat)
-  // Check if ok with google engine
-  if (chat.engine === 'google' && !chat.googleKey) {
-    updateWithGoogleKeyError(ctx, sentMessage, chat)
-    return
-  }
-  try {
-    // Convert url to text
-    const { textWithTimecodes, duration } = await urlToText(
-      url,
-      sanitizeChat(chat)
-    )
-    // Send trancription to user
-    const text = chat.timecodesEnabled
-      ? textWithTimecodes.map((t) => `${t[0]}:\n${t[1]}`).join('\n')
-      : textWithTimecodes
-          .map((t) => t[1].trim())
-          .filter((v) => !!v)
-          .join('. ')
-    await updateMessagewithTranscription(ctx, sentMessage, text, chat)
-    // Save voice to db
-    await addVoice(
-      url,
-      textWithTimecodes
-        .map((t) => t[1].trim())
-        .filter((v) => !!v)
-        .join('. '),
-      chat,
-      duration,
-      textWithTimecodes,
-      fileId
-    )
-  } catch (err) {
-    // In case of error, send it
-    await updateMessagewithError(ctx, sentMessage, chat, err)
-    report(ctx, err, 'sendTranscription')
-  } finally {
-    // Log time
-    console.info(
-      `audio message processed in ${
-        (new Date().getTime() - ctx.timeReceived.getTime()) / 1000
-      }s`
-    )
-  }
-}
-
-/**
- * Updates message with text
- * @param {Telegraf:Context} ctx Context of the message
- * @param {Telegraf:Message} msg Message to be updated
- * @param {String} text Text that the message should be updated to
- * @param {Mongoose:Chat} chat Relevant to this voice chat
- * @param {Boolean} markdown Whether to support markdown or not
- */
-async function updateMessagewithTranscription(ctx, msg, text, chat, markdown) {
-  // Create options
-  const options = {}
-  options.parse_mode = 'Markdown'
-  options.disable_web_page_preview = true
-  // Add promo
-  if (text && !promoExceptions.includes(ctx.chat.id)) {
-    const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']()
-    text = `${text}\n${promoText}`
-  }
-  if (!text || text.length <= 4000) {
-    // Edit message
-    await ctx.telegram.editMessageText(
-      msg.chat.id,
-      msg.message_id,
-      null,
-      text || ctx.i18n.t('speak_clearly'),
-      options
-    )
-  } else {
-    // Get chunks
-    const chunks = text.match(/[\s\S]{1,4000}/g)
-    // Edit message
-    await ctx.telegram.editMessageText(
-      msg.chat.id,
-      msg.message_id,
-      null,
-      chunks.shift(),
-      options
-    )
-    // Send the rest of text
-    for (const chunk of chunks) {
-      await ctx.reply(chunk, {
-        ...options,
-        reply_to_message_id: msg.message_id,
-      })
-    }
-  }
-}
-
-/**
- * Sending message with transcription to chat
- * @param {Telegraf:Context} ctx Context to respond to
- * @param {String} text Transcription
- * @param {Mongoose:Chat} chat Chat to respond to
- * @param {Boolean} markdown Whether should support markdown or not
- */
-async function sendMessageWithTranscription(ctx, text, chat, markdown) {
-  // Get message
-  const message = ctx.message || ctx.update.channel_post
-  // Create options
-  const options = {
-    reply_to_message_id: message.message_id,
-  }
-  options.parse_mode = 'Markdown'
-  options.disable_web_page_preview = true
-  // Add promo
-  if (text && !promoExceptions.includes(ctx.chat.id)) {
-    const promoText = promoTexts[isRuChat(chat) ? 'ru' : 'en']()
-    text = `${text}\n${promoText}`
-  }
-  // Send message
-  if (text && text.length < 4000) {
-    await ctx.telegram.sendMessage(chat.id, text, options)
-  } else if (text) {
-    // Get chunks
-    const chunks = text.match(/.{1,4000}/g)
-    // Edit message
-    const sentMessage = await ctx.telegram.sendMessage(
-      chat.id,
-      chunks.shift(),
-      options
-    )
-    // Send the rest of text
-    for (const chunk of chunks) {
-      await ctx.reply(chunk, {
-        ...options,
-        reply_to_message_id: sentMessage.message_id,
-      })
-    }
-  }
-}
-
-/**
- * Function to update the message with error
- * @param {Telegraf:Context} ctx Context of the message
- * @param {Telegraf:Message} msg Message to be updated
- * @param {Mongoose:Chat} chat Relevant chat
- * @param {Error} error Error of this message
- */
-async function updateMessagewithError(ctx, msg, chat, error) {
-  try {
-    // Get text
-    let text = ctx.i18n.t('error')
-    if (chat.engine === 'google') {
-      text = `${text}\n\n\`\`\` ${error.message || 'Unknown error'}\`\`\``
-    }
-    // Edit message
-    await ctx.telegram.editMessageText(
-      msg.chat.id,
-      msg.message_id,
-      null,
-      text,
-      {
+    text = addPromoToText(ctx, text)
+    const texts = splitText(text)
+    const firstText = texts.shift()
+    if (dummyMessage) {
+      await ctx.api.editMessageText(
+        ctx.dbchat.id,
+        dummyMessage.message_id,
+        firstText || ctx.i18n.t('speak_clearly'),
+        {
+          parse_mode: 'Markdown',
+          disable_web_page_preview: true,
+        }
+      )
+    } else {
+      await ctx.reply(firstText || ctx.i18n.t('speak_clearly'), {
+        reply_to_message_id: ctx.msg.message_id,
         parse_mode: 'Markdown',
+        disable_web_page_preview: true,
+      })
+    }
+    if (texts.length) {
+      for (const element of texts) {
+        await ctx.reply(element, {
+          reply_to_message_id: ctx.msg.message_id,
+          parse_mode: 'Markdown',
+          disable_web_page_preview: true,
+        })
       }
+    }
+    await addVoice({
+      url,
+      textWithTimecodes,
+      chat: ctx.dbchat,
+      duration,
+      fileId,
+    })
+  } catch (error) {
+    if (dummyMessage) {
+      let text = ctx.i18n.t('error')
+      if (ctx.dbchat.engine === Engine.google) {
+        text = `${text}\n\n\`\`\`\n${error.message || 'Unknown error'}\n\`\`\``
+      }
+      try {
+        await ctx.api.editMessageText(
+          ctx.dbchat.id,
+          dummyMessage.message_id,
+          text,
+          {
+            parse_mode: 'Markdown',
+          }
+        )
+      } catch (error) {
+        report(error, { ctx, location: 'updateMessagewithError' })
+      }
+    }
+    report(error, { ctx, location: 'sendTranscription' })
+  } finally {
+    console.info(
+      `audio message processed in ${
+        (new Date().getTime() - ctx.timeReceived.getTime()) / 1000
+      }s`
     )
-  } catch (err) {
-    report(ctx, err, 'updateMessagewithError')
   }
 }
 
-function sendVoiceRecognitionMessage(ctx, message) {
-  return ctx.replyWithMarkdown(ctx.i18n.t('initiated'), {
-    reply_to_message_id: message.message_id,
-  })
+function splitText(text: string): string[] {
+  const chunks = text.match(/[\s\S]{1,4000}/g)
+  return chunks
 }
 
-function updateWithGoogleKeyError(ctx, sentMessage, chat) {
-  updateMessagewithTranscription(
-    ctx,
-    sentMessage,
-    ctx.i18n.t('google_error_creds'),
-    chat,
-    true
-  )
-}
-
-function sanitizeChat(chat) {
-  return _.pick(chat, [
+function sanitizeChat(chat: Chat): Partial<Chat> {
+  return pick(chat, [
     'id',
     'engine',
-    'googleLanguage',
-    'witLanguage',
     'adminLocked',
     'silent',
     'filesBanned',
     'googleSetupMessageId',
     'googleKey',
-    'language',
+    'languages',
     'witToken',
   ])
 }
-
-// Exports
-module.exports = handleMessage

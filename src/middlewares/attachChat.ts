@@ -1,5 +1,5 @@
-import { NextFunction } from 'grammy'
 import { ChatModel } from '@/models/Chat'
+import { NextFunction } from 'grammy'
 import Context from '@/models/Context'
 
 export default async function attachChat(ctx: Context, next: NextFunction) {
