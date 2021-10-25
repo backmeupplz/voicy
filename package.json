@@ -1,46 +1,53 @@
 {
   "name": "voicy",
-  "version": "0.0.1",
-  "description": "Text to speech telegram bot",
-  "main": "app.js",
-  "private": true,
+  "version": "1.0.0",
+  "description": "Text to speech Telegram bot",
+  "main": "dist/app.js",
+  "private": false,
   "license": "MIT",
-  "engines": {
-    "node": ">=10.0"
-  },
+  "author": "backmeupplz <backmeupplz@gmail.com>",
   "scripts": {
-    "start": "node app.js",
-    "localize": "node localize.js",
-    "sendout": "node sendout.js",
-    "upload-translations": "node scripts/upload.js",
-    "download-translations": "node scripts/download.js"
+    "distribute": "yarn build-ts && node dist/app.js",
+    "develop": "concurrently -k -i -p \"[{name}]\" -n \"Node,TypeScript\" -c \"yellow.bold,cyan.bold\" \"yarn watch-js\" \"yarn watch-ts\"",
+    "build-ts": "tsc --skipLibCheck",
+    "watch-ts": "tsc -w --skipLibCheck",
+    "watch-js": "nodemon dist/app.js",
+    "pretty": "prettier --check src",
+    "lint": "yarn pretty && eslint --max-warnings 0 --ext ts,tsx,json src"
   },
   "dependencies": {
-    "@google-cloud/speech": "^2.3.1",
-    "@google-cloud/storage": "^0.5.0",
-    "axios": "^0.21.1",
-    "bluebird": "^3.4.6",
-    "dotenv": "^5.0.1",
-    "download": "^7.1.0",
-    "easy-file-manager": "^0.1.3",
+    "@google-cloud/speech": "^4.9.0",
+    "@google-cloud/storage": "^5.15.3",
+    "@grammyjs/i18n": "^0.3.0",
+    "@grammyjs/runner": "^1.0.2",
+    "@typegoose/typegoose": "^9.2.0",
+    "axios": "^0.23.0",
+    "download": "^8.0.0",
     "fluent-ffmpeg": "^2.1.2",
-    "grpc": "^1.18.0",
-    "js-yaml": "^3.12.1",
-    "lodash": "^4.17.21",
-    "mongoose": "^4.9.4",
-    "semaphore-async-await": "^1.5.1",
-    "telegraf": "^3.27.1",
-    "telegraf-i18n": "backmeupplz/telegraf-i18n#78ee719cb8be9413d64a3a14325209f3a793a541",
-    "temp": "^0.8.3",
-    "uuid": "^3.3.2"
+    "form-data": "^4.0.0",
+    "grammy": "^1.3.4",
+    "js-yaml": "^4.1.0",
+    "mongoose": "6.0.12",
+    "mongoose-findorcreate": "^3.0.0",
+    "temp": "^0.9.4",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "eslint": "^3.12.2",
-    "eslint-config-airbnb": "^13.0.0",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-jsx-a11y": "^2.2.3",
-    "eslint-plugin-promise": "^3.4.0",
-    "eslint-plugin-react": "^6.8.0",
-    "flat": "^5.0.0"
+    "@types/node": "^16.11.4",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "concurrently": "^6.3.0",
+    "dotenv": "^10.0.0",
+    "eslint": "^8.1.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
+    "module-alias": "^2.2.2",
+    "nodemon": "^2.0.14",
+    "prettier": "^2.4.1",
+    "typescript": "^4.4.4"
+  },
+  "_moduleAliases": {
+    "@": "dist"
   }
 }

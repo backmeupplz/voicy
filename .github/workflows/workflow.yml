@@ -1,0 +1,17 @@
+name: Dosu Backend
+
+on:
+  pull_request:
+    types: [synchronize, opened]
+
+jobs:
+  compile-code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install modules
+        run: yarn --no-progress
+      - name: Compile code
+        run: yarn tsc --skipLibCheck
+      - name: Lint code
+        run: yarn lint

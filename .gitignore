@@ -1,3 +1,4 @@
 node_modules
 .env
-updates.log
+*.log
+dist

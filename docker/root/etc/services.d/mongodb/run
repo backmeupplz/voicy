@@ -1,3 +1,0 @@
-#!/usr/bin/with-contenv bash
-
-exec /usr/bin/mongod --quiet --config /etc/mongodb.conf
