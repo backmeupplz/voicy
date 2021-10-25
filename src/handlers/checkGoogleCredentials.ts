@@ -1,15 +1,9 @@
-import { escape } from 'querystring'
 import Context from '@/models/Context'
 import bot from '@/helpers/bot'
 import download from 'download'
+import fileUrl from '@/helpers/fileUrl'
 import logAnswerTime from '@/helpers/logAnswerTime'
 import report from '@/helpers/report'
-
-function fileUrl(filePath: string) {
-  return `https://api.telegram.org/file/bot${process.env.TOKEN}/${escape(
-    filePath
-  )}`
-}
 
 export default async function checkGoogleCredentials(ctx: Context) {
   const replyToMessage = ctx.message?.reply_to_message

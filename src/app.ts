@@ -9,11 +9,14 @@ import { run } from '@grammyjs/runner'
 import attachChat from '@/middlewares/attachChat'
 import bot from '@/helpers/bot'
 import checkAdminLock from '@/middlewares/adminLock'
+import checkDocumentType from '@/middlewares/checkDocumentType'
+import checkFilesBanned from '@/middlewares/checkFilesBanned'
 import checkGoogleCredentials from '@/handlers/checkGoogleCredentials'
 import configureI18n from '@/middlewares/configureI18n'
 import countMessage from '@/middlewares/countMessage'
 import disallowPrivate from '@/middlewares/disallowPrivate'
 import engines from '@/engines'
+import handleAudio from '@/handlers/handleAudio'
 import handleDisableGoogle from '@/commands/handleDisableGoogle'
 import handleEnableGoogle from '@/commands/handleEnableGoogle'
 import handleEngine from '@/commands/handleEngine'
@@ -51,7 +54,14 @@ async function runApp() {
   bot.use(configureI18n)
   // Various events
   bot.on('my_chat_member', handleMyChatMember)
-  bot.on(':file', checkGoogleCredentials)
+  bot.on(':document', checkGoogleCredentials)
+  bot.on([':voice', ':video_note'], handleAudio)
+  bot.on(
+    [':audio', ':document'],
+    checkFilesBanned,
+    checkDocumentType,
+    handleAudio
+  )
   // Commands
   bot.command('start', checkAdminLock, handleStart)
   bot.command('help', checkAdminLock, handleHelp)
@@ -81,6 +91,3 @@ async function runApp() {
 }
 
 void runApp()
-
-// Audio handler
-// setupAudioHandler(bot)

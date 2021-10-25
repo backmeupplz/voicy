@@ -1,11 +1,9 @@
-// Dependencies
-const ffmpeg = require('fluent-ffmpeg')
-const temp = require('temp')
-const tryDeletingFile = require('./deleteFile')
+import deleteFile from '@/helpers/deleteFile'
+import ffmpeg = require('fluent-ffmpeg')
+import temp from 'temp'
 
-// Exports
-module.exports = filepath =>
-  new Promise((resolve, reject) => {
+export default function (filepath: string) {
+  return new Promise((resolve, reject) => {
     ffmpeg.ffprobe(filepath, (err, info) => {
       if (err) {
         reject(err)
@@ -16,8 +14,8 @@ module.exports = filepath =>
       const output = temp.path({ suffix: '.flac' })
 
       ffmpeg()
-        .on('error', error => {
-          tryDeletingFile(output)
+        .on('error', (error) => {
+          deleteFile(output)
           reject(error)
         })
         .on('end', () => resolve({ flacPath: output, duration: fileSize }))
@@ -30,3 +28,4 @@ module.exports = filepath =>
         .run()
     })
   })
+}
