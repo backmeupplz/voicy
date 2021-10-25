@@ -1,7 +1,7 @@
-import RecognitionResultPart from '@/helpers/engine/RecognitionResultPart'
-import Engine from '@/helpers/engine/Engine'
-import { modelOptions, prop, getModelForClass } from '@typegoose/typegoose'
 import { Chat } from '@/models/Chat'
+import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose'
+import Engine from '@/helpers/engine/Engine'
+import RecognitionResultPart from '@/helpers/engine/RecognitionResultPart'
 
 @modelOptions({ schemaOptions: { timestamps: true } })
 export class Voice {
@@ -23,7 +23,7 @@ export class Voice {
 
 export const VoiceModel = getModelForClass(Voice)
 
-export async function addVoice(
+export function addVoice(
   url: string,
   text: string,
   chat: Chat,

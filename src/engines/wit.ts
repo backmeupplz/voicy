@@ -1,11 +1,11 @@
-import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
+import { createReadStream } from 'fs'
+import { request } from 'https'
 import Engine from '@/helpers/engine/Engine'
+import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
 import RecognitionConfig from '@/helpers/engine/RecognitionConfig'
 import deleteFile from '@/helpers/deleteFile'
-const ffmpeg = require('fluent-ffmpeg')
 import temp from 'temp'
-import { request } from 'https'
-import { createReadStream } from 'fs'
+import ffmpeg = require('fluent-ffmpeg')
 
 const witLanguages = JSON.parse(process.env.WIT_LANGUAGES)
 
@@ -36,7 +36,7 @@ function splitPath(path, duration) {
   return Promise.all(promises)
 }
 
-async function recognizePath(path, token) {
+function recognizePath(path, token) {
   return new Promise((resolve, reject) => {
     const options = {
       method: 'POST',
@@ -121,12 +121,7 @@ async function recognizePath(path, token) {
   })
 }
 
-async function recognize({
-  flacPath,
-  chat,
-  duration,
-  ogaPath,
-}: RecognitionConfig) {
+async function recognize({ chat, duration, ogaPath }: RecognitionConfig) {
   const token = chat.witToken || witLanguages[chat.languages[Engine.wit]]
   const iLanguage = chat.languages[Engine.wit]
   const paths = await splitPath(ogaPath, duration)
@@ -139,6 +134,7 @@ async function recognize({
       const promises = []
       for (const path of pathsToRecognize) {
         promises.push(
+          // eslint-disable-next-line no-async-promise-executor
           new Promise(async (res, rej) => {
             let triesCount = 5
             let error
@@ -168,8 +164,6 @@ async function recognize({
       try {
         const responses = await Promise.all(promises)
         result = result.concat(responses.map((r) => (r || '').trim()))
-      } catch (err) {
-        throw err
       } finally {
         for (const path of pathsToDelete) {
           deleteFile(path)

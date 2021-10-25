@@ -1,6 +1,6 @@
 import { NextFunction } from 'grammy'
-import Context from '@/models/Context'
 import { appendFile } from 'fs'
+import Context from '@/models/Context'
 
 function recordDate(ctx: Context) {
   if (!ctx.update.message) {

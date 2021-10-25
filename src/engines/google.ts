@@ -223,6 +223,7 @@ async function recognize({ flacPath, chat }: RecognitionConfig) {
   // Upload to drive
   const uri = await put(flacPath, chat)
   // Transcribe
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const SpeechClient = require('@google-cloud/speech').SpeechClient
   const speech = new SpeechClient({
     credentials: JSON.parse(chat.googleKey),
@@ -262,8 +263,6 @@ async function recognize({ flacPath, chat }: RecognitionConfig) {
       }
     })
     return resultingStrings
-  } catch (err) {
-    throw err
   } finally {
     await del(uri, chat)
   }

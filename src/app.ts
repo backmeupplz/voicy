@@ -5,38 +5,38 @@ import 'module-alias/register'
 import * as dotenv from 'dotenv'
 dotenv.config({ path: `${__dirname}/../.env` })
 // Dependencies
-import startMongo from '@/helpers/startMongo'
-import bot from '@/helpers/bot'
 import { run } from '@grammyjs/runner'
-import countMessage from '@/middlewares/countMessage'
-import ignoreOldMessageUpdates from '@/middlewares/ignoreOldMessageUpdates'
-import recordTimeReceived from '@/middlewares/recordTimeReceived'
 import attachChat from '@/middlewares/attachChat'
-import i18n from '@/helpers/i18n'
-import configureI18n from '@/middlewares/configureI18n'
+import bot from '@/helpers/bot'
 import checkAdminLock from '@/middlewares/adminLock'
-import handleHelp from '@/commands/handleHelp'
-import handleMyChatMember from '@/handlers/handleMyChatMember'
+import checkGoogleCredentials from '@/handlers/checkGoogleCredentials'
+import configureI18n from '@/middlewares/configureI18n'
+import countMessage from '@/middlewares/countMessage'
 import disallowPrivate from '@/middlewares/disallowPrivate'
-import handleLock from '@/commands/handleLock'
+import engines from '@/engines'
+import handleDisableGoogle from '@/commands/handleDisableGoogle'
+import handleEnableGoogle from '@/commands/handleEnableGoogle'
+import handleEngine from '@/commands/handleEngine'
 import handleFiles from '@/commands/handleFiles'
-import handleSilent from '@/commands/handleSilent'
 import handleGeeky from '@/commands/handleGeeky'
+import handleGoogle from '@/commands/handleGoogle'
+import handleHelp from '@/commands/handleHelp'
+import handleL from '@/commands/handleL'
+import handleLanguage from '@/commands/handleLanguage'
+import handleLock from '@/commands/handleLock'
+import handleMyChatMember from '@/handlers/handleMyChatMember'
+import handlePrivacy from '@/commands/handlePrivacy'
+import handleSetEngine from '@/handlers/handleSetEngine'
+import handleSetLanguage from '@/handlers/handleSetLanguage'
+import handleSilent from '@/commands/handleSilent'
+import handleStart from '@/commands/handleStart'
 import handleTimecodes from '@/commands/handleTimecodes'
 import handleUrl from '@/commands/handleUrl'
-import handlePrivacy from '@/commands/handlePrivacy'
 import handleWitToken from '@/commands/handleWitToken'
-import handleEngine from '@/commands/handleEngine'
-import handleSetEngine from '@/handlers/handleSetEngine'
-import engines from '@/engines'
-import handleGoogle from '@/commands/handleGoogle'
-import handleEnableGoogle from '@/commands/handleEnableGoogle'
-import handleDisableGoogle from '@/commands/handleDisableGoogle'
-import checkGoogleCredentials from '@/handlers/checkGoogleCredentials'
-import handleLanguage from '@/commands/handleLanguage'
-import handleL from '@/commands/handleL'
-import handleStart from '@/commands/handleStart'
-import handleSetLanguage from '@/handlers/handleSetLanguage'
+import i18n from '@/helpers/i18n'
+import ignoreOldMessageUpdates from '@/middlewares/ignoreOldMessageUpdates'
+import recordTimeReceived from '@/middlewares/recordTimeReceived'
+import startMongo from '@/helpers/startMongo'
 
 async function runApp() {
   // Mongo
@@ -80,7 +80,7 @@ async function runApp() {
   console.info(`Bot ${bot.botInfo.username} is up and running`)
 }
 
-runApp()
+void runApp()
 
 // Audio handler
 // setupAudioHandler(bot)

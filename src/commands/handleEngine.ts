@@ -1,7 +1,7 @@
+import { InlineKeyboard } from 'grammy'
+import Context from '@/models/Context'
 import engines from '@/engines'
 import logAnswerTime from '@/helpers/logAnswerTime'
-import Context from '@/models/Context'
-import { InlineKeyboard } from 'grammy'
 
 export default async function handleEngine(ctx: Context) {
   const keyboard = new InlineKeyboard()

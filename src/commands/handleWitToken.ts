@@ -1,5 +1,5 @@
-import logAnswerTime from '@/helpers/logAnswerTime'
 import Context from '@/models/Context'
+import logAnswerTime from '@/helpers/logAnswerTime'
 
 export default async function handleWitToken(ctx: Context) {
   const witToken = ctx.message.text.split(' ')[1]

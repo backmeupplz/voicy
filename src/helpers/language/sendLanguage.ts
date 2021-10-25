@@ -1,8 +1,8 @@
-import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
 import Context from '@/models/Context'
-import logAnswerTime from '@/helpers/logAnswerTime'
+import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
 import engines from '@/engines'
 import languageKeyboard from '@/helpers/language/languageKeyboard'
+import logAnswerTime from '@/helpers/logAnswerTime'
 
 export default async function sendLanguage(ctx: Context, isCommand?: boolean) {
   const engineObject: EngineRecognizer = engines[ctx.dbchat.engine]

@@ -1,11 +1,11 @@
-import {
-  modelOptions,
-  prop,
-  getModelForClass,
-  plugin,
-} from '@typegoose/typegoose'
-import { FindOrCreate } from '@typegoose/typegoose/lib/defaultClasses'
 import * as findorcreate from 'mongoose-findorcreate'
+import { FindOrCreate } from '@typegoose/typegoose/lib/defaultClasses'
+import {
+  getModelForClass,
+  modelOptions,
+  plugin,
+  prop,
+} from '@typegoose/typegoose'
 
 @plugin(findorcreate)
 @modelOptions({ schemaOptions: { timestamps: true } })

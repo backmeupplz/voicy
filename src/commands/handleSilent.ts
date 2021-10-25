@@ -1,5 +1,5 @@
-import logAnswerTime from '@/helpers/logAnswerTime'
 import Context from '@/models/Context'
+import logAnswerTime from '@/helpers/logAnswerTime'
 
 export default async function handleSilent(ctx: Context) {
   ctx.dbchat.silent = !ctx.dbchat.silent

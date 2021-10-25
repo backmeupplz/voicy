@@ -1,9 +1,9 @@
+import Context from '@/models/Context'
 import Engine from '@/helpers/engine/Engine'
 import engines from '@/engines'
-import Context from '@/models/Context'
 import localeCodeForChat from '@/helpers/localeCodeForChat'
 
-export default async function setLanguageCodeFromTelegram(ctx: Context) {
+export default function setLanguageCodeFromTelegram(ctx: Context) {
   const code = ctx.from.language_code.split('-')[0]
   for (const engine of Object.values(engines)) {
     ctx.dbchat.languages[engine.name] = engine.languageForTelegramCode(code)

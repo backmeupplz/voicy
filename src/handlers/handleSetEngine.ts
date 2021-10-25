@@ -1,7 +1,7 @@
-import engines from '@/engines'
-import Engine from '@/helpers/engine/Engine'
-import logAnswerTime from '@/helpers/logAnswerTime'
 import Context from '@/models/Context'
+import Engine from '@/helpers/engine/Engine'
+import engines from '@/engines'
+import logAnswerTime from '@/helpers/logAnswerTime'
 
 export default async function handleSetEngine(ctx: Context) {
   const engineCode = ctx.callbackQuery.data

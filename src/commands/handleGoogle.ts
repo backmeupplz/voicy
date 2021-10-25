@@ -1,5 +1,5 @@
-import logAnswerTime from '@/helpers/logAnswerTime'
 import Context from '@/models/Context'
+import logAnswerTime from '@/helpers/logAnswerTime'
 
 export default async function handleGoogle(ctx: Context) {
   const sentMessage = await ctx.reply(ctx.i18n.t('google'), {

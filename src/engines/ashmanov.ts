@@ -1,9 +1,9 @@
+import * as FormData from 'form-data'
+import { createReadStream, statSync } from 'fs'
 import Engine from '@/helpers/engine/Engine'
 import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
 import RecognitionConfig from '@/helpers/engine/RecognitionConfig'
-import { statSync, createReadStream } from 'fs'
 import axios, { AxiosResponse } from 'axios'
-import * as FormData from 'form-data'
 
 interface AshmanovResponse {
   r: {

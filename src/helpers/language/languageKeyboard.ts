@@ -1,8 +1,8 @@
 import { InlineKeyboard } from 'grammy'
-import engines from '@/engines'
 import Engine from '@/helpers/engine/Engine'
 import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
 import Language from '@/helpers/engine/Language'
+import engines from '@/engines'
 
 const pageSize = 10
 
@@ -39,14 +39,17 @@ export default function languageKeyboard(
   list.sort((a, b) => (a.name < b.name ? -1 : 1))
   const keyboard = pageFromList(list, page, isCommand, engine)
   if (list.length > pageSize) {
-    const nav = []
     if (page > 0) {
+      keyboard.row()
       keyboard.add({
         text: '⬅️',
         callback_data: `li~${isCommand ? 1 : 0}~${engine}~<~${page}`,
       })
     }
     if (page < Object.keys(list).length / 10 - 1) {
+      if (page <= 0) {
+        keyboard.row()
+      }
       keyboard.add({
         text: '➡️',
         callback_data: `li~${isCommand ? 1 : 0}~${engine}~>~${page}`,

@@ -1,11 +1,11 @@
+import Context from '@/models/Context'
+import Engine from '@/helpers/engine/Engine'
 import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
 import engines from '@/engines'
-import logAnswerTime from '@/helpers/logAnswerTime'
-import Context from '@/models/Context'
 import languageKeyboard from '@/helpers/language/languageKeyboard'
-import Engine from '@/helpers/engine/Engine'
-import report from '@/helpers/report'
 import localeCodeForChat from '@/helpers/localeCodeForChat'
+import logAnswerTime from '@/helpers/logAnswerTime'
+import report from '@/helpers/report'
 import sendStart from '@/helpers/sendStart'
 
 function languageString(languageCode: string, engine: Engine) {
@@ -52,7 +52,7 @@ export default async function handleSetLanguage(ctx: Context) {
   // Save chat
   await ctx.dbchat.save()
   // Edit message
-  ctx.editMessageText(
+  await ctx.editMessageText(
     ctx.i18n.t('language_success', {
       language: languageString(language, engine),
       engine: engineObject.name,

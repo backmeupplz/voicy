@@ -1,8 +1,8 @@
-import engines from '@/engines'
-import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
-import sendLanguage from '@/helpers/language/sendLanguage'
-import localeCodeForChat from '@/helpers/localeCodeForChat'
 import Context from '@/models/Context'
+import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
+import engines from '@/engines'
+import localeCodeForChat from '@/helpers/localeCodeForChat'
+import sendLanguage from '@/helpers/language/sendLanguage'
 
 export default async function handleL(ctx: Context) {
   if (ctx.message.text.length <= 2) {

@@ -1,6 +1,6 @@
-import bot from '@/helpers/bot'
-import Context from '@/models/Context'
 import { escape } from 'querystring'
+import Context from '@/models/Context'
+import bot from '@/helpers/bot'
 import download from 'download'
 import logAnswerTime from '@/helpers/logAnswerTime'
 import report from '@/helpers/report'

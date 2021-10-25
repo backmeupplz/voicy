@@ -1,6 +1,6 @@
+import { Chat } from '@/models/Chat'
 import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
 import engines from '@/engines'
-import { Chat } from '@/models/Chat'
 
 export default function localeCodeForChat(chat: Chat) {
   const engineObject: EngineRecognizer = engines[chat.engine]
