@@ -9,7 +9,7 @@ function getStorage(key) {
   })
 }
 
-export async function put(filePath: string, chat: Chat) {
+export async function put(filePath: string, chat: Partial<Chat>) {
   const key = JSON.parse(chat.googleKey)
   const storage = getStorage(key)
   const bucket = storage.bucket(key.project_id)
@@ -21,7 +21,7 @@ export async function put(filePath: string, chat: Chat) {
   return `gs://${key.project_id}/${file.name}`
 }
 
-export async function del(uri: string, chat: Chat) {
+export async function del(uri: string, chat: Partial<Chat>) {
   const key = JSON.parse(chat.googleKey)
   const storage = getStorage(key)
   const bucket = storage.bucket(key.project_id)
