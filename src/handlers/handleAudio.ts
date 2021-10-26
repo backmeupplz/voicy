@@ -71,9 +71,9 @@ async function sendTranscription(ctx: Context, url: string, fileId: string) {
     )
     // Send trancription to user
     let text = ctx.dbchat.timecodesEnabled
-      ? textWithTimecodes.map((t) => `${t[0]}:\n${t[1]}`).join('\n')
+      ? textWithTimecodes.map((t) => `${t.timeCode}:\n${t.text}`).join('\n')
       : textWithTimecodes
-          .map((t) => t[1].trim())
+          .map((t) => t.text.trim())
           .filter((v) => !!v)
           .join('. ')
     text = addPromoToText(ctx, text)

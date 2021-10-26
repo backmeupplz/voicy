@@ -7,6 +7,7 @@ import {
 } from '@typegoose/typegoose'
 import Engine from '@/helpers/engine/Engine'
 import RecognitionResultPart from '@/helpers/engine/RecognitionResultPart'
+import engines from '@/engines'
 
 @modelOptions({
   schemaOptions: { timestamps: true },
@@ -44,7 +45,8 @@ export function addVoice({
   textWithTimecodes: RecognitionResultPart[]
   fileId: string
 }) {
-  const language = chat.languages[chat.engine]
+  const language =
+    chat.languages[chat.engine] || engines[chat.engine].defaultLanguageCode
   return VoiceModel.create({
     url,
     text: textWithTimecodes.reduce((p, c) => `${p} ${c.text}`, ''),
