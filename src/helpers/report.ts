@@ -35,7 +35,7 @@ async function sendToTelegramAdmin(error: Error, info: ExtraErrorInfo) {
   try {
     const message = constructErrorMessage(error, info)
     if (!message) {
-      console.error(error, JSON.stringify(info))
+      console.error('empty reporting:', error, JSON.stringify(info))
       return
     }
     await bot.api.sendMessage(process.env.ADMIN_ID, message, {
