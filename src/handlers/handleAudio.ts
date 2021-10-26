@@ -83,14 +83,14 @@ async function sendTranscription(ctx: Context, url: string, fileId: string) {
       await ctx.api.editMessageText(
         ctx.dbchat.id,
         dummyMessage.message_id,
-        firstText || ctx.i18n.t('speak_clearly'),
+        (firstText || '').trim() || ctx.i18n.t('speak_clearly'),
         {
           parse_mode: 'Markdown',
           disable_web_page_preview: true,
         }
       )
     } else {
-      await ctx.reply(firstText || ctx.i18n.t('speak_clearly'), {
+      await ctx.reply((firstText || '').trim() || ctx.i18n.t('speak_clearly'), {
         reply_to_message_id: ctx.msg.message_id,
         parse_mode: 'Markdown',
         disable_web_page_preview: true,
