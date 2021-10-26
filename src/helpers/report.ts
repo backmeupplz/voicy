@@ -5,6 +5,7 @@ const ignoredMessages = [
   'have no rights to send a message',
   'You have exceeded the limit of 60 requests per minute for your app',
   "message can't be deleted",
+  'message is not modified',
 ]
 
 interface ExtraErrorInfo {
