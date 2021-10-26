@@ -6,6 +6,7 @@ import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
 import RecognitionConfig from '@/helpers/engine/RecognitionConfig'
 import deleteFile from '@/helpers/deleteFile'
 import ffmpeg = require('fluent-ffmpeg')
+import RecognitionResultPart from '@/helpers/engine/RecognitionResultPart'
 
 const witLanguages = JSON.parse(process.env.WIT_LANGUAGES)
 
@@ -121,8 +122,14 @@ function recognizePath(path, token) {
   })
 }
 
-async function recognize({ chat, duration, ogaPath }: RecognitionConfig) {
-  const token = chat.witToken || witLanguages[chat.languages[Engine.wit]]
+async function recognize({
+  chat,
+  duration,
+  ogaPath,
+}: RecognitionConfig): Promise<RecognitionResultPart[]> {
+  const token =
+    chat.witToken ||
+    witLanguages[chat.languages[Engine.wit] || defaultLanguageCode]
   const iLanguage = chat.languages[Engine.wit]
   const paths = await splitPath(ogaPath, duration)
   const savedPaths = paths.slice()
@@ -172,13 +179,18 @@ async function recognize({ chat, duration, ogaPath }: RecognitionConfig) {
     }
     const splitDuration = 15
     return result.length < 2
-      ? [[`0-${duration}`, result[0]]]
+      ? [{ timeCode: `0-${duration}`, text: result[0] }]
       : result.reduce((p, c, i, a) => {
           if (a.length - 1 === i) {
-            return p.concat([[`${i * splitDuration}-${duration}`, c]])
+            return p.concat([
+              { timeCode: `${i * splitDuration}-${duration}`, text: c },
+            ])
           }
           return p.concat([
-            [`${i * splitDuration}-${(i + 1) * splitDuration}`, c],
+            {
+              timeCode: `${i * splitDuration}-${(i + 1) * splitDuration}`,
+              text: c,
+            },
           ])
         }, [])
   } finally {

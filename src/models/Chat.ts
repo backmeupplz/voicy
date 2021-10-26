@@ -38,7 +38,15 @@ export class Chat extends FindOrCreate {
   timecodesEnabled: boolean
   @prop()
   lastVoiceMessageSentAt?: Date
-  @prop({ required: true, type: Schema.Types.Mixed, default: {} })
+  @prop({
+    required: true,
+    type: Schema.Types.Mixed,
+    default: {
+      ashmanov: 'ru',
+      google: 'en-US',
+      wit: 'English',
+    },
+  })
   languages: Languages
 }
 

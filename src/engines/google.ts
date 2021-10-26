@@ -234,7 +234,7 @@ async function recognize({ flacPath, chat }: RecognitionConfig) {
       enableWordTimeOffsets: true,
       encoding: 'LINEAR16',
       sampleRateHertz: 16000,
-      languageCode: chat.languages[Engine.google],
+      languageCode: chat.languages[Engine.google] || defaultLanguageCode,
     },
     audio: {
       uri,
@@ -259,7 +259,7 @@ async function recognize({ flacPath, chat }: RecognitionConfig) {
       }`
       const text = result.alternatives[0].transcript.trim()
       if (text) {
-        resultingStrings.push({ timeCodes: `${startTime}-${endTime}`, text })
+        resultingStrings.push({ timeCode: `${startTime}-${endTime}`, text })
       }
     })
     return resultingStrings
