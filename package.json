@@ -7,7 +7,7 @@
   "license": "MIT",
   "author": "backmeupplz <backmeupplz@gmail.com>",
   "scripts": {
-    "distribute": "yarn build-ts && node dist/app.js",
+    "distribute": "node dist/app.js",
     "develop": "concurrently -k -i -p \"[{name}]\" -n \"Node,TypeScript\" -c \"yellow.bold,cyan.bold\" \"yarn watch-js\" \"yarn watch-ts\"",
     "build-ts": "tsc --skipLibCheck",
     "watch-ts": "tsc -w --skipLibCheck",
