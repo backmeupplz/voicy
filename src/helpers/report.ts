@@ -32,13 +32,16 @@ function constructErrorMessage(
 
 async function sendToTelegramAdmin(error: Error, info: ExtraErrorInfo) {
   try {
-    await bot.api.sendMessage(
-      process.env.ADMIN_ID,
-      constructErrorMessage(error, info),
-      { parse_mode: 'HTML' }
-    )
+    const message = constructErrorMessage(error, info)
+    if (!message) {
+      console.error(error, JSON.stringify(info))
+      return
+    }
+    await bot.api.sendMessage(process.env.ADMIN_ID, message, {
+      parse_mode: 'HTML',
+    })
   } catch (sendError) {
-    console.error(sendError)
+    console.error('Error reporting:', sendError)
   }
 }
 
