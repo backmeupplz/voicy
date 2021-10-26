@@ -2,7 +2,7 @@ import { NextFunction } from 'grammy'
 import Context from '@/models/Context'
 
 export default function checkDocumentType(ctx: Context, next: NextFunction) {
-  if (!ctx.msg) {
+  if (!ctx.msg?.document) {
     return
   }
   const mime = ctx.msg.document.mime_type
