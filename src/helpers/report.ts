@@ -1,6 +1,8 @@
 import Context from '@/models/Context'
 import bot from '@/helpers/bot'
 
+const ignoredMessages = ['have no rights to send a message']
+
 interface ExtraErrorInfo {
   ctx?: Context
   location?: string
@@ -11,6 +13,9 @@ function constructErrorMessage(
   { ctx, location }: ExtraErrorInfo
 ) {
   const { message, stack } = error
+  if (ignoredMessages.find((m) => message.includes(m))) {
+    return
+  }
   const chatInfo = ctx ? [`Chat <b>${ctx.chat.id}</b>`] : []
   if (ctx && 'username' in ctx.chat) {
     chatInfo.push(`@${ctx.chat.username}`)
