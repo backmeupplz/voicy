@@ -1,7 +1,10 @@
 import Context from '@/models/Context'
 import bot from '@/helpers/bot'
 
-const ignoredMessages = ['have no rights to send a message']
+const ignoredMessages = [
+  'have no rights to send a message',
+  'You have exceeded the limit of 60 requests per minute for your app',
+]
 
 interface ExtraErrorInfo {
   ctx?: Context
