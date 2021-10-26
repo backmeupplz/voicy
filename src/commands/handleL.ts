@@ -23,6 +23,7 @@ export default async function handleL(ctx: Context) {
     return sendLanguage(ctx, true)
   }
   ctx.dbchat.languages[engineObject.code] = languageObject.code
+  ctx.dbchat.markModified('languages')
   await ctx.dbchat.save()
   ctx.i18n.locale(localeCodeForChat(ctx.dbchat))
   return ctx.reply('👍')

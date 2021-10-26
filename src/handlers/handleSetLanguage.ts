@@ -46,11 +46,12 @@ export default async function handleSetLanguage(ctx: Context) {
     return
   }
   // Set language
-  ctx.dbchat.languages[ctx.dbchat.engine] = language
-  // Update language
-  ctx.i18n.locale(localeCodeForChat(ctx.dbchat))
+  ctx.dbchat.languages[engine] = language
+  ctx.dbchat.markModified('languages')
   // Save chat
   await ctx.dbchat.save()
+  // Update language
+  ctx.i18n.locale(localeCodeForChat(ctx.dbchat))
   // Edit message
   await ctx.editMessageText(
     ctx.i18n.t('language_success', {

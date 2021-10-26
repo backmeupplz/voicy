@@ -8,6 +8,7 @@ export default function setLanguageCodeFromTelegram(ctx: Context) {
   for (const engine of Object.values(engines)) {
     ctx.dbchat.languages[engine.name] = engine.languageForTelegramCode(code)
   }
+  ctx.dbchat.markModified('languages')
   if (code.toLowerCase().indexOf('ru') > -1) {
     ctx.dbchat.engine = Engine.ashmanov
   }
