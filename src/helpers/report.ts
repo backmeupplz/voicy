@@ -11,19 +11,21 @@ function constructErrorMessage(
   { ctx, location }: ExtraErrorInfo
 ) {
   const { message, stack } = error
-  const chatInfo = [`Chat <b>${ctx.chat.id}</b>, `]
-  if ('username' in ctx.chat) {
+  const chatInfo = ctx ? [`Chat <b>${ctx.chat.id}</b>`] : []
+  if (ctx && 'username' in ctx.chat) {
     chatInfo.push(`@${ctx.chat.username}`)
   }
-  return `${location ? `<b>${location}</b>\n` : ''}${chatInfo.join(
-    ', '
-  )}\n${message}\n<code>${stack}</code>`
+  return `${
+    location ? `<b>${escape(location)}</b>${ctx ? '\n' : ''}` : ''
+  }${chatInfo.filter((v) => !!v).join(', ')}\n${escape(
+    message
+  )}\n<code>${escape(stack)}</code>`
 }
 
 async function sendToTelegramAdmin(error: Error, info: ExtraErrorInfo) {
   try {
     await bot.api.sendMessage(
-      process.env.ADMIN,
+      process.env.ADMIN_ID,
       constructErrorMessage(error, info),
       { parse_mode: 'HTML' }
     )
@@ -34,4 +36,8 @@ async function sendToTelegramAdmin(error: Error, info: ExtraErrorInfo) {
 
 export default function report(error: Error, info: ExtraErrorInfo = {}) {
   void sendToTelegramAdmin(error, info)
+}
+
+function escape(s: string) {
+  return s.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&/g, '&amp;')
 }

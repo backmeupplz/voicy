@@ -1,16 +1,17 @@
+import * as download from 'download'
+import * as temp from 'temp'
 import { Chat } from '@/models/Chat'
+import { Worker } from 'cluster'
 import { cpus } from 'os'
 import { v4 as uuid } from 'uuid'
 import { writeFileSync } from 'fs'
+import Cluster from '@/helpers/Cluster'
 import RecognitionResult from '@/helpers/engine/RecognitionResult'
 import RecognitionResultPart from '@/helpers/engine/RecognitionResultPart'
-import cluster, { Worker } from 'cluster'
 import deleteFile from '@/helpers/deleteFile'
-import download from 'download'
 import flac from '@/helpers/flac'
 import getTextFromAudio from '@/helpers/getTextFromAudio'
 import report from '@/helpers/report'
-import temp from 'temp'
 
 const numCPUs = cpus().length
 
@@ -29,10 +30,10 @@ interface PrimaryMessage {
 
 // Generate cluster workers
 const workers: Worker[] = []
-if (cluster.isPrimary) {
+if (Cluster.isPrimary) {
   console.info(`Primary ${process.pid} is running`)
   for (let i = 0; i < numCPUs; i += 1) {
-    const worker = cluster.fork()
+    const worker = Cluster.fork()
     worker.on('message', primaryReceivesMessage)
     workers.push(worker)
   }

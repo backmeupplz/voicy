@@ -1,6 +1,6 @@
+import * as download from 'download'
 import Context from '@/models/Context'
 import bot from '@/helpers/bot'
-import download from 'download'
 import fileUrl from '@/helpers/fileUrl'
 import logAnswerTime from '@/helpers/logAnswerTime'
 import report from '@/helpers/report'

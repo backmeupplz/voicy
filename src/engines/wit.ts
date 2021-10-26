@@ -1,10 +1,10 @@
+import * as temp from 'temp'
 import { createReadStream } from 'fs'
 import { request } from 'https'
 import Engine from '@/helpers/engine/Engine'
 import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
 import RecognitionConfig from '@/helpers/engine/RecognitionConfig'
 import deleteFile from '@/helpers/deleteFile'
-import temp from 'temp'
 import ffmpeg = require('fluent-ffmpeg')
 
 const witLanguages = JSON.parse(process.env.WIT_LANGUAGES)

@@ -1,6 +1,6 @@
 import deleteFile from '@/helpers/deleteFile'
 import ffmpeg = require('fluent-ffmpeg')
-import temp from 'temp'
+import * as temp from 'temp'
 
 export default function flac(filepath: string) {
   return new Promise<{ flacPath: string; duration: number }>(

@@ -19,7 +19,7 @@ export default async function handleSetLanguage(ctx: Context) {
   const options = ctx.callbackQuery.data.split('~')
   const engine = options[2] as Engine
   const engineObject: EngineRecognizer = engines[engine]
-  const isCommand = +options === 1
+  const isCommand = +options[1] === 1
   // Get language
   const language = options[3]
   // Check if pagination

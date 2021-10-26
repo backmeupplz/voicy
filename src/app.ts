@@ -6,6 +6,7 @@ import * as dotenv from 'dotenv'
 dotenv.config({ path: `${__dirname}/../.env` })
 // Dependencies
 import { run } from '@grammyjs/runner'
+import Cluster from '@/helpers/Cluster'
 import attachChat from '@/middlewares/attachChat'
 import bot from '@/helpers/bot'
 import checkAdminLock from '@/middlewares/adminLock'
@@ -45,6 +46,7 @@ import recordTimeReceived from '@/middlewares/recordTimeReceived'
 import startMongo from '@/helpers/startMongo'
 
 async function runApp() {
+  console.log('Starting app...')
   // Mongo
   await startMongo()
   console.log('Mongo started')
@@ -95,4 +97,6 @@ async function runApp() {
   console.info(`Bot ${bot.botInfo.username} is up and running`)
 }
 
-void runApp()
+if (Cluster.isPrimary) {
+  void runApp()
+}

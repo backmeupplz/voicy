@@ -1,9 +1,17 @@
 import { Chat } from '@/models/Chat'
-import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose'
+import {
+  Severity,
+  getModelForClass,
+  modelOptions,
+  prop,
+} from '@typegoose/typegoose'
 import Engine from '@/helpers/engine/Engine'
 import RecognitionResultPart from '@/helpers/engine/RecognitionResultPart'
 
-@modelOptions({ schemaOptions: { timestamps: true } })
+@modelOptions({
+  schemaOptions: { timestamps: true },
+  options: { allowMixed: Severity.ALLOW },
+})
 export class Voice {
   @prop({ required: true })
   url: string
@@ -12,7 +20,7 @@ export class Voice {
   @prop({ required: true })
   duration: number
   @prop({ required: true })
-  lanpuage: string
+  language: string
   @prop()
   text?: string
   @prop()
