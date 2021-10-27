@@ -14,6 +14,7 @@ const ignoredMessages = [
   'Response code 404 (Not Found)',
   'Too Many Requests: retry after',
   'You have exceeded the limit of 240 requests',
+  'MESSAGE_ID_INVALID',
 ]
 
 interface ExtraErrorInfo {
