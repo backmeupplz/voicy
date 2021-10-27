@@ -207,7 +207,6 @@ const i18nCodes = {
   Azerbaijani: 'az',
   Bengali: 'bn',
   Bosnian: 'bs',
-  Bulgarian: 'bg',
   Burmese: 'my',
   Catalan: 'ca',
   'Central Khmer': 'km',
