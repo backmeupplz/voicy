@@ -7,6 +7,7 @@ const ignoredMessages = [
   "message can't be deleted",
   'message is not modified',
   'Bad auth, check token/params',
+  'replied message not found',
 ]
 
 interface ExtraErrorInfo {
