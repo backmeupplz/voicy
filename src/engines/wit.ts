@@ -207,7 +207,6 @@ const i18nCodes = {
   Bosnian: 'bs',
   Burmese: 'my',
   Catalan: 'ca',
-  'Central Khmer': 'km',
   Chinese: 'zh',
   Croatian: 'hr',
   Czech: 'cs',
