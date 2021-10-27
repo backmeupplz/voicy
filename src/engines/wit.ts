@@ -45,7 +45,6 @@ const i18nCodes = {
   Mongolian: 'mn',
   Nepali: 'ne',
   Norwegian: 'no',
-  Pashto: 'ps',
   Polish: 'pl',
   Portuguese: 'pt',
   Russian: 'ru',
