@@ -18,9 +18,6 @@ function constructErrorMessage(
   { ctx, location }: ExtraErrorInfo
 ) {
   const { message, stack } = error
-  if (ignoredMessages.find((m) => message.includes(m))) {
-    return
-  }
   const chatInfo = ctx ? [`Chat <b>${ctx.chat.id}</b>`] : []
   if (ctx && 'username' in ctx.chat) {
     chatInfo.push(`@${ctx.chat.username}`)
@@ -34,11 +31,10 @@ function constructErrorMessage(
 
 async function sendToTelegramAdmin(error: Error, info: ExtraErrorInfo) {
   try {
-    const message = constructErrorMessage(error, info)
-    if (!message) {
-      console.error('empty reporting:', error, JSON.stringify(info))
+    if (ignoredMessages.find((m) => error.message.includes(m))) {
       return
     }
+    const message = constructErrorMessage(error, info)
     await bot.api.sendMessage(process.env.ADMIN_ID, message, {
       parse_mode: 'HTML',
     })

@@ -36,7 +36,7 @@ See examples in `.env.sample` file.
 
 ## Continuous integration
 
-Any commit pushed to master gets deployed to [@voicybot](https://t.me/voicybot) via [CI Ninja](https://github.com/backmeupplz/ci-ninja).
+Any commit pushed to `main` gets deployed to [@voicybot](https://t.me/voicybot) via [CI Ninja](https://github.com/backmeupplz/ci-ninja).
 
 ## License
 
