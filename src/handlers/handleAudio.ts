@@ -70,31 +70,37 @@ async function sendTranscription(ctx: Context, url: string, fileId: string) {
       sanitizeChat(ctx.dbchat)
     )
     // Send trancription to user
-    let text = ctx.dbchat.timecodesEnabled
+    const text = ctx.dbchat.timecodesEnabled
       ? textWithTimecodes.map((t) => `${t.timeCode}:\n${t.text}`).join('\n')
       : textWithTimecodes
           .map((t) => t.text.trim())
           .filter((v) => !!v)
           .join('. ')
-    text = addPromoToText(ctx, text)
-    const texts = splitText(text)
-    const firstText = texts.shift()
+    const texts = splitText(text) || ['']
+    const firstText = texts.shift().trim()
     if (dummyMessage) {
       await ctx.api.editMessageText(
         ctx.dbchat.id,
         dummyMessage.message_id,
-        (firstText || '').trim() || ctx.i18n.t('speak_clearly'),
+        firstText
+          ? addPromoToText(ctx, firstText)
+          : ctx.i18n.t('speak_clearly'),
         {
           parse_mode: 'Markdown',
           disable_web_page_preview: true,
         }
       )
     } else {
-      await ctx.reply((firstText || '').trim() || ctx.i18n.t('speak_clearly'), {
-        reply_to_message_id: ctx.msg.message_id,
-        parse_mode: 'Markdown',
-        disable_web_page_preview: true,
-      })
+      await ctx.reply(
+        firstText
+          ? addPromoToText(ctx, firstText)
+          : ctx.i18n.t('speak_clearly'),
+        {
+          reply_to_message_id: ctx.msg.message_id,
+          parse_mode: 'Markdown',
+          disable_web_page_preview: true,
+        }
+      )
     }
     if (texts.length) {
       for (const element of texts) {
