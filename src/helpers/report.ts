@@ -15,6 +15,7 @@ const ignoredMessages = [
   'Too Many Requests: retry after',
   'You have exceeded the limit of 240 requests',
   'MESSAGE_ID_INVALID',
+  'bot was kicked from the supergroup chat',
 ]
 
 interface ExtraErrorInfo {
