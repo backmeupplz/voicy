@@ -244,7 +244,6 @@ const i18nCodes = {
   Nepali: 'ne',
   Norwegian: 'no',
   Pashto: 'ps',
-  Persian: 'fa',
   Polish: 'pl',
   Portugese: 'pt',
   Romanian: 'ro',

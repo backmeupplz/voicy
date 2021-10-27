@@ -13,6 +13,7 @@ const ignoredMessages = [
   'Exceeded max audio length of 20 seconds',
   'Response code 404 (Not Found)',
   'Too Many Requests: retry after',
+  'You have exceeded the limit of 240 requests',
 ]
 
 interface ExtraErrorInfo {
