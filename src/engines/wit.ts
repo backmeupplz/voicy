@@ -41,7 +41,6 @@ const i18nCodes = {
   Kinyarwanda: 'rw',
   Korean: 'ko',
   Lao: 'lo',
-  Latin: 'la',
   Lithuanian: 'lt',
   Macedonian: 'mk',
   Malay: 'ms',
