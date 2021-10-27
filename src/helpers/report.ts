@@ -10,6 +10,7 @@ const ignoredMessages = [
   'replied message not found',
   'CHAT_WRITE_FORBIDDEN',
   'message to edit not found',
+  'Exceeded max audio length of 20 seconds',
 ]
 
 interface ExtraErrorInfo {
