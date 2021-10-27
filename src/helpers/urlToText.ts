@@ -108,7 +108,6 @@ async function convert(url: string, chat: Partial<Chat>) {
     deleteFile(ogaPath)
     report(error, {
       location: 'sendTranscription.downloadAudioFile',
-      meta: url,
     })
     throw error
   }

@@ -11,6 +11,7 @@ const ignoredMessages = [
   'CHAT_WRITE_FORBIDDEN',
   'message to edit not found',
   'Exceeded max audio length of 20 seconds',
+  'Response code 404 (Not Found)',
 ]
 
 interface ExtraErrorInfo {
