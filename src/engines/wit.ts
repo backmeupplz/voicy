@@ -269,7 +269,6 @@ const i18nCodes = {
   Turkish: 'tr',
   Ukrainian: 'ua',
   Urdu: 'ur',
-  Uzbek: 'uz',
   Venda: 've',
   Vietnamese: 'vi',
   Xhosa: 'xh',
