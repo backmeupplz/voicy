@@ -12,6 +12,7 @@ const ignoredMessages = [
   'message to edit not found',
   'Exceeded max audio length of 20 seconds',
   'Response code 404 (Not Found)',
+  'Too Many Requests: retry after',
 ]
 
 interface ExtraErrorInfo {
