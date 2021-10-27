@@ -204,7 +204,6 @@ async function recognize({
 const i18nCodes = {
   Albanian: 'sq',
   Arabic: 'ar',
-  Azerbaijani: 'az',
   Bengali: 'bn',
   Bosnian: 'bs',
   Burmese: 'my',
