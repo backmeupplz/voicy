@@ -8,6 +8,7 @@ const ignoredMessages = [
   'message is not modified',
   'Bad auth, check token/params',
   'replied message not found',
+  'CHAT_WRITE_FORBIDDEN',
 ]
 
 interface ExtraErrorInfo {
