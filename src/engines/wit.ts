@@ -47,7 +47,7 @@ const i18nCodes = {
   Norwegian: 'no',
   Pashto: 'ps',
   Polish: 'pl',
-  Portugese: 'pt',
+  Portuguese: 'pt',
   Russian: 'ru',
   Slovenian: 'sl',
   Somali: 'so',
