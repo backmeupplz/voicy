@@ -247,7 +247,6 @@ const i18nCodes = {
   Portugese: 'pt',
   Romanian: 'ro',
   Russian: 'ru',
-  Serbian: 'sr',
   Slovak: 'sk',
   Slovenian: 'sl',
   Somali: 'so',
