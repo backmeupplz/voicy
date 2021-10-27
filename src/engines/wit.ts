@@ -17,7 +17,6 @@ const i18nCodes = {
   Chinese: 'zh',
   Croatian: 'hr',
   Czech: 'cs',
-  Danish: 'da',
   Dutch: 'nl',
   English: 'en',
   Estonian: 'et',
@@ -28,7 +27,6 @@ const i18nCodes = {
   Greek: 'el',
   Greenlandic: 'kl',
   Hausa: 'ha',
-  Hebrew: 'he',
   Hindi: 'hi',
   Hungarian: 'hu',
   Icelandic: 'is',
@@ -53,7 +51,6 @@ const i18nCodes = {
   Portugese: 'pt',
   Romanian: 'ro',
   Russian: 'ru',
-  Slovak: 'sk',
   Slovenian: 'sl',
   Somali: 'so',
   'Southern Ndebele': 'nr',
@@ -67,14 +64,12 @@ const i18nCodes = {
   Telugu: 'te',
   Thai: 'th',
   Tsonga: 'ts',
-  Tswana: 'tn',
   Turkish: 'tr',
   Urdu: 'ur',
   Venda: 've',
   Vietnamese: 'vi',
   Xhosa: 'xh',
   Yoruba: 'yo',
-  Zulu: 'zu',
 }
 
 const witLanguages = JSON.parse(process.env.WIT_LANGUAGES)

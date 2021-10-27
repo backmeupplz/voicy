@@ -17,6 +17,9 @@ const ignoredMessages = [
   'MESSAGE_ID_INVALID',
   'bot was kicked from the supergroup chat',
   'The project to be billed is associated with a delinquent billing account',
+  'need administrator rights',
+  'You have exceeded the limit of 180 requests',
+  'The project to be billed is associated with a closed billing account',
 ]
 
 interface ExtraErrorInfo {
