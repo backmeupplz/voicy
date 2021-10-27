@@ -16,11 +16,12 @@ const ignoredMessages = [
 interface ExtraErrorInfo {
   ctx?: Context
   location?: string
+  meta?: string
 }
 
 function constructErrorMessage(
   error: Error,
-  { ctx, location }: ExtraErrorInfo
+  { ctx, location, meta }: ExtraErrorInfo
 ) {
   const { message, stack } = error
   const chatInfo = ctx ? [`Chat <b>${ctx.chat.id}</b>`] : []
@@ -29,9 +30,9 @@ function constructErrorMessage(
   }
   return `${
     location ? `<b>${escape(location)}</b>${ctx ? '\n' : ''}` : ''
-  }${chatInfo.filter((v) => !!v).join(', ')}\n${escape(
-    message
-  )}\n<code>${escape(stack)}</code>`
+  }${chatInfo.filter((v) => !!v).join(', ')}\n${escape(message)}${
+    meta ? `${meta}\n` : ''
+  }\n<code>${escape(stack)}</code>`
 }
 
 async function sendToTelegramAdmin(error: Error, info: ExtraErrorInfo) {

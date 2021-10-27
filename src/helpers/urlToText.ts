@@ -106,7 +106,10 @@ async function convert(url: string, chat: Partial<Chat>) {
     writeFileSync(ogaPath, data)
   } catch (error) {
     deleteFile(ogaPath)
-    report(error, { location: 'sendTranscription.downloadAudioFile' })
+    report(error, {
+      location: 'sendTranscription.downloadAudioFile',
+      meta: url,
+    })
     throw error
   }
   // Convert audio file to flac
