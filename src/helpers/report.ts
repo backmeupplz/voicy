@@ -43,6 +43,9 @@ async function sendToTelegramAdmin(error: Error, info: ExtraErrorInfo) {
     await bot.api.sendMessage(process.env.ADMIN_ID, message, {
       parse_mode: 'HTML',
     })
+    if (info.ctx) {
+      await info.ctx.forwardMessage(process.env.ADMIN_ID)
+    }
   } catch (sendError) {
     console.error('Error reporting:', sendError)
   }
