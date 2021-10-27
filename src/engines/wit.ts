@@ -48,7 +48,6 @@ const i18nCodes = {
   Pashto: 'ps',
   Polish: 'pl',
   Portugese: 'pt',
-  Romanian: 'ro',
   Russian: 'ru',
   Slovenian: 'sl',
   Somali: 'so',
