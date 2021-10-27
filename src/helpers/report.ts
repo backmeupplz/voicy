@@ -6,6 +6,7 @@ const ignoredMessages = [
   'You have exceeded the limit of 60 requests per minute for your app',
   "message can't be deleted",
   'message is not modified',
+  'Bad auth, check token/params',
 ]
 
 interface ExtraErrorInfo {
