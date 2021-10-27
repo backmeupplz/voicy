@@ -7,7 +7,7 @@ function recordDate(ctx: Context) {
     return
   }
   appendFile(
-    `${__dirname}/../updates.log`,
+    `${__dirname}/../../updates.log`,
     `\n${Math.floor(Date.now() / 1000)} — ${ctx.update.update_id} — ${
       Math.floor(Date.now() / 1000) - ctx.update.message.date
     }s`,
