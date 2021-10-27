@@ -28,7 +28,6 @@ const i18nCodes = {
   Greenlandic: 'kl',
   Hausa: 'ha',
   Hindi: 'hi',
-  Hungarian: 'hu',
   Icelandic: 'is',
   Igbo: 'ig',
   Indonesian: 'id',
