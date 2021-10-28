@@ -232,7 +232,7 @@ async function recognize({ flacPath, chat }: RecognitionConfig) {
   const request = {
     config: {
       enableWordTimeOffsets: true,
-      encoding: 'LINEAR16',
+      encoding: 'FLAC',
       sampleRateHertz: 16000,
       languageCode: chat.languages[Engine.google] || defaultLanguageCode,
     },

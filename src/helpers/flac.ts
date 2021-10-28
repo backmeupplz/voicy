@@ -25,7 +25,7 @@ export default function flac(filepath: string) {
           .duration(fileSize)
           .output(output)
           .audioFrequency(16000)
-          .toFormat('s16le')
+          .toFormat('flac')
           .run()
       })
     }

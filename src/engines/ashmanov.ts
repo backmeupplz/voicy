@@ -13,12 +13,12 @@ interface AshmanovResponse {
   }[]
 }
 
-async function recognize({ duration, ogaPath }: RecognitionConfig) {
+async function recognize({ duration, flacPath }: RecognitionConfig) {
   const formData = new FormData()
   formData.append('model_type', 'ASR')
   formData.append('filename', '67006370772')
-  formData.append('audio_blob', createReadStream(ogaPath), {
-    knownLength: statSync(ogaPath).size,
+  formData.append('audio_blob', createReadStream(flacPath), {
+    knownLength: statSync(flacPath).size,
   })
 
   const headers = {
