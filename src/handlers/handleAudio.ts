@@ -90,17 +90,12 @@ async function sendTranscription(ctx: Context, url: string, fileId: string) {
           disable_web_page_preview: true,
         }
       )
-    } else {
-      await ctx.reply(
-        firstText
-          ? addPromoToText(ctx, firstText)
-          : ctx.i18n.t('speak_clearly'),
-        {
-          reply_to_message_id: ctx.msg.message_id,
-          parse_mode: 'Markdown',
-          disable_web_page_preview: true,
-        }
-      )
+    } else if (firstText) {
+      await ctx.reply(addPromoToText(ctx, firstText), {
+        reply_to_message_id: ctx.msg.message_id,
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true,
+      })
     }
     if (texts.length) {
       for (const element of texts) {
