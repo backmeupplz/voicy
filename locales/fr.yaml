@@ -24,7 +24,7 @@ error: "_\U0001F46E Je n'ai pas pu reconnaître ça_"
 google_error_creds: "\U0001F62E Veuillez configurer les identifiants Google avec la commande /google ou changer le moteur avec la commande /engine. Vos identifiants ne sont pas encore configurés."
 ashmanov_language: La nanosémantique ne soutient que la langue russe. Veuillez d'abord changer /engine pour changer /language.
 geeky: |
-  Bienvenue dans le côté obscur, je serai votre guide. S'il vous plaît, profitez des fonctions suivantes de manière responsable (ou pas, à vous de décider). Si vous avez des questions sur les fonctions geeky — contournez @borodutch\\_support et envoyez vos requêtes directement à @borodutch. Votre opinion et vos suggestions sont importantes pour moi, chers collègues utilisateurs de force !
+  Bienvenue dans le côté obscur, je serai votre guide. S'il vous plaît, profitez des fonctions suivantes de manière responsable (ou pas, à vous de décider). Si vous avez des questions sur les fonctions geeky — contournez @borodutch\_support et envoyez vos requêtes directement à @borodutch. Votre opinion et vos suggestions sont importantes pour moi, chers collègues utilisateurs de force !
 
   /enableGoogle — /enableGoogle — Partagez vos identifiants Google personnels avec cette discussion sans les exposer
   /disableGoogle — Supprimez vos identifiants Google personnels de cette discussion sans les exposer

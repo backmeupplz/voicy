@@ -24,7 +24,7 @@ error: "_\U0001F46E Não consegui reconhecer a mensagem_"
 google_error_creds: "\U0001F62E Por favor, configure as credenciais Google com o comando /google ou altere o motor com o comando /engine. As suas credenciais ainda não foram configuradas."
 ashmanov_language: 'A nanosemântica suporta apenas o Russo. Por favor, altere o /engine para alterar o /language primeiro.'
 geeky: |
-  Bem-vindo ao lado obscuro, eu serei seu guia. Por favor, utilize as seguintes funções com responsabilidade (ou não, se quiser). Se você tiver quaisquer questões sobre as funções geeky — evite o @borodutch\\_support e envie solicitações diretamente a @borodutch. Valorizo suas opiniões e sugestões, amigos power users!
+  Bem-vindo ao lado obscuro, eu serei seu guia. Por favor, utilize as seguintes funções com responsabilidade (ou não, se quiser). Se você tiver quaisquer questões sobre as funções geeky — evite o @borodutch\_support e envie solicitações diretamente a @borodutch. Valorizo suas opiniões e sugestões, amigos power users!
 
   /enableGoogle — Compartilha suas credenciais pessoais do Google com este chat, sem expô-las
   /disableGoogle — Remove suas credenciais pessoais do Google deste chat, sem expô-las

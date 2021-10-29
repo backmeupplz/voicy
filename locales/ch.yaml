@@ -24,7 +24,7 @@ error: "_\U0001F46E 我无法辨识_"
 google_error_creds: "\U0001F62E 请使用/google指令设置谷歌凭证，或使用/engine指令更改所使用的系统。您的凭据尚未设置。"
 ashmanov_language: Nanosemantics只支持俄语。请先将/engine更改为/language。
 geeky: |
-  欢迎来到黑暗面，我将是您的向导。请负责任地享受以下功能（或者由您自行决定是否负责任地享受其功能）。 如果您对geeky函数有任何疑问 — 请绕过 @borodutch\\_support 并直接向@borodutch发送请求。 各位超级用户，我非常重视你们的意见和建议！
+  欢迎来到黑暗面，我将是您的向导。请负责任地享受以下功能（或者由您自行决定是否负责任地享受其功能）。 如果您对geeky函数有任何疑问 — 请绕过 @borodutch\_support 并直接向@borodutch发送请求。 各位超级用户，我非常重视你们的意见和建议！
 
   /enableGoogle — 在此对话中共享您的个人谷歌凭据，而无需公开它们
   /disableGoogle — 从此对话中删除您的个人谷歌凭据，而无需公开它们

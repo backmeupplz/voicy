@@ -24,7 +24,7 @@ error: "_\U0001F46E Bunu anlayamadım_"
 google_error_creds: "\U0001F62E Lütfen, /google komutuyla Google kimlik bilgilerini ayarlayın veya motoru /engine komutuyla değiştirin. Kimlik bilgileriniz henüz ayarlanmamış."
 ashmanov_language: Nanosemantics yalnızca Rusça'yı desteklemektedir. Lütfen /language değiştirmeden önce /engine değiştirin.'
 geeky: |
-  Karanlık tarafa hoş geldiniz. Rehberiniz benim. Lütfen, aşağıdaki özellikleri sorumlu bir şekilde kullanın (ya da yararlanmayın, karar sizin). Bilgisayar kurdu işlevleriyle alakalı hakkında herhangi bir sorunuz varsa, @borodutch\\_support adresini boş verin ve direkt @borodutch. Görüş ve önerilerinizi önemsiyorum, değerli yoldaşlarım!
+  Karanlık tarafa hoş geldiniz. Rehberiniz benim. Lütfen, aşağıdaki özellikleri sorumlu bir şekilde kullanın (ya da yararlanmayın, karar sizin). Bilgisayar kurdu işlevleriyle alakalı hakkında herhangi bir sorunuz varsa, @borodutch\_support adresini boş verin ve direkt @borodutch. Görüş ve önerilerinizi önemsiyorum, değerli yoldaşlarım!
 
   /enableGoogle — Kişisel Google kimlik bilgilerinizi başka kimseye göstermeden bu sohbetle paylaşın
   /disableGoogle — Kişisel Google kimlik bilgilerinizi başka kimseye göstermeden bu sohbetten kaldırın

@@ -24,7 +24,7 @@ error: "_\U0001F46E I couldn't recognize that_"
 google_error_creds: "\U0001F62E Please, set up google credentials with the /google command or change the engine with the /engine command. Your credentials are not set up yet."
 ashmanov_language: 'Nanosemantics only supports Russian. Please, change /engine to change /language first.'
 geeky: |
-  Welcome to the dark side, I'll be your guide. Please, enjoy the following functions responsibly (or not, you decide). If you have any questions about the geeky functions — bypass the @borodutch\\_support and send requests directly to @borodutch. I value your opinion and suggestions, fellow power users!
+  Welcome to the dark side, I'll be your guide. Please, enjoy the following functions responsibly (or not, you decide). If you have any questions about the geeky functions — bypass the @borodutch\_support and send requests directly to @borodutch. I value your opinion and suggestions, fellow power users!
 
   /enableGoogle — Share your personal Google credentials with this chat without exposing them
   /disableGoogle — Remove your personal Google credentials from this chat without exposing them
