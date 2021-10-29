@@ -6,7 +6,6 @@ const ignoredMessages = [
   'You have exceeded the limit of 60 requests per minute for your app',
   "message can't be deleted",
   'message is not modified',
-  'Bad auth, check token/params',
   'replied message not found',
   'CHAT_WRITE_FORBIDDEN',
   'message to edit not found',
@@ -46,7 +45,10 @@ function constructErrorMessage(
 
 async function sendToTelegramAdmin(error: Error, info: ExtraErrorInfo) {
   try {
-    if (ignoredMessages.find((m) => error.message.includes(m))) {
+    if (
+      process.env.ENVIRONMENT !== 'development' &&
+      ignoredMessages.find((m) => error.message.includes(m))
+    ) {
       return
     }
     const message = constructErrorMessage(error, info)

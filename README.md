@@ -24,13 +24,14 @@ You can also help by translating the bot to other languages or fixing some texts
 
 ## Environment variables in `.env` file
 
-| Variable        | Description                                           |
-| --------------- | ----------------------------------------------------- |
-| `MONGO`         | URI for the mongo database used                       |
-| `TOKEN`         | Telegram bot token                                    |
-| `SALT`          | Random salt to generate various encrypted stuff       |
-| `ADMIN_ID`      | Chat id of the person who shall receive valuable logs |
-| `WIT_LANGUAGES` | A map of language names to Wit.ai tokens              |
+| Variable        | Description                                                     |
+| --------------- | --------------------------------------------------------------- |
+| `MONGO`         | URI for the mongo database used                                 |
+| `TOKEN`         | Telegram bot token                                              |
+| `SALT`          | Random salt to generate various encrypted stuff                 |
+| `ADMIN_ID`      | Chat id of the person who shall receive valuable logs           |
+| `WIT_LANGUAGES` | A map of language names to Wit.ai tokens                        |
+| `ENVIRONMENT`   | App environment, can be `development`, defaults to `production` |
 
 See examples in `.env.sample` file.
 
