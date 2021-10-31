@@ -12,7 +12,6 @@ import augmentError from '@/helpers/augmentError'
 import deleteFile from '@/helpers/deleteFile'
 import flac from '@/helpers/flac'
 import getTextFromAudio from '@/helpers/getTextFromAudio'
-import report from '@/helpers/report'
 
 const numCPUs = cpus().length
 
