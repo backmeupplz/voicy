@@ -8,6 +8,7 @@ import { writeFileSync } from 'fs'
 import Cluster from '@/helpers/Cluster'
 import RecognitionResult from '@/helpers/engine/RecognitionResult'
 import RecognitionResultPart from '@/helpers/engine/RecognitionResultPart'
+import augmentError from '@/helpers/augmentError'
 import deleteFile from '@/helpers/deleteFile'
 import flac from '@/helpers/flac'
 import getTextFromAudio from '@/helpers/getTextFromAudio'
@@ -99,33 +100,26 @@ function primaryReceivesMessage({
 }
 
 async function convert(url: string, chat: Partial<Chat>) {
-  // Download audio file
-  const ogaPath = temp.path({ suffix: '.oga' })
-  try {
-    const data = await download(url)
-    writeFileSync(ogaPath, data)
-  } catch (error) {
-    deleteFile(ogaPath)
-    report(error, {
-      location: 'sendTranscription.downloadAudioFile',
-    })
-    throw error
-  }
-  // Convert audio file to flac
+  let ogaPath: string
   let flacPath: string
-  let duration: number
   try {
-    const result = await flac(ogaPath)
-    flacPath = result.flacPath
-    duration = result.duration
-  } catch (error) {
-    deleteFile(ogaPath)
-    report(error, { location: 'sendTranscription.convertAudioFile' })
-    throw error
-  }
-
-  // Convert flac file to speech
-  try {
+    // Download audio file
+    ogaPath = temp.path({ suffix: '.oga' })
+    try {
+      const data = await download(url)
+      writeFileSync(ogaPath, data)
+    } catch (error) {
+      throw augmentError(error, 'download url')
+    }
+    // Convert audio file to flac
+    let duration: number
+    try {
+      const result = await flac(ogaPath)
+      flacPath = result.flacPath
+      duration = result.duration
+    } catch (error) {
+      throw augmentError(error, 'convert to flac')
+    }
     // Get transcription
     const textWithTimecodes = await getTextFromAudio(
       flacPath,
@@ -140,7 +134,7 @@ async function convert(url: string, chat: Partial<Chat>) {
     }
   } catch (error) {
     report(error, { location: 'sendTranscription.convertFlacToText' })
-    throw error
+    throw augmentError(error, 'transcribe audio')
   } finally {
     deleteFile(flacPath)
     deleteFile(ogaPath)

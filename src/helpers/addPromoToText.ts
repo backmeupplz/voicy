@@ -1,6 +1,6 @@
 import { promoExceptions } from '@/models/PromoException'
 import Context from '@/models/Context'
-import isRuChat from './isRuChat'
+import isRuChat from '@/helpers/isRuChat'
 import promoTexts from '@/helpers/promoTexts'
 
 export default function addPromoToText(ctx: Context, text: string) {
