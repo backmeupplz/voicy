@@ -25,6 +25,7 @@ const ignoredMessages = [
   'bot was kicked from the group chat',
   'bot is not a member of the supergroup chat',
   'The project to be billed is associated with an absent billing',
+  'Bad Request: not Found',
 ]
 
 interface ExtraErrorInfo {
