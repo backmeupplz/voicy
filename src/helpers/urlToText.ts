@@ -133,7 +133,6 @@ async function convert(url: string, chat: Partial<Chat>) {
       duration,
     }
   } catch (error) {
-    report(error, { location: 'sendTranscription.convertFlacToText' })
     throw augmentError(error, 'transcribe audio')
   } finally {
     deleteFile(flacPath)
