@@ -36,6 +36,10 @@ function constructErrorMessage(
   if (ctx && 'username' in ctx.chat) {
     chatInfo.push(`@${ctx.chat.username}`)
   }
+  if (ctx && ctx.dbchat) {
+    chatInfo.push(ctx.dbchat.engine)
+    chatInfo.push(ctx.dbchat.languages[ctx.dbchat.engine])
+  }
   return `${
     location ? `<b>${escape(location)}</b>${ctx ? '\n' : ''}` : ''
   }${chatInfo.filter((v) => !!v).join(', ')}\n${escape(message)}${
