@@ -19,6 +19,11 @@ const ignoredMessages = [
   'need administrator rights',
   'You have exceeded the limit of 180 requests',
   'The project to be billed is associated with a closed billing account',
+  'wrong file_id or the file is temporarily unavailable',
+  'not enough rights to send text messages',
+  'bot was blocked by the user',
+  'bot was kicked from the group chat',
+  'bot is not a member of the supergroup chat',
 ]
 
 interface ExtraErrorInfo {
