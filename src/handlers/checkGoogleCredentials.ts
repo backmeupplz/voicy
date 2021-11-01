@@ -1,28 +1,32 @@
 import * as download from 'download'
+import { NextFunction } from 'grammy'
 import Context from '@/models/Context'
 import bot from '@/helpers/bot'
 import fileUrl from '@/helpers/fileUrl'
 import logAnswerTime from '@/helpers/logAnswerTime'
 import report from '@/helpers/report'
 
-export default async function checkGoogleCredentials(ctx: Context) {
+export default async function checkGoogleCredentials(
+  ctx: Context,
+  next: NextFunction
+) {
   const replyToMessage = ctx.message?.reply_to_message
   // Check if reply
   if (!replyToMessage) {
-    return
+    return next()
   }
   // Check if reply is to a bot's message
   if (replyToMessage.from?.id !== bot.botInfo.id) {
-    return
+    return next()
   }
   // Check if reply is to the credentials request message
   if (replyToMessage.message_id !== ctx.dbchat.googleSetupMessageId) {
-    return
+    return next()
   }
   // Check if the document exists
   const document = ctx.message?.document
   if (!document) {
-    return
+    return next()
   }
   // Check document type
   if (
