@@ -67,7 +67,7 @@ function splitPath(path, duration) {
           .on('end', () => res(output))
           .output(output)
           .setStartTime(i)
-          .duration(i + trackLength < duration ? trackLength : lastTrackLength)
+          .duration(i + trackLength <= duration ? trackLength : lastTrackLength)
           .audioFrequency(16000)
           .toFormat('s16le')
           .run()
