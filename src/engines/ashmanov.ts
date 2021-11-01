@@ -27,13 +27,14 @@ async function recognize({ duration, flacPath }: RecognitionConfig) {
     Authorization: 'Basic YW5uOjVDdWlIT0NTMlpRMQ==',
   }
 
-  const { data }: AxiosResponse<AshmanovResponse> = await axios.post(
-    'https://asr.nanosemantics.ai/asr/',
-    formData,
-    {
-      headers,
-    }
-  )
+  const { data } = (await axios({
+    method: 'POST',
+    url: 'https://asr.nanosemantics.ai/asr/',
+    data: formData,
+    headers,
+    maxBodyLength: Infinity,
+    maxContentLength: Infinity,
+  })) as AxiosResponse<AshmanovResponse>
   const text = data.r[0].response[0].text
   return [{ timeCode: `0-${duration}`, text }]
 }
