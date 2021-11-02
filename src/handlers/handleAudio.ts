@@ -71,9 +71,11 @@ async function sendTranscription(ctx: Context, url: string, fileId: string) {
     )
     // Send trancription to user
     const text = ctx.dbchat.timecodesEnabled
-      ? textWithTimecodes.map((t) => `${t.timeCode}:\n${t.text}`).join('\n')
+      ? textWithTimecodes
+          .map((t) => `${t.timeCode}:\n${t.text || ''}`)
+          .join('\n')
       : textWithTimecodes
-          .map((t) => t.text.trim())
+          .map((t) => (t.text || '').trim())
           .filter((v) => !!v)
           .join('. ')
     const texts = splitText(text) || ['']

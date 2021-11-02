@@ -214,6 +214,9 @@ async function recognize({
       }
       try {
         const responses = await Promise.all(promises)
+        if (!responses.length) {
+          responses.push('')
+        }
         result = result.concat(responses.map((r) => (r || '').trim()))
       } finally {
         for (const path of pathsToDelete) {
