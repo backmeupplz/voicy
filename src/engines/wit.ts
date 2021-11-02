@@ -56,23 +56,27 @@ function splitPath(path, duration) {
 
   const promises = []
   for (let i = 0; i < duration; i += trackLength) {
-    const output = temp.path({ suffix: '.flac' })
-    promises.push(
-      new Promise((res, rej) => {
-        ffmpeg()
-          .input(path)
-          .on('error', (error) => {
-            rej(error)
-          })
-          .on('end', () => res(output))
-          .output(output)
-          .setStartTime(i)
-          .duration(i + trackLength <= duration ? trackLength : lastTrackLength)
-          .audioFrequency(16000)
-          .toFormat('s16le')
-          .run()
-      })
-    )
+    const splitDuration =
+      i + trackLength <= duration ? trackLength : lastTrackLength
+    if (splitDuration > 1) {
+      const output = temp.path({ suffix: '.flac' })
+      promises.push(
+        new Promise((res, rej) => {
+          ffmpeg()
+            .input(path)
+            .on('error', (error) => {
+              rej(error)
+            })
+            .on('end', () => res(output))
+            .output(output)
+            .setStartTime(i)
+            .duration(splitDuration)
+            .audioFrequency(16000)
+            .toFormat('s16le')
+            .run()
+        })
+      )
+    }
   }
   return Promise.all(promises)
 }
