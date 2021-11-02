@@ -27,6 +27,7 @@ const ignoredMessages = [
   'The project to be billed is associated with an absent billing',
   'Bad Request: not Found',
   'account not found',
+  'Request Entity Too Large',
 ]
 
 interface ExtraErrorInfo {

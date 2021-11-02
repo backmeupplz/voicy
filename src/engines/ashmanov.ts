@@ -6,6 +6,8 @@ import RecognitionConfig from '@/helpers/engine/RecognitionConfig'
 import axios, { AxiosResponse } from 'axios'
 
 interface AshmanovResponse {
+  response_code: number
+  msg?: string
   r: {
     response: {
       text: string
@@ -35,6 +37,9 @@ async function recognize({ duration, flacPath }: RecognitionConfig) {
     maxBodyLength: Infinity,
     maxContentLength: Infinity,
   })) as AxiosResponse<AshmanovResponse>
+  if (data.response_code === 3 && data.msg) {
+    throw new Error(data.msg)
+  }
   const text = data.r[0].response[0].text
   return [{ timeCode: `0-${duration}`, text }]
 }
