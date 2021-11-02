@@ -28,6 +28,8 @@ const ignoredMessages = [
   'Bad Request: not Found',
   'account not found',
   'Request Entity Too Large',
+  'Does not contain any stream',
+  'ffprobe exited with code 1',
 ]
 
 interface ExtraErrorInfo {
@@ -40,7 +42,7 @@ function constructErrorMessage(
   error: Error,
   { ctx, location, meta }: ExtraErrorInfo
 ) {
-  const { message, stack } = error
+  const { message } = error
   const chatInfo = ctx ? [`Chat <b>${ctx.chat.id}</b>`] : []
   if (ctx && 'username' in ctx.chat) {
     chatInfo.push(`@${ctx.chat.username}`)
@@ -49,11 +51,12 @@ function constructErrorMessage(
     chatInfo.push(ctx.dbchat.engine)
     chatInfo.push(ctx.dbchat.languages[ctx.dbchat.engine])
   }
-  return `${
+  const result = `${
     location ? `<b>${escape(location)}</b>${ctx ? '\n' : ''}` : ''
   }${chatInfo.filter((v) => !!v).join(', ')}\n${escape(message)}${
     meta ? `${meta}\n` : ''
-  }\n<code>${escape(stack)}</code>`
+  }`
+  return result
 }
 
 async function sendToTelegramAdmin(error: Error, info: ExtraErrorInfo) {
