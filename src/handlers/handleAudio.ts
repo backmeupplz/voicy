@@ -67,7 +67,9 @@ async function sendTranscription(ctx: Context, url: string, fileId: string) {
     // Convert utl to text
     const { textWithTimecodes, duration } = await urlToText(
       url,
-      sanitizeChat(ctx.dbchat)
+      sanitizeChat(ctx.dbchat),
+      ctx.msg.forward_from?.id || ctx.from.id,
+      ctx.msg.forward_sender_name
     )
     // Send trancription to user
     const text = ctx.dbchat.timecodesEnabled

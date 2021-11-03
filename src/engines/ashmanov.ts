@@ -1,9 +1,15 @@
 import * as FormData from 'form-data'
+import { PBKDF2 } from 'crypto-js'
 import { createReadStream, statSync } from 'fs'
 import Engine from '@/helpers/engine/Engine'
 import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
 import RecognitionConfig from '@/helpers/engine/RecognitionConfig'
 import axios, { AxiosResponse } from 'axios'
+
+const salt = process.env.SALT
+function hashString(s: string) {
+  return PBKDF2(s, salt).toString()
+}
 
 interface AshmanovResponse {
   response_code: number
@@ -15,13 +21,24 @@ interface AshmanovResponse {
   }[]
 }
 
-async function recognize({ duration, flacPath }: RecognitionConfig) {
+async function recognize({
+  duration,
+  flacPath,
+  userId,
+  forwardedFrom,
+}: RecognitionConfig) {
   const formData = new FormData()
   formData.append('model_type', 'ASR')
   formData.append('filename', '67006370772')
   formData.append('audio_blob', createReadStream(flacPath), {
     knownLength: statSync(flacPath).size,
   })
+  if (userId) {
+    formData.append('user_id', hashString(`${userId}`))
+  }
+  if (forwardedFrom) {
+    formData.append('forwarded_from', hashString(`${forwardedFrom}`))
+  }
 
   const headers = {
     ...formData.getHeaders(),

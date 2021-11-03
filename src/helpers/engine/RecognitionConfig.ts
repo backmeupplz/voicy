@@ -5,6 +5,8 @@ interface RecognitionConfig {
   chat: Partial<Chat>
   duration: number
   ogaPath: string
+  userId?: number
+  forwardedFrom?: string
 }
 
 export default RecognitionConfig

@@ -19,6 +19,8 @@ interface WorkerMessage {
   url: string
   promiseId: string
   chat: Partial<Chat>
+  userId?: number
+  forwardedFrom?: string
 }
 
 interface PrimaryMessage {
@@ -50,7 +52,12 @@ const recognitionPromises: {
   }
 } = {}
 let clusterNumber = 0
-export default function urlToText(url: string, chat: Partial<Chat>) {
+export default function urlToText(
+  url: string,
+  chat: Partial<Chat>,
+  userId?: number,
+  forwardedFrom?: string
+) {
   if (clusterNumber >= workers.length) {
     clusterNumber = 0
   }
@@ -60,15 +67,27 @@ export default function urlToText(url: string, chat: Partial<Chat>) {
   return new Promise<RecognitionResult>((res, rej) => {
     const promiseId = uuid()
     recognitionPromises[promiseId] = { res, rej }
-    const workerMessage: WorkerMessage = { url, promiseId, chat }
+    const workerMessage: WorkerMessage = {
+      url,
+      promiseId,
+      chat,
+      userId,
+      forwardedFrom,
+    }
     worker.send(workerMessage)
   })
 }
 
-async function workerReceivesMessage({ url, promiseId, chat }: WorkerMessage) {
+async function workerReceivesMessage({
+  url,
+  promiseId,
+  chat,
+  userId,
+  forwardedFrom,
+}: WorkerMessage) {
   let primaryMessage: PrimaryMessage
   try {
-    const result = await convert(url, chat)
+    const result = await convert(url, chat, userId, forwardedFrom)
     primaryMessage = { ...result, promiseId }
   } catch (error) {
     primaryMessage = {
@@ -98,7 +117,12 @@ function primaryReceivesMessage({
   }
 }
 
-async function convert(url: string, chat: Partial<Chat>) {
+async function convert(
+  url: string,
+  chat: Partial<Chat>,
+  userId?: number,
+  forwardedFrom?: string
+) {
   let ogaPath: string
   let flacPath: string
   try {
@@ -124,7 +148,9 @@ async function convert(url: string, chat: Partial<Chat>) {
       flacPath,
       chat,
       duration,
-      ogaPath
+      ogaPath,
+      userId,
+      forwardedFrom
     )
     // Return result
     return {
