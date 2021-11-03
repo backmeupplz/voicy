@@ -30,6 +30,7 @@ const ignoredMessages = [
   'Request Entity Too Large',
   'Does not contain any stream',
   'ffprobe exited with code 1',
+  'Invalid duration specification for t',
 ]
 
 interface ExtraErrorInfo {
