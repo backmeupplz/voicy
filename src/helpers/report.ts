@@ -31,6 +31,8 @@ const ignoredMessages = [
   'Does not contain any stream',
   'ffprobe exited with code 1',
   'Invalid duration specification for t',
+  'Timeout, please try again later',
+  '504: Gateway Timeout',
 ]
 
 interface ExtraErrorInfo {
