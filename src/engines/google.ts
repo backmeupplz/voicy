@@ -192,7 +192,7 @@ const i18nCodes = {
   'fr-CA': 'fr',
   'fr-FR': 'fr',
   'it-IT': 'it',
-  'de-DE': 'ge',
+  'de-DE': 'de',
   'am-ET': 'et',
   'hi-IN': 'hi',
   'fa-IR': 'fa',
