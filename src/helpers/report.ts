@@ -33,6 +33,7 @@ const ignoredMessages = [
   'Invalid duration specification for t',
   'Timeout, please try again later',
   '504: Gateway Timeout',
+  'does not have storage.buckets.create access',
 ]
 
 interface ExtraErrorInfo {
