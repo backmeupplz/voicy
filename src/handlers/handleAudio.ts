@@ -136,6 +136,21 @@ async function sendTranscription(ctx: Context, url: string, fileId: string) {
         report(error, { ctx, location: 'updateMessagewithError' })
       }
     }
+    try {
+      // Check if it's the wrong wit token and remove it
+      if (ctx.dbchat.engine === Engine.wit && ctx.dbchat.witToken) {
+        const errors = [
+          'Invalid character in header content',
+          'Bad auth, check token/params',
+        ]
+        if (errors.find((e) => error.message?.includes(e))) {
+          ctx.dbchat.witToken = undefined
+          await ctx.dbchat.save()
+        }
+      }
+    } catch (error) {
+      report(error, { ctx, location: 'removeBadWitToken' })
+    }
     report(error, { ctx, location: 'sendTranscription' })
   } finally {
     console.info(
