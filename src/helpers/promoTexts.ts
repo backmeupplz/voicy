@@ -2,7 +2,7 @@ const promoTexts = {
   // ru: () => 'При поддержке [Бородач Инвест](https://invest.borodutch.com)',
   // en: () => 'Powered by [Borodutch Invest](https://invest.borodutch.com)',
   ru: () =>
-    '[Спасите разработчиков Телеграм-ботов](https://t.me/borodutch_support/172)',
+    '[Спасите разработчиков Телеграм-ботов](https://t.me/golden_borodutch/5777)',
   en: () =>
     '[Save Telegram bot developers](https://t.me/borodutch_support/172)',
 }
