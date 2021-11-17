@@ -34,6 +34,7 @@ const ignoredMessages = [
   'Timeout, please try again later',
   '504: Gateway Timeout',
   'does not have storage.buckets.create access',
+  'bucket name is needed to use Cloud Storage',
 ]
 
 interface ExtraErrorInfo {
