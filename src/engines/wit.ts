@@ -125,7 +125,7 @@ function recognizePath(path, token) {
             }
           } catch (err) {
             try {
-              console.log('JSON error:', body)
+              console.log('JSON error:', body.toString())
               reject(err)
             } catch (error) {
               // Do nothing
