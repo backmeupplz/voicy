@@ -106,19 +106,28 @@ function recognizePath(path, token) {
       res.on('end', () => {
         try {
           const body = Buffer.concat(chunks)
-          const json = JSON.parse(body.toString())
-          if (json.error) {
-            const error = new Error(json.error)
-            error.message = `(${json.code}): ${error.message}`
-            try {
-              reject(error)
-            } catch (err) {
-              // Do nothing
+          try {
+            const json = JSON.parse(body.toString())
+            if (json.error) {
+              const error = new Error(json.error)
+              error.message = `(${json.code}): ${error.message}`
+              try {
+                reject(error)
+              } catch (err) {
+                // Do nothing
+              }
+            } else {
+              try {
+                resolve(json._text)
+              } catch (err) {
+                // Do nothing
+              }
             }
-          } else {
+          } catch (err) {
             try {
-              resolve(json._text)
-            } catch (err) {
+              console.log('JSON error:', body)
+              reject(err)
+            } catch (error) {
               // Do nothing
             }
           }
