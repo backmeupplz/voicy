@@ -40,18 +40,18 @@ function languageForTelegramCode(telegramCode: string): string {
 
 async function recognize({
   chat,
+  duration,
   ogaPath,
 }: RecognitionConfig): Promise<RecognitionResultPart[]> {
   const bodyFormData = new FormData()
   bodyFormData.append(
     'lang',
-    platinumFundLanguages[chat.languages[Engine.platinum_fund]]
+    platinumFundLanguages[chat.languages[Engine.platinumfund]]
   )
   bodyFormData.append('speech', createReadStream(ogaPath))
 
   try {
-    const startTime = +new Date()
-    const recognitionResult = await axios({
+    const { data: recognitionResult } = await axios({
       method: 'POST',
       url: 'https://vosk.platinum.fund/api/v1/stt',
       data: bodyFormData,
@@ -59,19 +59,18 @@ async function recognize({
         'Content-Type': `multipart/form-data; boundary=${bodyFormData.getBoundary()}`,
       },
     })
-    const timeCode = `${+new Date() - startTime}`
 
-    if (recognitionResult.data['status'] === 'error') {
+    if (recognitionResult['status'] === 'error') {
       console.info(
-        `platinum.fund recognition error: ${recognitionResult.data['message']}`
+        `platinum.fund recognition error: ${recognitionResult['message']}`
       )
       throw new Error('Platinum fund recognition error')
     }
 
     return Promise.resolve([
       {
-        text: recognitionResult.data['result']['text'],
-        timeCode,
+        text: recognitionResult['result']['text'],
+        timeCode: `${0 - duration}`,
       },
     ])
   } catch (e) {
@@ -79,8 +78,8 @@ async function recognize({
   }
 }
 
-export const platinum_fund: EngineRecognizer = {
-  code: Engine.platinum_fund,
+export const platinumfund: EngineRecognizer = {
+  code: Engine.platinumfund,
   name: 'platinum.fund',
   languages: Object.keys(platinumFundLanguages).map((l) => ({
     code: l,
