@@ -54,7 +54,9 @@ async function recognize({
   const bodyFormData = new FormData()
   bodyFormData.append(
     'lang',
-    platinumFundLanguages[chat.languages[Engine.platinumfund]]
+    platinumFundLanguages[
+      chat.languages[Engine.platinumfund] || defaultLanguageCode
+    ]
   )
   bodyFormData.append('speech', createReadStream(ogaPath))
 

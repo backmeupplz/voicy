@@ -45,6 +45,7 @@ export class Chat extends FindOrCreate {
       ashmanov: 'ru',
       google: 'en-US',
       wit: 'English',
+      platinumfund: 'English',
     },
   })
   languages: Languages
