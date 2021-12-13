@@ -1,10 +1,10 @@
+import * as FormData from 'form-data'
 import { createReadStream } from 'fs'
 import Engine from '@/helpers/engine/Engine'
 import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
 import RecognitionConfig from '@/helpers/engine/RecognitionConfig'
 import RecognitionResultPart from '@/helpers/engine/RecognitionResultPart'
 import axios from 'axios'
-import FormData = require('form-data')
 
 const platinumFundLanguages = {
   Vietnamese: 'vn',
