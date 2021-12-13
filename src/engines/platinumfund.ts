@@ -38,6 +38,14 @@ function languageForTelegramCode(telegramCode: string): string {
   return defaultLanguageCode
 }
 
+interface PlatinumFundRecognitionResult {
+  status: string
+  result?: {
+    text: string
+  }
+  message?: string
+}
+
 async function recognize({
   chat,
   duration,
@@ -50,8 +58,8 @@ async function recognize({
   )
   bodyFormData.append('speech', createReadStream(ogaPath))
 
-  try {
-    const { data: recognitionResult } = await axios({
+  const { data: recognitionResult } =
+    await axios.request<PlatinumFundRecognitionResult>({
       method: 'POST',
       url: 'https://vosk.platinum.fund/api/v1/stt',
       data: bodyFormData,
@@ -60,27 +68,23 @@ async function recognize({
       },
     })
 
-    if (recognitionResult['status'] === 'error') {
-      console.info(
-        `platinum.fund recognition error: ${recognitionResult['message']}`
-      )
-      throw new Error('Platinum fund recognition error')
-    }
-
-    return Promise.resolve([
-      {
-        text: recognitionResult['result']['text'],
-        timeCode: `${0 - duration}`,
-      },
-    ])
-  } catch (e) {
-    throw new Error('Platinum fund. Axios error')
+  if (recognitionResult.status === 'error') {
+    throw new Error(recognitionResult.message)
   }
+
+  return Promise.resolve([
+    {
+      text: recognitionResult.result.text,
+      timeCode: `0-${duration}`,
+    },
+  ])
 }
 
 export const platinumfund: EngineRecognizer = {
   code: Engine.platinumfund,
-  name: 'platinumfund',
+  name: 'Platinum Fund',
+  messageWhenEngineIsSet:
+    'Platinum Fund team has kindly provided us with their speech to text server API. Keep in mind that Voicy is not affiliated with Platinum Fund in any way. Use this engine at your own risk.',
   languages: Object.keys(platinumFundLanguages).map((l) => ({
     code: l,
     name: l,
