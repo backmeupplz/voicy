@@ -80,7 +80,7 @@ async function recognize({
 
 export const platinumfund: EngineRecognizer = {
   code: Engine.platinumfund,
-  name: 'platinum.fund',
+  name: 'platinumfund',
   languages: Object.keys(platinumFundLanguages).map((l) => ({
     code: l,
     name: l,
