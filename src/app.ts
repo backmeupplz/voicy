@@ -19,7 +19,7 @@ import countMessage from '@/middlewares/countMessage'
 import disallowPrivate from '@/middlewares/disallowPrivate'
 import engines from '@/engines'
 import handleAddPromoException from '@/commands/handleAddPromoException'
-import handleAudio from '@/handlers/handleAudio'
+import handleAudio, { transcribeRequestHandler } from '@/handlers/handleAudio'
 import handleDisableGoogle from '@/commands/handleDisableGoogle'
 import handleEnableGoogle from '@/commands/handleEnableGoogle'
 import handleEngine from '@/commands/handleEngine'
@@ -86,6 +86,7 @@ async function runApp() {
   bot.command('l', checkAdminLock, handleL)
   bot.command('addPromoException', checkSuperAdmin, handleAddPromoException)
   bot.command('viewPromoExceptions', checkSuperAdmin, handleViewPromoExceptions)
+  bot.command('transcribe', checkAdminLock, transcribeRequestHandler)
   // Callabcks
   bot.callbackQuery(Object.keys(engines), handleSetEngine)
   bot.callbackQuery(/li.+/, handleSetLanguage)

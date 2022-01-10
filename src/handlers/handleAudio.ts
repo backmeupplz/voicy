@@ -12,6 +12,11 @@ import urlToText from '@/helpers/urlToText'
 export default async function handleAudio(ctx: Context) {
   try {
     const message = ctx.msg
+
+    if (message.chat.type == 'group' || message.chat.type == 'supergroup') {
+      return
+    }
+
     const voice =
       message.voice || message.document || message.audio || message.video_note
     // Check size
@@ -23,7 +28,8 @@ export default async function handleAudio(ctx: Context) {
     }
     // Get full url to the voice message
     const fileData = await ctx.getFile()
-    const voiceUrl = await fileUrl(fileData.file_path)
+    const voiceUrl = fileUrl(fileData.file_path)
+
     // Send action or transcription depending on whether chat is silent
     await sendTranscription(ctx, voiceUrl, voice.file_id)
   } catch (error) {
@@ -132,8 +138,8 @@ async function sendTranscription(ctx: Context, url: string, fileId: string) {
             parse_mode: 'Markdown',
           }
         )
-      } catch (error) {
-        report(error, { ctx, location: 'updateMessagewithError' })
+      } catch (err) {
+        report(err, { ctx, location: 'updateMessagewithError' })
       }
     }
     try {
@@ -148,8 +154,8 @@ async function sendTranscription(ctx: Context, url: string, fileId: string) {
           await ctx.dbchat.save()
         }
       }
-    } catch (error) {
-      report(error, { ctx, location: 'removeBadWitToken' })
+    } catch (err) {
+      report(err, { ctx, location: 'removeBadWitToken' })
     }
     report(error, { ctx, location: 'sendTranscription' })
   } finally {
@@ -161,9 +167,40 @@ async function sendTranscription(ctx: Context, url: string, fileId: string) {
   }
 }
 
+export async function transcribeRequestHandler(ctx: Context) {
+  try {
+    if (!ctx.msg.reply_to_message) {
+      return ctx.reply(ctx.i18n.t('reply_to_voice'), {
+        parse_mode: 'Markdown',
+      })
+    }
+    const message = ctx.msg.reply_to_message
+    const voice =
+      message.voice || message.document || message.audio || message.video_note
+
+    if (!voice) {
+      return ctx.reply(ctx.i18n.t('reply_to_voice'), {
+        parse_mode: 'Markdown',
+      })
+    }
+
+    if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
+      if (!ctx.dbchat.silent) {
+        await sendLargeFileError(ctx)
+      }
+      return
+    }
+
+    const voiceUrl = fileUrl(voice.file_id)
+
+    await sendTranscription(ctx, voiceUrl, voice.file_id)
+  } catch (err) {
+    report(err, { ctx, location: 'transcribeRequestHandler' })
+  }
+}
+
 function splitText(text: string): string[] {
-  const chunks = text.match(/[\s\S]{1,4000}/g)
-  return chunks
+  return text.match(/[\s\S]{1,4000}/g)
 }
 
 function sanitizeChat(chat: Chat): Partial<Chat> {
