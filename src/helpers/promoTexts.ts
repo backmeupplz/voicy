@@ -4,9 +4,9 @@ const promoTexts = {
   // en: () =>
   //   'Putin and his cronies [kill civilians](https://t.me/verkhovnaradaofukraine) in the war in Ukraine #stopputin',
   ru: () =>
-    'Телеграм [забрал бесплатную функцию](https://t.me/borodutch_support/188) из Войси и даже не сказал спасибо, [поддержите создателя Войси](https://t.me/borodutch_support)',
+    'Помогите Войси остаться бесплатным, [подписавшись на канал разработчика](https://t.me/borodutch_support)',
   en: () =>
-    'Telegram [took a free function](https://t.me/borodutch_support/188) from Voicy and didn\'t even say thanks, [support the creator of Voicy](https://t.me/borodutch_support)',
+    'Help to keep Voicy free by [subscribing to the developer channel](https://t.me/borodutch_support)',
 }
 
 export default promoTexts
