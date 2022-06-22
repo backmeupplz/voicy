@@ -11,7 +11,7 @@ export default async function sendLanguage(ctx: Context, isCommand?: boolean) {
     : ctx.i18n.t('language_without_engine')
   await ctx.reply(text, {
     reply_markup: languageKeyboard(ctx.dbchat.engine, isCommand),
-    reply_to_message_id: ctx.message?.message_id,
+    reply_to_message_id: ctx.msg?.message_id,
   })
   logAnswerTime(ctx, '/language')
 }

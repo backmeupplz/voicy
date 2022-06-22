@@ -15,7 +15,7 @@ export default async function handleEngine(ctx: Context) {
   await ctx.reply(ctx.i18n.t('engine'), {
     reply_markup: keyboard,
     parse_mode: 'Markdown',
-    reply_to_message_id: ctx.message.message_id,
+    reply_to_message_id: ctx.msg?.message_id,
   })
   logAnswerTime(ctx, '/engine')
 }
