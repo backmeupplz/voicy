@@ -33,6 +33,9 @@ async function recognize({
   formData.append('audio_blob', createReadStream(flacPath), {
     knownLength: statSync(flacPath).size,
   })
+  formData.append('language', 'ru')
+  formData.append('decoder_name', 'general')
+  formData.append('sample_rate', 16000)
   if (userId) {
     formData.append('user_id', hashString(`${userId}`))
   }
@@ -43,7 +46,7 @@ async function recognize({
   const headers = {
     ...formData.getHeaders(),
     'Content-Length': `${formData.getLengthSync()}`,
-    Authorization: 'Basic YW5uOjVDdWlIT0NTMlpRMQ==',
+    Authorization: 'Basic DtuMDtuFvKTxNFU1ympiunKVMbhoGOU77cIAv03O',
   }
 
   const { data } = (await axios({
