@@ -6,5 +6,5 @@ import promoTexts from '@/helpers/promoTexts'
 export default function addPromoToText(ctx: Context, text: string) {
   return promoExceptions.includes(+ctx.dbchat.id)
     ? text
-    : `${text}\n${isRuChat(ctx.dbchat) ? promoTexts.ru() : promoTexts.en()}`
+    : `${text}\n\n${isRuChat(ctx.dbchat) ? promoTexts.ru() : promoTexts.en()}`
 }
