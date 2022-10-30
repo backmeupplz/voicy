@@ -2,7 +2,7 @@ import { stripe } from '@/helpers/stripe'
 import Context from '@/models/Context'
 import logAnswerTime from '@/helpers/logAnswerTime'
 
-export default async function handleGeeky(ctx: Context) {
+export default async function handlePay(ctx: Context) {
   if (ctx.dbchat.paid) {
     await ctx.reply(ctx.i18n.t('already_paid'), {
       parse_mode: 'Markdown',
