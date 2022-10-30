@@ -40,8 +40,7 @@ oops: "Ooopsie! I haven't implemented this feature yet. But be rest assured: I'v
 timecodes_true: Nice! Now *Voicy* will add timecodes to the recognized text.
 timecodes_false: Nice! Now *Voicy* will not add timecodes to the recognized text.
 url: 'If you want to bypass the Telegram limit of 20Mb per file, you can use voicybot.com directly. Cheers!'
-sunsetting: Free Voicy will no longer work. See [this post](https://blog.borodutch.com/im-sunsetting-voicy/) for the details and if you want to buy the bot. If you want to keep using Voicy, you have to make a one-time donation of $6.99 by using /pay. Cheers!
+sunsetting: Free Voicy will no longer work. See [this post](https://blog.borodutch.com/im-sunsetting-voicy/) for the details and if you want to buy the bot. If you want to keep using Voicy, you have to make a one-time donation of $6.99 by using /donate. Cheers!
 already_paid: You've already donated to Voicy. Thank you!
-pay: 'Нажмите на кнопку ниже, чтобы донатнуть $6.99. Либо можете перевести токенов на $6.99 на `borodutch.eth` и скинуть мне в личку транзакцию. Спасибо большое за поддержку!'
-pay_en: 'Click the button below to donate $6.99. Or you can send $6.99 worth of tokens to `borodutch.eth` and send @borodutch the transaction. Thank you so much for your support!'
+pay: 'Click the button below to donate $6.99. Or you can send $6.99 worth of tokens to `borodutch.eth` and send @borodutch the transaction. Thank you so much for your support!'
 pay_button: Donate $6.99
