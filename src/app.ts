@@ -6,6 +6,7 @@ import * as dotenv from 'dotenv'
 dotenv.config({ path: `${__dirname}/../.env` })
 // Dependencies
 import { run } from '@grammyjs/runner'
+import { webhookApp } from '@/helpers/startWebhook'
 import Cluster from '@/helpers/Cluster'
 import attachChat from '@/middlewares/attachChat'
 import bot from '@/helpers/bot'
@@ -95,6 +96,8 @@ async function runApp() {
   await bot.init()
   run(bot)
   console.info(`Bot ${bot.botInfo.username} is up and running`)
+  // Start webhook app
+  webhookApp.listen(4242, () => console.log('Running on port 4242'))
 }
 
 if (Cluster.isPrimary) {
