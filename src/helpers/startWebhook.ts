@@ -1,6 +1,6 @@
+import * as express from 'express'
 import { ChatModel } from '@/models/Chat'
 import { stripe } from '@/helpers/stripe'
-import express from 'express'
 
 export const webhookApp = express()
 const endpointSecret = process.env.STRIPE_WEBHOOK_SIGNING_SECRET
