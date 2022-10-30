@@ -27,6 +27,9 @@ export default async function handleDonate(ctx: Context) {
         client_reference_id: `${ctx.dbchat.id}`,
         mode: 'payment',
         allow_promotion_codes: true,
+        automatic_tax: {
+          enabled: true,
+        },
       })
       console.log('Not paid, sending message')
       await ctx.reply(ctx.i18n.t('pay'), {
