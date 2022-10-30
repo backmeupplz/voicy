@@ -5,27 +5,32 @@ import { pick } from 'lodash'
 import Context from '@/models/Context'
 import Engine from '@/helpers/engine/Engine'
 import addPromoToText from '@/helpers/addPromoToText'
-import fileUrl from '@/helpers/fileUrl'
+// import fileUrl from '@/helpers/fileUrl'
 import report from '@/helpers/report'
 import urlToText from '@/helpers/urlToText'
 
 export default async function handleAudio(ctx: Context) {
   try {
-    const message = ctx.msg
-    const voice =
-      message.voice || message.document || message.audio || message.video_note
-    // Check size
-    if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
-      if (!ctx.dbchat.silent) {
-        await sendLargeFileError(ctx)
-      }
-      return
-    }
-    // Get full url to the voice message
-    const fileData = await ctx.getFile()
-    const voiceUrl = await fileUrl(fileData.file_path)
-    // Send action or transcription depending on whether chat is silent
-    await sendTranscription(ctx, voiceUrl, voice.file_id)
+    await ctx.reply(ctx.i18n.t('sunsetting'), {
+      parse_mode: 'Markdown',
+      reply_to_message_id: ctx.msg.message_id,
+      disable_web_page_preview: true,
+    })
+    // const message = ctx.msg
+    // const voice =
+    //   message.voice || message.document || message.audio || message.video_note
+    // // Check size
+    // if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
+    //   if (!ctx.dbchat.silent) {
+    //     await sendLargeFileError(ctx)
+    //   }
+    //   return
+    // }
+    // // Get full url to the voice message
+    // const fileData = await ctx.getFile()
+    // const voiceUrl = await fileUrl(fileData.file_path)
+    // // Send action or transcription depending on whether chat is silent
+    // await sendTranscription(ctx, voiceUrl, voice.file_id)
   } catch (error) {
     report(error, { ctx, location: 'handleMessage' })
   }
