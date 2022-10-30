@@ -3,6 +3,7 @@ import Context from '@/models/Context'
 import logAnswerTime from '@/helpers/logAnswerTime'
 
 export default async function handlePay(ctx: Context) {
+  console.log('/pay called', !!ctx.dbchat.paid)
   if (ctx.dbchat.paid) {
     await ctx.reply(ctx.i18n.t('already_paid'), {
       parse_mode: 'Markdown',
@@ -10,7 +11,9 @@ export default async function handlePay(ctx: Context) {
     })
   } else {
     try {
+      console.log('Not paid, sending typing action')
       await ctx.api.sendChatAction(ctx.dbchat.id, 'typing')
+      console.log('Not paid, creating session')
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
@@ -25,6 +28,7 @@ export default async function handlePay(ctx: Context) {
         mode: 'payment',
         allow_promotion_codes: true,
       })
+      console.log('Not paid, sending message')
       await ctx.reply(ctx.i18n.t('pay'), {
         parse_mode: 'Markdown',
         disable_web_page_preview: true,
