@@ -22,6 +22,7 @@ import engines from '@/engines'
 import handleAddPromoException from '@/commands/handleAddPromoException'
 import handleAudio from '@/handlers/handleAudio'
 import handleDisableGoogle from '@/commands/handleDisableGoogle'
+import handleDonate from '@/commands/handleDonate'
 import handleEnableGoogle from '@/commands/handleEnableGoogle'
 import handleEngine from '@/commands/handleEngine'
 import handleFiles from '@/commands/handleFiles'
@@ -32,7 +33,6 @@ import handleL from '@/commands/handleL'
 import handleLanguage from '@/commands/handleLanguage'
 import handleLock from '@/commands/handleLock'
 import handleMyChatMember from '@/handlers/handleMyChatMember'
-import handlePay from '@/commands/handlePay'
 import handlePrivacy from '@/commands/handlePrivacy'
 import handleSetEngine from '@/handlers/handleSetEngine'
 import handleSetLanguage from '@/handlers/handleSetLanguage'
@@ -70,7 +70,7 @@ async function runApp() {
     handleAudio
   )
   // Commands
-  bot.command('pay', checkSuperAdmin, handlePay)
+  bot.command('donate', handleDonate)
   bot.command('start', checkAdminLock, handleStart)
   bot.command('help', checkAdminLock, handleHelp)
   bot.command('lock', disallowPrivate, checkAdminLock, handleLock)

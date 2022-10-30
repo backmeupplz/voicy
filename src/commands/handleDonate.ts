@@ -2,8 +2,8 @@ import { stripe } from '@/helpers/stripe'
 import Context from '@/models/Context'
 import logAnswerTime from '@/helpers/logAnswerTime'
 
-export default async function handlePay(ctx: Context) {
-  console.log('/pay called', !!ctx.dbchat.paid)
+export default async function handleDonate(ctx: Context) {
+  console.log('/donate called', !!ctx.dbchat.paid)
   if (ctx.dbchat.paid) {
     await ctx.reply(ctx.i18n.t('already_paid'), {
       parse_mode: 'Markdown',
@@ -47,5 +47,5 @@ export default async function handlePay(ctx: Context) {
       console.log('error sending checkout', error)
     }
   }
-  logAnswerTime(ctx, '/pay')
+  logAnswerTime(ctx, '/donate')
 }
