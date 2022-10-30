@@ -10,7 +10,7 @@ export default async function handlePay(ctx: Context) {
     })
   } else {
     try {
-      await ctx.api.sendChatAction(ctx.chat.id, 'typing')
+      await ctx.api.sendChatAction(ctx.dbchat.id, 'typing')
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
