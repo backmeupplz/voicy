@@ -29,6 +29,7 @@ import handleFiles from '@/commands/handleFiles'
 import handleGeeky from '@/commands/handleGeeky'
 import handleGoogle from '@/commands/handleGoogle'
 import handleHelp from '@/commands/handleHelp'
+import handleId from '@/commands/handleId'
 import handleL from '@/commands/handleL'
 import handleLanguage from '@/commands/handleLanguage'
 import handleLock from '@/commands/handleLock'
@@ -70,6 +71,7 @@ async function runApp() {
     handleAudio
   )
   // Commands
+  bot.command('id', handleId)
   bot.command('donate', handleDonate)
   bot.command('start', checkAdminLock, handleStart)
   bot.command('help', checkAdminLock, handleHelp)
