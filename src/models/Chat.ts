@@ -51,6 +51,8 @@ export class Chat extends FindOrCreate {
   languages: Languages
   @prop({ required: true, default: false })
   paid: boolean
+  @prop({ required: true, default: 0 })
+  freeVoicesUsed: number
 }
 
 export const ChatModel = getModelForClass(Chat)
