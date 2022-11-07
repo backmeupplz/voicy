@@ -11,7 +11,7 @@ import urlToText from '@/helpers/urlToText'
 
 export default async function handleAudio(ctx: Context) {
   try {
-    if (!ctx.dbchat.paid && ctx.dbchat.freeVoicesUsed >= 5) {
+    if (!ctx.dbchat.paid) {
       console.log('Sending the donate message')
       await ctx.reply(ctx.i18n.t('sunsetting'), {
         parse_mode: 'Markdown',
