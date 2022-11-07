@@ -19,10 +19,12 @@ export default async function handleAudio(ctx: Context) {
       })
       return
     }
-    await ChatModel.updateOne(
-      { id: ctx.dbchat.id },
-      { $inc: { freeVoicesUsed: 1 } }
-    )
+    if (!ctx.dbchat.paid) {
+      await ChatModel.updateOne(
+        { id: ctx.dbchat.id },
+        { $inc: { freeVoicesUsed: 1 } }
+      )
+    }
     const message = ctx.msg
     const voice =
       message.voice || message.document || message.audio || message.video_note
