@@ -15,7 +15,6 @@ export default async function handleDonate(ctx: Context) {
       await ctx.api.sendChatAction(ctx.dbchat.id, 'typing')
       console.log('Not paid, creating session')
       const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
         line_items: [
           {
             price: 'price_1LyeHbKXsMRGkVL4i2xZnaZk',
