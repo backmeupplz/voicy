@@ -11,6 +11,7 @@ import Cluster from '@/helpers/Cluster'
 import attachChat from '@/middlewares/attachChat'
 import bot from '@/helpers/bot'
 import checkAdminLock from '@/middlewares/adminLock'
+import checkBanned from '@/handlers/checkBanned'
 import checkDocumentType from '@/middlewares/checkDocumentType'
 import checkFilesBanned from '@/middlewares/checkFilesBanned'
 import checkGoogleCredentials from '@/handlers/checkGoogleCredentials'
@@ -60,6 +61,7 @@ async function runApp() {
   bot.use(attachChat)
   bot.use(i18n.middleware())
   bot.use(configureI18n)
+  bot.use(checkBanned)
   // Various events
   bot.on('my_chat_member', handleMyChatMember)
   bot.on(':document', checkGoogleCredentials)
