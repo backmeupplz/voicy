@@ -2,7 +2,7 @@
 
 # [@voicybot](https://t.me/voicybot) main repository
 
-This repository contains the code for one of the most popular bots I've ever built for Telegram — [@voicybot](https://t.me/voicybot). Please, feel free to fork, add features and create pull requests so that everybody (over 12 000 000 people) can experience the features you've built.
+This repository contains the code for one of the most popular bots I've ever built for Telegram — [@voicybot](https://t.me/voicybot). It automatically converts all the audio messages to text when added to a group chat. Please, feel free to fork, add features and create pull requests so that everybody (over 12 000 000 people) can experience the features you've built.
 
 You can also help by translating the bot to other languages or fixing some texts in existing languages by modifying the `locales` folder or at [localize.borodutch.com](https://localize.borodutch.com).
 
