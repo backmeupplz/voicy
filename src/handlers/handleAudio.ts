@@ -26,6 +26,11 @@ export default async function handleAudio(ctx: Context) {
         { $inc: { freeVoicesUsed: 1 } }
       )
     }
+    const isGroup = ctx.chat.type === 'group' || ctx.chat.type === 'supergroup'
+    if (!ctx.dbchat.transcribeAllAudio && isGroup) {
+      console.log('Ignored cause transcribeAllAudio is false')
+      return
+    }
     const message = ctx.msg
     const voice =
       message.voice || message.document || message.audio || message.video_note
@@ -38,7 +43,7 @@ export default async function handleAudio(ctx: Context) {
     }
     // Get full url to the voice message
     const fileData = await ctx.getFile()
-    const voiceUrl = await fileUrl(fileData.file_path)
+    const voiceUrl = fileUrl(fileData.file_path)
     // Send action or transcription depending on whether chat is silent
     await sendTranscription(ctx, voiceUrl, voice.file_id)
   } catch (error) {

@@ -28,6 +28,8 @@ export class Chat extends FindOrCreate {
   silent: boolean
   @prop({ required: true, default: true })
   filesBanned: boolean
+  @prop({ required: true, default: true })
+  transcribeAllAudio: boolean
   @prop()
   googleSetupMessageId?: number
   @prop()
