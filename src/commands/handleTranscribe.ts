@@ -32,6 +32,14 @@ export default async function handleTranscribe(ctx: Context) {
 
     const voice =
       message.voice || message.document || message.audio || message.video_note
+
+    if (!voice) {
+      await ctx.reply(ctx.i18n.t('reply_to_voice'), {
+        reply_to_message_id: ctx.msg.message_id,
+      })
+      return
+    }
+
     // Check size
     if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
       if (!ctx.dbchat.silent) {
