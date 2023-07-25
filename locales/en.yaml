@@ -44,3 +44,5 @@ sunsetting: Free Voicy will no longer work. See [this post](https://blog.borodut
 already_paid: You've already donated to Voicy. Thank you!
 pay: 'Click the button below to donate $6.99. Or you can send $6.99 worth of tokens to `borodutch.eth` and send @borodutch the transaction. Thank you so much for your support!'
 pay_button: Donate $6.99
+transcribe_all_true: 'Perfect, Voicy will now *convert all voice messages* it receives in this chat.'
+transcribe_all_false: 'Got it, Voicy will now *ignore all voice messages* it receives in this chat. You can send /transcribe to convert a specific voice message.'
