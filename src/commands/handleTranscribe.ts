@@ -24,8 +24,9 @@ export default async function handleTranscribe(ctx: Context) {
 
     const message = ctx.msg.reply_to_message
     if (!message) {
-      // TODO: Let the user know that they need to reply to a voice / audio / video / video note message
-      console.log("Can't find the message to transcribe")
+      await ctx.reply(ctx.i18n.t('reply_to_voice'), {
+        reply_to_message_id: ctx.msg.message_id,
+      })
       return
     }
 
@@ -51,6 +52,5 @@ export default async function handleTranscribe(ctx: Context) {
     await sendTranscription(ctx, voiceUrl, voice.file_id)
   } catch (error) {
     report(error, { ctx, location: 'handleTranscribe' })
-    console.log(error)
   }
 }
