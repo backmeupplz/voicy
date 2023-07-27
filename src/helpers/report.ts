@@ -85,8 +85,9 @@ async function sendToTelegramAdmin(error: Error, info: ExtraErrorInfo) {
 }
 
 export default function report(error: Error, info: ExtraErrorInfo = {}) {
-  // console.error(error, info)
-  // void sendToTelegramAdmin(error, info)
+  sendToTelegramAdmin
+  error
+  info
 }
 
 function escape(s: string) {
