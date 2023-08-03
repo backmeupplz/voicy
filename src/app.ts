@@ -41,6 +41,8 @@ import handleSetLanguage from '@/handlers/handleSetLanguage'
 import handleSilent from '@/commands/handleSilent'
 import handleStart from '@/commands/handleStart'
 import handleTimecodes from '@/commands/handleTimecodes'
+import handleTranscribe from './commands/handleTranscribe'
+import handleTranscribeAll from './commands/handleTranscribeAll'
 import handleUrl from '@/commands/handleUrl'
 import handleViewPromoExceptions from './commands/handleViewPromoExceptions'
 import handleWitToken from '@/commands/handleWitToken'
@@ -93,6 +95,8 @@ async function runApp() {
   bot.command('l', checkAdminLock, handleL)
   bot.command('addPromoException', checkSuperAdmin, handleAddPromoException)
   bot.command('viewPromoExceptions', checkSuperAdmin, handleViewPromoExceptions)
+  bot.command('transcribeAll', checkAdminLock, handleTranscribeAll)
+  bot.command('transcribe', checkAdminLock, handleTranscribe)
   // Callabcks
   bot.callbackQuery(Object.keys(engines), handleSetEngine)
   bot.callbackQuery(/li.+/, handleSetLanguage)
