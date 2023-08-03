@@ -64,30 +64,8 @@ function constructErrorMessage(
   return result
 }
 
-async function sendToTelegramAdmin(error: Error, info: ExtraErrorInfo) {
-  try {
-    if (
-      process.env.ENVIRONMENT !== 'development' &&
-      ignoredMessages.find((m) => error.message.includes(m))
-    ) {
-      return
-    }
-    const message = constructErrorMessage(error, info)
-    await bot.api.sendMessage(process.env.ADMIN_ID, message, {
-      parse_mode: 'HTML',
-    })
-    if (info.ctx) {
-      await info.ctx.forwardMessage(process.env.ADMIN_ID)
-    }
-  } catch (sendError) {
-    console.error('Error reporting:', sendError)
-  }
-}
-
 export default function report(error: Error, info: ExtraErrorInfo = {}) {
-  sendToTelegramAdmin
-  error
-  info
+  console.log(error, info)
 }
 
 function escape(s: string) {
