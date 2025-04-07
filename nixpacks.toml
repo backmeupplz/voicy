@@ -1,0 +1,14 @@
+[phases.setup]
+nixPkgs = ["ffmpeg", "nodejs", "yarn"]
+
+[phases.install]
+cmds = ["yarn install --frozen-lockfile"]
+
+[phases.build]
+cmds = ["yarn build-ts"]
+
+[start]
+cmd = "yarn distribute"
+
+[env]
+NODE_ENV = "production"
