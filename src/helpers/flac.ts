@@ -2,8 +2,6 @@ import deleteFile from '@/helpers/deleteFile'
 import ffmpeg = require('fluent-ffmpeg')
 import * as temp from 'temp'
 
-ffmpeg.setFfmpegPath('/nix/var/nix/profiles/default/bin/ffmpeg')
-
 export default function flac(filepath: string) {
   return new Promise<{ flacPath: string; duration: number }>(
     (resolve, reject) => {
@@ -27,7 +25,7 @@ export default function flac(filepath: string) {
           .duration(fileSize)
           .output(output)
           .audioFrequency(16000)
-          .audioCodec('flac')
+          .toFormat('flac')
           .run()
       })
     }
