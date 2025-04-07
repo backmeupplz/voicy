@@ -1,5 +1,6 @@
 [phases.setup]
-nixPkgs = ["...", "ffmpeg-full", "nodejs", "yarn"]
+nixPkgs = ["...", "nodejs", "yarn"]
+aptPkgs = ["...", "ffmpeg-full"]
 
 [phases.install]
 cmds = ["yarn install --frozen-lockfile"]
