@@ -41,7 +41,7 @@
     "mongoose-findorcreate": "^3.0.0",
     "stripe": "^10.15.0",
     "temp": "^0.9.4",
-    "uuid": "^8.3.2"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@types/node": "^16.11.4",
