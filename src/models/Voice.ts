@@ -61,8 +61,6 @@ export class Voice {
   @prop()
   file?: string
   @prop()
-  fileId?: string
-  @prop()
   workerEngine?: string
 }
 
