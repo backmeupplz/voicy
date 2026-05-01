@@ -1,14 +1,10 @@
 import Context from '@/models/Context'
-import logAnswerTime from '@/helpers/logAnswerTime'
+import toggleChatBoolean from '@/helpers/toggleChatBoolean'
 
 export default async function handleSilent(ctx: Context) {
-  ctx.dbchat.silent = !ctx.dbchat.silent
-  await ctx.dbchat.save()
-  await ctx.reply(
-    ctx.i18n.t(ctx.dbchat.silent ? 'silent_true' : 'silent_false'),
-    {
-      parse_mode: 'Markdown',
-    }
-  )
-  logAnswerTime(ctx, '/silent')
+  await toggleChatBoolean(ctx, {
+    setting: 'silent',
+    messageForValue: (silent) => (silent ? 'silent_true' : 'silent_false'),
+    logLabel: '/silent',
+  })
 }

@@ -1,25 +1,13 @@
-import { ChatModel } from '@/models/Chat'
 import { sendTranscription } from '@/handlers/handleAudio'
 import Context from '@/models/Context'
+import ensurePaidChat from '@/helpers/ensurePaidChat'
 import fileUrl from '@/helpers/fileUrl'
 import report from '@/helpers/report'
 
 export default async function handleTranscribe(ctx: Context) {
   try {
-    if (!ctx.dbchat.paid) {
-      console.log('Sending the donate message')
-      await ctx.reply(ctx.i18n.t('sunsetting'), {
-        parse_mode: 'Markdown',
-        reply_to_message_id: ctx.msg.message_id,
-        disable_web_page_preview: true,
-      })
+    if (!(await ensurePaidChat(ctx))) {
       return
-    }
-    if (!ctx.dbchat.paid) {
-      await ChatModel.updateOne(
-        { id: ctx.dbchat.id },
-        { $inc: { freeVoicesUsed: 1 } }
-      )
     }
 
     const message = ctx.msg.reply_to_message
