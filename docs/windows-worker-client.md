@@ -2,11 +2,12 @@
 
 This worker runs on Nikita's Windows RTX 4070 Ti machine. It claims queued
 Voicy transcription jobs from the backend, downloads the Telegram audio file,
-runs a local GPU transcription command, and uploads the final transcript.
+runs a local GPU transcription command, and uploads the final transcript over
+the authenticated worker API.
 
 ## Backend Prep
 
-Build the server code and create a worker token:
+Build the server code and create a worker token from a trusted backend shell:
 
 ```sh
 yarn build-ts
@@ -14,7 +15,32 @@ MONGO='mongodb://...' yarn worker:create-client windows-4070-ti
 ```
 
 Store the printed token in the Windows worker environment as
-`VOICY_WORKER_TOKEN`. The backend stores only its hash.
+`VOICY_WORKER_TOKEN`. The token is shown only once; the backend stores only its
+SHA-256 hash in the `WorkerClient` collection.
+
+If the token is lost or exposed, create a new worker client token and disable
+the old Mongo record by setting `enabled` to `false`. Do not commit the token to
+this repo, paste it into task comments, or share it in logs.
+
+## Authentication and Security Model
+
+The worker API is mounted under `/worker/v1`. Every request must include:
+
+```text
+Authorization: Bearer <VOICY_WORKER_TOKEN>
+```
+
+The server accepts the request only when the token hash matches an enabled
+`WorkerClient`. Missing, malformed, disabled, or unknown tokens receive `401`.
+Worker clients cannot create arbitrary transcription jobs through this API; jobs
+are created by the bot/backend from Telegram messages, and authenticated workers
+can only claim queued jobs, read the source for jobs they own, heartbeat, upload
+progress, upload final results, or report failures.
+
+Run the worker from a dedicated Windows account or service with access only to
+its work directory and environment variables. Keep `VOICY_WORKER_WORK_DIR` local
+to the machine because it temporarily stores downloaded Telegram audio and
+transcript JSON files.
 
 ## Windows GPU Setup
 
@@ -89,7 +115,7 @@ yarn build-ts
 Set environment variables:
 
 ```powershell
-$env:VOICY_WORKER_API_URL = "https://voicy.example.com/worker/v1"
+$env:VOICY_WORKER_API_URL = "https://<voicy-host>/worker/v1"
 $env:VOICY_WORKER_TOKEN = "voicy_worker_..."
 $env:VOICY_WORKER_WORK_DIR = "C:\voicy-worker\jobs"
 $env:VOICY_WORKER_ENGINE = "faster-whisper"
@@ -111,6 +137,10 @@ Run the worker:
 ```powershell
 yarn worker:run
 ```
+
+For a one-job smoke test, add `VOICY_WORKER_IDLE_EXIT=1` before running the
+worker. The process exits after processing one available job, or exits
+immediately if no queued job is available.
 
 ## Runtime Behavior
 
