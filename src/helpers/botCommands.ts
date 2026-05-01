@@ -22,12 +22,12 @@ export const publicBotCommands: BotCommandDefinition[] = [
   },
   {
     command: 'donate',
-    description: 'Support transcription compute',
-    russianDescription: 'Поддержать оплату расшифровки',
+    description: 'Help turn voice into text',
+    russianDescription: 'Помочь превращать голос в текст',
   },
   {
     command: 'files',
-    description: 'Toggle audio file transcription',
+    description: 'Toggle audio files',
     russianDescription: 'Включить или выключить аудиофайлы',
   },
   {
@@ -42,18 +42,18 @@ export const publicBotCommands: BotCommandDefinition[] = [
   },
   {
     command: 'url',
-    description: 'Open large-file transcription',
-    russianDescription: 'Открыть расшифровку больших файлов',
+    description: 'Open the large-file text page',
+    russianDescription: 'Открыть страницу для больших файлов',
   },
   {
     command: 'transcribe_all',
-    description: 'Transcribe every voice message',
-    russianDescription: 'Расшифровывать все голосовые',
+    description: 'Turn every voice into text',
+    russianDescription: 'Превращать все голосовые в текст',
   },
   {
     command: 'transcribe',
-    description: 'Transcribe the replied-to message',
-    russianDescription: 'Расшифровать сообщение в ответе',
+    description: 'Turn the replied-to message into text',
+    russianDescription: 'Превратить сообщение в ответе в текст',
   },
   {
     command: 'privacy',

@@ -43,8 +43,8 @@ export function partialTranscriptText(job: DocumentType<TranscriptionJob>) {
 export function progressPreview(
   text: string,
   {
-    header = 'Transcribing...',
-    footer = 'Partial transcript; final text may still change.',
+    header = 'Turning into text...',
+    footer = 'Draft text; final text may still change.',
   }: ProgressPreviewOptions = {}
 ) {
   const reserved = header.length + footer.length + 8

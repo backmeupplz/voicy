@@ -284,7 +284,7 @@ Update all active locale keys touched by the new flow:
 - `help`: remove `/engine`, `/google`, `/witToken`, and engine-language copy.
 - `initiated`: replace "recognition initiated" with queued/processing copy.
 - `sunsetting`, `pay`, `already_paid`: frame donations as funding
-  transcription compute.
+  turning voice messages into text.
 - `language`, `language_without_engine`, `language_success`: UI language only.
 - Add `queued`, `processing`, `completed`, `failed`, and legacy-bot guidance
   keys as needed.
@@ -379,7 +379,7 @@ Manual/OpenClaw QA:
   messages are ignored and `/transcribe` on a replied voice queues a job.
 - Complete a job through the worker API and verify Telegram receives the final
   transcript.
-- Verify donation wall copy says donations fund transcription compute.
+- Verify donation wall copy says donations help turn voice messages into text.
 - Verify `/language` changes bot UI language only.
 - Verify help/start copy mentions `@voicy_legacy_bot` for the old engine-based
   experience.

@@ -1,51 +1,51 @@
 files_false: "\U0001F4C1 Voicy will ignore audio files in this chat."
-files_true: "\U0001F4C1 Voicy will queue supported audio files from this chat for transcription."
+files_true: "\U0001F4C1 Voicy will turn supported audio files from this chat into text."
 help: |
   😎 *Voicy* turns voice messages and audio files (.ogg, .flac, .wav, .mp3) into text.
 
-  Send a voice message in a private chat, or add Voicy to a group. In groups, Voicy can either transcribe every voice message or wait until someone replies to a message with /transcribe.
+  Send a voice message in a private chat, or add Voicy to a group. In groups, Voicy can either turn every voice message into text or wait until someone replies to a message with /transcribe.
 
   /start — Start Voicy
   /help — Show this message
   /language — Change the bot interface language
-  /donate — Help pay for transcription compute
-  /files — Toggle audio file transcription
+  /donate — Help pay to turn voice messages into text
+  /files — Toggle audio files
   /silent — Toggle extra status messages
   /lock — Restrict commands to group admins
-  /url — Open the large-file transcription page
-  /transcribe\_all — Toggle transcription for every voice message in this group
-  /transcribe — Transcribe the voice or audio message you reply to
+  /url — Open the large-file text page
+  /transcribe\_all — Turn every voice message in this group into text
+  /transcribe — Turn the voice or audio message you reply to into text
   /privacy — Open the privacy policy
 
-  Voicy now uses queued transcription workers. The old engine-based bot is available at @voicy_legacy_bot.
+  Voicy now uses workers to turn messages into text. The old engine-based bot is available at @voicy_legacy_bot.
 error_group: "\U0001F605 This command only works in group chats."
 lock_true: "\U0001F511 Voicy will now accept commands only from group admins."
 lock_false: "\U0001F511 Voicy will now accept commands from anyone in this chat."
-silent_true: "\U0001F636 Silent mode is on. Voicy will only send final transcriptions."
-silent_false: "\U0001F60F Silent mode is off. Voicy will send queue and status messages."
+silent_true: "\U0001F636 Silent mode is on. Voicy will only send final text."
+silent_false: "\U0001F60F Silent mode is off. Voicy will send status messages while turning audio into text."
 start: |
   👋 Hello. *Voicy* turns voice messages and audio files (.ogg, .flac, .wav, .mp3) into text.
 
-  Send a voice message and Voicy will queue it for transcription. Use /language to change the bot interface language.
+  Send a voice message and Voicy will turn it into text. Use /language to change the bot interface language.
 
   The old engine-based bot is available at @voicy_legacy_bot.
 language: "\U0001F44B Choose the bot interface language."
 language_success: "\U0001F44D Voicy will now use *${language}* for bot messages in this chat."
-error_twenty: "_\U0001F46E Telegram files over 20 MB cannot be queued here. Use /url for large files._"
-initiated: "_\U0001F984 Queued for transcription..._"
+error_twenty: "_\U0001F46E Telegram files over 20 MB cannot be processed here. Use /url for large files._"
+initiated: "_\U0001F984 Turning into text..._"
 url: 'Telegram limits bot downloads to 20 MB. For larger files, use https://voicybot.com directly.'
-sunsetting: 'Voicy now uses paid transcription compute. To keep using this bot, please make a one-time donation of $6.99 with /donate. The old engine-based bot is available at @voicy_legacy_bot.'
+sunsetting: 'Voicy now uses paid compute to turn voice messages into text. To keep using this bot, please make a one-time donation of $6.99 with /donate. The old engine-based bot is available at @voicy_legacy_bot.'
 already_paid: 'You have already donated to Voicy. Thank you.'
-pay: 'Donate $6.99 to help pay for Voicy transcription compute. You can also send $6.99 worth of tokens to `borodutch.eth` and send the transaction to @borodutch.'
+pay: 'Donate $6.99 to help Voicy turn voice messages into text. You can also send $6.99 worth of tokens to `borodutch.eth` and send the transaction to @borodutch.'
 pay_button: 'Donate $6.99'
-transcribe_all_true: 'Voicy will now *queue every voice message* in this chat for transcription.'
+transcribe_all_true: 'Voicy will now *turn every voice message* in this chat into text.'
 transcribe_all_false: 'Voicy will now *ignore new voice messages* in this chat unless someone replies to one with /transcribe.'
 reply_to_voice: 'Reply to a voice message, video note, or supported audio file, then send /transcribe.'
-error_queue: "_\U0001F46E Voicy could not queue that message for transcription. Please try again later._"
+error_queue: "_\U0001F46E Voicy could not start turning that message into text. Please try again later._"
 banned: 'You are banned, most likely because of payment fraud. Contact @borodutch if this is a mistake.'
-progress_processing: 'Transcription started...'
-progress_retrying: 'Transcription failed; retrying...'
-progress_failed: 'Transcription failed. Please try again later.'
-progress_partial: 'Transcribing...'
-progress_partial_footer: 'Partial transcript; final text may still change.'
-completed_empty: 'Transcription completed, but no text was detected.'
+progress_processing: 'Turning into text...'
+progress_retrying: 'Could not turn that into text; trying again...'
+progress_failed: 'Could not turn that into text. Please try again later.'
+progress_partial: 'Turning into text...'
+progress_partial_footer: 'Draft text; final text may still change.'
+completed_empty: 'Done, but no text was detected.'

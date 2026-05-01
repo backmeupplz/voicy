@@ -73,7 +73,7 @@ yarn qa:telegram-upload \
   --chat @okamikron_bot \
   --sample \
   --caption "Voicy private audio QA $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-  --expected-text "Queued" \
+  --expected-text "Turning into text" \
   --send \
   --timeout-ms 180000 \
   --evidence-file tmp/telegram-upload-private.json \
@@ -83,12 +83,12 @@ yarn qa:telegram-upload \
 
 Expected result:
 
-- `/start` and `/help` explain queued transcription and mention
+- `/start` and `/help` explain that Voicy turns voice messages into text and mention
   `@voicy_legacy_bot`.
-- `/donate` and the unpaid voice-message response frame payment as funding
-  transcription compute.
-- The paid voice message creates one queued `TranscriptionJob`.
-- Telegram shows the queued acknowledgement.
+- `/donate` and the unpaid voice-message response frame payment as helping Voicy
+  turn voice messages into text.
+- The paid voice message creates one pending `TranscriptionJob`.
+- Telegram shows the `Turning into text...` acknowledgement.
 - Worker claim changes the job to `processing`.
 - Progress edits are visible only if the worker/transcriber submits
   `POST /worker/v1/jobs/:id/progress` updates.
@@ -103,7 +103,7 @@ Path:
 2. Run `/transcribe_all` until the bot says it will transcribe all audio.
 3. Send a voice message as a regular group message.
 4. Reply to a different voice message with `/transcribe`.
-5. Toggle `/silent`, then repeat one queued-transcription path.
+5. Toggle `/silent`, then repeat one voice-to-text path.
 
 For unattended Telegram Web upload QA in a group where the bot is already
 present and configured, use the group chat URL or handle:
@@ -114,7 +114,7 @@ yarn qa:telegram-upload \
   --chat "https://web.telegram.org/k/#-123456789" \
   --sample \
   --caption "Voicy group audio QA $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-  --expected-text "Queued" \
+  --expected-text "Turning into text" \
   --send \
   --timeout-ms 180000 \
   --evidence-file tmp/telegram-upload-group.json \
@@ -125,10 +125,10 @@ yarn qa:telegram-upload \
 Expected result:
 
 - Group messages are ignored only when `transcribeAllAudio` is false.
-- With `transcribeAllAudio` enabled, a group voice message creates a queued job
+- With `transcribeAllAudio` enabled, a group voice message creates a pending job
   and replies to the source message.
-- Reply `/transcribe` queues the replied-to voice/audio/document/video note.
-- Silent mode suppresses optional noise but does not prevent queue creation.
+- Reply `/transcribe` starts turning the replied-to voice/audio/document/video note into text.
+- Silent mode suppresses optional noise but does not prevent job creation.
 - Worker completion publishes the transcript back into the group.
 
 ## Evidence To Capture
@@ -136,8 +136,8 @@ Expected result:
 For Kaneo or PR review, capture:
 
 - Commands and pass/fail output for every automated proof.
-- Telegram screenshots for `/help`, donation wording, queued acknowledgement,
-  any progress edit, and final transcript.
+- Telegram screenshots for `/help`, donation wording, the `Turning into text...` acknowledgement,
+  any progress edit, and final text.
 - Telegram upload helper JSON/screenshot evidence for private-chat and group
   audio/file sends when CDP upload QA is used.
 - Mongo document ids for the tested `TranscriptionJob` and `Voice`.

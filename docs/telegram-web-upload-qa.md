@@ -66,8 +66,8 @@ yarn qa:telegram-upload \
   --browser-url http://127.0.0.1:9222 \
   --chat @okamikron_bot \
   --sample \
-  --caption "VOI-KANEO-18 transcript proof $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-  --expected-text "Queued" \
+  --caption "VOI-KANEO-18 text proof $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --expected-text "Turning into text" \
   --expected-text "zero" \
   --send \
   --timeout-ms 180000 \
@@ -91,7 +91,7 @@ yarn qa:telegram-upload \
   --chat "https://web.telegram.org/k/#-123456789" \
   --sample \
   --caption "VOI-KANEO-18 group upload $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-  --expected-text "Queued" \
+  --expected-text "Turning into text" \
   --send \
   --timeout-ms 180000 \
   --evidence-file tmp/telegram-upload-group.json \
@@ -99,7 +99,7 @@ yarn qa:telegram-upload \
   --json
 ```
 
-Before group upload QA, enable the bot's group transcription path with the
+Before group upload QA, enable the bot's group voice-to-text path with the
 normal product command flow, such as `/transcribe_all` if that is the current
 canonical command. The helper only sends the fixture and captures visible
 evidence; it does not mutate bot settings or Mongo state.
