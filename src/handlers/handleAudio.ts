@@ -1,5 +1,9 @@
 import { Message } from '@grammyjs/types'
-import { addQueuedVoice } from '@/models/Voice'
+import {
+  TranscriptionJobModel,
+  TranscriptionJobSourceKind,
+  TranscriptionJobStatus,
+} from '@/models/TranscriptionJob'
 import Context from '@/models/Context'
 import fileUrl from '@/helpers/fileUrl'
 import report from '@/helpers/report'
@@ -9,6 +13,7 @@ type AudioPayload = {
   file_size?: number
   mime_type?: string
   file_name?: string
+  file_unique_id?: string
   sourceType: 'voice' | 'audio' | 'document' | 'video_note'
 }
 
@@ -41,7 +46,13 @@ export default async function handleAudio(ctx: Context) {
 
     const fileData = await ctx.getFile()
     const voiceUrl = fileUrl(fileData.file_path)
-    await enqueueTranscription(ctx, voiceUrl, audio.file_id, message)
+    await enqueueTranscription(
+      ctx,
+      voiceUrl,
+      audio.file_id,
+      message,
+      fileData.file_path
+    )
   } catch (error) {
     report(error, { ctx, location: 'handleMessage' })
     await sendQueueError(ctx)
@@ -59,21 +70,29 @@ async function enqueueTranscription(
   ctx: Context,
   url: string,
   fileId: string,
-  sourceMessage: Message = ctx.msg
+  sourceMessage: Message = ctx.msg,
+  filePath?: string
 ) {
   const audio = audioFromMessage(sourceMessage)
-  const queuedVoice = await addQueuedVoice({
-    url,
-    chat: ctx.dbchat,
-    messageId: sourceMessage.message_id,
+  const queuedJob = await TranscriptionJobModel.create({
+    status: TranscriptionJobStatus.queued,
+    chatId: ctx.dbchat.id,
+    telegramChatId: String(ctx.chat.id),
+    sourceMessageId: sourceMessage.message_id,
+    requestMessageId: ctx.msg?.message_id,
     fileId,
+    filePath,
     fileSize: audio.file_size,
     mimeType: audio.mime_type,
-    fileName: audio.file_name,
-    sourceType: audio.sourceType,
-    requestedBy: ctx.from?.id,
-    forwardFromId: sourceMessage.forward_from?.id,
+    fileUniqueId: fileUniqueId(audio),
+    sourceKind: sourceKind(audio.sourceType),
+    sourceUrl: url,
+    requestedByUserId: ctx.from?.id ? String(ctx.from.id) : undefined,
+    forwardedFromUserId: sourceMessage.forward_from?.id
+      ? String(sourceMessage.forward_from.id)
+      : undefined,
     forwardSenderName: sourceMessage.forward_sender_name,
+    uiLocale: ctx.dbchat.uiLanguage,
   })
 
   try {
@@ -81,8 +100,8 @@ async function enqueueTranscription(
       reply_to_message_id: sourceMessage.message_id,
       parse_mode: 'Markdown',
     })
-    queuedVoice.ackMessageId = ackMessage.message_id
-    await queuedVoice.save()
+    queuedJob.statusMessageId = ackMessage.message_id
+    await queuedJob.save()
   } catch (error) {
     report(error, { ctx, location: 'ackQueuedTranscription' })
   }
@@ -92,7 +111,18 @@ async function enqueueTranscription(
       (new Date().getTime() - ctx.timeReceived.getTime()) / 1000
     }s`
   )
-  return queuedVoice
+  return queuedJob
+}
+
+function sourceKind(sourceType: AudioPayload['sourceType']) {
+  if (sourceType === 'video_note') {
+    return TranscriptionJobSourceKind.videoNote
+  }
+  return sourceType as TranscriptionJobSourceKind
+}
+
+function fileUniqueId(audio: AudioPayload) {
+  return 'file_unique_id' in audio ? audio.file_unique_id : undefined
 }
 
 function audioFromMessage(message: Message): AudioPayload {

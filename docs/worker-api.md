@@ -51,11 +51,38 @@ authenticated worker.
 
 Refreshes `heartbeatAt` for a processing job owned by the authenticated worker.
 
+### `POST /jobs/:id/progress`
+
+Stores a partial transcript for a processing job owned by the authenticated
+worker and edits the bot's in-chat status message when enough time has passed
+since the last visible progress edit.
+
+Request body:
+
+```json
+{
+  "text": "Partial transcript produced so far",
+  "parts": [{ "timeCode": "00:00", "text": "Partial transcript" }],
+  "language": "en",
+  "engine": "faster-whisper",
+  "duration": 1.4,
+  "metadata": { "model": "large-v3" }
+}
+```
+
+Workers should call this endpoint only for meaningful transcript changes. The
+server throttles visible Telegram edits with `VOICY_PROGRESS_EDIT_INTERVAL_MS`
+(default `2500`, minimum `1000`) and stores every accepted progress payload even
+when an edit is skipped. If a job has no editable status message, progress is
+still stored and the final result will be sent as a normal reply.
+
 ### `POST /jobs/:id/result`
 
 Completes a processing job owned by the authenticated worker, stores transcript
-data, creates a legacy `Voice` record, and publishes the final transcript unless
-`VOICY_DISABLE_TELEGRAM_PUBLISH=1`.
+data, creates a legacy `Voice` record, and publishes the final transcript by
+editing the status/progress message unless `VOICY_DISABLE_TELEGRAM_PUBLISH=1`.
+Long final transcripts are split into follow-up replies after the first edited
+message.
 
 Request body:
 
@@ -92,5 +119,6 @@ Request body:
 - missing authentication returns `401`;
 - exactly one of two clients can claim a single queued job;
 - a non-owning client cannot heartbeat another worker's job;
+- progress upload stores partial transcript state for the owning worker;
 - result upload completes the job and persists transcript data;
 - retryable failure requeues while attempts remain.
