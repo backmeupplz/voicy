@@ -8,7 +8,7 @@ help: |
   /start — Start Voicy
   /help — Show this message
   /language — Change the bot interface language
-  /donate — Help pay to turn voice messages into text
+  /donate — Activate voice transcription for this chat
   /files — Toggle audio files
   /silent — Toggle extra status messages
   /lock — Restrict commands to group admins
@@ -32,9 +32,9 @@ language: "\U0001F44B Choose the bot interface language."
 language_success: "\U0001F44D Voicy will now use *${language}* for bot messages in this chat."
 error_twenty: "_\U0001F46E Telegram files over 20 MB cannot be processed here. For larger files, use https://voicybot.com directly._"
 initiated: "_\U0001F984 Turning into text..._"
-sunsetting: 'Voicy now uses paid compute to turn voice messages into text. To keep using this bot, please make a one-time donation of $6.99 with /donate. The old engine-based bot is available at @voicy_legacy_bot.'
-already_paid: 'You have already donated to Voicy. Thank you.'
-pay: 'Donate $6.99 to help Voicy turn voice messages into text. You can also send $6.99 worth of tokens to `borodutch.eth` and send the transaction to @borodutch.'
+sunsetting: 'Voicy asks for a one-time $6.99 donation for this chat to help cover compute costs and get more compute for transcription. Use /donate in the chat where you want voice transcription activated.'
+already_paid: 'Voice transcription is already activated for this chat. Thank you.'
+pay: 'Donate $6.99 for this chat to help Voicy cover compute costs and get more compute for transcription. Only this chat will be activated. To activate a group, run /donate in that group. You can also send $6.99 worth of tokens to `borodutch.eth` and send the transaction to @borodutch.'
 pay_button: 'Donate $6.99'
 transcribe_all_true: 'Voicy will now *turn every voice message* in this chat into text.'
 transcribe_all_false: 'Voicy will now *ignore new voice messages* in this chat unless someone replies to one with /transcribe.'
