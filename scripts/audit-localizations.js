@@ -38,6 +38,9 @@ const directKeys = new Set([
     (match) => match[1]
   ),
   ...[
+    ...sourceText.matchAll(/markdownI18n\([^,]+,\s*['"]([A-Za-z0-9_]+)['"]/g),
+  ].map((match) => match[1]),
+  ...[
     ...sourceText.matchAll(
       /localizedTranscriptionText\([^,]+,\s*['"]([A-Za-z0-9_]+)['"]/g
     ),

@@ -21,7 +21,6 @@ import disallowPrivate from '@/middlewares/disallowPrivate'
 import handleAudio from '@/handlers/handleAudio'
 import handleDonate from '@/commands/handleDonate'
 import handleFiles from '@/commands/handleFiles'
-import handleGeeky from '@/commands/handleGeeky'
 import handleHelp from '@/commands/handleHelp'
 import handleId from '@/commands/handleId'
 import handleL from '@/commands/handleL'
@@ -70,7 +69,6 @@ async function runApp() {
   bot.command('lock', disallowPrivate, checkAdminLock, handleLock)
   bot.command('files', checkAdminLock, handleFiles)
   bot.command('silent', checkAdminLock, handleSilent)
-  bot.command('geeky', checkAdminLock, handleGeeky)
   bot.command('url', checkAdminLock, handleUrl)
   bot.command('privacy', checkAdminLock, handlePrivacy)
   bot.command('language', checkAdminLock, handleLanguage)

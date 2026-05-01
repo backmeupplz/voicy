@@ -5,15 +5,17 @@ help: |
 
   Send a voice message in a private chat, or add Voicy to a group. In groups, Voicy can either transcribe every voice message or wait until someone replies to a message with /transcribe.
 
+  /start — Start Voicy
   /help — Show this message
   /language — Change the bot interface language
   /donate — Help pay for transcription compute
   /files — Toggle audio file transcription
   /silent — Toggle extra status messages
   /lock — Restrict commands to group admins
-  /privacy — Open the privacy policy
+  /url — Open the large-file transcription page
   /transcribe\_all — Toggle transcription for every voice message in this group
   /transcribe — Transcribe the voice or audio message you reply to
+  /privacy — Open the privacy policy
 
   Voicy now uses queued transcription workers. The old engine-based bot is available at @voicy_legacy_bot.
 error_group: "\U0001F605 This command only works in group chats."
@@ -31,26 +33,19 @@ language: "\U0001F44B Choose the bot interface language."
 language_success: "\U0001F44D Voicy will now use *${language}* for bot messages in this chat."
 error_twenty: "_\U0001F46E Telegram files over 20 MB cannot be queued here. Use /url for large files._"
 initiated: "_\U0001F984 Queued for transcription..._"
-geeky: |
-  Advanced settings:
-
-  /url — Open the large-file transcription page
-  /l — Same as /language
-  `/l en` — Switch the bot interface to English
-  `/l ru` — Switch the bot interface to Russian
-url: "Telegram limits bot downloads to 20 MB. For larger files, use https://voicybot.com directly."
-sunsetting: "Voicy now uses paid transcription compute. To keep using this bot, please make a one-time donation of $6.99 with /donate. The old engine-based bot is available at @voicy_legacy_bot."
-already_paid: "You have already donated to Voicy. Thank you."
-pay: "Donate $6.99 to help pay for Voicy transcription compute. You can also send $6.99 worth of tokens to `borodutch.eth` and send the transaction to @borodutch."
-pay_button: "Donate $6.99"
-transcribe_all_true: "Voicy will now *queue every voice message* in this chat for transcription."
-transcribe_all_false: "Voicy will now *ignore new voice messages* in this chat unless someone replies to one with /transcribe."
-reply_to_voice: "Reply to a voice message, video note, or supported audio file, then send /transcribe."
+url: 'Telegram limits bot downloads to 20 MB. For larger files, use https://voicybot.com directly.'
+sunsetting: 'Voicy now uses paid transcription compute. To keep using this bot, please make a one-time donation of $6.99 with /donate. The old engine-based bot is available at @voicy_legacy_bot.'
+already_paid: 'You have already donated to Voicy. Thank you.'
+pay: 'Donate $6.99 to help pay for Voicy transcription compute. You can also send $6.99 worth of tokens to `borodutch.eth` and send the transaction to @borodutch.'
+pay_button: 'Donate $6.99'
+transcribe_all_true: 'Voicy will now *queue every voice message* in this chat for transcription.'
+transcribe_all_false: 'Voicy will now *ignore new voice messages* in this chat unless someone replies to one with /transcribe.'
+reply_to_voice: 'Reply to a voice message, video note, or supported audio file, then send /transcribe.'
 error_queue: "_\U0001F46E Voicy could not queue that message for transcription. Please try again later._"
-banned: "You are banned, most likely because of payment fraud. Contact @borodutch if this is a mistake."
-progress_processing: "Transcription started..."
-progress_retrying: "Transcription failed; retrying..."
-progress_failed: "Transcription failed. Please try again later."
-progress_partial: "Transcribing..."
-progress_partial_footer: "Partial transcript; final text may still change."
-completed_empty: "Transcription completed, but no text was detected."
+banned: 'You are banned, most likely because of payment fraud. Contact @borodutch if this is a mistake.'
+progress_processing: 'Transcription started...'
+progress_retrying: 'Transcription failed; retrying...'
+progress_failed: 'Transcription failed. Please try again later.'
+progress_partial: 'Transcribing...'
+progress_partial_footer: 'Partial transcript; final text may still change.'
+completed_empty: 'Transcription completed, but no text was detected.'
