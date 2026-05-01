@@ -151,15 +151,27 @@ async function main() {
     await session.call('Page.enable')
     await session.call('DOM.enable')
 
-    const inputHandle = await session.evaluateHandle(prepareUploadInputSource(), {
-      chat: opts.chat,
-      timeoutMs: opts.timeoutMs,
-    })
+    await session.call('Page.setInterceptFileChooserDialog', { enabled: true })
 
-    await session.call('DOM.setFileInputFiles', {
-      objectId: inputHandle.objectId,
-      files: [fixture.path],
-    })
+    try {
+      const fileChooser = session.waitForEvent('Page.fileChooserOpened', opts.timeoutMs)
+
+      await session.evaluate(openUploadFileChooserSource(), {
+        chat: opts.chat,
+        timeoutMs: opts.timeoutMs,
+      })
+
+      const chooser = await fileChooser
+
+      await session.call('DOM.setFileInputFiles', {
+        backendNodeId: chooser.backendNodeId,
+        files: [fixture.path],
+      })
+    } finally {
+      await session
+        .call('Page.setInterceptFileChooserDialog', { enabled: false })
+        .catch(() => undefined)
+    }
 
     const automation = await session.evaluate(uploadAndVerifySource(), {
       caption: opts.caption || '',
@@ -386,6 +398,7 @@ class CdpSession {
     this.socket = socket
     this.nextId = 1
     this.pending = new Map()
+    this.eventWaiters = new Map()
 
     socket.addEventListener('message', (event) => this.onMessage(event))
     socket.addEventListener('close', () => {
@@ -445,8 +458,55 @@ class CdpSession {
     this.socket.close()
   }
 
+  waitForEvent(method, timeoutMs) {
+    return new Promise((resolve, reject) => {
+      const waiter = { resolve, reject, timeout: null }
+      waiter.timeout = setTimeout(() => {
+        this.removeEventWaiter(method, waiter)
+        reject(new Error(`Timed out waiting for Chrome DevTools event: ${method}`))
+      }, timeoutMs)
+
+      if (!this.eventWaiters.has(method)) {
+        this.eventWaiters.set(method, [])
+      }
+
+      this.eventWaiters.get(method).push(waiter)
+    })
+  }
+
+  removeEventWaiter(method, waiter) {
+    const waiters = this.eventWaiters.get(method)
+
+    if (!waiters) {
+      return
+    }
+
+    const index = waiters.indexOf(waiter)
+
+    if (index !== -1) {
+      waiters.splice(index, 1)
+    }
+
+    if (waiters.length === 0) {
+      this.eventWaiters.delete(method)
+    }
+  }
+
   onMessage(event) {
     const message = JSON.parse(event.data)
+
+    if (message.method) {
+      const waiters = this.eventWaiters.get(message.method)
+
+      if (waiters) {
+        this.eventWaiters.delete(message.method)
+
+        for (const waiter of waiters) {
+          clearTimeout(waiter.timeout)
+          waiter.resolve(message.params || {})
+        }
+      }
+    }
 
     if (!message.id) {
       return
@@ -473,6 +533,17 @@ class CdpSession {
     }
 
     this.pending.clear()
+
+    for (const [method, waiters] of this.eventWaiters.entries()) {
+      for (const waiter of waiters) {
+        clearTimeout(waiter.timeout)
+        waiter.reject(
+          new Error(`${method} was interrupted by Chrome DevTools WebSocket close`)
+        )
+      }
+    }
+
+    this.eventWaiters.clear()
   }
 }
 
@@ -485,9 +556,9 @@ function telegramUrl(chat) {
   return `https://web.telegram.org/k/#${encodeURIComponent(normalized)}`
 }
 
-function prepareUploadInputSource() {
+function openUploadFileChooserSource() {
   return String.raw`
-async function prepareUploadInput({chat, timeoutMs}) {
+async function openUploadFileChooser({chat, timeoutMs}) {
   const startedAt = Date.now();
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const deadlineReached = () => Date.now() - startedAt > timeoutMs;
@@ -512,26 +583,16 @@ async function prepareUploadInput({chat, timeoutMs}) {
   await waitForAuthenticatedUi();
   await openChatFromSearch(normalizedChat);
   await clickStartIfPresent();
+  await closeStaleUploadPreview();
   await waitFor(() => Boolean(findComposer()), "Telegram Web message composer");
 
-  let input = findFileInput();
+  const attachButton = await waitForValue(findAttachButton, "Telegram Web attach button");
+  attachButton.click();
 
-  if (!input) {
-    const attachButton = findAttachButton();
+  const menuItem = await waitForValue(findDocumentMenuItem, "Telegram Web document attach menu item");
+  menuItem.click();
 
-    if (attachButton) {
-      attachButton.click();
-      await sleep(750);
-    }
-
-    input = findFileInput();
-  }
-
-  if (!input) {
-    throw new Error("Telegram Web file input was not found after opening the attach menu");
-  }
-
-  return input;
+  return true;
 
   async function waitFor(predicate, label) {
     while (!deadlineReached()) {
@@ -543,6 +604,21 @@ async function prepareUploadInput({chat, timeoutMs}) {
     }
 
     throw new Error("Timed out waiting for " + label);
+  }
+
+  async function waitForValue(finder, label) {
+    let value = finder();
+
+    while (!value && !deadlineReached()) {
+      await sleep(250);
+      value = finder();
+    }
+
+    if (!value) {
+      throw new Error("Timed out waiting for " + label);
+    }
+
+    return value;
   }
 
   async function waitForAuthenticatedUi() {
@@ -609,6 +685,30 @@ async function prepareUploadInput({chat, timeoutMs}) {
     await sleep(1500);
   }
 
+  async function closeStaleUploadPreview() {
+    const preview = findUploadPreview();
+
+    if (!preview) {
+      return;
+    }
+
+    const closeButton = Array.from(preview.querySelectorAll("button, [role='button'], .btn-icon")).find((button) => {
+      const text = [
+        button.getAttribute("aria-label"),
+        button.getAttribute("title"),
+        button.textContent,
+        button.className
+      ].join(" ");
+
+      return visible(button) && /close|cancel|\\uE956|\\uE858/i.test(text);
+    });
+
+    if (closeButton) {
+      closeButton.click();
+      await sleep(500);
+    }
+  }
+
   function findComposer() {
     const selectors = [".input-message-input", '[contenteditable="true"]', "textarea"];
     const candidates = selectors.flatMap((selector) => Array.from(document.querySelectorAll(selector)));
@@ -656,20 +756,37 @@ async function prepareUploadInput({chat, timeoutMs}) {
     });
   }
 
-  function findFileInput() {
-    const inputs = Array.from(document.querySelectorAll('input[type="file"]'));
+  function findDocumentMenuItem() {
+    const menuItems = Array.from(document.querySelectorAll(".btn-menu-item, [role='menuitem'], button"));
 
-    return inputs.find((input) => {
-      const accept = input.getAttribute("accept") || "";
-      const label = [
-        accept,
-        input.getAttribute("aria-label"),
-        input.getAttribute("name"),
-        input.className
-      ].join(" ");
+    return menuItems.find((item) => {
+      const text = (item.innerText || item.textContent || "").replace(/\\s+/g, " ").trim();
+      return visible(item) && /document|file/i.test(text);
+    }) || menuItems.find((item) => visible(item) && /photo|video|media/i.test(item.innerText || item.textContent || ""));
+  }
 
-      return !input.webkitdirectory && (/audio|mpeg|wav|ogg|octet|file|document|\*/i.test(label) || !accept);
-    }) || inputs.find((input) => !input.webkitdirectory) || null;
+  function findUploadPreview() {
+    const selectors = [
+      ".popup-send-photo.active",
+      ".popup-new-media.active",
+      ".popup.active",
+      ".modal.active",
+      "[role='dialog']"
+    ];
+
+    for (const selector of selectors) {
+      const preview = Array.from(document.querySelectorAll(selector)).find((element) => {
+        if (!visible(element)) return false;
+        const text = element.innerText || element.textContent || "";
+        return /send file|add a caption|send/i.test(text);
+      });
+
+      if (preview) {
+        return preview;
+      }
+    }
+
+    return null;
   }
 }
 `
@@ -688,13 +805,11 @@ async function uploadAndVerify({caption, expectedTexts, fileName, send, timeoutM
     return rect.width > 0 && rect.height > 0 && style.visibility !== "hidden" && style.display !== "none";
   };
 
-  await waitFor(() => {
-    const text = document.body?.innerText || "";
-    return text.includes(fileName) || Boolean(findPreviewSendButton());
-  }, "Telegram upload preview");
+  const preview = await waitForValue(findUploadPreview, "Telegram upload preview");
+  await waitFor(() => previewLooksReady(preview) && Boolean(findPreviewSendButton(preview)), "Telegram upload preview ready");
 
   if (caption) {
-    const captionInput = findCaptionInput();
+    const captionInput = findCaptionInput(preview);
 
     if (captionInput) {
       captionInput.focus();
@@ -714,7 +829,7 @@ async function uploadAndVerify({caption, expectedTexts, fileName, send, timeoutM
   let sent = false;
 
   if (send) {
-    const button = await waitForButton(findPreviewSendButton, "Telegram upload send button");
+    const button = await waitForValue(() => findPreviewSendButton(preview), "Telegram upload send button");
     button.click();
     sent = true;
     await sleep(1500);
@@ -725,6 +840,7 @@ async function uploadAndVerify({caption, expectedTexts, fileName, send, timeoutM
   }
 
   const bodyText = document.body?.innerText || "";
+  const previewText = (preview.innerText || preview.textContent || "").replace(/\s+/g, " ").trim();
 
   return {
     sent,
@@ -733,7 +849,8 @@ async function uploadAndVerify({caption, expectedTexts, fileName, send, timeoutM
     title: document.title,
     visibleMessages: collectVisibleMessages(),
     diagnostics: {
-      fileNameVisible: bodyText.includes(fileName),
+      fileNameVisible: bodyText.includes(fileName) || previewContainsFileName(previewText, fileName),
+      previewText: previewText.slice(0, 500),
       captionVisible: caption ? bodyText.includes(caption) : null,
       expectedTextsVisible: (expectedTexts || []).map((text) => ({
         text,
@@ -754,22 +871,22 @@ async function uploadAndVerify({caption, expectedTexts, fileName, send, timeoutM
     throw new Error("Timed out waiting for " + label);
   }
 
-  async function waitForButton(finder, label) {
-    let button = finder();
+  async function waitForValue(finder, label) {
+    let value = finder();
 
-    while (!button && !deadlineReached()) {
+    while (!value && !deadlineReached()) {
       await sleep(250);
-      button = finder();
+      value = finder();
     }
 
-    if (!button) {
+    if (!value) {
       throw new Error("Timed out waiting for " + label);
     }
 
-    return button;
+    return value;
   }
 
-  function findCaptionInput() {
+  function findCaptionInput(preview) {
     const selectors = [
       '[contenteditable="true"][data-placeholder*="caption" i]',
       '[contenteditable="true"][aria-label*="caption" i]',
@@ -780,7 +897,7 @@ async function uploadAndVerify({caption, expectedTexts, fileName, send, timeoutM
     ];
 
     for (const selector of selectors) {
-      const input = Array.from(document.querySelectorAll(selector)).find((element) => {
+      const input = Array.from(preview.querySelectorAll(selector)).find((element) => {
         if (!visible(element)) return false;
         const label = [
           element.getAttribute("aria-label"),
@@ -799,29 +916,81 @@ async function uploadAndVerify({caption, expectedTexts, fileName, send, timeoutM
     return null;
   }
 
-  function findPreviewSendButton() {
+  function findPreviewSendButton(preview) {
     const selectors = [
-      '.popup button[aria-label*="Send" i]',
-      '.popup button[title*="Send" i]',
-      '.modal button[aria-label*="Send" i]',
-      '.modal button[title*="Send" i]',
       'button[aria-label*="Send" i]',
       'button[title*="Send" i]',
-      '.btn-send',
-      '.popup-send'
+      'button.btn-primary',
+      '.btn-primary',
+      '.popup-send',
+      '[role="button"]'
     ];
 
     for (const selector of selectors) {
-      const button = Array.from(document.querySelectorAll(selector)).find(visible);
+      const button = Array.from(preview.querySelectorAll(selector)).find((element) => {
+        if (!visible(element)) return false;
+        const text = [
+          element.getAttribute("aria-label"),
+          element.getAttribute("title"),
+          element.textContent,
+          element.className
+        ].join(" ");
+        return /send/i.test(text);
+      });
 
       if (button) {
         return button;
       }
     }
 
-    return Array.from(document.querySelectorAll("button")).find((button) => {
+    return Array.from(preview.querySelectorAll("button")).find((button) => {
       return visible(button) && /send/i.test(button.getAttribute("aria-label") || button.title || button.textContent || "");
     });
+  }
+
+  function findUploadPreview() {
+    const selectors = [
+      ".popup-send-photo.active",
+      ".popup-new-media.active",
+      ".popup.active",
+      ".modal.active",
+      "[role='dialog']"
+    ];
+
+    for (const selector of selectors) {
+      const preview = Array.from(document.querySelectorAll(selector)).find((element) => {
+        if (!visible(element)) return false;
+        const text = element.innerText || element.textContent || "";
+        return text.includes(fileName) || /send file|add a caption/i.test(text);
+      });
+
+      if (preview) {
+        return preview;
+      }
+    }
+
+    return null;
+  }
+
+  function previewLooksReady(preview) {
+    const text = (preview.innerText || preview.textContent || "").replace(/\s+/g, " ").trim();
+    return previewContainsFileName(text, fileName) || /send file|add a caption|\d+\s*(kb|mb|gb)|0:00/i.test(text);
+  }
+
+  function previewContainsFileName(text, fileName) {
+    if (!text || !fileName) {
+      return false;
+    }
+
+    if (text.includes(fileName)) {
+      return true;
+    }
+
+    const extension = fileName.includes(".") ? fileName.slice(fileName.lastIndexOf(".")) : "";
+    const prefix = fileName.slice(0, 16);
+    const suffix = extension || fileName.slice(-12);
+
+    return text.includes(prefix) && (!suffix || text.includes(suffix));
   }
 
   function collectVisibleMessages() {
