@@ -18,7 +18,7 @@ The active bot interface is maintained in English and Russian in the `locales` f
 1. Clone this repo: `git clone https://github.com/backmeupplz/voicy`
 2. Launch a [mongo database](https://www.mongodb.com/) locally
 3. Create `.env` file with the environment variables listed below
-4. Install `ffmpeg` on your machine
+4. Install `ffmpeg` on machines that run local transcription workers
 5. Run `yarn` in the root folder
 6. Run `yarn start`
 
@@ -30,7 +30,6 @@ The active bot interface is maintained in English and Russian in the `locales` f
 | `TOKEN`         | Telegram bot token                                              |
 | `SALT`          | Random salt to generate various encrypted stuff                 |
 | `ADMIN_ID`      | Chat id of the person who shall receive valuable logs           |
-| `WIT_LANGUAGES` | A map of language names to Wit.ai tokens                        |
 | `ENVIRONMENT`   | App environment, can be `development`, defaults to `production` |
 
 See examples in `.env.sample` file.

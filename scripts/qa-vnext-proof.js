@@ -3,7 +3,6 @@
 process.env.TOKEN = process.env.TOKEN || '000000:test-token'
 process.env.STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'sk_test_dummy'
 process.env.VOICY_DISABLE_TELEGRAM_PUBLISH = '1'
-process.env.WIT_LANGUAGES = process.env.WIT_LANGUAGES || '{"English":"token"}'
 
 require('reflect-metadata')
 require('module-alias/register')
