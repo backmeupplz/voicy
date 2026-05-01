@@ -28,10 +28,30 @@ worker client against the local worker API, and verifies the completed
 Environment:
 
 - Telegram Web or desktop Telegram already logged in on this Mac.
-- Local or PR Voicy bot running with a test bot token.
+- Local Voicy test bot runtime running with the `@okamikron_bot` token. The
+  test bot is expected to be a local long-polling process for QA, not a Telegram
+  webhook service.
 - Mongo available to inspect `chats`, `transcriptionjobs`, and `voices`.
 - A worker token created with `yarn worker:create-client`.
 - A worker running with `VOICY_WORKER_IDLE_EXIT=1` for each sample message.
+
+Before testing bot copy, verify the runtime is actually consuming Telegram
+updates:
+
+```sh
+TELEGRAM_TEST_BOT_TOKEN=... TELEGRAM_TEST_BOT_USERNAME=okamikron_bot yarn test:telegram-runtime
+```
+
+The check is non-destructive: it only reads `getWebhookInfo` and does not call
+`getUpdates`, because a second `getUpdates` caller can interrupt the local
+polling runtime. It passes when Telegram reports an active webhook or no pending
+backlog. If it reports pending updates and no webhook, start the local bot
+runtime first:
+
+```sh
+yarn build-ts
+MONGO=mongodb://127.0.0.1:27017/voicy_telegram_qa TOKEN=... SALT=telegram-qa ADMIN_ID=0 ENVIRONMENT=development yarn distribute
+```
 
 Path:
 
