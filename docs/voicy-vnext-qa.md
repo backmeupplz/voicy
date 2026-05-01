@@ -28,6 +28,8 @@ worker client against the local worker API, and verifies the completed
 Environment:
 
 - Telegram Web or desktop Telegram already logged in on this Mac.
+- For repeatable Telegram Web upload proof, use the CDP helper documented in
+  `docs/telegram-web-upload-qa.md`.
 - Local Voicy test bot runtime running with the `@okamikron_bot` token. The
   test bot is expected to be a local long-polling process for QA, not a Telegram
   webhook service.
@@ -63,6 +65,22 @@ Path:
 6. Mark the test chat paid in Mongo, then send the same voice message again.
 7. Run the worker against the local or PR backend.
 
+For unattended Telegram Web upload QA, replace the manual voice send with:
+
+```sh
+yarn qa:telegram-upload \
+  --browser-url http://127.0.0.1:9222 \
+  --chat @okamikron_bot \
+  --sample \
+  --caption "Voicy private audio QA $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --expected-text "Queued" \
+  --send \
+  --timeout-ms 180000 \
+  --evidence-file tmp/telegram-upload-private.json \
+  --screenshot-file tmp/telegram-upload-private.png \
+  --json
+```
+
 Expected result:
 
 - `/start` and `/help` explain queued transcription and mention
@@ -87,6 +105,23 @@ Path:
 4. Reply to a different voice message with `/transcribe`.
 5. Toggle `/silent`, then repeat one queued-transcription path.
 
+For unattended Telegram Web upload QA in a group where the bot is already
+present and configured, use the group chat URL or handle:
+
+```sh
+yarn qa:telegram-upload \
+  --browser-url http://127.0.0.1:9222 \
+  --chat "https://web.telegram.org/k/#-123456789" \
+  --sample \
+  --caption "Voicy group audio QA $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --expected-text "Queued" \
+  --send \
+  --timeout-ms 180000 \
+  --evidence-file tmp/telegram-upload-group.json \
+  --screenshot-file tmp/telegram-upload-group.png \
+  --json
+```
+
 Expected result:
 
 - Group messages are ignored only when `transcribeAllAudio` is false.
@@ -103,6 +138,8 @@ For Kaneo or PR review, capture:
 - Commands and pass/fail output for every automated proof.
 - Telegram screenshots for `/help`, donation wording, queued acknowledgement,
   any progress edit, and final transcript.
+- Telegram upload helper JSON/screenshot evidence for private-chat and group
+  audio/file sends when CDP upload QA is used.
 - Mongo document ids for the tested `TranscriptionJob` and `Voice`.
 - Any worker logs showing claim, download, heartbeat, result, or failure.
 - Follow-up Kaneo task links for defects that are outside the QA branch scope.
