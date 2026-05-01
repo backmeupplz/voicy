@@ -1,8 +1,0 @@
-files_false: "\U0001F4C1 Herlig! *Voicy* skal *ignorere* alle lydfiler i denne chatten fra nå av."
-error_group: "\U0001F605 Beklager, men denne kommandoen fungerer kun i gruppechatt."
-lock_true: "\U0001F511 Flott! *Voicy* skal nå svare kun på kommandoer som sendes av *admins* i denne chatten."
-lock_false: "\U0001F511 Flott! *Voicy* skal nå svare kun på kommandoer som sendes av *noen som helst* i denne chatten."
-silent_true: "\U0001F636 Storslått! *Voicy* skal nå fungere i *stille modus*: det skal ikke sende meldinger til chatten bortsett fra faktiske stemme transkripsjonene."
-error_twenty: "_\U0001F46E Jeg kan ikke gjenkjenne talemeldinger som er større enn 20 megabytes_"
-speak_clearly: "_\U0001F46E Vennligst, snakk tydelig, jeg kunne ikke gjenkjenne det_"
-error: "_\U0001F46E Jeg kunne ikke't gjenkjenne det_"

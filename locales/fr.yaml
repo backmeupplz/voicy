@@ -1,9 +1,0 @@
-files_false: "\U0001F4C1 Merveilleux ! *Voicy* va *ignorer* tous les fichiers audio de cette discussion à partir de maintenant."
-error_group: "\U0001F605 Désolé, cette commande ne fonctionne que dans les discussions de groupe."
-lock_true: "\U0001F511 Parfait ! *Voicy* ne répondra désormais qu'aux appels de commande envoyés par les *admins* de cette discussion."
-lock_false: "\U0001F511 Parfait ! *Voicy* ne répondra désormais qu'aux appels de commande de *tous* les participants à cette discussion."
-silent_true: "\U0001F636 Magnifique ! *Voicy* fonctionnera désormais en mode *silencieux* : il n'enverra plus de messages à la discussion, à l'exception des transcriptions vocales."
-error_twenty: "_\U0001F46E Je ne peux pas reconnaître les messages vocaux de plus de 20 megabytes_"
-speak_clearly: "_\U0001F46E S'il vous plaît, parlez distinctement, je n'ai pas pu reconnaître ça_"
-error: "_\U0001F46E Je n'ai pas pu reconnaître ça_"
-url: 'Si vous voulez contourner la limite de 20 Mo par fichier sur Telegram, vous pouvez utiliser directement voicybot.com. A la vôtre !'

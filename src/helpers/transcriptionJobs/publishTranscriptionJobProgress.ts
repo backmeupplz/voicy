@@ -5,6 +5,7 @@ import {
   progressPreview,
 } from '@/helpers/transcriptionJobs/transcriptFormatting'
 import bot from '@/helpers/bot'
+import localizedTranscriptionText from '@/helpers/localizedTranscriptionText'
 
 const DEFAULT_PROGRESS_EDIT_INTERVAL_MS = 2500
 
@@ -29,16 +30,24 @@ function shouldThrottle(job: DocumentType<TranscriptionJob>, force: boolean) {
 
 function statusText(phase: ProgressPhase, job: DocumentType<TranscriptionJob>) {
   if (phase === 'processing') {
-    return 'Transcription started...'
+    return localizedTranscriptionText(job.uiLocale, 'progress_processing')
   }
   if (phase === 'retrying') {
-    return 'Transcription failed; retrying...'
+    return localizedTranscriptionText(job.uiLocale, 'progress_retrying')
   }
   if (phase === 'failed') {
-    return 'Transcription failed. Please try again later.'
+    return localizedTranscriptionText(job.uiLocale, 'progress_failed')
   }
   const partialText = partialTranscriptText(job)
-  return partialText ? progressPreview(partialText) : 'Transcribing...'
+  return partialText
+    ? progressPreview(partialText, {
+        header: localizedTranscriptionText(job.uiLocale, 'progress_partial'),
+        footer: localizedTranscriptionText(
+          job.uiLocale,
+          'progress_partial_footer'
+        ),
+      })
+    : localizedTranscriptionText(job.uiLocale, 'progress_partial')
 }
 
 export default async function publishTranscriptionJobProgress(

@@ -1,8 +1,0 @@
-files_false: "\U0001F4C1 Möhtəşəm! Bu andan etibarən “Voicy” bu söhbətdəki bütün səs fayllarını “görməməzlikdən gələcək”."
-error_group: "\U0001F605 Bağışlayın, bu əmr ancaq qrup söhbətlərində işləyir."
-lock_true: "\U0001F511 Əla! Bundan sonra *Voicy* bu söhbətdə ancaq *adminlər* tərəfindən göndərilən əmr çağırışlarına cavab verəcək."
-lock_false: "\U0001F511 Əla! Bundan sonra *Voicy* bu söhbətdə ancaq *hərkəs* tərəfindən göndərilən əmr çağırışlarına cavab verəcək."
-silent_true: "\U0001F636 Şəhanə! Bundan sonra *Voicy* *səssiz rejim*də işləyəcək: əsl səs yazıköçürmələrindən başqa söhbətə heç bir mesaj göndərməyəcək."
-error_twenty: "_\U0001F46E 20 meqabitdən böyük səsli mesajları tanıya bilirəm_"
-speak_clearly: "_\U0001F46E Zəhmət olmasa, aydın danışın. Bunu tanıya bilmədim_"
-error: "_\U0001F46E Bunu tanıya bilmədim_"

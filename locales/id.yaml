@@ -1,8 +1,0 @@
-files_false: "\U0001F4C1 Hebat! *Voicy* akan *mengabaikan* semua file audio dalam obrolan ini mulai dari sekarang."
-lock_true: "\U0001F511 Bagus! *Voicy* sekarang hanya akan merespon perintah yang dikirim oleh *admin* dalam obrolan ini."
-lock_false: "\U0001F511 Bagus! *Voicy* sekarang hanya akan merespon perintah-perintah yang dikirimkan oleh *semua orang* dalam obrolan ini."
-silent_true: "\U0001F636 Sangat Bagus! *Voicy* sekarang akan bekerja pada mode *senyap*: *Voicy* tidak akan mengirimkan pesan ke dalam obrolan kecuali untuk transkripsi suara aktual."
-error_twenty: "_\U0001F46E Saya tidak dapat mengenali pesan suara yang melebihi 20 MB._"
-speak_clearly: "_\U0001F46E Mohon bicara dengan jelas, Saya tidak dapat memahaminya_"
-error: "_\U0001F46E Saya tidak dapat memahaminya_"
-url: 'Jika anda ingin melewati batas Telegram sebesar 20Mb tiap fail, Anda dapat menggunakan voicybot.com secara langsung. Selamat mencoba!'

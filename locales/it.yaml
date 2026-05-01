@@ -1,8 +1,0 @@
-files_false: "\U0001F4C1 Meraviglioso! *Voicy* *ignorerà* tutti i file audio in questa chat a partire da ora."
-error_group: "\U0001F605 Spiacente ma questo comando funziona solamente nelle chat di gruppo."
-lock_true: "\U0001F511 Ottimo! *Voicy* risponderà ora solo ai comandi inviati dagli *amministratori* in questa chat."
-lock_false: "\U0001F511 Ottimo! *Voicy* risponderà ora solo ai comandi inviati da *chiunque* in questa chat."
-silent_true: "\U0001F636 Magnifico! *Voicy* funzionerà ora in *modalità silenziosa*: non invierà alcun messaggio eccetto le effettive trascrizioni vocali."
-error_twenty: "_\U0001F46E Non posso riconoscere messaggi vocali più grandi di 20 megabytes_"
-speak_clearly: "_\U0001F46E Per favore, parla chiaramente, non sono riuscito a riconoscerlo_"
-error: "_\U0001F46E Non sono riuscito a riconoscerlo_"

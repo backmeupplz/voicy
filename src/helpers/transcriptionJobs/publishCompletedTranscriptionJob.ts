@@ -6,6 +6,7 @@ import {
   transcriptText,
 } from '@/helpers/transcriptionJobs/transcriptFormatting'
 import bot from '@/helpers/bot'
+import localizedTranscriptionText from '@/helpers/localizedTranscriptionText'
 
 async function storeVoiceRecord(job: DocumentType<TranscriptionJob>) {
   await VoiceModel.create({
@@ -49,18 +50,20 @@ export default async function publishCompletedTranscriptionJob(
 
   const chunks = splitTelegramText(transcriptText(job).trim()) || ['']
   const firstText = chunks.shift() || ''
+  const fallbackText = localizedTranscriptionText(
+    job.uiLocale,
+    'completed_empty'
+  )
   if (job.statusMessageId) {
     await bot.api.editMessageText(
       job.telegramChatId,
       job.statusMessageId,
-      firstText || 'Transcription completed, but no text was detected.'
+      firstText || fallbackText
     )
   } else {
-    await bot.api.sendMessage(
-      job.telegramChatId,
-      firstText || 'Transcription completed, but no text was detected.',
-      { reply_to_message_id: job.sourceMessageId }
-    )
+    await bot.api.sendMessage(job.telegramChatId, firstText || fallbackText, {
+      reply_to_message_id: job.sourceMessageId,
+    })
   }
 
   for (const chunk of chunks) {
