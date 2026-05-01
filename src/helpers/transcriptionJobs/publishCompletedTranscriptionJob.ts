@@ -23,6 +23,23 @@ function transcriptText(job: DocumentType<TranscriptionJob>) {
 async function storeVoiceRecord(job: DocumentType<TranscriptionJob>) {
   await VoiceModel.create({
     url: job.sourceUrl,
+    status: 'completed',
+    chatId: job.chatId,
+    messageId: job.sourceMessageId,
+    ackMessageId: job.statusMessageId,
+    fileId: job.fileId,
+    fileSize: job.fileSize,
+    mimeType: job.mimeType,
+    sourceType: job.sourceKind,
+    requestedBy: job.requestedByUserId
+      ? Number(job.requestedByUserId)
+      : undefined,
+    forwardFromId: job.forwardedFromUserId
+      ? Number(job.forwardedFromUserId)
+      : undefined,
+    forwardSenderName: job.forwardedSenderName,
+    claimedAt: job.claimedAt,
+    completedAt: job.completedAt || new Date(),
     duration: job.duration || 0,
     language: job.recognitionLanguage || job.recognitionLanguageHint || 'auto',
     text: job.resultText || transcriptText(job),
@@ -30,7 +47,6 @@ async function storeVoiceRecord(job: DocumentType<TranscriptionJob>) {
       part.timeCode || '',
       part.text,
     ]),
-    fileId: job.fileId,
     workerEngine: job.workerEngine,
   })
 }
