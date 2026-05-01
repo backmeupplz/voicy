@@ -17,16 +17,50 @@ if (!inputPath || !outputPath) {
 
 const model = process.env.VOICY_WHISPER_MODEL || 'turbo'
 const device = process.env.VOICY_WHISPER_DEVICE
+const whisperCommand = process.env.VOICY_WHISPER_COMMAND || 'whisper'
+const defaultPathEntries = [
+  '/opt/homebrew/bin',
+  '/usr/local/bin',
+  '/usr/bin',
+  '/bin',
+  '/usr/sbin',
+  '/sbin',
+]
+
+function executablePath() {
+  const configuredPath = process.env.PATH || ''
+  const entries = configuredPath ? configuredPath.split(':') : []
+  for (const entry of defaultPathEntries) {
+    if (!entries.includes(entry)) {
+      entries.push(entry)
+    }
+  }
+  return entries.join(':')
+}
 
 function run(command, args) {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, { stdio: ['ignore', 'pipe', 'pipe'] })
+    const env = { ...process.env, PATH: executablePath() }
+    const child = spawn(command, args, {
+      env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
     const stdout = []
     const stderr = []
 
     child.stdout.on('data', (chunk) => stdout.push(Buffer.from(chunk)))
     child.stderr.on('data', (chunk) => stderr.push(Buffer.from(chunk)))
-    child.on('error', reject)
+    child.on('error', (error) => {
+      if (error.code === 'ENOENT') {
+        reject(
+          new Error(
+            `Unable to start Whisper command "${command}". Set VOICY_WHISPER_COMMAND to an absolute executable path or include the command directory in PATH. PATH=${env.PATH}`
+          )
+        )
+        return
+      }
+      reject(error)
+    })
     child.on('close', (code) => {
       const output = Buffer.concat(stdout).toString('utf8')
       const errorOutput = Buffer.concat(stderr).toString('utf8')
@@ -99,7 +133,7 @@ async function main() {
       args.push('--language', language)
     }
 
-    await run('whisper', args)
+    await run(whisperCommand, args)
     const rawTranscript = await findWhisperJson(outputDir, inputPath)
     const transcript = JSON.parse(rawTranscript)
     const text = String(transcript.text || '').trim()
@@ -128,6 +162,7 @@ async function main() {
         engine: 'openai-whisper-cli',
         model,
         device: device || 'default',
+        command: whisperCommand,
       },
     }
 

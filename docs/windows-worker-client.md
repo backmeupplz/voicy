@@ -131,10 +131,18 @@ For CPU or smoke-test environments with the OpenAI Whisper CLI installed, use th
 
 ```powershell
 $env:VOICY_WHISPER_MODEL = "small"
+$env:VOICY_WHISPER_COMMAND = "C:\Users\<user>\AppData\Local\Programs\Python\Python311\Scripts\whisper.exe"
 $env:VOICY_WORKER_ENGINE = "openai-whisper-cli"
 $env:VOICY_WORKER_MODEL = "small"
 $env:VOICY_WORKER_TRANSCRIBE_COMMAND = "node scripts/whisper-transcriber.js {input} {output} {language}"
 ```
+
+`VOICY_WHISPER_COMMAND` is optional when `whisper` is already on `PATH`, but it
+is the safest service/launchd setting because non-interactive environments often
+have a smaller `PATH` than an interactive terminal. On macOS/Homebrew test
+hosts, the adapter also appends `/opt/homebrew/bin` and `/usr/local/bin` when it
+spawns `whisper`, which protects the local test worker from launchd's default
+`PATH=/usr/bin:/bin`.
 
 Optional:
 
@@ -188,6 +196,7 @@ Local code validation:
 yarn build-ts
 yarn lint
 yarn test:worker-client
+yarn test:whisper-transcriber
 VOICY_WHISPER_MODEL=tiny yarn test:worker-local-stt
 MONGO=mongodb://127.0.0.1:27017/voicy_worker_proof yarn test:worker-e2e
 ```
@@ -205,3 +214,51 @@ End-to-end validation needs a deployed Voicy backend with Mongo, Telegram token,
 and a real worker token. Send or enqueue a sample Telegram voice message, start
 the Windows worker, and verify the Telegram status message is replaced with the
 final transcript after the worker submits the result.
+
+## macOS Test Bot LaunchAgent
+
+The local test bot on Nikita's Mac can use the same worker client under launchd.
+Build the repo, export the worker environment, and print the generated plist:
+
+```sh
+yarn build-ts
+export VOICY_WORKER_API_URL=http://127.0.0.1:3000/worker/v1
+export VOICY_WORKER_TOKEN=voicy_worker_...
+export VOICY_WORKER_TRANSCRIBE_COMMAND='node scripts/whisper-transcriber.js {input} {output} {language}'
+yarn worker:print-macos-test-launchd
+```
+
+Load or restart the worker:
+
+```sh
+yarn worker:install-macos-test-launchd
+launchctl kickstart -k gui/$UID/com.voicy.test-worker
+```
+
+The installer writes `~/Library/LaunchAgents/com.voicy.test-worker.plist`, keeps
+the worker alive, logs to `~/Library/Logs/voicy/`, and sets `PATH` to include
+Homebrew locations before `/usr/bin:/bin`. Override `VOICY_WORKER_LAUNCHD_LABEL`
+when running more than one local test worker.
+
+Runtime health check:
+
+```sh
+MONGO=mongodb://127.0.0.1:27017/voicy yarn test:local-runtime-health
+```
+
+The check reports:
+
+- bot process presence, controlled by `VOICY_BOT_PROCESS_PATTERN`;
+- worker process presence, controlled by `VOICY_WORKER_PROCESS_PATTERN`;
+- launchd label state, controlled by `VOICY_WORKER_LAUNCHD_LABEL`;
+- Whisper command resolution and missing Homebrew `PATH` entries;
+- Mongo ping, transcription job status counts, and the five newest jobs.
+
+Live Telegram verification:
+
+1. Start or verify the local bot runtime and Mongo.
+2. Start or restart the worker LaunchAgent.
+3. Send a new voice message to the test bot.
+4. Run `MONGO=mongodb://127.0.0.1:27017/voicy yarn test:local-runtime-health`.
+5. Confirm the newest `transcriptionjobs` entry reaches `completed`.
+6. Confirm Telegram receives the final transcript reply for that voice message.

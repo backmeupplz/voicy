@@ -24,13 +24,13 @@ The active bot interface is maintained in English and Russian in the `locales` f
 
 ## Environment variables in `.env` file
 
-| Variable        | Description                                                     |
-| --------------- | --------------------------------------------------------------- |
-| `MONGO`         | URI for the mongo database used                                 |
-| `TOKEN`         | Telegram bot token                                              |
-| `SALT`          | Random salt to generate various encrypted stuff                 |
-| `ADMIN_ID`      | Chat id of the person who shall receive valuable logs           |
-| `ENVIRONMENT`   | App environment, can be `development`, defaults to `production` |
+| Variable      | Description                                                     |
+| ------------- | --------------------------------------------------------------- |
+| `MONGO`       | URI for the mongo database used                                 |
+| `TOKEN`       | Telegram bot token                                              |
+| `SALT`        | Random salt to generate various encrypted stuff                 |
+| `ADMIN_ID`    | Chat id of the person who shall receive valuable logs           |
+| `ENVIRONMENT` | App environment, can be `development`, defaults to `production` |
 
 See examples in `.env.sample` file.
 
@@ -76,6 +76,44 @@ See [`docs/windows-worker-client.md`](docs/windows-worker-client.md) for the
 full Windows setup, environment variables, retry behavior, and validation steps.
 See [`docs/worker-api.md`](docs/worker-api.md) for the authenticated API
 contract.
+
+## Local macOS test worker
+
+For the local test bot runtime, use the repo-supported LaunchAgent installer so
+the worker is restarted by launchd with a full executable path. Build first,
+export the worker API/token environment, then inspect the generated plist:
+
+```sh
+yarn build-ts
+export VOICY_WORKER_API_URL=http://127.0.0.1:3000/worker/v1
+export VOICY_WORKER_TOKEN=voicy_worker_...
+export VOICY_WORKER_TRANSCRIBE_COMMAND='node scripts/whisper-transcriber.js {input} {output} {language}'
+yarn worker:print-macos-test-launchd
+```
+
+Load it after the output looks right:
+
+```sh
+yarn worker:install-macos-test-launchd
+```
+
+The generated LaunchAgent sets `PATH` to include `/opt/homebrew/bin` and
+`/usr/local/bin`, and sets `VOICY_WHISPER_COMMAND` to the resolved `whisper`
+executable when available. This avoids launchd failures such as
+`spawn whisper ENOENT` when Homebrew is not present in the default launchd
+environment.
+
+Check the local bot, worker, Mongo, Whisper command, and queued job health with:
+
+```sh
+MONGO=mongodb://127.0.0.1:27017/voicy yarn test:local-runtime-health
+```
+
+For the live Telegram proof loop, send a fresh voice message to the test bot,
+run the health check above, and verify in Mongo that the newest
+`transcriptionjobs` document moves from `queued` to `processing` to `completed`.
+The Telegram chat should receive the completed transcript reply after the worker
+submits the result.
 
 ## License
 
