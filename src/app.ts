@@ -14,21 +14,15 @@ import checkAdminLock from '@/middlewares/adminLock'
 import checkBanned from '@/handlers/checkBanned'
 import checkDocumentType from '@/middlewares/checkDocumentType'
 import checkFilesBanned from '@/middlewares/checkFilesBanned'
-import checkGoogleCredentials from '@/handlers/checkGoogleCredentials'
 import checkSuperAdmin from '@/middlewares/checkSuperAdmin'
 import configureI18n from '@/middlewares/configureI18n'
 import countMessage from '@/middlewares/countMessage'
 import disallowPrivate from '@/middlewares/disallowPrivate'
-import engines from '@/engines'
 import handleAddPromoException from '@/commands/handleAddPromoException'
 import handleAudio from '@/handlers/handleAudio'
-import handleDisableGoogle from '@/commands/handleDisableGoogle'
 import handleDonate from '@/commands/handleDonate'
-import handleEnableGoogle from '@/commands/handleEnableGoogle'
-import handleEngine from '@/commands/handleEngine'
 import handleFiles from '@/commands/handleFiles'
 import handleGeeky from '@/commands/handleGeeky'
-import handleGoogle from '@/commands/handleGoogle'
 import handleHelp from '@/commands/handleHelp'
 import handleId from '@/commands/handleId'
 import handleL from '@/commands/handleL'
@@ -36,7 +30,6 @@ import handleLanguage from '@/commands/handleLanguage'
 import handleLock from '@/commands/handleLock'
 import handleMyChatMember from '@/handlers/handleMyChatMember'
 import handlePrivacy from '@/commands/handlePrivacy'
-import handleSetEngine from '@/handlers/handleSetEngine'
 import handleSetLanguage from '@/handlers/handleSetLanguage'
 import handleSilent from '@/commands/handleSilent'
 import handleStart from '@/commands/handleStart'
@@ -45,7 +38,6 @@ import handleTranscribe from './commands/handleTranscribe'
 import handleTranscribeAll from './commands/handleTranscribeAll'
 import handleUrl from '@/commands/handleUrl'
 import handleViewPromoExceptions from './commands/handleViewPromoExceptions'
-import handleWitToken from '@/commands/handleWitToken'
 import i18n from '@/helpers/i18n'
 import ignoreOldMessageUpdates from '@/middlewares/ignoreOldMessageUpdates'
 import recordTimeReceived from '@/middlewares/recordTimeReceived'
@@ -66,7 +58,6 @@ async function runApp() {
   bot.use(checkBanned)
   // Various events
   bot.on('my_chat_member', handleMyChatMember)
-  bot.on(':document', checkGoogleCredentials)
   bot.on([':voice', ':video_note'], handleAudio)
   bot.on(
     [':audio', ':document'],
@@ -86,11 +77,6 @@ async function runApp() {
   bot.command('timecodes', checkAdminLock, handleTimecodes)
   bot.command('url', checkAdminLock, handleUrl)
   bot.command('privacy', checkAdminLock, handlePrivacy)
-  bot.command('witToken', checkAdminLock, handleWitToken)
-  bot.command('engine', checkAdminLock, handleEngine)
-  bot.command('google', checkAdminLock, handleGoogle)
-  bot.command('enableGoogle', checkAdminLock, handleEnableGoogle)
-  bot.command('disableGoogle', checkAdminLock, handleDisableGoogle)
   bot.command('language', checkAdminLock, handleLanguage)
   bot.command('l', checkAdminLock, handleL)
   bot.command('addPromoException', checkSuperAdmin, handleAddPromoException)
@@ -98,7 +84,6 @@ async function runApp() {
   bot.command('transcribeAll', checkAdminLock, handleTranscribeAll)
   bot.command('transcribe', checkAdminLock, handleTranscribe)
   // Callabcks
-  bot.callbackQuery(Object.keys(engines), handleSetEngine)
   bot.callbackQuery(/li.+/, handleSetLanguage)
   // Errors
   bot.catch(console.error)
