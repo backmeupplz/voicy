@@ -1,8 +1,9 @@
+import { markdownI18n } from '@/helpers/telegramMarkdown'
 import Context from '@/models/Context'
 import logAnswerTime from '@/helpers/logAnswerTime'
 
 export default async function sendStart(ctx: Context) {
-  await ctx.reply(ctx.i18n.t('start'), {
+  await ctx.reply(markdownI18n(ctx, 'start'), {
     parse_mode: 'Markdown',
   })
   logAnswerTime(ctx, '/start')

@@ -1,3 +1,4 @@
+import { markdownI18n } from '@/helpers/telegramMarkdown'
 import Context from '@/models/Context'
 import logAnswerTime from '@/helpers/logAnswerTime'
 
@@ -15,7 +16,7 @@ export default async function toggleChatBoolean(
 ) {
   ctx.dbchat[setting] = !ctx.dbchat[setting]
   await ctx.dbchat.save()
-  await ctx.reply(ctx.i18n.t(messageForValue(ctx.dbchat[setting])), {
+  await ctx.reply(markdownI18n(ctx, messageForValue(ctx.dbchat[setting])), {
     parse_mode: 'Markdown',
   })
   logAnswerTime(ctx, logLabel)
