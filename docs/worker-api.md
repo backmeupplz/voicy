@@ -3,6 +3,9 @@
 Worker clients authenticate with `Authorization: Bearer <token>`. Tokens are
 stored in Mongo only as SHA-256 hashes in `WorkerClient`.
 
+The Windows worker client is documented in
+[`docs/windows-worker-client.md`](windows-worker-client.md).
+
 Create a token after building the TypeScript output:
 
 ```sh
