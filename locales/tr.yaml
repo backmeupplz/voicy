@@ -1,9 +1,0 @@
-files_false: "\U0001F4C1 Harika! *Voicy* bu sohbete şimdiye kadar gönderilmiş olan tüm ses dosyalarını *görmezden gelecek.*"
-error_group: "\U0001F605 Üzgünüm fakat bu komut yalnızca grup sohbetlerinde çalışmaktadır."
-lock_true: "\U0001F511 Mükemmel! *Voicy* bu sohbette yalnızca *yöneticiler*in gönderdiği komutlara yanıt verecek."
-lock_false: "\U0001F511 Mükemmel! *Voicy* bu sohbetteki *herkesin* gönderdiği komutlara yanıt verecek."
-silent_true: "\U0001F636 Muhteşem! *Voicy* artık *sessiz modda* çalışacak: sohbete ses deşifreleri haricinde hiçbir mesaj göndermeyecek."
-error_twenty: "_\U0001F46E 20 megabayttan daha büyük sesli mesajları tanıyamıyorum_"
-speak_clearly: "_\U0001F46E Lütfen, daha anlaşılır biçimde konuşun, bunu anlayamadım_"
-error: "_\U0001F46E Bunu anlayamadım_"
-url: 'Dosya başına 20 MB olan Telegram limitine takılmak istemiyorsanız, doğrudan voicybot.com adresini kullanabilirsiniz. Teşekkürler!'

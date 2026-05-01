@@ -1,43 +1,59 @@
-files_false: "\U0001F4C1 Wonderful! *Voicy* will *ignore* all audio files in this chat from now on."
-files_true: "\U0001F4C1 Wonderful! *Voicy* will *queue supported audio files* in this chat for transcription from now on."
-google: 'Google Speech setup belongs to legacy Voicy. This version queues audio for transcription workers, so you do not need to upload Google Cloud credentials here. If you need the old engine-based flow, use @voicy_legacy_bot.'
-google_error_mime: "Sorry, document's mime type should be 'text/plain'."
-google_success: 'Thanks. This chat is ready to use queued Voicy transcription.'
-help: "\U0001F60E *Voicy* converts voice messages and audio files (.ogg, .flac, .wav, .mp3) into text by queueing them for transcription.\n\nYou can talk to *Voicy* in a private chat or add it to a group. If you want to use the older engine-based Voicy, it now lives at @voicy_legacy_bot.\n\n/help — Shows this message \U0001F631\n/language — Lets you pick the bot interface language \U0001F4E3\n/lock — Toggles lock or unlock of non-admins using commands in group chats \U0001F511\n/files — Toggles if the bot should attempt to convert audio files or just ignore them \U0001F4C1\n/silent — Toggles silent mode when no extra status messages are sent \U0001F636\n/privacy — Privacy policy\n/transcribeAll — Toggles transcribing all voice messages in this chat (group and supergroup chats only)\n/transcribe — Transcribes a specific voice message\n\nVoicy runs on transcription compute. Use /donate if you want to help keep it running. Thank you!"
-error_group: "\U0001F605 Sorry, but this command only works in group chats."
-lock_true: "\U0001F511 Great! *Voicy* will now respond only to command calls sent by *admins* in this chat."
-lock_false: "\U0001F511 Great! *Voicy* will now respond only to command calls from *anyone* in this chat."
-silent_true: "\U0001F636 Magnificent! *Voicy* will now work in *silent mode*: it will not send any messages to the chat except for the final transcriptions."
-silent_false: "\U0001F60F Magnificent! *Voicy* will now work in *usual mode*: it will send status messages after it receives voice messages."
-start: "\U0001F44B Hello there! *Voicy* converts voice messages and audio files (.ogg, .flac, .wav, .mp3) into text.\n\nSend a voice message and Voicy will queue it for transcription. Use /language to change the bot interface language. The legacy engine-based bot is available at @voicy_legacy_bot.\n"
-engine: "\U0001F44B Engine selection is part of legacy Voicy. This version queues audio for transcription workers automatically. Use @voicy_legacy_bot if you need the old engine-based flow."
-engine_success: "\U0001F44D Voicy will queue audio for transcription in this chat. Use /language to change the bot interface language."
-language: "\U0001F44B Please select the bot interface language"
-language_without_engine: "\U0001F44B Please select the bot interface language"
-language_success: "\U0001F44D Now *Voicy* uses *${language}* for bot messages in this chat. Thank you!"
-error_twenty: "_\U0001F46E I can't transcribe voice messages larger than 20 megabytes_"
-initiated: "_\U0001F984 Transcription is queued..._"
-speak_clearly: "_\U0001F46E Please, speak clearly, I couldn't transcribe that_"
-error: "_\U0001F46E I couldn't transcribe that_"
-google_error_creds: "\U0001F62E This version of Voicy queues audio for transcription workers and does not need Google Cloud credentials. If you need the old Google Speech setup, use @voicy_legacy_bot."
-ashmanov_language: 'Nanosemantics belongs to legacy Voicy. Use @voicy_legacy_bot if you need that engine.'
+files_false: "\U0001F4C1 Voicy will ignore audio files in this chat."
+files_true: "\U0001F4C1 Voicy will queue supported audio files from this chat for transcription."
+help: |
+  😎 *Voicy* turns voice messages and audio files (.ogg, .flac, .wav, .mp3) into text.
+
+  Send a voice message in a private chat, or add Voicy to a group. In groups, Voicy can either transcribe every voice message or wait until someone replies to a message with /transcribe.
+
+  /help — Show this message
+  /language — Change the bot interface language
+  /donate — Help pay for transcription compute
+  /files — Toggle audio file transcription
+  /silent — Toggle extra status messages
+  /lock — Restrict commands to group admins
+  /privacy — Open the privacy policy
+  /transcribe\_all — Toggle transcription for every voice message in this group
+  /transcribe — Transcribe the voice or audio message you reply to
+
+  Voicy now uses queued transcription workers. The old engine-based bot is available at @voicy_legacy_bot.
+error_group: "\U0001F605 This command only works in group chats."
+lock_true: "\U0001F511 Voicy will now accept commands only from group admins."
+lock_false: "\U0001F511 Voicy will now accept commands from anyone in this chat."
+silent_true: "\U0001F636 Silent mode is on. Voicy will only send final transcriptions."
+silent_false: "\U0001F60F Silent mode is off. Voicy will send queue and status messages."
+start: |
+  👋 Hello. *Voicy* turns voice messages and audio files (.ogg, .flac, .wav, .mp3) into text.
+
+  Send a voice message and Voicy will queue it for transcription. Use /language to change the bot interface language.
+
+  The old engine-based bot is available at @voicy_legacy_bot.
+language: "\U0001F44B Choose the bot interface language."
+language_success: "\U0001F44D Voicy will now use *${language}* for bot messages in this chat."
+error_twenty: "_\U0001F46E Telegram files over 20 MB cannot be queued here. Use /url for large files._"
+initiated: "_\U0001F984 Queued for transcription..._"
 geeky: |
-  Welcome to the advanced settings. Please use these functions responsibly. If you have any questions about them, send requests directly to @borodutch.
+  Advanced settings:
 
   /timecodes — Toggle timecodes in transcript text
-  /url — Bypass the 20Mb Telegram limit
-  /l — The same as /language
-  `/l en` — Shortcut to change the bot interface language, try it out with different language codes
-google_enable_personal_not_setup: 'Google Cloud credentials belong to legacy Voicy. Use @voicy_legacy_bot if you need the old Google Speech flow.'
-google_enable_success: Voicy will keep using queued transcription for this chat.
-google_disable_success: Voicy will keep using queued transcription for this chat.
-timecodes_true: Nice! Now *Voicy* will add timecodes to transcript text.
-timecodes_false: Nice! Now *Voicy* will not add timecodes to transcript text.
-url: 'If you want to bypass the Telegram limit of 20Mb per file, you can use voicybot.com directly. Cheers!'
-sunsetting: Voicy now uses paid transcription compute. To keep using this bot, please make a one-time donation of $6.99 with /donate. The old engine-based experience is available at @voicy_legacy_bot. Cheers!
-already_paid: You've already donated to Voicy. Thank you!
-pay: 'Click the button below to donate $6.99 and help fund Voicy transcription compute. Or you can send $6.99 worth of tokens to `borodutch.eth` and send @borodutch the transaction. Thank you so much for your support!'
-pay_button: Donate $6.99
-transcribe_all_true: 'Perfect, Voicy will now *queue all voice messages* it receives in this chat for transcription.'
-transcribe_all_false: 'Got it, Voicy will now *ignore all voice messages* it receives in this chat. You can send /transcribe to queue a specific voice message for transcription.'
-reply_to_voice: 'Please, reply to the voice message you want to queue for transcription.'
+  /url — Open the large-file transcription page
+  /l — Same as /language
+  `/l en` — Switch the bot interface to English
+  `/l ru` — Switch the bot interface to Russian
+timecodes_true: "Voicy will add timecodes to transcript text."
+timecodes_false: "Voicy will not add timecodes to transcript text."
+url: "Telegram limits bot downloads to 20 MB. For larger files, use https://voicybot.com directly."
+sunsetting: "Voicy now uses paid transcription compute. To keep using this bot, please make a one-time donation of $6.99 with /donate. The old engine-based bot is available at @voicy_legacy_bot."
+already_paid: "You have already donated to Voicy. Thank you."
+pay: "Donate $6.99 to help pay for Voicy transcription compute. You can also send $6.99 worth of tokens to `borodutch.eth` and send the transaction to @borodutch."
+pay_button: "Donate $6.99"
+transcribe_all_true: "Voicy will now *queue every voice message* in this chat for transcription."
+transcribe_all_false: "Voicy will now *ignore new voice messages* in this chat unless someone replies to one with /transcribe."
+reply_to_voice: "Reply to a voice message, video note, or supported audio file, then send /transcribe."
+error_queue: "_\U0001F46E Voicy could not queue that message for transcription. Please try again later._"
+banned: "You are banned, most likely because of payment fraud. Contact @borodutch if this is a mistake."
+progress_processing: "Transcription started..."
+progress_retrying: "Transcription failed; retrying..."
+progress_failed: "Transcription failed. Please try again later."
+progress_partial: "Transcribing..."
+progress_partial_footer: "Partial transcript; final text may still change."
+completed_empty: "Transcription completed, but no text was detected."

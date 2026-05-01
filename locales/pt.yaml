@@ -1,8 +1,0 @@
-files_false: "\U0001F4C1 Fantástico! A partir de agora, *Voicy* vai *ignorar* todos os arquivos de áudio nesta conversa."
-lock_true: "\U0001F511 Boa! Agora, *Voicy* só vai responder a comandos enviados por *administradores* neste chat."
-lock_false: "\U0001F511 Boa! Agora, *Voicy* vai responder a comandos de *qualquer pessoa* neste chat."
-silent_true: "\U0001F636 Ótimo! *Voicy* vai funcionar no *modo silencioso*: não vai enviar mensagens para o chat, exceto para transcrições de voz."
-error_twenty: "_\U0001F46E Não consigo reconhecer mensagens de voz com mais de 20 megabytes_"
-speak_clearly: "_\U0001F46E Por favor, fale com clareza, não consegui reconhecer a mensagem_"
-error: "_\U0001F46E Não consegui reconhecer a mensagem_"
-url: 'Se você quiser ultrapassar o limite de 20 Mb por arquivo do Telegram, você pode usar o voicybot.com diretamente. Abraços!'

@@ -6,8 +6,10 @@ import {
 
 export const TELEGRAM_MESSAGE_LIMIT = 4000
 
-const PROGRESS_HEADER = 'Transcribing...'
-const PROGRESS_FOOTER = 'Partial transcript; final text may still change.'
+type ProgressPreviewOptions = {
+  header?: string
+  footer?: string
+}
 
 export function splitTelegramText(text: string) {
   return text.match(new RegExp(`[\\s\\S]{1,${TELEGRAM_MESSAGE_LIMIT}}`, 'g'))
@@ -38,13 +40,19 @@ export function partialTranscriptText(job: DocumentType<TranscriptionJob>) {
   )
 }
 
-export function progressPreview(text: string) {
-  const reserved = PROGRESS_HEADER.length + PROGRESS_FOOTER.length + 8
+export function progressPreview(
+  text: string,
+  {
+    header = 'Transcribing...',
+    footer = 'Partial transcript; final text may still change.',
+  }: ProgressPreviewOptions = {}
+) {
+  const reserved = header.length + footer.length + 8
   const limit = TELEGRAM_MESSAGE_LIMIT - reserved
   const normalized = text.trim()
   const preview =
     normalized.length > limit
       ? `${normalized.slice(0, limit - 3)}...`
       : normalized
-  return `${PROGRESS_HEADER}\n\n${preview}\n\n${PROGRESS_FOOTER}`
+  return `${header}\n\n${preview}\n\n${footer}`
 }

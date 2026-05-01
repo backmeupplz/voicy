@@ -15,6 +15,7 @@ import checkBanned from '@/handlers/checkBanned'
 import checkDocumentType from '@/middlewares/checkDocumentType'
 import checkFilesBanned from '@/middlewares/checkFilesBanned'
 import checkSuperAdmin from '@/middlewares/checkSuperAdmin'
+import configureBotCommands from '@/helpers/configureBotCommands'
 import configureI18n from '@/middlewares/configureI18n'
 import countMessage from '@/middlewares/countMessage'
 import disallowPrivate from '@/middlewares/disallowPrivate'
@@ -82,6 +83,7 @@ async function runApp() {
   bot.command('addPromoException', checkSuperAdmin, handleAddPromoException)
   bot.command('viewPromoExceptions', checkSuperAdmin, handleViewPromoExceptions)
   bot.command('transcribeAll', checkAdminLock, handleTranscribeAll)
+  bot.command('transcribe_all', checkAdminLock, handleTranscribeAll)
   bot.command('transcribe', checkAdminLock, handleTranscribe)
   // Callabcks
   bot.callbackQuery(/li.+/, handleSetLanguage)
@@ -89,6 +91,7 @@ async function runApp() {
   bot.catch(console.error)
   // Start bot
   await bot.init()
+  await configureBotCommands()
   run(bot)
   console.info(`Bot ${bot.botInfo.username} is up and running`)
   // Start webhook app

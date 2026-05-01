@@ -1,8 +1,0 @@
-files_false: "\U0001F4C1 Underbart! *Voicy* kommer *ignorera* alla ljudfiler i den h�r chatten fr�n och med nu."
-error_group: "\U0001F605 Detta kommandot fungerar tyv�rr bara i gruppchatter."
-lock_true: "\U0001F511 Bra! *Voicy* kommer nu bara svara p� kommandon skickade av *administrat�rer* i den h�r chatten."
-lock_false: "\U0001F511 Bra! *Voicy* kommer nu svara endast p� samtal fr�n *alla* i den h�r cahtten."
-silent_true: "\U0001F636 Fantastiskt! *Voicy* kommer nu vara i *tyst l�ge*: den kommer inte s�nda n�gra meddelanden till chatten f�rutom de faktiska r�st transkriptionerna."
-error_twenty: "_\U0001F46E Jag kan inte k�nna igen r�stmeddelanden som �r st�rre �n 20 megabytes_"
-speak_clearly: "_\U0001F46E Var god prata tydligt, jag kunde inte k�nna igen vad du sa_"
-error: "_\U0001F46E Jag kunde inte k�nna igen det_"

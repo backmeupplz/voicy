@@ -1,8 +1,0 @@
-files_false: "\U0001F4C1 Ajoyib! *Voicy* bu chatdagi barcha audio fayllarni hozirdan boshlab *e�tiborsiz qoldiradi*."
-error_group: "\U0001F605 Uzr, bu buyruq faqatgina guruh chatlarida ishlaydi."
-lock_true: "\U0001F511 Zo�r! *Voicy* bu chatda faqat *admins* (administratorlar) yuborgan buyruq chaqiruvlariga javob beradi."
-lock_false: "\U0001F511 Zo�r! *Voicy* bu chatda faqat *anyone* (har qanday inson) yuborgan buyruq chaqiruvlariga javob beradi."
-silent_true: "\U0001F636 Qoyil! *Voicy* endi *silent mode* (sokin rejim)da ham ishlaydi: u endi chatga amaldagi ovoz transkripsiyasidan boshqa hech qanday xabar yubormaydi."
-error_twenty: "_\U0001F46E Men 20 megabaytdan katta ovozli xabarlarni o�qiy olmayman_"
-speak_clearly: "_\U0001F46E Iltimos, Aniq va tiniq o�qing, Men tushuna olmayapman_"
-error: "_\U0001F46E Men tushuna olmayapman_"
