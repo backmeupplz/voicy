@@ -75,7 +75,6 @@ async function runApp() {
   bot.command('privacy', checkAdminLock, handlePrivacy)
   bot.command('language', checkAdminLock, handleLanguage)
   bot.command('l', checkAdminLock, handleL)
-  bot.command('transcribeAll', checkAdminLock, handleTranscribeAll)
   bot.command('transcribe_all', checkAdminLock, handleTranscribeAll)
   bot.command('transcribe', checkAdminLock, handleTranscribe)
   // Callabcks
