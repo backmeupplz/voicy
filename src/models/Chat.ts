@@ -20,6 +20,8 @@ type Languages = Map<Engine, string>
 export class Chat extends FindOrCreate {
   @prop({ required: true, unique: true, index: true })
   id: string
+  @prop({ required: true, default: 'en' })
+  uiLanguage: string
   @prop({ required: true, index: true, enum: Engine, default: Engine.wit })
   engine: Engine
   @prop({ required: true, default: false })

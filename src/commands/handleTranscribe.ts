@@ -1,15 +1,19 @@
-import { sendTranscription } from '@/handlers/handleAudio'
+import { enqueueTranscription } from '@/handlers/handleAudio'
 import Context from '@/models/Context'
-import ensurePaidChat from '@/helpers/ensurePaidChat'
 import fileUrl from '@/helpers/fileUrl'
 import report from '@/helpers/report'
 
 export default async function handleTranscribe(ctx: Context) {
   try {
-    if (!(await ensurePaidChat(ctx))) {
+    if (!ctx.dbchat.paid) {
+      console.log('Sending the donate message')
+      await ctx.reply(ctx.i18n.t('sunsetting'), {
+        parse_mode: 'Markdown',
+        reply_to_message_id: ctx.msg.message_id,
+        disable_web_page_preview: true,
+      })
       return
     }
-
     const message = ctx.msg.reply_to_message
     if (!message) {
       await ctx.reply(ctx.i18n.t('reply_to_voice'), {
@@ -42,11 +46,12 @@ export default async function handleTranscribe(ctx: Context) {
     const fileData = await ctx.api.getFile(voice.file_id)
     const voiceUrl = fileUrl(fileData.file_path)
 
-    // Sets message id to the original voice message's id
-    ctx.msg.message_id = message.message_id
-    // Send action or transcription depending on whether chat is silent
-    await sendTranscription(ctx, voiceUrl, voice.file_id)
+    await enqueueTranscription(ctx, voiceUrl, voice.file_id, message)
   } catch (error) {
     report(error, { ctx, location: 'handleTranscribe' })
+    await ctx.reply(ctx.i18n.t('error_queue'), {
+      parse_mode: 'Markdown',
+      reply_to_message_id: ctx.msg?.message_id,
+    })
   }
 }

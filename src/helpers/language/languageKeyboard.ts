@@ -1,27 +1,19 @@
 import { InlineKeyboard } from 'grammy'
-import Engine from '@/helpers/engine/Engine'
-import EngineRecognizer from '@/helpers/engine/EngineRecognizer'
-import Language from '@/helpers/engine/Language'
-import engines from '@/engines'
+import { UiLanguage, uiLanguages } from '@/helpers/language/uiLanguages'
 
 const pageSize = 10
 
-function buttonFromItem(item: Language, isCommand: boolean, engine: Engine) {
+function buttonFromItem(item: UiLanguage, isCommand: boolean) {
   return {
     text: item.name,
-    callback_data: `li~${isCommand ? 1 : 0}~${engine}~${item.code}`,
+    callback_data: `li~${isCommand ? 1 : 0}~${item.code}`,
   }
 }
 
-function pageFromList(
-  list: Language[],
-  page: number,
-  isCommand: boolean,
-  engine: Engine
-) {
+function pageFromList(list: UiLanguage[], page: number, isCommand: boolean) {
   const items = list.slice(page * pageSize, page * pageSize + pageSize)
   return items.reduce((p, c, i) => {
-    p.add(buttonFromItem(c, isCommand, engine))
+    p.add(buttonFromItem(c, isCommand))
     if (i % 2 !== 0) {
       p.row()
     }
@@ -29,21 +21,15 @@ function pageFromList(
   }, new InlineKeyboard())
 }
 
-export default function languageKeyboard(
-  engine: Engine,
-  isCommand: boolean,
-  page = 0
-) {
-  const engineObject: EngineRecognizer = engines[engine]
-  const list = engineObject.languages
-  list.sort((a, b) => (a.name < b.name ? -1 : 1))
-  const keyboard = pageFromList(list, page, isCommand, engine)
+export default function languageKeyboard(isCommand: boolean, page = 0) {
+  const list = uiLanguages.sort((a, b) => (a.name < b.name ? -1 : 1))
+  const keyboard = pageFromList(list, page, isCommand)
   if (list.length > pageSize) {
     if (page > 0) {
       keyboard.row()
       keyboard.add({
         text: '⬅️',
-        callback_data: `li~${isCommand ? 1 : 0}~${engine}~<~${page}`,
+        callback_data: `li~${isCommand ? 1 : 0}~<~${page}`,
       })
     }
     if (page < Object.keys(list).length / 10 - 1) {
@@ -52,7 +38,7 @@ export default function languageKeyboard(
       }
       keyboard.add({
         text: '➡️',
-        callback_data: `li~${isCommand ? 1 : 0}~${engine}~>~${page}`,
+        callback_data: `li~${isCommand ? 1 : 0}~>~${page}`,
       })
     }
   }

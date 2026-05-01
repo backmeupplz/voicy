@@ -6,8 +6,6 @@ import {
   prop,
 } from '@typegoose/typegoose'
 import Engine from '@/helpers/engine/Engine'
-import RecognitionResultPart from '@/helpers/engine/RecognitionResultPart'
-import engines from '@/engines'
 
 @modelOptions({
   schemaOptions: { timestamps: true },
@@ -18,10 +16,44 @@ export class Voice {
   url: string
   @prop({ required: true, enum: Engine, default: Engine.wit })
   engine: Engine
+  @prop()
+  duration?: number
+  @prop()
+  language?: string
+  @prop({ required: true, default: 'queued', index: true })
+  status: 'queued' | 'claimed' | 'processing' | 'completed' | 'failed'
+  @prop({ required: true, index: true })
+  chatId: string
   @prop({ required: true })
-  duration: number
+  messageId: number
+  @prop()
+  ackMessageId?: number
   @prop({ required: true })
-  language: string
+  fileId: string
+  @prop()
+  fileSize?: number
+  @prop()
+  mimeType?: string
+  @prop()
+  fileName?: string
+  @prop({ required: true })
+  sourceType: 'voice' | 'audio' | 'document' | 'video_note'
+  @prop()
+  requestedBy?: number
+  @prop()
+  forwardFromId?: number
+  @prop()
+  forwardSenderName?: string
+  @prop()
+  queuedAt?: Date
+  @prop()
+  claimedAt?: Date
+  @prop()
+  completedAt?: Date
+  @prop()
+  failedAt?: Date
+  @prop()
+  error?: string
   @prop()
   text?: string
   @prop()
@@ -32,28 +64,44 @@ export class Voice {
 
 export const VoiceModel = getModelForClass(Voice)
 
-export function addVoice({
+export function addQueuedVoice({
   url,
   chat,
-  duration,
-  textWithTimecodes,
+  messageId,
   fileId,
+  fileSize,
+  mimeType,
+  fileName,
+  sourceType,
+  requestedBy,
+  forwardFromId,
+  forwardSenderName,
 }: {
   url: string
   chat: Chat
-  duration: number
-  textWithTimecodes: RecognitionResultPart[]
+  messageId: number
   fileId: string
+  fileSize?: number
+  mimeType?: string
+  fileName?: string
+  sourceType: 'voice' | 'audio' | 'document' | 'video_note'
+  requestedBy?: number
+  forwardFromId?: number
+  forwardSenderName?: string
 }) {
-  const language =
-    chat.languages[chat.engine] || engines[chat.engine].defaultLanguageCode
   return VoiceModel.create({
     url,
-    text: textWithTimecodes.reduce((p, c) => `${p} ${c.text}`, ''),
-    language,
-    duration,
-    engine: chat.engine,
-    textWithTimecodes: textWithTimecodes.map((v) => [v.timeCode, v.text]),
+    chatId: chat.id,
+    messageId,
     fileId,
+    fileSize,
+    mimeType,
+    fileName,
+    sourceType,
+    requestedBy,
+    forwardFromId,
+    forwardSenderName,
+    status: 'queued',
+    queuedAt: new Date(),
   })
 }
