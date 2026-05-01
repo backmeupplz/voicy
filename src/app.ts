@@ -82,7 +82,6 @@ async function runApp() {
   bot.command('l', checkAdminLock, handleL)
   bot.command('addPromoException', checkSuperAdmin, handleAddPromoException)
   bot.command('viewPromoExceptions', checkSuperAdmin, handleViewPromoExceptions)
-  bot.command('transcribeAll', checkAdminLock, handleTranscribeAll)
   bot.command('transcribe_all', checkAdminLock, handleTranscribeAll)
   bot.command('transcribe', checkAdminLock, handleTranscribe)
   // Callabcks

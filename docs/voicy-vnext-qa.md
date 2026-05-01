@@ -62,7 +62,7 @@ Expected result:
 Path:
 
 1. Add the test bot to a test group.
-2. Run `/transcribeAll` until the bot says it will transcribe all audio.
+2. Run `/transcribe_all` until the bot says it will transcribe all audio.
 3. Send a voice message as a regular group message.
 4. Reply to a different voice message with `/transcribe`.
 5. Toggle `/silent`, then repeat one queued-transcription path.
