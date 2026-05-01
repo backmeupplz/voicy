@@ -50,8 +50,6 @@ const dynamicKeys = new Set([
   'lock_false',
   'silent_true',
   'silent_false',
-  'timecodes_true',
-  'timecodes_false',
   'transcribe_all_true',
   'transcribe_all_false',
 ])

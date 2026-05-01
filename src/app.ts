@@ -14,12 +14,10 @@ import checkAdminLock from '@/middlewares/adminLock'
 import checkBanned from '@/handlers/checkBanned'
 import checkDocumentType from '@/middlewares/checkDocumentType'
 import checkFilesBanned from '@/middlewares/checkFilesBanned'
-import checkSuperAdmin from '@/middlewares/checkSuperAdmin'
 import configureBotCommands from '@/helpers/configureBotCommands'
 import configureI18n from '@/middlewares/configureI18n'
 import countMessage from '@/middlewares/countMessage'
 import disallowPrivate from '@/middlewares/disallowPrivate'
-import handleAddPromoException from '@/commands/handleAddPromoException'
 import handleAudio from '@/handlers/handleAudio'
 import handleDonate from '@/commands/handleDonate'
 import handleFiles from '@/commands/handleFiles'
@@ -34,11 +32,9 @@ import handlePrivacy from '@/commands/handlePrivacy'
 import handleSetLanguage from '@/handlers/handleSetLanguage'
 import handleSilent from '@/commands/handleSilent'
 import handleStart from '@/commands/handleStart'
-import handleTimecodes from '@/commands/handleTimecodes'
 import handleTranscribe from './commands/handleTranscribe'
 import handleTranscribeAll from './commands/handleTranscribeAll'
 import handleUrl from '@/commands/handleUrl'
-import handleViewPromoExceptions from './commands/handleViewPromoExceptions'
 import i18n from '@/helpers/i18n'
 import ignoreOldMessageUpdates from '@/middlewares/ignoreOldMessageUpdates'
 import recordTimeReceived from '@/middlewares/recordTimeReceived'
@@ -75,13 +71,10 @@ async function runApp() {
   bot.command('files', checkAdminLock, handleFiles)
   bot.command('silent', checkAdminLock, handleSilent)
   bot.command('geeky', checkAdminLock, handleGeeky)
-  bot.command('timecodes', checkAdminLock, handleTimecodes)
   bot.command('url', checkAdminLock, handleUrl)
   bot.command('privacy', checkAdminLock, handlePrivacy)
   bot.command('language', checkAdminLock, handleLanguage)
   bot.command('l', checkAdminLock, handleL)
-  bot.command('addPromoException', checkSuperAdmin, handleAddPromoException)
-  bot.command('viewPromoExceptions', checkSuperAdmin, handleViewPromoExceptions)
   bot.command('transcribeAll', checkAdminLock, handleTranscribeAll)
   bot.command('transcribe_all', checkAdminLock, handleTranscribeAll)
   bot.command('transcribe', checkAdminLock, handleTranscribe)

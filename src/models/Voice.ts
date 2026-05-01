@@ -1,11 +1,9 @@
-import { Chat } from '@/models/Chat'
 import {
   Severity,
   getModelForClass,
   modelOptions,
   prop,
 } from '@typegoose/typegoose'
-import Engine from '@/helpers/engine/Engine'
 
 @modelOptions({
   schemaOptions: { timestamps: true },
@@ -14,8 +12,6 @@ import Engine from '@/helpers/engine/Engine'
 export class Voice {
   @prop({ required: true })
   url: string
-  @prop({ required: true, enum: Engine, default: Engine.wit })
-  engine: Engine
   @prop()
   duration?: number
   @prop()
@@ -65,45 +61,3 @@ export class Voice {
 }
 
 export const VoiceModel = getModelForClass(Voice)
-
-export function addQueuedVoice({
-  url,
-  chat,
-  messageId,
-  fileId,
-  fileSize,
-  mimeType,
-  fileName,
-  sourceType,
-  requestedBy,
-  forwardFromId,
-  forwardSenderName,
-}: {
-  url: string
-  chat: Chat
-  messageId: number
-  fileId: string
-  fileSize?: number
-  mimeType?: string
-  fileName?: string
-  sourceType: 'voice' | 'audio' | 'document' | 'video_note'
-  requestedBy?: number
-  forwardFromId?: number
-  forwardSenderName?: string
-}) {
-  return VoiceModel.create({
-    url,
-    chatId: chat.id,
-    messageId,
-    fileId,
-    fileSize,
-    mimeType,
-    fileName,
-    sourceType,
-    requestedBy,
-    forwardFromId,
-    forwardSenderName,
-    status: 'queued',
-    queuedAt: new Date(),
-  })
-}

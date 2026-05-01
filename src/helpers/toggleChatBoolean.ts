@@ -1,11 +1,7 @@
 import Context from '@/models/Context'
 import logAnswerTime from '@/helpers/logAnswerTime'
 
-type BooleanChatSetting =
-  | 'filesBanned'
-  | 'silent'
-  | 'timecodesEnabled'
-  | 'transcribeAllAudio'
+type BooleanChatSetting = 'filesBanned' | 'silent' | 'transcribeAllAudio'
 
 interface ToggleChatBooleanOptions {
   setting: BooleanChatSetting
