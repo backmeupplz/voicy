@@ -41,11 +41,6 @@ export const publicBotCommands: BotCommandDefinition[] = [
     russianDescription: 'Ограничить команды админами',
   },
   {
-    command: 'url',
-    description: 'Open the large-file text page',
-    russianDescription: 'Открыть страницу для больших файлов',
-  },
-  {
     command: 'transcribe_all',
     description: 'Turn every voice into text',
     russianDescription: 'Превращать все голосовые в текст',

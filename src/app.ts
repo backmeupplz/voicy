@@ -33,7 +33,6 @@ import handleSilent from '@/commands/handleSilent'
 import handleStart from '@/commands/handleStart'
 import handleTranscribe from './commands/handleTranscribe'
 import handleTranscribeAll from './commands/handleTranscribeAll'
-import handleUrl from '@/commands/handleUrl'
 import i18n from '@/helpers/i18n'
 import ignoreOldMessageUpdates from '@/middlewares/ignoreOldMessageUpdates'
 import recordTimeReceived from '@/middlewares/recordTimeReceived'
@@ -69,7 +68,6 @@ async function runApp() {
   bot.command('lock', disallowPrivate, checkAdminLock, handleLock)
   bot.command('files', checkAdminLock, handleFiles)
   bot.command('silent', checkAdminLock, handleSilent)
-  bot.command('url', checkAdminLock, handleUrl)
   bot.command('privacy', checkAdminLock, handlePrivacy)
   bot.command('language', checkAdminLock, handleLanguage)
   bot.command('l', checkAdminLock, handleL)
