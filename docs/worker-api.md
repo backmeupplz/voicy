@@ -1,17 +1,26 @@
 # Voicy Worker API
 
 Worker clients authenticate with `Authorization: Bearer <token>`. Tokens are
-stored in Mongo only as SHA-256 hashes in `WorkerClient`.
+stored in Mongo only as SHA-256 hashes in `WorkerClient`, and only enabled
+clients are accepted.
 
-The Windows worker client is documented in
-[`docs/windows-worker-client.md`](windows-worker-client.md).
-
-Create a token after building the TypeScript output:
+Create a token from a trusted backend shell after building TypeScript:
 
 ```sh
 yarn build-ts
 MONGO='mongodb://...' yarn worker:create-client windows-4070-ti
 ```
+
+Store the printed token as `VOICY_WORKER_TOKEN` on the worker host. The token is
+not recoverable from Mongo; if it is lost or exposed, create a new token and
+disable the old `WorkerClient` record by setting `enabled` to `false`.
+
+The Windows worker client is documented in
+[`docs/windows-worker-client.md`](windows-worker-client.md).
+
+The worker API is not a public job-submission API. Voicy creates transcription
+jobs from Telegram input, then authenticated workers can claim and complete only
+the jobs they own.
 
 ## Endpoints
 
