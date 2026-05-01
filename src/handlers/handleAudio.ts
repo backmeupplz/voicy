@@ -1,30 +1,19 @@
-import { Chat, ChatModel } from '@/models/Chat'
+import { Chat } from '@/models/Chat'
 import { Message } from '@grammyjs/types'
 import { addVoice } from '@/models/Voice'
 import { pick } from 'lodash'
 import Context from '@/models/Context'
 import Engine from '@/helpers/engine/Engine'
 import addPromoToText from '@/helpers/addPromoToText'
+import ensurePaidChat from '@/helpers/ensurePaidChat'
 import fileUrl from '@/helpers/fileUrl'
 import report from '@/helpers/report'
 import urlToText from '@/helpers/urlToText'
 
 export default async function handleAudio(ctx: Context) {
   try {
-    if (!ctx.dbchat.paid) {
-      console.log('Sending the donate message')
-      await ctx.reply(ctx.i18n.t('sunsetting'), {
-        parse_mode: 'Markdown',
-        reply_to_message_id: ctx.msg.message_id,
-        disable_web_page_preview: true,
-      })
+    if (!(await ensurePaidChat(ctx))) {
       return
-    }
-    if (!ctx.dbchat.paid) {
-      await ChatModel.updateOne(
-        { id: ctx.dbchat.id },
-        { $inc: { freeVoicesUsed: 1 } }
-      )
     }
     // In a group or supergroup, only transcribe if transcribeAllAudio is true
     const isGroup = ctx.chat.type === 'group' || ctx.chat.type === 'supergroup'
