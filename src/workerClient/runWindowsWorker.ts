@@ -14,6 +14,7 @@ const DEFAULT_POLL_INTERVAL_MS = 5000
 const DEFAULT_HEARTBEAT_INTERVAL_MS = 30000
 const DEFAULT_DOWNLOAD_TIMEOUT_MS = 300000
 const DEFAULT_WORK_DIR = path.join(process.cwd(), 'tmp', 'voicy-worker')
+const DEFAULT_WORKER_MODEL = 'large-v3'
 
 interface WorkerJob {
   id: string
@@ -65,7 +66,7 @@ interface WorkerConfig {
   idleExit: boolean
   language?: string
   engine: string
-  model?: string
+  model: string
 }
 
 interface Logger {
@@ -150,7 +151,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
     idleExit: booleanFromEnv(env.VOICY_WORKER_IDLE_EXIT),
     language: env.VOICY_WORKER_LANGUAGE,
     engine: env.VOICY_WORKER_ENGINE || 'faster-whisper',
-    model: env.VOICY_WORKER_MODEL,
+    model:
+      env.VOICY_WORKER_MODEL || env.VOICY_WHISPER_MODEL || DEFAULT_WORKER_MODEL,
   }
 }
 
@@ -255,11 +257,27 @@ function commandForJob(
     .replace(/\{input\}/g, quoteShellValue(inputPath))
     .replace(/\{output\}/g, quoteShellValue(outputPath))
     .replace(/\{language\}/g, quoteShellValue(language || ''))
+    .replace(/\{model\}/g, quoteShellValue(config.model))
 }
 
-function runCommand(command: string): Promise<RunCommandResult> {
+function commandEnv(config: WorkerConfig) {
+  return {
+    ...process.env,
+    VOICY_WORKER_MODEL: config.model,
+    VOICY_WHISPER_MODEL: config.model,
+  }
+}
+
+function runCommand(
+  command: string,
+  config: WorkerConfig
+): Promise<RunCommandResult> {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, { shell: true, windowsHide: true })
+    const child = spawn(command, {
+      shell: true,
+      windowsHide: true,
+      env: commandEnv(config),
+    })
     const stdoutChunks: Buffer[] = []
     const stderrChunks: Buffer[] = []
 
@@ -347,7 +365,7 @@ async function transcribeJob(
   await removeIfExists(outputPath)
   const language = job.recognitionLanguageHint || config.language
   const command = commandForJob(config, inputPath, outputPath, language)
-  const commandResult = await runCommand(command)
+  const commandResult = await runCommand(command, config)
   return readTranscriptionOutput(
     commandResult,
     outputPath,

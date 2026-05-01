@@ -164,7 +164,7 @@ async function main() {
       VOICY_WORKER_API_URL: baseUrl,
       VOICY_WORKER_TOKEN: 'proof-worker-token',
       VOICY_WORKER_TRANSCRIBE_COMMAND:
-        'node scripts/fake-transcriber.js {input} {output}',
+        'node scripts/fake-transcriber.js {input} {output} {model}',
       VOICY_WORKER_WORK_DIR: path.join(
         os.tmpdir(),
         `voicy-worker-proof-${process.pid}`

@@ -15,7 +15,8 @@ if (!inputPath || !outputPath) {
   )
 }
 
-const model = process.env.VOICY_WHISPER_MODEL || 'turbo'
+const model =
+  process.env.VOICY_WORKER_MODEL || process.env.VOICY_WHISPER_MODEL || 'large-v3'
 const device = process.env.VOICY_WHISPER_DEVICE
 const whisperCommand = process.env.VOICY_WHISPER_COMMAND || 'whisper'
 const defaultPathEntries = [

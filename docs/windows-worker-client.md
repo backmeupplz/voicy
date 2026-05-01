@@ -65,7 +65,24 @@ python -m pip install faster-whisper
 `large-v3` model on CUDA with `float16`; reduce to `medium` if VRAM or latency
 becomes a problem.
 
-The checked-in `scripts/whisper-transcriber.js` adapter can run the local OpenAI Whisper CLI directly and emit the worker JSON format. For the Windows GPU host you can keep using a custom `faster-whisper` Python command if that is faster, as long as it writes this same JSON shape to `{output}`.
+Use `VOICY_WORKER_MODEL` as the worker-level model selector. The worker passes
+that value to the transcription command as the `{model}` template token, exports
+it to child processes as `VOICY_WORKER_MODEL`, and records it in result
+metadata. If unset, the worker defaults to `large-v3`, which is the recommended
+quality-first model for the RTX 4070 Ti host. Use smaller models only when the
+machine cannot meet memory or latency needs.
+
+Recommended starting points:
+
+- RTX 4070 Ti / CUDA: `VOICY_WORKER_MODEL=large-v3`, `compute_type=float16`.
+- Lower VRAM GPU: try `medium`, then `small` if jobs are too slow or fail.
+- CPU or smoke-test workers: use `small`, `base`, or `tiny`; these are for
+  validation speed, not production quality.
+
+The checked-in `scripts/whisper-transcriber.js` adapter can run the local OpenAI
+Whisper CLI directly and emit the worker JSON format. For the Windows GPU host
+you can keep using a custom `faster-whisper` Python command if that is faster,
+as long as it writes this same JSON shape to `{output}`.
 
 Example `C:\voicy-worker\transcribe.py` for `faster-whisper`:
 
@@ -77,8 +94,9 @@ from faster_whisper import WhisperModel
 input_path = sys.argv[1]
 output_path = sys.argv[2]
 language = sys.argv[3] or None
+model_name = sys.argv[4] if len(sys.argv) > 4 else "large-v3"
 
-model = WhisperModel("large-v3", device="cuda", compute_type="float16")
+model = WhisperModel(model_name, device="cuda", compute_type="float16")
 segments, info = model.transcribe(input_path, language=language, vad_filter=True)
 
 parts = []
@@ -95,7 +113,7 @@ result = {
     "language": info.language,
     "duration": info.duration,
     "metadata": {
-        "model": "large-v3",
+        "model": model_name,
         "device": "cuda",
         "computeType": "float16",
     },
@@ -124,7 +142,7 @@ $env:VOICY_WORKER_ENGINE = "faster-whisper"
 $env:VOICY_WORKER_MODEL = "large-v3"
 $env:VOICY_WORKER_HEARTBEAT_INTERVAL_MS = "30000"
 $env:VOICY_WORKER_POLL_INTERVAL_MS = "5000"
-$env:VOICY_WORKER_TRANSCRIBE_COMMAND = "C:\voicy-worker\.venv\Scripts\python.exe C:\voicy-worker\transcribe.py {input} {output} {language}"
+$env:VOICY_WORKER_TRANSCRIBE_COMMAND = "C:\voicy-worker\.venv\Scripts\python.exe C:\voicy-worker\transcribe.py {input} {output} {language} {model}"
 ```
 
 For CPU or smoke-test environments with the OpenAI Whisper CLI installed, use the checked-in adapter instead:
@@ -175,8 +193,10 @@ For each claimed job it:
 5. Reads transcript JSON from `{output}` or plain text from stdout.
 6. Uploads the result to `POST /jobs/:id/result`.
 
-The command template supports `{input}`, `{output}`, and `{language}`. Paths are
-quoted before replacement so spaces in Windows paths are supported.
+The command template supports `{input}`, `{output}`, `{language}`, and
+`{model}`. Paths and values are quoted before replacement so spaces in Windows
+paths are supported. `scripts/whisper-transcriber.js` reads
+`VOICY_WORKER_MODEL` directly, so it does not need `{model}` in the command.
 
 ## Retry and Error Behavior
 
@@ -197,7 +217,7 @@ yarn build-ts
 yarn lint
 yarn test:worker-client
 yarn test:whisper-transcriber
-VOICY_WHISPER_MODEL=tiny yarn test:worker-local-stt
+VOICY_WORKER_MODEL=base yarn test:worker-local-stt
 MONGO=mongodb://127.0.0.1:27017/voicy_worker_proof yarn test:worker-e2e
 ```
 

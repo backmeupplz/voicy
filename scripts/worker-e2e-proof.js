@@ -101,7 +101,7 @@ async function main() {
       }/worker/v1`,
       VOICY_WORKER_TOKEN: token,
       VOICY_WORKER_TRANSCRIBE_COMMAND:
-        'node scripts/fake-transcriber.js {input} {output}',
+        'node scripts/fake-transcriber.js {input} {output} {model}',
       VOICY_WORKER_WORK_DIR: path.join(
         os.tmpdir(),
         `voicy-worker-e2e-${process.pid}`
