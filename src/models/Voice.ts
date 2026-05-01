@@ -60,6 +60,10 @@ export class Voice {
   textWithTimecodes?: string[][]
   @prop()
   file?: string
+  @prop()
+  fileId?: string
+  @prop()
+  workerEngine?: string
 }
 
 export const VoiceModel = getModelForClass(Voice)

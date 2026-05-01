@@ -1,9 +1,12 @@
 import * as express from 'express'
 import { ChatModel } from '@/models/Chat'
 import { stripe } from '@/helpers/stripe'
+import workerRouter from '@/helpers/workerApi/router'
 
 export const webhookApp = express()
 const endpointSecret = process.env.STRIPE_WEBHOOK_SIGNING_SECRET
+
+webhookApp.use('/worker/v1', workerRouter)
 
 webhookApp.post(
   '/',
