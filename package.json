@@ -10,6 +10,7 @@
     "distribute": "node dist/app.js",
     "develop": "concurrently -k -i -p \"[{name}]\" -n \"Node,TypeScript\" -c \"yellow.bold,cyan.bold\" \"yarn watch-js\" \"yarn watch-ts\"",
     "build-ts": "tsc --skipLibCheck",
+    "test:qa-vnext": "node scripts/qa-vnext-proof.js",
     "test:worker-client": "node scripts/worker-client-proof.js",
     "test:worker-e2e": "node scripts/worker-e2e-proof.js",
     "test:worker-api": "node scripts/worker-api-proof.js",
