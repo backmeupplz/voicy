@@ -1,24 +1,11 @@
 import { DocumentType } from '@typegoose/typegoose'
 import { TranscriptionJob } from '@/models/TranscriptionJob'
 import { VoiceModel } from '@/models/Voice'
+import {
+  splitTelegramText,
+  transcriptText,
+} from '@/helpers/transcriptionJobs/transcriptFormatting'
 import bot from '@/helpers/bot'
-
-const TELEGRAM_MESSAGE_LIMIT = 4000
-
-function splitText(text: string) {
-  return text.match(new RegExp(`[\\s\\S]{1,${TELEGRAM_MESSAGE_LIMIT}}`, 'g'))
-}
-
-function transcriptText(job: DocumentType<TranscriptionJob>) {
-  if (job.resultParts?.length) {
-    return job.resultParts
-      .map((part) =>
-        part.timeCode ? `${part.timeCode}:\n${part.text}` : part.text
-      )
-      .join('\n')
-  }
-  return job.resultText || ''
-}
 
 async function storeVoiceRecord(job: DocumentType<TranscriptionJob>) {
   await VoiceModel.create({
@@ -60,7 +47,7 @@ export default async function publishCompletedTranscriptionJob(
     return
   }
 
-  const chunks = splitText(transcriptText(job).trim()) || ['']
+  const chunks = splitTelegramText(transcriptText(job).trim()) || ['']
   const firstText = chunks.shift() || ''
   if (job.statusMessageId) {
     await bot.api.editMessageText(

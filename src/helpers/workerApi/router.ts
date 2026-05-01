@@ -7,6 +7,7 @@ import {
   getOwnedJob,
   heartbeatJob,
   serializeJob,
+  updateJobProgress,
 } from '@/helpers/workerApi/jobService'
 import authenticateWorker, {
   WorkerRequest,
@@ -79,6 +80,18 @@ workerRouter.post(
   '/jobs/:id/heartbeat',
   asyncRoute(async (request, response) => {
     const job = await heartbeatJob(request.params.id, workerClient(request))
+    response.json({ job: serializeJob(job) })
+  })
+)
+
+workerRouter.post(
+  '/jobs/:id/progress',
+  asyncRoute(async (request, response) => {
+    const job = await updateJobProgress(
+      request.params.id,
+      workerClient(request),
+      request.body || {}
+    )
     response.json({ job: serializeJob(job) })
   })
 )

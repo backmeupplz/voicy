@@ -9,6 +9,7 @@ import {
 import { Types } from 'mongoose'
 import { WorkerClient, WorkerClientModel } from '@/models/WorkerClient'
 import publishCompletedTranscriptionJob from '@/helpers/transcriptionJobs/publishCompletedTranscriptionJob'
+import publishTranscriptionJobProgress from '@/helpers/transcriptionJobs/publishTranscriptionJobProgress'
 
 const MAX_RESULT_TEXT_LENGTH = 100000
 const MAX_RESULT_PARTS = 5000
@@ -60,6 +61,19 @@ function validateResultText(text: unknown) {
   }
   if (text.length > MAX_RESULT_TEXT_LENGTH) {
     throw new WorkerApiError(400, 'result_text_too_large')
+  }
+  return text
+}
+
+function validateProgressText(text: unknown) {
+  if (text === undefined) {
+    return undefined
+  }
+  if (typeof text !== 'string') {
+    throw new WorkerApiError(400, 'invalid_progress_text')
+  }
+  if (text.length > MAX_RESULT_TEXT_LENGTH) {
+    throw new WorkerApiError(400, 'progress_text_too_large')
   }
   return text
 }
@@ -137,6 +151,9 @@ export function serializeJob(job: DocumentType<TranscriptionJob>) {
     forwardedFromUserId: job.forwardedFromUserId,
     forwardedSenderName: job.forwardedSenderName,
     recognitionLanguageHint: job.recognitionLanguageHint,
+    partialResultText: job.partialResultText,
+    lastProgressAt: job.lastProgressAt,
+    lastProgressPublishedAt: job.lastProgressPublishedAt,
     attempts: job.attempts,
     claimedAt: job.claimedAt,
     heartbeatAt: job.heartbeatAt,
@@ -165,6 +182,9 @@ export async function claimNextJob(workerClient: DocumentType<WorkerClient>) {
     await WorkerClientModel.updateOne(
       { _id: workerClient._id },
       { $set: { lastClaimedAt: now } }
+    )
+    publishTranscriptionJobProgress(job, 'processing').catch((error) =>
+      console.error('Failed to publish transcription job start', error)
     )
   }
 
@@ -203,6 +223,57 @@ export async function heartbeatJob(
   )
   if (!job) {
     throw new WorkerApiError(404, 'job_not_found')
+  }
+  return job
+}
+
+export async function updateJobProgress(
+  jobId: string,
+  workerClient: DocumentType<WorkerClient>,
+  body: Record<string, unknown>
+) {
+  assertObjectId(jobId)
+  const partialResultText = validateProgressText(body.text)
+  const partialResultParts = validateResultParts(body.parts)
+  if (!partialResultText?.trim() && !partialResultParts?.length) {
+    throw new WorkerApiError(400, 'progress_text_required')
+  }
+  const recognitionLanguage = validateOptionalString(
+    body.language,
+    'invalid_language'
+  )
+  const workerEngine = validateOptionalString(body.engine, 'invalid_engine')
+  const duration = validateDuration(body.duration)
+  const workerEngineMetadata = validateEngineMetadata(body.metadata)
+  const now = new Date()
+  const job = await TranscriptionJobModel.findOneAndUpdate(
+    {
+      _id: jobId,
+      workerId: workerId(workerClient),
+      status: TranscriptionJobStatus.processing,
+    },
+    {
+      $set: {
+        partialResultText,
+        partialResultParts,
+        recognitionLanguage,
+        workerEngine,
+        duration,
+        workerEngineMetadata,
+        heartbeatAt: now,
+        lastProgressAt: now,
+      },
+    },
+    { new: true }
+  )
+  if (!job) {
+    throw new WorkerApiError(404, 'job_not_found')
+  }
+
+  try {
+    await publishTranscriptionJobProgress(job, 'partial')
+  } catch (error) {
+    console.error('Failed to publish transcription job progress', error)
   }
   return job
 }
@@ -297,5 +368,10 @@ export async function failJob(
   if (!job) {
     throw new WorkerApiError(404, 'job_not_found')
   }
+  publishTranscriptionJobProgress(job, shouldRetry ? 'retrying' : 'failed', {
+    force: true,
+  }).catch((error) =>
+    console.error('Failed to publish transcription job failure', error)
+  )
   return job
 }

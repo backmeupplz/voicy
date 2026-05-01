@@ -97,6 +97,14 @@ export class TranscriptionJob {
   @prop({ type: Schema.Types.Mixed })
   resultParts?: TranscriptionResultPart[]
   @prop()
+  partialResultText?: string
+  @prop({ type: Schema.Types.Mixed })
+  partialResultParts?: TranscriptionResultPart[]
+  @prop()
+  lastProgressAt?: Date
+  @prop()
+  lastProgressPublishedAt?: Date
+  @prop()
   recognitionLanguage?: string
   @prop()
   workerEngine?: string

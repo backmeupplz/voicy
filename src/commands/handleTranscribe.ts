@@ -46,7 +46,13 @@ export default async function handleTranscribe(ctx: Context) {
     const fileData = await ctx.api.getFile(voice.file_id)
     const voiceUrl = fileUrl(fileData.file_path)
 
-    await enqueueTranscription(ctx, voiceUrl, voice.file_id, message)
+    await enqueueTranscription(
+      ctx,
+      voiceUrl,
+      voice.file_id,
+      message,
+      fileData.file_path
+    )
   } catch (error) {
     report(error, { ctx, location: 'handleTranscribe' })
     await ctx.reply(ctx.i18n.t('error_queue'), {

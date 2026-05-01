@@ -114,6 +114,29 @@ async function main() {
     )
     assert(stolenHeartbeat.status === 404, 'other worker should not heartbeat')
 
+    const progress = await request(
+      baseUrl,
+      `/jobs/${job.id}/progress`,
+      claimedToken,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          text: 'proof partial transcript',
+          parts: [{ timeCode: '00:00', text: 'proof partial transcript' }],
+          language: 'en',
+          engine: 'proof-engine',
+          duration: 0.6,
+        }),
+      }
+    )
+    assert(progress.status === 200, 'owning worker should submit progress')
+    const progressedJob = await TranscriptionJobModel.findById(job.id)
+    assert(
+      progressedJob.partialResultText === 'proof partial transcript',
+      'progress text missing'
+    )
+    assert(progressedJob.lastProgressAt, 'progress timestamp missing')
+
     const result = await request(baseUrl, `/jobs/${job.id}/result`, claimedToken, {
       method: 'POST',
       body: JSON.stringify({
