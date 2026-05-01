@@ -65,7 +65,9 @@ python -m pip install faster-whisper
 `large-v3` model on CUDA with `float16`; reduce to `medium` if VRAM or latency
 becomes a problem.
 
-Create `C:\voicy-worker\transcribe.py`:
+The checked-in `scripts/whisper-transcriber.js` adapter can run the local OpenAI Whisper CLI directly and emit the worker JSON format. For the Windows GPU host you can keep using a custom `faster-whisper` Python command if that is faster, as long as it writes this same JSON shape to `{output}`.
+
+Example `C:\voicy-worker\transcribe.py` for `faster-whisper`:
 
 ```python
 import json
@@ -125,6 +127,15 @@ $env:VOICY_WORKER_POLL_INTERVAL_MS = "5000"
 $env:VOICY_WORKER_TRANSCRIBE_COMMAND = "C:\voicy-worker\.venv\Scripts\python.exe C:\voicy-worker\transcribe.py {input} {output} {language}"
 ```
 
+For CPU or smoke-test environments with the OpenAI Whisper CLI installed, use the checked-in adapter instead:
+
+```powershell
+$env:VOICY_WHISPER_MODEL = "small"
+$env:VOICY_WORKER_ENGINE = "openai-whisper-cli"
+$env:VOICY_WORKER_MODEL = "small"
+$env:VOICY_WORKER_TRANSCRIBE_COMMAND = "node scripts/whisper-transcriber.js {input} {output} {language}"
+```
+
 Optional:
 
 - `VOICY_WORKER_LANGUAGE=en` forces a language when the queued job has no hint.
@@ -177,6 +188,7 @@ Local code validation:
 yarn build-ts
 yarn lint
 yarn test:worker-client
+VOICY_WHISPER_MODEL=tiny yarn test:worker-local-stt
 MONGO=mongodb://127.0.0.1:27017/voicy_worker_proof yarn test:worker-e2e
 ```
 

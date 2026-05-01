@@ -13,6 +13,7 @@
     "test:qa-vnext": "node scripts/qa-vnext-proof.js",
     "test:worker-client": "node scripts/worker-client-proof.js",
     "test:worker-e2e": "node scripts/worker-e2e-proof.js",
+    "test:worker-local-stt": "node scripts/local-whisper-worker-proof.js",
     "test:worker-api": "node scripts/worker-api-proof.js",
     "worker:create-client": "node scripts/create-worker-client.js",
     "worker:run": "node dist/workerClient/runWindowsWorker.js",
