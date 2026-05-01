@@ -4,6 +4,7 @@ import {
   TranscriptionJobSourceKind,
   TranscriptionJobStatus,
 } from '@/models/TranscriptionJob'
+import { markdownI18n } from '@/helpers/telegramMarkdown'
 import Context from '@/models/Context'
 import fileUrl from '@/helpers/fileUrl'
 import report from '@/helpers/report'
@@ -21,7 +22,7 @@ export default async function handleAudio(ctx: Context) {
   try {
     if (!ctx.dbchat.paid) {
       console.log('Sending the donate message')
-      await ctx.reply(ctx.i18n.t('sunsetting'), {
+      await ctx.reply(markdownI18n(ctx, 'sunsetting'), {
         parse_mode: 'Markdown',
         reply_to_message_id: ctx.msg.message_id,
         disable_web_page_preview: true,
@@ -60,7 +61,7 @@ export default async function handleAudio(ctx: Context) {
 }
 
 function sendLargeFileError(ctx: Context) {
-  return ctx.reply(ctx.i18n.t('error_twenty'), {
+  return ctx.reply(markdownI18n(ctx, 'error_twenty'), {
     parse_mode: 'Markdown',
     reply_to_message_id: ctx.msg.message_id,
   })
@@ -96,7 +97,7 @@ async function enqueueTranscription(
   })
 
   try {
-    const ackMessage = await ctx.reply(ctx.i18n.t('initiated'), {
+    const ackMessage = await ctx.reply(markdownI18n(ctx, 'initiated'), {
       reply_to_message_id: sourceMessage.message_id,
       parse_mode: 'Markdown',
     })
@@ -143,7 +144,7 @@ function audioFromMessage(message: Message): AudioPayload {
 
 async function sendQueueError(ctx: Context) {
   try {
-    await ctx.reply(ctx.i18n.t('error_queue'), {
+    await ctx.reply(markdownI18n(ctx, 'error_queue'), {
       parse_mode: 'Markdown',
       reply_to_message_id: ctx.msg?.message_id,
     })

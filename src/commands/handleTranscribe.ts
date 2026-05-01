@@ -1,4 +1,5 @@
 import { enqueueTranscription } from '@/handlers/handleAudio'
+import { markdownI18n } from '@/helpers/telegramMarkdown'
 import Context from '@/models/Context'
 import fileUrl from '@/helpers/fileUrl'
 import report from '@/helpers/report'
@@ -7,7 +8,7 @@ export default async function handleTranscribe(ctx: Context) {
   try {
     if (!ctx.dbchat.paid) {
       console.log('Sending the donate message')
-      await ctx.reply(ctx.i18n.t('sunsetting'), {
+      await ctx.reply(markdownI18n(ctx, 'sunsetting'), {
         parse_mode: 'Markdown',
         reply_to_message_id: ctx.msg.message_id,
         disable_web_page_preview: true,
@@ -35,7 +36,7 @@ export default async function handleTranscribe(ctx: Context) {
     // Check size
     if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
       if (!ctx.dbchat.silent) {
-        await ctx.reply(ctx.i18n.t('error_twenty'), {
+        await ctx.reply(markdownI18n(ctx, 'error_twenty'), {
           parse_mode: 'Markdown',
           reply_to_message_id: message.message_id,
         })
@@ -55,7 +56,7 @@ export default async function handleTranscribe(ctx: Context) {
     )
   } catch (error) {
     report(error, { ctx, location: 'handleTranscribe' })
-    await ctx.reply(ctx.i18n.t('error_queue'), {
+    await ctx.reply(markdownI18n(ctx, 'error_queue'), {
       parse_mode: 'Markdown',
       reply_to_message_id: ctx.msg?.message_id,
     })

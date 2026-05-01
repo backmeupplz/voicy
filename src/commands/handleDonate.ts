@@ -1,3 +1,4 @@
+import { markdownI18n } from '@/helpers/telegramMarkdown'
 import { stripe } from '@/helpers/stripe'
 import Context from '@/models/Context'
 import logAnswerTime from '@/helpers/logAnswerTime'
@@ -5,7 +6,7 @@ import logAnswerTime from '@/helpers/logAnswerTime'
 export default async function handleDonate(ctx: Context) {
   console.log('/donate called', !!ctx.dbchat.paid)
   if (ctx.dbchat.paid) {
-    await ctx.reply(ctx.i18n.t('already_paid'), {
+    await ctx.reply(markdownI18n(ctx, 'already_paid'), {
       parse_mode: 'Markdown',
       disable_web_page_preview: true,
     })
@@ -31,7 +32,7 @@ export default async function handleDonate(ctx: Context) {
         },
       })
       console.log('Not paid, sending message')
-      await ctx.reply(ctx.i18n.t('pay'), {
+      await ctx.reply(markdownI18n(ctx, 'pay'), {
         parse_mode: 'Markdown',
         disable_web_page_preview: true,
         reply_markup: {

@@ -1,4 +1,5 @@
 import { findUiLanguage } from '@/helpers/language/uiLanguages'
+import { markdownI18n } from '@/helpers/telegramMarkdown'
 import Context from '@/models/Context'
 import languageKeyboard from '@/helpers/language/languageKeyboard'
 import logAnswerTime from '@/helpers/logAnswerTime'
@@ -13,7 +14,7 @@ export default async function handleSetLanguage(ctx: Context) {
   if (['<', '>'].includes(language)) {
     const page = +options[3]
     try {
-      await ctx.editMessageText(ctx.i18n.t('language'), {
+      await ctx.editMessageText(markdownI18n(ctx, 'language'), {
         reply_markup: languageKeyboard(
           isCommand,
           language === '<' ? page - 1 : page + 1
@@ -36,7 +37,7 @@ export default async function handleSetLanguage(ctx: Context) {
   ctx.i18n.locale(languageObject.code)
 
   await ctx.editMessageText(
-    ctx.i18n.t('language_success', {
+    markdownI18n(ctx, 'language_success', {
       language: languageObject.name,
     }),
     {
