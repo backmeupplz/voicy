@@ -15,6 +15,7 @@
     "test:worker-e2e": "node scripts/worker-e2e-proof.js",
     "test:worker-local-stt": "node scripts/local-whisper-worker-proof.js",
     "test:worker-api": "node scripts/worker-api-proof.js",
+    "qa:telegram-upload": "node scripts/telegram-web-upload-qa.mjs",
     "worker:create-client": "node scripts/create-worker-client.js",
     "worker:run": "node dist/workerClient/runWindowsWorker.js",
     "watch-ts": "tsc -w --skipLibCheck",
