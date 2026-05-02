@@ -137,6 +137,7 @@ export function serializeJob(job: DocumentType<TranscriptionJob>) {
     status: job.status,
     chatId: job.chatId,
     telegramChatId: job.telegramChatId,
+    telegramChatType: job.telegramChatType,
     sourceMessageId: job.sourceMessageId,
     statusMessageId: job.statusMessageId,
     requestMessageId: job.requestMessageId,

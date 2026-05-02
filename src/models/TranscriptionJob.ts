@@ -52,6 +52,8 @@ export class TranscriptionJob {
   chatId: string
   @prop({ required: true })
   telegramChatId: string
+  @prop()
+  telegramChatType?: string
   @prop({ required: true })
   sourceMessageId: number
   @prop()

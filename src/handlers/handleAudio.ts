@@ -79,6 +79,7 @@ async function enqueueTranscription(
     status: TranscriptionJobStatus.queued,
     chatId: ctx.dbchat.id,
     telegramChatId: String(ctx.chat.id),
+    telegramChatType: ctx.chat.type,
     sourceMessageId: sourceMessage.message_id,
     requestMessageId: ctx.msg?.message_id,
     fileId,
@@ -95,6 +96,11 @@ async function enqueueTranscription(
     forwardSenderName: sourceMessage.forward_sender_name,
     uiLocale: ctx.dbchat.uiLanguage,
   })
+
+  if (ctx.chat.type === 'channel') {
+    console.info('Skipping live transcription status message in channel chat')
+    return queuedJob
+  }
 
   try {
     const ackMessage = await ctx.reply(markdownI18n(ctx, 'initiated'), {

@@ -178,6 +178,12 @@ For each claimed job it:
 The command template supports `{input}`, `{output}`, and `{language}`. Paths are
 quoted before replacement so spaces in Windows paths are supported.
 
+The checked-in worker client uploads the final result after the command exits.
+Streaming-capable custom workers may call `POST /jobs/:id/progress` while a
+transcription command emits stable segments, then must still call
+`POST /jobs/:id/result` with the final transcript. Voicy stores accepted partial
+payloads and throttles visible Telegram edits server-side.
+
 ## Retry and Error Behavior
 
 Download failures, command crashes, and upload failures are reported to
@@ -195,6 +201,7 @@ Local code validation:
 ```sh
 yarn build-ts
 yarn lint
+yarn test:progress-policy
 yarn test:worker-client
 yarn test:whisper-transcriber
 VOICY_WHISPER_MODEL=tiny yarn test:worker-local-stt

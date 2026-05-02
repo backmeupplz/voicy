@@ -1,32 +1,17 @@
 import { DocumentType } from '@typegoose/typegoose'
 import { TranscriptionJob } from '@/models/TranscriptionJob'
 import {
+  liveProgressAllowedForChatType,
+  shouldThrottleProgressPublish,
+} from '@/helpers/transcriptionJobs/progressPublishingPolicy'
+import {
   partialTranscriptText,
   progressPreview,
 } from '@/helpers/transcriptionJobs/transcriptFormatting'
 import bot from '@/helpers/bot'
 import localizedTranscriptionText from '@/helpers/localizedTranscriptionText'
 
-const DEFAULT_PROGRESS_EDIT_INTERVAL_MS = 2500
-
 type ProgressPhase = 'processing' | 'partial' | 'retrying' | 'failed'
-
-function progressEditIntervalMs() {
-  const configured = Number(process.env.VOICY_PROGRESS_EDIT_INTERVAL_MS)
-  return Number.isFinite(configured) && configured >= 1000
-    ? configured
-    : DEFAULT_PROGRESS_EDIT_INTERVAL_MS
-}
-
-function shouldThrottle(job: DocumentType<TranscriptionJob>, force: boolean) {
-  if (force || !job.lastProgressPublishedAt) {
-    return false
-  }
-  return (
-    new Date().getTime() - job.lastProgressPublishedAt.getTime() <
-    progressEditIntervalMs()
-  )
-}
 
 function statusText(phase: ProgressPhase, job: DocumentType<TranscriptionJob>) {
   if (phase === 'processing') {
@@ -58,7 +43,11 @@ export default async function publishTranscriptionJobProgress(
   if (
     process.env.VOICY_DISABLE_TELEGRAM_PUBLISH === '1' ||
     !job.statusMessageId ||
-    shouldThrottle(job, force)
+    !liveProgressAllowedForChatType(job.telegramChatType) ||
+    shouldThrottleProgressPublish({
+      force,
+      lastPublishedAt: job.lastProgressPublishedAt,
+    })
   ) {
     return false
   }

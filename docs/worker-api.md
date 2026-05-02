@@ -84,9 +84,11 @@ Request body:
 
 Workers should call this endpoint only for meaningful transcript changes. The
 server throttles visible Telegram edits with `VOICY_PROGRESS_EDIT_INTERVAL_MS`
-(default `2500`, minimum `1000`) and stores every accepted progress payload even
-when an edit is skipped. If a job has no editable status message, progress is
-still stored and the final result will be sent as a normal reply.
+(default `2500`, clamped to minimum `1000`) and stores every accepted progress
+payload even when an edit is skipped. If a job has no editable status message,
+progress is still stored and the final result will be sent as a normal message.
+Voicy does not live-edit channel posts; channel jobs wait for final text until
+channel edit behavior is explicitly verified.
 
 ### `POST /jobs/:id/result`
 
@@ -132,5 +134,7 @@ Request body:
 - exactly one of two clients can claim a single queued job;
 - a non-owning client cannot heartbeat another worker's job;
 - progress upload stores partial transcript state for the owning worker;
+- progress edit policy throttles rapid visible edits and disables live edits in
+  channels;
 - result upload completes the job and persists transcript data;
 - retryable failure requeues while attempts remain.
