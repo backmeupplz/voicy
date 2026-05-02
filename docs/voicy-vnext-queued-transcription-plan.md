@@ -331,8 +331,8 @@ MVP should treat streaming as optional but prepare the API:
 
 ## MVP Scope
 
-- Bot creates durable queued jobs for voice, video note, supported audio, and
-  supported document inputs.
+- Bot creates durable queued jobs for voice, video note, video, supported audio,
+  and supported document inputs.
 - Donation wall is preserved with compute-funding copy.
 - `/language` controls only bot UI language.
 - Engine selection and old provider credential commands are removed from active

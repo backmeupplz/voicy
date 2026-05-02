@@ -56,7 +56,7 @@ Returns metadata for a processing job owned by the authenticated worker.
 
 ### `GET /jobs/:id/source`
 
-Returns the source audio metadata and URL for a processing job owned by the
+Returns the source media metadata and URL for a processing job owned by the
 authenticated worker.
 
 ### `POST /jobs/:id/heartbeat`

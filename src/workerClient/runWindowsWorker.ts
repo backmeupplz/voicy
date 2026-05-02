@@ -34,6 +34,7 @@ interface WorkerSource {
   sourceUrl: string
   sourceKind?: string
   mimeType?: string
+  fileName?: string
   fileId?: string
   fileUniqueId?: string
 }
@@ -179,17 +180,43 @@ async function getSource(api: AxiosInstance, jobId: string) {
   return (response.data as SourceResponse).source
 }
 
-function extensionForSource(source: WorkerSource) {
-  if (source.mimeType === 'audio/mpeg') {
-    return '.mp3'
+const extensionByMimeType: Record<string, string> = {
+  'audio/aac': '.aac',
+  'audio/aiff': '.aiff',
+  'audio/amr': '.amr',
+  'audio/flac': '.flac',
+  'audio/mp4': '.m4a',
+  'audio/mpeg': '.mp3',
+  'audio/ogg': '.ogg',
+  'audio/opus': '.opus',
+  'audio/wav': '.wav',
+  'audio/webm': '.webm',
+  'audio/x-aiff': '.aiff',
+  'audio/x-m4a': '.m4a',
+  'audio/x-ms-wma': '.wma',
+  'audio/x-wav': '.wav',
+  'video/3gpp': '.3gp',
+  'video/mp4': '.mp4',
+  'video/mpeg': '.mpeg',
+  'video/quicktime': '.mov',
+  'video/webm': '.webm',
+  'video/x-m4v': '.m4v',
+  'video/x-matroska': '.mkv',
+  'video/x-msvideo': '.avi',
+}
+
+export function extensionForSource(source: WorkerSource) {
+  const mimeType = source.mimeType?.toLowerCase().split(';')[0].trim()
+  if (mimeType && extensionByMimeType[mimeType]) {
+    return extensionByMimeType[mimeType]
   }
-  if (source.mimeType === 'audio/wav' || source.mimeType === 'audio/x-wav') {
-    return '.wav'
+  if (source.fileName) {
+    const fileNameExt = path.extname(source.fileName)
+    if (fileNameExt) {
+      return fileNameExt.toLowerCase()
+    }
   }
-  if (source.mimeType === 'audio/mp4') {
-    return '.m4a'
-  }
-  if (source.sourceKind === 'video_note') {
+  if (source.sourceKind === 'video_note' || source.sourceKind === 'video') {
     return '.mp4'
   }
   const urlPath = new URL(source.sourceUrl).pathname

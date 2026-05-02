@@ -33,7 +33,7 @@ export class Voice {
   @prop()
   fileName?: string
   @prop({ required: true })
-  sourceType: 'voice' | 'audio' | 'document' | 'video_note'
+  sourceType: 'voice' | 'audio' | 'document' | 'video_note' | 'video'
   @prop()
   requestedBy?: number
   @prop()

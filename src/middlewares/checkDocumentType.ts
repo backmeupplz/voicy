@@ -1,16 +1,16 @@
 import { NextFunction } from 'grammy'
+import {
+  isTranscribableTelegramFile,
+  transcribableMediaFromMessage,
+} from '@/helpers/transcribableTelegramMedia'
 import Context from '@/models/Context'
 
 export default function checkDocumentType(ctx: Context, next: NextFunction) {
-  const file = ctx.msg?.document || ctx.msg?.audio
+  const file = ctx.msg ? transcribableMediaFromMessage(ctx.msg) : undefined
   if (!file) {
     return
   }
-  const mime = file.mime_type
-  const allowedMimeTypes = ['audio', 'octet-stream']
-  for (const allowedType of allowedMimeTypes) {
-    if (mime.includes(allowedType)) {
-      return next()
-    }
+  if (isTranscribableTelegramFile(file)) {
+    return next()
   }
 }

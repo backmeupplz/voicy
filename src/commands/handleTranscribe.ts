@@ -1,5 +1,6 @@
 import { enqueueTranscription } from '@/handlers/handleAudio'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
+import { transcribableMediaFromMessage } from '@/helpers/transcribableTelegramMedia'
 import Context from '@/models/Context'
 import fileUrl from '@/helpers/fileUrl'
 import report from '@/helpers/report'
@@ -23,8 +24,7 @@ export default async function handleTranscribe(ctx: Context) {
       return
     }
 
-    const voice =
-      message.voice || message.document || message.audio || message.video_note
+    const voice = transcribableMediaFromMessage(message)
 
     if (!voice) {
       await ctx.reply(ctx.i18n.t('reply_to_voice'), {
