@@ -19,6 +19,8 @@ export class Chat extends FindOrCreate {
   @prop({ required: true, default: 'en' })
   uiLanguage: string
   @prop({ required: true, default: false })
+  uiLanguageSelectedManually: boolean
+  @prop({ required: true, default: false })
   adminLocked: boolean
   @prop({ required: true, default: false })
   silent: boolean
