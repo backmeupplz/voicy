@@ -4,6 +4,8 @@ const assert = require('assert')
 
 const handleSetLanguage = require('../dist/handlers/handleSetLanguage').default
 const handleStart = require('../dist/commands/handleStart').default
+const telegramAllowedUpdates =
+  require('../dist/helpers/telegramAllowedUpdates').default
 
 function createContext({
   telegramLanguage = 'en',
@@ -117,7 +119,12 @@ async function provesLanguageCallbackFallsBackWhenEditFails() {
   ])
 }
 
+function provesRuntimePollsForCallbackQueries() {
+  assert(telegramAllowedUpdates.includes('callback_query'))
+}
+
 Promise.resolve()
+  .then(provesRuntimePollsForCallbackQueries)
   .then(provesManualLanguageSurvivesStart)
   .then(provesTelegramLanguageStillInitializesUnselectedChats)
   .then(provesLanguageCallbackFallsBackWhenEditFails)
