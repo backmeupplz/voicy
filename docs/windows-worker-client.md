@@ -198,6 +198,12 @@ The command template supports `{input}`, `{output}`, `{language}`, and
 paths are supported. `scripts/whisper-transcriber.js` reads
 `VOICY_WORKER_MODEL` directly, so it does not need `{model}` in the command.
 
+The checked-in worker client uploads the final result after the command exits.
+Streaming-capable custom workers may call `POST /jobs/:id/progress` while a
+transcription command emits stable segments, then must still call
+`POST /jobs/:id/result` with the final transcript. Voicy stores accepted partial
+payloads and throttles visible Telegram edits server-side.
+
 ## Retry and Error Behavior
 
 Download failures, command crashes, and upload failures are reported to
@@ -215,6 +221,7 @@ Local code validation:
 ```sh
 yarn build-ts
 yarn lint
+yarn test:progress-policy
 yarn test:worker-client
 yarn test:whisper-transcriber
 VOICY_WORKER_MODEL=base yarn test:worker-local-stt

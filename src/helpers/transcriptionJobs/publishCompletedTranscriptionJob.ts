@@ -54,6 +54,11 @@ export default async function publishCompletedTranscriptionJob(
     job.uiLocale,
     'completed_empty'
   )
+  const replyOptions =
+    job.telegramChatType === 'channel'
+      ? {}
+      : { reply_to_message_id: job.sourceMessageId }
+
   if (job.statusMessageId) {
     await bot.api.editMessageText(
       job.telegramChatId,
@@ -62,13 +67,13 @@ export default async function publishCompletedTranscriptionJob(
     )
   } else {
     await bot.api.sendMessage(job.telegramChatId, firstText || fallbackText, {
-      reply_to_message_id: job.sourceMessageId,
+      ...replyOptions,
     })
   }
 
   for (const chunk of chunks) {
     await bot.api.sendMessage(job.telegramChatId, chunk, {
-      reply_to_message_id: job.sourceMessageId,
+      ...replyOptions,
     })
   }
 }
