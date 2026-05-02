@@ -46,14 +46,17 @@ const publicCommands = uniq(
 )
 const hiddenBlock = commandsText.match(/hiddenBotCommands\s*=\s*\[([^\]]*)\]/s)
 const hiddenCommands = hiddenBlock ? quotedValues(hiddenBlock[1]) : []
-const expectedAppCommands = uniq([...publicCommands, ...hiddenCommands])
 
 console.log(`Public commands: ${sorted(publicCommands).join(', ')}`)
 console.log(`Hidden commands: ${sorted(hiddenCommands).join(', ')}`)
 console.log(`Registered handlers: ${sorted(appCommands).join(', ')}`)
 
-const missingHandlers = difference(expectedAppCommands, appCommands)
-const extraHandlers = difference(appCommands, expectedAppCommands)
+if (hiddenCommands.length) {
+  fail(`Hidden commands are not allowed: ${hiddenCommands.join(', ')}`)
+}
+
+const missingHandlers = difference(publicCommands, appCommands)
+const extraHandlers = difference(appCommands, publicCommands)
 
 if (missingHandlers.length) {
   fail(`Commands listed but not registered: ${missingHandlers.join(', ')}`)

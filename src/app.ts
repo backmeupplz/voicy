@@ -22,8 +22,6 @@ import handleAudio from '@/handlers/handleAudio'
 import handleDonate from '@/commands/handleDonate'
 import handleFiles from '@/commands/handleFiles'
 import handleHelp from '@/commands/handleHelp'
-import handleId from '@/commands/handleId'
-import handleL from '@/commands/handleL'
 import handleLanguage from '@/commands/handleLanguage'
 import handleLock from '@/commands/handleLock'
 import handleMyChatMember from '@/handlers/handleMyChatMember'
@@ -61,7 +59,6 @@ async function runApp() {
     handleAudio
   )
   // Commands
-  bot.command('id', handleId)
   bot.command('donate', handleDonate)
   bot.command('start', checkAdminLock, handleStart)
   bot.command('help', checkAdminLock, handleHelp)
@@ -70,7 +67,6 @@ async function runApp() {
   bot.command('silent', checkAdminLock, handleSilent)
   bot.command('privacy', checkAdminLock, handlePrivacy)
   bot.command('language', checkAdminLock, handleLanguage)
-  bot.command('l', checkAdminLock, handleL)
   bot.command('transcribe_all', checkAdminLock, handleTranscribeAll)
   bot.command('transcribe', checkAdminLock, handleTranscribe)
   // Callabcks

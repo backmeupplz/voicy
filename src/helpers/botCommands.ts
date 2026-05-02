@@ -57,9 +57,6 @@ export const publicBotCommands: BotCommandDefinition[] = [
   },
 ]
 
-export const hiddenBotCommands = ['id', 'l']
-
-export const allBotCommands = [
-  ...publicBotCommands.map((command) => command.command),
-  ...hiddenBotCommands,
-]
+export const allBotCommands = publicBotCommands.map(
+  (command) => command.command
+)
