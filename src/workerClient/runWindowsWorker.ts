@@ -195,6 +195,23 @@ function extensionForSource(source: WorkerSource) {
   return ext || '.ogg'
 }
 
+function isLoopbackHost(hostname: string) {
+  return (
+    hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1'
+  )
+}
+
+function assertAllowedSourceUrl(sourceUrl: string, apiUrl: string) {
+  const parsed = new URL(sourceUrl)
+  const api = new URL(apiUrl)
+  if (isLoopbackHost(parsed.hostname) && isLoopbackHost(api.hostname)) {
+    return
+  }
+  if (parsed.protocol !== 'https:' || parsed.hostname !== 'api.telegram.org') {
+    throw new WorkerClientError('Worker source URL is not allowed', false)
+  }
+}
+
 async function removeIfExists(filePath: string) {
   await unlink(filePath).catch((error: NodeJS.ErrnoException) => {
     if (error.code !== 'ENOENT') {
@@ -215,8 +232,8 @@ async function downloadSource(
     `${job.id}${extensionForSource(source)}`
   )
   await removeIfExists(inputPath)
-  const response = await api.get(source.sourceUrl, {
-    baseURL: undefined,
+  assertAllowedSourceUrl(source.sourceUrl, config.apiUrl)
+  const response = await axios.get(source.sourceUrl, {
     responseType: 'stream',
     timeout: config.downloadTimeoutMs,
   })

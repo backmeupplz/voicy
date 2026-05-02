@@ -40,10 +40,18 @@ function createProofServer() {
     result: undefined,
     failure: undefined,
     heartbeats: 0,
+    audioAuthorization: undefined,
   }
 
   const server = http.createServer(async (request, response) => {
     const url = new URL(request.url, 'http://127.0.0.1')
+    if (request.method === 'GET' && url.pathname === '/audio/proof.ogg') {
+      state.audioAuthorization = request.headers.authorization
+      response.writeHead(200, { 'Content-Type': 'audio/ogg' })
+      response.end(Buffer.from('proof audio bytes'))
+      return
+    }
+
     const token = request.headers.authorization
     if (token !== 'Bearer proof-worker-token') {
       response.writeHead(401, { 'Content-Type': 'application/json' })
@@ -90,12 +98,6 @@ function createProofServer() {
           },
         })
       )
-      return
-    }
-
-    if (request.method === 'GET' && url.pathname === '/audio/proof.ogg') {
-      response.writeHead(200, { 'Content-Type': 'audio/ogg' })
-      response.end(Buffer.from('proof audio bytes'))
       return
     }
 
@@ -193,6 +195,10 @@ async function main() {
     assert(
       state.result.metadata.model === 'proof-model',
       'worker should submit model metadata'
+    )
+    assert(
+      !state.audioAuthorization,
+      'worker should not send its API token to source downloads'
     )
 
     const idleProcessed = await processNextJob(config, {
