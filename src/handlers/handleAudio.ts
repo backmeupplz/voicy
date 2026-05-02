@@ -10,7 +10,6 @@ import {
 } from '@/models/TranscriptionJob'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import Context from '@/models/Context'
-import fileUrl from '@/helpers/fileUrl'
 import report from '@/helpers/report'
 
 export default async function handleAudio(ctx: Context) {
@@ -36,22 +35,14 @@ export default async function handleAudio(ctx: Context) {
     if (!audio) {
       return
     }
-    if (audio.file_size && audio.file_size >= 19 * 1024 * 1024) {
+    if (isMediaTooLarge(audio.file_size)) {
       if (!ctx.dbchat.silent) {
         await sendLargeFileError(ctx)
       }
       return
     }
 
-    const fileData = await ctx.getFile()
-    const voiceUrl = fileUrl(fileData.file_path)
-    await enqueueTranscription(
-      ctx,
-      voiceUrl,
-      audio.file_id,
-      message,
-      fileData.file_path
-    )
+    await enqueueTranscription(ctx, audio.file_id, message)
   } catch (error) {
     report(error, { ctx, location: 'handleMessage' })
     await sendQueueError(ctx)
@@ -65,9 +56,21 @@ function sendLargeFileError(ctx: Context) {
   })
 }
 
+function maxMediaFileSizeBytes() {
+  const configuredMb = Number(process.env.VOICY_MAX_MEDIA_FILE_SIZE_MB || 20)
+  if (!Number.isFinite(configuredMb) || configuredMb <= 0) {
+    return undefined
+  }
+  return configuredMb * 1024 * 1024
+}
+
+function isMediaTooLarge(fileSize?: number) {
+  const limit = maxMediaFileSizeBytes()
+  return Boolean(limit && fileSize && fileSize >= limit)
+}
+
 async function enqueueTranscription(
   ctx: Context,
-  url: string,
   fileId: string,
   sourceMessage: Message = ctx.msg,
   filePath?: string
@@ -77,7 +80,7 @@ async function enqueueTranscription(
     throw new Error('No supported audio payload found on message')
   }
   const queuedJob = await TranscriptionJobModel.create({
-    status: TranscriptionJobStatus.queued,
+    status: TranscriptionJobStatus.queuedForDownload,
     chatId: ctx.dbchat.id,
     telegramChatId: String(ctx.chat.id),
     telegramChatType: ctx.chat.type,
@@ -90,7 +93,6 @@ async function enqueueTranscription(
     fileName: audio.file_name,
     fileUniqueId: fileUniqueId(audio),
     sourceKind: sourceKind(audio.sourceType),
-    sourceUrl: url,
     requestedByUserId: ctx.from?.id ? String(ctx.from.id) : undefined,
     forwardedFromUserId: sourceMessage.forward_from?.id
       ? String(sourceMessage.forward_from.id)
@@ -145,4 +147,4 @@ async function sendQueueError(ctx: Context) {
   }
 }
 
-export { enqueueTranscription }
+export { enqueueTranscription, isMediaTooLarge }

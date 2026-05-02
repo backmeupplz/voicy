@@ -22,6 +22,7 @@ interface WorkerJob {
   sourceUrl?: string
   sourceKind?: string
   mimeType?: string
+  localSourcePath?: string
   recognitionLanguageHint?: string
   attempts?: number
 }
@@ -31,12 +32,14 @@ interface ClaimResponse {
 }
 
 interface WorkerSource {
-  sourceUrl: string
+  sourceUrl?: string
   sourceKind?: string
   mimeType?: string
   fileName?: string
   fileId?: string
   fileUniqueId?: string
+  filePath?: string
+  localSourcePath?: string
 }
 
 interface SourceResponse {
@@ -64,6 +67,10 @@ interface WorkerConfig {
   pollIntervalMs: number
   heartbeatIntervalMs: number
   downloadTimeoutMs: number
+  downloadConcurrency: number
+  transcriptionConcurrency: number
+  telegramBotApiUrl: string
+  telegramBotToken?: string
   idleExit: boolean
   language?: string
   engine: string
@@ -79,6 +86,11 @@ interface Logger {
 interface RunCommandResult {
   stdout: string
   stderr: string
+}
+
+interface DownloadedJob {
+  job: WorkerJob
+  inputPath: string
 }
 
 const consoleLogger: Logger = {
@@ -149,6 +161,26 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
       DEFAULT_DOWNLOAD_TIMEOUT_MS,
       'VOICY_WORKER_DOWNLOAD_TIMEOUT_MS'
     ),
+    downloadConcurrency: Math.max(
+      1,
+      numberFromEnv(
+        env.VOICY_WORKER_DOWNLOAD_CONCURRENCY,
+        2,
+        'VOICY_WORKER_DOWNLOAD_CONCURRENCY'
+      )
+    ),
+    transcriptionConcurrency: Math.max(
+      1,
+      numberFromEnv(
+        env.VOICY_WORKER_TRANSCRIPTION_CONCURRENCY,
+        1,
+        'VOICY_WORKER_TRANSCRIPTION_CONCURRENCY'
+      )
+    ),
+    telegramBotApiUrl: (
+      env.VOICY_WORKER_TELEGRAM_API_URL || 'https://api.telegram.org'
+    ).replace(/\/+$/, ''),
+    telegramBotToken: env.VOICY_WORKER_TELEGRAM_BOT_TOKEN || env.TOKEN,
     idleExit: booleanFromEnv(env.VOICY_WORKER_IDLE_EXIT),
     language: env.VOICY_WORKER_LANGUAGE,
     engine: env.VOICY_WORKER_ENGINE || 'faster-whisper',
@@ -175,9 +207,35 @@ async function claimJob(api: AxiosInstance) {
   return (response.data as ClaimResponse).job
 }
 
+async function claimDownloadJob(api: AxiosInstance) {
+  const response = await api.post('/jobs/claim-download', undefined, {
+    validateStatus: (status) => status === 200 || status === 204,
+  })
+  if (response.status === 204) {
+    return undefined
+  }
+  return (response.data as ClaimResponse).job
+}
+
 async function getSource(api: AxiosInstance, jobId: string) {
   const response = await api.get(`/jobs/${jobId}/source`)
   return (response.data as SourceResponse).source
+}
+
+async function markDownloaded(
+  api: AxiosInstance,
+  jobId: string,
+  inputPath: string
+) {
+  const response = await api.post(`/jobs/${jobId}/downloaded`, {
+    localSourcePath: inputPath,
+  })
+  return (response.data as ClaimResponse).job
+}
+
+async function startTranscription(api: AxiosInstance, jobId: string) {
+  const response = await api.post(`/jobs/${jobId}/transcribe`)
+  return (response.data as ClaimResponse).job
 }
 
 const extensionByMimeType: Record<string, string> = {
@@ -219,9 +277,16 @@ export function extensionForSource(source: WorkerSource) {
   if (source.sourceKind === 'video_note' || source.sourceKind === 'video') {
     return '.mp4'
   }
-  const urlPath = new URL(source.sourceUrl).pathname
-  const ext = path.extname(urlPath)
-  return ext || '.ogg'
+  if (source.sourceUrl) {
+    const urlPath = new URL(source.sourceUrl).pathname
+    const ext = path.extname(urlPath)
+    return ext || '.ogg'
+  }
+  if (source.filePath) {
+    const ext = path.extname(source.filePath)
+    return ext || '.ogg'
+  }
+  return '.ogg'
 }
 
 function isLoopbackHost(hostname: string) {
@@ -230,9 +295,16 @@ function isLoopbackHost(hostname: string) {
   )
 }
 
-function assertAllowedSourceUrl(sourceUrl: string, apiUrl: string) {
+function assertAllowedSourceUrl(sourceUrl: string, config: WorkerConfig) {
   const parsed = new URL(sourceUrl)
-  const api = new URL(apiUrl)
+  const api = new URL(config.apiUrl)
+  const telegramApi = new URL(config.telegramBotApiUrl)
+  if (
+    parsed.origin === telegramApi.origin &&
+    (parsed.protocol === 'https:' || isLoopbackHost(parsed.hostname))
+  ) {
+    return
+  }
   if (isLoopbackHost(parsed.hostname) && isLoopbackHost(api.hostname)) {
     return
   }
@@ -249,8 +321,54 @@ async function removeIfExists(filePath: string) {
   })
 }
 
+function telegramFileUrl(config: WorkerConfig, filePath: string) {
+  if (!config.telegramBotToken) {
+    throw new WorkerClientError(
+      'VOICY_WORKER_TELEGRAM_BOT_TOKEN or TOKEN is required to download Telegram media',
+      false
+    )
+  }
+  const encodedPath = filePath
+    .replace(/^\/+/, '')
+    .split('/')
+    .map((part) => encodeURIComponent(part))
+    .join('/')
+  return `${config.telegramBotApiUrl}/file/bot${config.telegramBotToken}/${encodedPath}`
+}
+
+async function resolveSourceUrl(config: WorkerConfig, source: WorkerSource) {
+  if (source.sourceUrl) {
+    return source.sourceUrl
+  }
+  if (source.filePath) {
+    return telegramFileUrl(config, source.filePath)
+  }
+  if (!source.fileId) {
+    throw new WorkerClientError('Job source has no URL or Telegram file id')
+  }
+  if (!config.telegramBotToken) {
+    throw new WorkerClientError(
+      'VOICY_WORKER_TELEGRAM_BOT_TOKEN or TOKEN is required to resolve Telegram file ids',
+      false
+    )
+  }
+  const response = await axios.get(
+    `${config.telegramBotApiUrl}/bot${config.telegramBotToken}/getFile`,
+    {
+      params: { file_id: source.fileId },
+      timeout: config.downloadTimeoutMs,
+    }
+  )
+  const filePath = response.data?.result?.file_path
+  if (typeof filePath !== 'string' || !filePath) {
+    throw new WorkerClientError(
+      'Telegram getFile response did not include file_path'
+    )
+  }
+  return telegramFileUrl(config, filePath)
+}
+
 async function downloadSource(
-  api: AxiosInstance,
   config: WorkerConfig,
   job: WorkerJob,
   source: WorkerSource
@@ -261,8 +379,9 @@ async function downloadSource(
     `${job.id}${extensionForSource(source)}`
   )
   await removeIfExists(inputPath)
-  assertAllowedSourceUrl(source.sourceUrl, config.apiUrl)
-  const response = await axios.get(source.sourceUrl, {
+  const sourceUrl = await resolveSourceUrl(config, source)
+  assertAllowedSourceUrl(sourceUrl, config)
+  const response = await axios.get(sourceUrl, {
     responseType: 'stream',
     timeout: config.downloadTimeoutMs,
   })
@@ -435,13 +554,17 @@ export async function processNextJob(
   config: WorkerConfig,
   logger: Logger = consoleLogger
 ) {
-  const api = createApi(config)
-  const job = await claimJob(api)
-  if (!job) {
-    return false
-  }
+  const processed = await processAvailableJobs(config, logger)
+  return processed > 0
+}
 
-  logger.info(`Claimed transcription job ${job.id}`)
+async function downloadJob(
+  api: AxiosInstance,
+  config: WorkerConfig,
+  job: WorkerJob,
+  logger: Logger
+): Promise<DownloadedJob | undefined> {
+  logger.info(`Claimed media download job ${job.id}`)
   const heartbeat = startHeartbeat(
     api,
     job.id,
@@ -451,19 +574,133 @@ export async function processNextJob(
 
   try {
     const source = await getSource(api, job.id)
-    const inputPath = await downloadSource(api, config, job, source)
-    const result = await transcribeJob(config, job, inputPath)
-    await api.post(`/jobs/${job.id}/result`, result)
-    logger.info(`Completed transcription job ${job.id}`)
-    return true
+    const inputPath = await downloadSource(config, job, source)
+    const readyJob = await markDownloaded(api, job.id, inputPath)
+    logger.info(`Downloaded media for job ${job.id}`)
+    return { job: readyJob, inputPath }
   } catch (error) {
     await failJob(api, job.id, error, logger)
-    return true
+    return undefined
   } finally {
     if (heartbeat) {
       clearInterval(heartbeat)
     }
   }
+}
+
+async function transcribeDownloadedJob(
+  api: AxiosInstance,
+  config: WorkerConfig,
+  downloaded: DownloadedJob,
+  logger: Logger
+) {
+  const job = ['processing', 'transcribing'].includes(downloaded.job.status)
+    ? downloaded.job
+    : await startTranscription(api, downloaded.job.id)
+  logger.info(`Started transcription job ${job.id}`)
+  const heartbeat = startHeartbeat(
+    api,
+    job.id,
+    config.heartbeatIntervalMs,
+    logger
+  )
+
+  try {
+    const result = await transcribeJob(config, job, downloaded.inputPath)
+    await api.post(`/jobs/${job.id}/result`, result)
+    logger.info(`Completed transcription job ${job.id}`)
+  } catch (error) {
+    await failJob(api, job.id, error, logger)
+  } finally {
+    if (heartbeat) {
+      clearInterval(heartbeat)
+    }
+  }
+}
+
+export async function processAvailableJobs(
+  config: WorkerConfig,
+  logger: Logger = consoleLogger
+) {
+  const api = createApi(config)
+  const readyQueue: DownloadedJob[] = []
+  const downloads = new Set<Promise<void>>()
+  const transcriptions = new Set<Promise<void>>()
+  let downloadQueueExhausted = false
+  let processed = 0
+
+  const startDownload = async (job: WorkerJob) => {
+    const ready = await downloadJob(api, config, job, logger)
+    if (ready) {
+      readyQueue.push(ready)
+    }
+  }
+
+  const fillDownloads = async () => {
+    while (
+      !downloadQueueExhausted &&
+      downloads.size < config.downloadConcurrency
+    ) {
+      const job = await claimDownloadJob(api)
+      if (!job) {
+        downloadQueueExhausted = true
+        return
+      }
+      processed += 1
+      const task = startDownload(job).finally(() => downloads.delete(task))
+      downloads.add(task)
+    }
+  }
+
+  const fillTranscriptions = () => {
+    while (
+      readyQueue.length > 0 &&
+      transcriptions.size < config.transcriptionConcurrency
+    ) {
+      const ready = readyQueue.shift()
+      if (!ready) {
+        return
+      }
+      const task = transcribeDownloadedJob(api, config, ready, logger).finally(
+        () => transcriptions.delete(task)
+      )
+      transcriptions.add(task)
+    }
+  }
+
+  let cycleComplete = false
+  while (!cycleComplete) {
+    await fillDownloads()
+    fillTranscriptions()
+
+    if (
+      downloads.size === 0 &&
+      transcriptions.size === 0 &&
+      readyQueue.length === 0
+    ) {
+      cycleComplete = true
+      continue
+    }
+
+    await Promise.race([...downloads, ...transcriptions])
+  }
+
+  const legacyJob = processed === 0 ? await claimJob(api) : undefined
+  if (!legacyJob) {
+    return processed
+  }
+
+  const source = await getSource(api, legacyJob.id)
+  const inputPath =
+    legacyJob.localSourcePath ||
+    (await downloadSource(config, legacyJob, source))
+  await transcribeDownloadedJob(
+    api,
+    config,
+    { job: legacyJob, inputPath },
+    logger
+  )
+  return processed + 1
 }
 
 function delay(ms: number) {
@@ -483,14 +720,14 @@ export async function runWorker(
   process.once('SIGTERM', stop)
 
   while (!stopped) {
-    const processed = await processNextJob(config, logger)
-    if (!processed && config.idleExit) {
+    const processed = await processAvailableJobs(config, logger)
+    if (processed === 0 && config.idleExit) {
       logger.info(
         'No queued jobs; exiting because VOICY_WORKER_IDLE_EXIT is set'
       )
       break
     }
-    if (!processed) {
+    if (processed === 0) {
       await delay(config.pollIntervalMs)
     }
   }

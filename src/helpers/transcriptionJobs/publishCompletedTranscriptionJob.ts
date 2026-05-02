@@ -10,7 +10,7 @@ import localizedTranscriptionText from '@/helpers/localizedTranscriptionText'
 
 async function storeVoiceRecord(job: DocumentType<TranscriptionJob>) {
   await VoiceModel.create({
-    url: job.sourceUrl,
+    url: job.sourceUrl || job.localSourcePath || job.filePath || job.fileId,
     status: 'completed',
     chatId: job.chatId,
     messageId: job.sourceMessageId,

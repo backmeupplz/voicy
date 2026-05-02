@@ -8,6 +8,10 @@ import {
 } from '@typegoose/typegoose'
 
 export enum TranscriptionJobStatus {
+  queuedForDownload = 'queued_for_download',
+  downloading = 'downloading',
+  ready = 'ready',
+  transcribing = 'transcribing',
   queued = 'queued',
   processing = 'processing',
   completed = 'completed',
@@ -45,7 +49,7 @@ export class TranscriptionJob {
   @prop({
     required: true,
     enum: TranscriptionJobStatus,
-    default: TranscriptionJobStatus.queued,
+    default: TranscriptionJobStatus.queuedForDownload,
     index: true,
   })
   status: TranscriptionJobStatus
@@ -68,6 +72,8 @@ export class TranscriptionJob {
   @prop()
   filePath?: string
   @prop()
+  localSourcePath?: string
+  @prop()
   fileSize?: number
   @prop()
   mimeType?: string
@@ -75,8 +81,8 @@ export class TranscriptionJob {
   fileName?: string
   @prop({ required: true, enum: TranscriptionJobSourceKind })
   sourceKind: TranscriptionJobSourceKind
-  @prop({ required: true })
-  sourceUrl: string
+  @prop()
+  sourceUrl?: string
   @prop()
   requestedByUserId?: string
   @prop()
@@ -91,6 +97,8 @@ export class TranscriptionJob {
   workerId?: string
   @prop()
   claimedAt?: Date
+  @prop()
+  downloadedAt?: Date
   @prop()
   heartbeatAt?: Date
   @prop({ required: true, default: 0 })

@@ -1,12 +1,16 @@
 import * as express from 'express'
 import {
   WorkerApiError,
+  claimDownloadJob,
   claimNextJob,
+  claimReadyJob,
   completeJob,
   failJob,
   getOwnedJob,
   heartbeatJob,
+  markJobDownloaded,
   serializeJob,
+  startTranscriptionJob,
   updateJobProgress,
 } from '@/helpers/workerApi/jobService'
 import authenticateWorker, {
@@ -38,6 +42,30 @@ workerRouter.use(express.json({ limit: '1mb' }))
 workerRouter.use(authenticateWorker)
 
 workerRouter.post(
+  '/jobs/claim-download',
+  asyncRoute(async (request, response) => {
+    const job = await claimDownloadJob(workerClient(request))
+    if (!job) {
+      response.status(204).send()
+      return
+    }
+    response.json({ job: serializeJob(job) })
+  })
+)
+
+workerRouter.post(
+  '/jobs/claim-ready',
+  asyncRoute(async (request, response) => {
+    const job = await claimReadyJob(workerClient(request))
+    if (!job) {
+      response.status(204).send()
+      return
+    }
+    response.json({ job: serializeJob(job) })
+  })
+)
+
+workerRouter.post(
   '/jobs/claim',
   asyncRoute(async (request, response) => {
     const job = await claimNextJob(workerClient(request))
@@ -45,6 +73,29 @@ workerRouter.post(
       response.status(204).send()
       return
     }
+    response.json({ job: serializeJob(job) })
+  })
+)
+
+workerRouter.post(
+  '/jobs/:id/downloaded',
+  asyncRoute(async (request, response) => {
+    const job = await markJobDownloaded(
+      request.params.id,
+      workerClient(request),
+      request.body || {}
+    )
+    response.json({ job: serializeJob(job) })
+  })
+)
+
+workerRouter.post(
+  '/jobs/:id/transcribe',
+  asyncRoute(async (request, response) => {
+    const job = await startTranscriptionJob(
+      request.params.id,
+      workerClient(request)
+    )
     response.json({ job: serializeJob(job) })
   })
 )
@@ -67,6 +118,7 @@ workerRouter.get(
         fileId: job.fileId,
         fileUniqueId: job.fileUniqueId,
         filePath: job.filePath,
+        localSourcePath: job.localSourcePath,
         fileSize: job.fileSize,
         mimeType: job.mimeType,
         fileName: job.fileName,
