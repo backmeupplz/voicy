@@ -49,6 +49,17 @@ async function main() {
   }
 
   const webhookInfo = webhook.body.result
+  if (
+    Array.isArray(webhookInfo.allowed_updates) &&
+    !webhookInfo.allowed_updates.includes('callback_query')
+  ) {
+    fail('Telegram runtime is not subscribed to callback_query updates', {
+      bot: `@${username}`,
+      allowed_updates: webhookInfo.allowed_updates,
+      pending_update_count: webhookInfo.pending_update_count,
+    })
+  }
+
   if (webhookInfo.url) {
     console.log(
       JSON.stringify(

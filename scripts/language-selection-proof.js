@@ -4,11 +4,14 @@ const assert = require('assert')
 
 const handleSetLanguage = require('../dist/handlers/handleSetLanguage').default
 const handleStart = require('../dist/commands/handleStart').default
+const telegramAllowedUpdates =
+  require('../dist/helpers/telegramAllowedUpdates').default
 
 function createContext({
   telegramLanguage = 'en',
   uiLanguage = 'en',
   manual = false,
+  editMessageText,
 } = {}) {
   const calls = []
   const dbchat = {
@@ -39,8 +42,9 @@ function createContext({
       callbackQuery: { data: 'li~1~ru' },
       dbchat,
       i18n,
-      editMessageText: async (text, options) =>
-        calls.push(['edit', text, options]),
+      editMessageText:
+        editMessageText ||
+        (async (text, options) => calls.push(['edit', text, options])),
       answerCallbackQuery: async () => calls.push(['answerCallbackQuery']),
       reply: async (text, options) => calls.push(['reply', text, options]),
       msg: { message_id: 1 },
@@ -87,9 +91,43 @@ async function provesTelegramLanguageStillInitializesUnselectedChats() {
   assert.deepEqual(calls[1], ['reply', 'ru:start:', { parse_mode: 'Markdown' }])
 }
 
+async function provesLanguageCallbackFallsBackWhenEditFails() {
+  const { ctx, calls } = createContext({
+    editMessageText: async () => {
+      calls.push(['editFailed'])
+      throw new Error('message is not modified')
+    },
+  })
+
+  const originalLog = console.log
+  console.log = () => undefined
+  try {
+    await handleSetLanguage(ctx)
+  } finally {
+    console.log = originalLog
+  }
+
+  assert.equal(ctx.dbchat.uiLanguage, 'ru')
+  assert.equal(ctx.dbchat.uiLanguageSelectedManually, true)
+  assert.deepEqual(calls[0], ['answerCallbackQuery'])
+  assert.deepEqual(calls[1], ['save', 'ru', true])
+  assert.deepEqual(calls[2], ['editFailed'])
+  assert.deepEqual(calls[3], [
+    'reply',
+    'ru:language_success:Русский',
+    { parse_mode: 'Markdown' },
+  ])
+}
+
+function provesRuntimePollsForCallbackQueries() {
+  assert(telegramAllowedUpdates.includes('callback_query'))
+}
+
 Promise.resolve()
+  .then(provesRuntimePollsForCallbackQueries)
   .then(provesManualLanguageSurvivesStart)
   .then(provesTelegramLanguageStillInitializesUnselectedChats)
+  .then(provesLanguageCallbackFallsBackWhenEditFails)
   .then(() => {
     console.log('language selection proof passed')
   })

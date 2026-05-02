@@ -35,6 +35,7 @@ import i18n from '@/helpers/i18n'
 import ignoreOldMessageUpdates from '@/middlewares/ignoreOldMessageUpdates'
 import recordTimeReceived from '@/middlewares/recordTimeReceived'
 import startMongo from '@/helpers/startMongo'
+import telegramAllowedUpdates from '@/helpers/telegramAllowedUpdates'
 
 async function runApp() {
   console.log('Starting app...')
@@ -76,7 +77,7 @@ async function runApp() {
   // Start bot
   await bot.init()
   await configureBotCommands()
-  run(bot)
+  run(bot, 500, { allowed_updates: telegramAllowedUpdates })
   console.info(`Bot ${bot.botInfo.username} is up and running`)
   // Start webhook app
   webhookApp.listen(4242, () => console.log('Running on port 4242'))

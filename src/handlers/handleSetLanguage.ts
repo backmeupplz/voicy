@@ -43,14 +43,20 @@ export default async function handleSetLanguage(ctx: Context) {
   await ctx.dbchat.save()
   ctx.i18n.locale(languageObject.code)
 
-  await ctx.editMessageText(
-    markdownI18n(ctx, 'language_success', {
-      language: languageObject.name,
-    }),
-    {
+  const successMessage = markdownI18n(ctx, 'language_success', {
+    language: languageObject.name,
+  })
+
+  try {
+    await ctx.editMessageText(successMessage, {
       parse_mode: 'Markdown',
-    }
-  )
+    })
+  } catch (error) {
+    report(error, { ctx, location: 'handleSetLanguage.successEdit' })
+    await ctx.reply(successMessage, {
+      parse_mode: 'Markdown',
+    })
+  }
 
   if (!isCommand) {
     await sendStart(ctx)
