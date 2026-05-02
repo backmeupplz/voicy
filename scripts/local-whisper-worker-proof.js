@@ -84,10 +84,21 @@ function createProofServer(sampleAudio) {
     claimed: false,
     result: undefined,
     failure: undefined,
+    audioAuthorization: undefined,
   }
 
   const server = http.createServer(async (request, response) => {
     const url = new URL(request.url, 'http://127.0.0.1')
+    if (request.method === 'GET' && url.pathname === '/audio.wav') {
+      state.audioAuthorization = request.headers.authorization
+      response.writeHead(200, {
+        'Content-Type': 'audio/wav',
+        'Content-Length': sampleAudio.length,
+      })
+      response.end(sampleAudio)
+      return
+    }
+
     const token = request.headers.authorization
     if (token !== 'Bearer local-whisper-proof-token') {
       response.writeHead(401, { 'Content-Type': 'application/json' })
@@ -133,15 +144,6 @@ function createProofServer(sampleAudio) {
           },
         })
       )
-      return
-    }
-
-    if (request.method === 'GET' && url.pathname === '/audio.wav') {
-      response.writeHead(200, {
-        'Content-Type': 'audio/wav',
-        'Content-Length': sampleAudio.length,
-      })
-      response.end(sampleAudio)
       return
     }
 
@@ -208,7 +210,7 @@ async function main() {
         'node scripts/whisper-transcriber.js {input} {output} {language}',
       VOICY_WORKER_WORK_DIR: workerDir,
       VOICY_WORKER_ENGINE: 'openai-whisper-cli',
-      VOICY_WORKER_MODEL: process.env.VOICY_WHISPER_MODEL || 'tiny',
+      VOICY_WORKER_MODEL: process.env.VOICY_WORKER_MODEL || 'tiny',
     })
 
     const processed = await processNextJob(config, {
@@ -218,7 +220,12 @@ async function main() {
     })
 
     assert(processed, 'worker should process the local Whisper job')
-    assert(!state.failure, 'local Whisper worker should not report failure')
+    assert(
+      !state.failure,
+      `local Whisper worker should not report failure: ${JSON.stringify(
+        state.failure
+      )}`
+    )
     assert(state.result, 'worker should upload a local Whisper result')
 
     const text = String(state.result.text || '').toLowerCase()
@@ -230,6 +237,10 @@ async function main() {
     assert(
       state.result.engine === 'openai-whisper-cli',
       'worker should report the local Whisper engine'
+    )
+    assert(
+      !state.audioAuthorization,
+      'worker should not send its API token to source downloads'
     )
 
     console.log('local Whisper worker proof passed')

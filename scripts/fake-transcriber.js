@@ -4,9 +4,12 @@ const fs = require('fs')
 
 const inputPath = process.argv[2]
 const outputPath = process.argv[3]
+const model = process.argv[4] || process.env.VOICY_WORKER_MODEL || 'proof-model'
 
 if (!inputPath || !outputPath) {
-  throw new Error('Usage: node scripts/fake-transcriber.js <input> <output>')
+  throw new Error(
+    'Usage: node scripts/fake-transcriber.js <input> <output> [model]'
+  )
 }
 
 const input = fs.readFileSync(inputPath)
@@ -23,6 +26,6 @@ fs.writeFileSync(
     ],
     language: 'en',
     duration: 1.5,
-    metadata: { model: 'proof-model' },
+    metadata: { model },
   })
 )

@@ -68,7 +68,9 @@ On the Windows machine, build this repo, install FFmpeg, Node.js 20+, Python
 $env:VOICY_WORKER_API_URL = "https://<voicy-host>/worker/v1"
 $env:VOICY_WORKER_TOKEN = "voicy_worker_..."
 $env:VOICY_WORKER_WORK_DIR = "C:\voicy-worker\jobs"
-$env:VOICY_WORKER_TRANSCRIBE_COMMAND = "C:\voicy-worker\.venv\Scripts\python.exe C:\voicy-worker\transcribe.py {input} {output} {language}"
+$env:VOICY_WORKER_ENGINE = "faster-whisper"
+$env:VOICY_WORKER_MODEL = "large-v3"
+$env:VOICY_WORKER_TRANSCRIBE_COMMAND = "C:\voicy-worker\.venv\Scripts\python.exe C:\voicy-worker\transcribe.py {input} {output} {language} {model}"
 yarn worker:run
 ```
 
