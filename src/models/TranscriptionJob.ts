@@ -19,6 +19,7 @@ export enum TranscriptionJobSourceKind {
   videoNote = 'video_note',
   audio = 'audio',
   document = 'document',
+  video = 'video',
 }
 
 export interface TranscriptionResultPart {
@@ -70,6 +71,8 @@ export class TranscriptionJob {
   fileSize?: number
   @prop()
   mimeType?: string
+  @prop()
+  fileName?: string
   @prop({ required: true, enum: TranscriptionJobSourceKind })
   sourceKind: TranscriptionJobSourceKind
   @prop({ required: true })

@@ -55,7 +55,7 @@ async function runApp() {
   bot.on('my_chat_member', handleMyChatMember)
   bot.on([':voice', ':video_note'], handleAudio)
   bot.on(
-    [':audio', ':document'],
+    [':audio', ':document', ':video'],
     checkFilesBanned,
     checkDocumentType,
     handleAudio

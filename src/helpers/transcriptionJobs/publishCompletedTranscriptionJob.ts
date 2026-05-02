@@ -18,6 +18,7 @@ async function storeVoiceRecord(job: DocumentType<TranscriptionJob>) {
     fileId: job.fileId,
     fileSize: job.fileSize,
     mimeType: job.mimeType,
+    fileName: job.fileName,
     sourceType: job.sourceKind,
     requestedBy: job.requestedByUserId
       ? Number(job.requestedByUserId)

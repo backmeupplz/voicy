@@ -1,5 +1,9 @@
 import { Message } from '@grammyjs/types'
 import {
+  TranscribableTelegramFile,
+  transcribableMediaFromMessage,
+} from '@/helpers/transcribableTelegramMedia'
+import {
   TranscriptionJobModel,
   TranscriptionJobSourceKind,
   TranscriptionJobStatus,
@@ -8,15 +12,6 @@ import { markdownI18n } from '@/helpers/telegramMarkdown'
 import Context from '@/models/Context'
 import fileUrl from '@/helpers/fileUrl'
 import report from '@/helpers/report'
-
-type AudioPayload = {
-  file_id: string
-  file_size?: number
-  mime_type?: string
-  file_name?: string
-  file_unique_id?: string
-  sourceType: 'voice' | 'audio' | 'document' | 'video_note'
-}
 
 export default async function handleAudio(ctx: Context) {
   try {
@@ -37,7 +32,10 @@ export default async function handleAudio(ctx: Context) {
     }
 
     const message = ctx.msg
-    const audio = audioFromMessage(message)
+    const audio = transcribableMediaFromMessage(message)
+    if (!audio) {
+      return
+    }
     if (audio.file_size && audio.file_size >= 19 * 1024 * 1024) {
       if (!ctx.dbchat.silent) {
         await sendLargeFileError(ctx)
@@ -74,7 +72,10 @@ async function enqueueTranscription(
   sourceMessage: Message = ctx.msg,
   filePath?: string
 ) {
-  const audio = audioFromMessage(sourceMessage)
+  const audio = transcribableMediaFromMessage(sourceMessage)
+  if (!audio) {
+    throw new Error('No supported audio payload found on message')
+  }
   const queuedJob = await TranscriptionJobModel.create({
     status: TranscriptionJobStatus.queued,
     chatId: ctx.dbchat.id,
@@ -86,6 +87,7 @@ async function enqueueTranscription(
     filePath,
     fileSize: audio.file_size,
     mimeType: audio.mime_type,
+    fileName: audio.file_name,
     fileUniqueId: fileUniqueId(audio),
     sourceKind: sourceKind(audio.sourceType),
     sourceUrl: url,
@@ -121,31 +123,15 @@ async function enqueueTranscription(
   return queuedJob
 }
 
-function sourceKind(sourceType: AudioPayload['sourceType']) {
+function sourceKind(sourceType: TranscribableTelegramFile['sourceType']) {
   if (sourceType === 'video_note') {
     return TranscriptionJobSourceKind.videoNote
   }
   return sourceType as TranscriptionJobSourceKind
 }
 
-function fileUniqueId(audio: AudioPayload) {
+function fileUniqueId(audio: TranscribableTelegramFile) {
   return 'file_unique_id' in audio ? audio.file_unique_id : undefined
-}
-
-function audioFromMessage(message: Message): AudioPayload {
-  if (message.voice) {
-    return { ...message.voice, sourceType: 'voice' }
-  }
-  if (message.audio) {
-    return { ...message.audio, sourceType: 'audio' }
-  }
-  if (message.document) {
-    return { ...message.document, sourceType: 'document' }
-  }
-  if (message.video_note) {
-    return { ...message.video_note, sourceType: 'video_note' }
-  }
-  throw new Error('No supported audio payload found on message')
 }
 
 async function sendQueueError(ctx: Context) {

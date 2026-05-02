@@ -146,6 +146,7 @@ export function serializeJob(job: DocumentType<TranscriptionJob>) {
     filePath: job.filePath,
     fileSize: job.fileSize,
     mimeType: job.mimeType,
+    fileName: job.fileName,
     sourceKind: job.sourceKind,
     sourceUrl: job.sourceUrl,
     requestedByUserId: job.requestedByUserId,
