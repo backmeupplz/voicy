@@ -22,6 +22,85 @@ function localeKeys(filePath) {
     .map((match) => match[1])
 }
 
+function localeValueLines(filePath) {
+  return fs
+    .readFileSync(filePath, 'utf8')
+    .split('\n')
+    .map((line, index) => {
+      const keyMatch = line.match(/^([A-Za-z0-9_]+):\s*(.*)$/)
+      return {
+        lineNumber: index + 1,
+        text: keyMatch ? keyMatch[2] : line,
+      }
+    })
+}
+
+function localeValues(filePath) {
+  const values = []
+  let currentValue
+
+  const lines = fs.readFileSync(filePath, 'utf8').split('\n')
+  for (const [index, line] of lines.entries()) {
+    const lineNumber = index + 1
+    const keyMatch = line.match(/^([A-Za-z0-9_]+):\s*(.*)$/)
+    if (keyMatch) {
+      currentValue = {
+        key: keyMatch[1],
+        lineNumber,
+        text: keyMatch[2],
+      }
+      values.push(currentValue)
+      continue
+    }
+
+    if (currentValue) {
+      currentValue.text += `\n${line}`
+    }
+  }
+
+  return values
+}
+
+function unescapedCharacterCount(text, character) {
+  let count = 0
+  let previousCharacter = ''
+
+  for (const currentCharacter of text) {
+    if (currentCharacter === character && previousCharacter !== '\\') {
+      count += 1
+    }
+    previousCharacter = currentCharacter
+  }
+
+  return count
+}
+
+function unmatchedMarkdownMarkers(text) {
+  const markers = []
+  const unescapedBackticks = unescapedCharacterCount(text, '`')
+  const textWithoutCode = text.replace(/(^|[^\\])`[^`]*`/g, '$1')
+
+  if (unescapedBackticks % 2 !== 0) {
+    markers.push('`')
+  }
+
+  for (const marker of ['*', '_']) {
+    if (unescapedCharacterCount(textWithoutCode, marker) % 2 !== 0) {
+      markers.push(marker)
+    }
+  }
+
+  return markers
+}
+
+function markdownSensitiveTokens(text) {
+  return [
+    ...text
+      .replace(/`[^`]*`/g, '')
+      .matchAll(/(^|[^\\])([@/#$]?[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+)\b/g),
+  ].map((match) => match[2])
+}
+
 const files = fs
   .readdirSync(localeDir)
   .filter((file) => file.endsWith('.yaml'))
@@ -115,6 +194,42 @@ for (const file of files) {
 
   if (staleKeys.length > 0) {
     console.log(`  stale: ${staleKeys.join(', ')}`)
+  }
+
+  const unsafeMarkdownTokens = localeValueLines(path.join(localeDir, file))
+    .map(({ lineNumber, text }) => ({
+      lineNumber,
+      tokens: markdownSensitiveTokens(text),
+    }))
+    .filter(({ tokens }) => tokens.length > 0)
+
+  if (unsafeMarkdownTokens.length > 0) {
+    hasFailures = true
+    console.log(
+      `  unsafe bare Markdown tokens: ${unsafeMarkdownTokens
+        .map(({ lineNumber, tokens }) => `${lineNumber}: ${tokens.join(', ')}`)
+        .join('; ')}`
+    )
+  }
+
+  const unmatchedMarkers = localeValues(path.join(localeDir, file))
+    .map(({ key, lineNumber, text }) => ({
+      key,
+      lineNumber,
+      markers: unmatchedMarkdownMarkers(text),
+    }))
+    .filter(({ markers }) => markers.length > 0)
+
+  if (unmatchedMarkers.length > 0) {
+    hasFailures = true
+    console.log(
+      `  unmatched Markdown markers: ${unmatchedMarkers
+        .map(
+          ({ key, lineNumber, markers }) =>
+            `${key} (${lineNumber}): ${markers.join(', ')}`
+        )
+        .join('; ')}`
+    )
   }
 }
 
