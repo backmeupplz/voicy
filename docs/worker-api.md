@@ -26,10 +26,11 @@ the jobs they own.
 
 All endpoints are mounted under `/worker/v1`.
 
-### `POST /jobs/claim`
+### `POST /jobs/claim-download`
 
-Atomically claims the oldest queued job for the authenticated worker. Returns
-`204` when no work is available.
+Atomically claims the oldest `queued_for_download` job for the authenticated
+worker. Legacy `queued` jobs are also accepted for migration. Returns `204`
+when no download work is available.
 
 Successful response:
 
@@ -37,8 +38,7 @@ Successful response:
 {
   "job": {
     "id": "665...",
-    "status": "processing",
-    "sourceUrl": "https://api.telegram.org/file/...",
+    "status": "downloading",
     "sourceKind": "voice",
     "fileId": "AwAC...",
     "attempts": 1
@@ -46,26 +46,71 @@ Successful response:
 }
 ```
 
-The Mongo update filters on `status: queued` and sets `status: processing`,
-`workerId`, `claimedAt`, and `heartbeatAt` in one `findOneAndUpdate`, so two
-workers cannot claim the same queued job.
-
-### `GET /jobs/:id`
-
-Returns metadata for a processing job owned by the authenticated worker.
+The Mongo update sets `status: downloading`, `workerId`, `claimedAt`,
+`heartbeatAt`, and increments `attempts` in one `findOneAndUpdate`, so two
+workers cannot claim the same media acquisition job.
 
 ### `GET /jobs/:id/source`
 
-Returns the source media metadata and URL for a processing job owned by the
-authenticated worker.
+Returns source media metadata for an owned `downloading`, `ready`,
+`transcribing`, or legacy `processing` job. New jobs expose Telegram `fileId`
+and any known `filePath`; workers resolve and download the media locally instead
+of relying on a bot-token-bearing persisted `sourceUrl`.
+
+```json
+{
+  "source": {
+    "jobId": "665...",
+    "fileId": "AwAC...",
+    "filePath": "voice/file_1.oga",
+    "fileSize": 12345,
+    "mimeType": "audio/ogg",
+    "sourceKind": "voice"
+  }
+}
+```
+
+### `POST /jobs/:id/downloaded`
+
+Marks an owned `downloading` job as `ready` after the worker has fully downloaded
+the Telegram media to local disk.
+
+```json
+{
+  "localSourcePath": "C:\\voicy-worker\\jobs\\665.ogg"
+}
+```
+
+### `POST /jobs/:id/transcribe`
+
+Marks an owned `ready` job as `transcribing`. Workers should call this only
+after the local media file is fully available.
+
+### `POST /jobs/claim-ready`
+
+Claims the oldest ready local file owned by the authenticated worker and marks
+it `transcribing`. This endpoint is available for split downloader/transcriber
+clients; the bundled worker normally calls `POST /jobs/:id/transcribe` for the
+job it just downloaded.
+
+### `POST /jobs/claim`
+
+Backward-compatible transcription claim endpoint. It first claims an owned
+`ready` job, then falls back to legacy `queued` jobs that still have a
+`sourceUrl`. New workers should prefer `claim-download`.
+
+### `GET /jobs/:id`
+
+Returns metadata for an active job owned by the authenticated worker.
 
 ### `POST /jobs/:id/heartbeat`
 
-Refreshes `heartbeatAt` for a processing job owned by the authenticated worker.
+Refreshes `heartbeatAt` for a `downloading`, `ready`, `transcribing`, or legacy
+`processing` job owned by the authenticated worker.
 
 ### `POST /jobs/:id/progress`
 
-Stores a partial transcript for a processing job owned by the authenticated
+Stores a partial transcript for a `transcribing` job owned by the authenticated
 worker and edits the bot's in-chat status message when enough time has passed
 since the last visible progress edit.
 
@@ -92,7 +137,7 @@ channel edit behavior is explicitly verified.
 
 ### `POST /jobs/:id/result`
 
-Completes a processing job owned by the authenticated worker, stores transcript
+Completes a `transcribing` job owned by the authenticated worker, stores transcript
 data, creates a legacy `Voice` record, and publishes the final transcript by
 editing the status/progress message unless `VOICY_DISABLE_TELEGRAM_PUBLISH=1`.
 Long final transcripts are split into follow-up replies after the first edited
@@ -131,8 +176,9 @@ Request body:
 `yarn test:worker-api` runs a scripted HTTP proof against `MONGO`. It verifies:
 
 - missing authentication returns `401`;
-- exactly one of two clients can claim a single queued job;
+- exactly one of two clients can claim a single queued download job;
 - a non-owning client cannot heartbeat another worker's job;
+- downloaded media moves the job to `ready` before transcription;
 - progress upload stores partial transcript state for the owning worker;
 - progress edit policy throttles rapid visible edits and disables live edits in
   channels;

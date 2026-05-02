@@ -80,14 +80,17 @@ async function main() {
   const baseUrl = `http://127.0.0.1:${server.address().port}/worker/v1`
 
   try {
-    const unauthenticated = await request(baseUrl, '/jobs/claim', undefined, {
-      method: 'POST',
-    })
+    const unauthenticated = await request(
+      baseUrl,
+      '/jobs/claim-download',
+      undefined,
+      { method: 'POST' }
+    )
     assert(unauthenticated.status === 401, 'unauthenticated claim should fail')
 
     const [claimA, claimB] = await Promise.all([
-      request(baseUrl, '/jobs/claim', tokenA, { method: 'POST' }),
-      request(baseUrl, '/jobs/claim', tokenB, { method: 'POST' }),
+      request(baseUrl, '/jobs/claim-download', tokenA, { method: 'POST' }),
+      request(baseUrl, '/jobs/claim-download', tokenB, { method: 'POST' }),
     ])
     const claimStatuses = [claimA.status, claimB.status].sort().join(',')
     assert(
@@ -100,9 +103,16 @@ async function main() {
     const otherToken = claimA.status === 200 ? tokenB : tokenA
     const { job } = await claimedResponse.json()
     assert(job.id === queuedJob._id.toString(), 'claimed unexpected job')
-    assert(job.status === TranscriptionJobStatus.processing, 'job not processing')
+    assert(
+      job.status === TranscriptionJobStatus.downloading,
+      'job not downloading'
+    )
 
-    const source = await request(baseUrl, `/jobs/${job.id}/source`, claimedToken)
+    const source = await request(
+      baseUrl,
+      `/jobs/${job.id}/source`,
+      claimedToken
+    )
     assert(source.status === 200, 'owning worker should read job source')
 
     const stolenHeartbeat = await request(
@@ -112,6 +122,33 @@ async function main() {
       { method: 'POST' }
     )
     assert(stolenHeartbeat.status === 404, 'other worker should not heartbeat')
+
+    const downloaded = await request(
+      baseUrl,
+      `/jobs/${job.id}/downloaded`,
+      claimedToken,
+      {
+        method: 'POST',
+        body: JSON.stringify({ localSourcePath: '/tmp/proof-file-1.ogg' }),
+      }
+    )
+    assert(downloaded.status === 200, 'owning worker should mark downloaded')
+    const readyJob = await TranscriptionJobModel.findById(job.id)
+    assert(
+      readyJob.status === TranscriptionJobStatus.ready,
+      'downloaded job should become ready'
+    )
+
+    const transcribe = await request(
+      baseUrl,
+      `/jobs/${job.id}/transcribe`,
+      claimedToken,
+      { method: 'POST' }
+    )
+    assert(
+      transcribe.status === 200,
+      'owning worker should start transcription'
+    )
 
     const progress = await request(
       baseUrl,
@@ -136,23 +173,31 @@ async function main() {
     )
     assert(progressedJob.lastProgressAt, 'progress timestamp missing')
 
-    const result = await request(baseUrl, `/jobs/${job.id}/result`, claimedToken, {
-      method: 'POST',
-      body: JSON.stringify({
-        text: 'proof transcript',
-        parts: [{ timeCode: '00:00', text: 'proof transcript' }],
-        language: 'en',
-        engine: 'proof-engine',
-        duration: 1.2,
-      }),
-    })
+    const result = await request(
+      baseUrl,
+      `/jobs/${job.id}/result`,
+      claimedToken,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          text: 'proof transcript',
+          parts: [{ timeCode: '00:00', text: 'proof transcript' }],
+          language: 'en',
+          engine: 'proof-engine',
+          duration: 1.2,
+        }),
+      }
+    )
     assert(result.status === 200, 'owning worker should submit result')
     const completedJob = await TranscriptionJobModel.findById(job.id)
     assert(
       completedJob.status === TranscriptionJobStatus.completed,
       'result upload should complete job'
     )
-    assert(completedJob.resultText === 'proof transcript', 'result text missing')
+    assert(
+      completedJob.resultText === 'proof transcript',
+      'result text missing'
+    )
 
     const retryJob = await TranscriptionJobModel.create({
       chatId: 'proof-chat',
@@ -162,22 +207,28 @@ async function main() {
       sourceKind: TranscriptionJobSourceKind.voice,
       sourceUrl: 'https://example.invalid/proof-2.ogg',
     })
-    const claimRetry = await request(baseUrl, '/jobs/claim', tokenA, {
+    const claimRetry = await request(baseUrl, '/jobs/claim-download', tokenA, {
       method: 'POST',
     })
     assert(claimRetry.status === 200, 'second job should be claimable')
     const retryClaim = await claimRetry.json()
-    assert(retryClaim.job.id === retryJob._id.toString(), 'claimed wrong retry job')
+    assert(
+      retryClaim.job.id === retryJob._id.toString(),
+      'claimed wrong retry job'
+    )
     const failure = await request(
       baseUrl,
       `/jobs/${retryClaim.job.id}/failure`,
       tokenA,
-      { method: 'POST', body: JSON.stringify({ error: 'temporary', retryable: true }) }
+      {
+        method: 'POST',
+        body: JSON.stringify({ error: 'temporary', retryable: true }),
+      }
     )
     assert(failure.status === 200, 'retryable failure should be accepted')
     const requeuedJob = await TranscriptionJobModel.findById(retryClaim.job.id)
     assert(
-      requeuedJob.status === TranscriptionJobStatus.queued,
+      requeuedJob.status === TranscriptionJobStatus.queuedForDownload,
       'retryable failure should requeue below max attempts'
     )
 

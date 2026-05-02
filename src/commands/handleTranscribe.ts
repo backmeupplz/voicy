@@ -1,8 +1,7 @@
-import { enqueueTranscription } from '@/handlers/handleAudio'
+import { enqueueTranscription, isMediaTooLarge } from '@/handlers/handleAudio'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import { transcribableMediaFromMessage } from '@/helpers/transcribableTelegramMedia'
 import Context from '@/models/Context'
-import fileUrl from '@/helpers/fileUrl'
 import report from '@/helpers/report'
 
 export default async function handleTranscribe(ctx: Context) {
@@ -34,7 +33,7 @@ export default async function handleTranscribe(ctx: Context) {
     }
 
     // Check size
-    if (voice.file_size && voice.file_size >= 19 * 1024 * 1024) {
+    if (isMediaTooLarge(voice.file_size)) {
       if (!ctx.dbchat.silent) {
         await ctx.reply(markdownI18n(ctx, 'error_twenty'), {
           parse_mode: 'Markdown',
@@ -43,17 +42,7 @@ export default async function handleTranscribe(ctx: Context) {
       }
       return
     }
-    // Get full url to the voice message
-    const fileData = await ctx.api.getFile(voice.file_id)
-    const voiceUrl = fileUrl(fileData.file_path)
-
-    await enqueueTranscription(
-      ctx,
-      voiceUrl,
-      voice.file_id,
-      message,
-      fileData.file_path
-    )
+    await enqueueTranscription(ctx, voice.file_id, message)
   } catch (error) {
     report(error, { ctx, location: 'handleTranscribe' })
     await ctx.reply(markdownI18n(ctx, 'error_queue'), {

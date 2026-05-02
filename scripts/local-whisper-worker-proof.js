@@ -82,6 +82,8 @@ async function createSampleAudio(workDir) {
 function createProofServer(sampleAudio) {
   const state = {
     claimed: false,
+    downloaded: false,
+    transcribing: false,
     result: undefined,
     failure: undefined,
     audioAuthorization: undefined,
@@ -100,7 +102,10 @@ function createProofServer(sampleAudio) {
     }
 
     const token = request.headers.authorization
-    if (token !== 'Bearer local-whisper-proof-token') {
+    if (
+      url.pathname !== '/audio.wav' &&
+      token !== 'Bearer local-whisper-proof-token'
+    ) {
       response.writeHead(401, { 'Content-Type': 'application/json' })
       response.end(JSON.stringify({ error: 'invalid_worker_token' }))
       return
@@ -130,6 +135,32 @@ function createProofServer(sampleAudio) {
     }
 
     if (
+      request.method === 'POST' &&
+      url.pathname === '/worker/v1/jobs/claim-download'
+    ) {
+      if (state.claimed) {
+        response.writeHead(204)
+        response.end()
+        return
+      }
+      state.claimed = true
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          job: {
+            id: 'local-whisper-proof-job',
+            status: 'downloading',
+            sourceKind: 'voice',
+            mimeType: 'audio/wav',
+            recognitionLanguageHint: 'en',
+            attempts: 1,
+          },
+        })
+      )
+      return
+    }
+
+    if (
       request.method === 'GET' &&
       url.pathname === '/worker/v1/jobs/local-whisper-proof-job/source'
     ) {
@@ -141,6 +172,48 @@ function createProofServer(sampleAudio) {
             sourceKind: 'voice',
             mimeType: 'audio/wav',
             fileId: 'local-whisper-proof-file',
+          },
+        })
+      )
+      return
+    }
+
+    if (
+      request.method === 'POST' &&
+      url.pathname === '/worker/v1/jobs/local-whisper-proof-job/downloaded'
+    ) {
+      state.downloaded = true
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          job: {
+            id: 'local-whisper-proof-job',
+            status: 'ready',
+            sourceKind: 'voice',
+            mimeType: 'audio/wav',
+            recognitionLanguageHint: 'en',
+            attempts: 1,
+          },
+        })
+      )
+      return
+    }
+
+    if (
+      request.method === 'POST' &&
+      url.pathname === '/worker/v1/jobs/local-whisper-proof-job/transcribe'
+    ) {
+      state.transcribing = true
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          job: {
+            id: 'local-whisper-proof-job',
+            status: 'transcribing',
+            sourceKind: 'voice',
+            mimeType: 'audio/wav',
+            recognitionLanguageHint: 'en',
+            attempts: 1,
           },
         })
       )

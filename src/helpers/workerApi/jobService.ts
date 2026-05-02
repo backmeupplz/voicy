@@ -144,6 +144,7 @@ export function serializeJob(job: DocumentType<TranscriptionJob>) {
     fileId: job.fileId,
     fileUniqueId: job.fileUniqueId,
     filePath: job.filePath,
+    localSourcePath: job.localSourcePath,
     fileSize: job.fileSize,
     mimeType: job.mimeType,
     fileName: job.fileName,
@@ -158,19 +159,29 @@ export function serializeJob(job: DocumentType<TranscriptionJob>) {
     lastProgressPublishedAt: job.lastProgressPublishedAt,
     attempts: job.attempts,
     claimedAt: job.claimedAt,
+    downloadedAt: job.downloadedAt,
     heartbeatAt: job.heartbeatAt,
     createdAt: timestampedJob.createdAt,
     updatedAt: timestampedJob.updatedAt,
   }
 }
 
-export async function claimNextJob(workerClient: DocumentType<WorkerClient>) {
+export async function claimDownloadJob(
+  workerClient: DocumentType<WorkerClient>
+) {
   const now = new Date()
   const job = await TranscriptionJobModel.findOneAndUpdate(
-    { status: TranscriptionJobStatus.queued },
+    {
+      status: {
+        $in: [
+          TranscriptionJobStatus.queuedForDownload,
+          TranscriptionJobStatus.queued,
+        ],
+      },
+    },
     {
       $set: {
-        status: TranscriptionJobStatus.processing,
+        status: TranscriptionJobStatus.downloading,
         workerId: workerId(workerClient),
         claimedAt: now,
         heartbeatAt: now,
@@ -185,11 +196,138 @@ export async function claimNextJob(workerClient: DocumentType<WorkerClient>) {
       { _id: workerClient._id },
       { $set: { lastClaimedAt: now } }
     )
+  }
+
+  return job
+}
+
+export async function claimReadyJob(workerClient: DocumentType<WorkerClient>) {
+  const now = new Date()
+  const job = await TranscriptionJobModel.findOneAndUpdate(
+    {
+      workerId: workerId(workerClient),
+      status: TranscriptionJobStatus.ready,
+      localSourcePath: { $exists: true, $ne: '' },
+    },
+    {
+      $set: {
+        status: TranscriptionJobStatus.transcribing,
+        heartbeatAt: now,
+      },
+    },
+    { sort: { downloadedAt: 1, createdAt: 1 }, new: true }
+  )
+
+  if (job) {
     publishTranscriptionJobProgress(job, 'processing').catch((error) =>
       console.error('Failed to publish transcription job start', error)
     )
   }
 
+  return job
+}
+
+export async function startTranscriptionJob(
+  jobId: string,
+  workerClient: DocumentType<WorkerClient>
+) {
+  assertObjectId(jobId)
+  const now = new Date()
+  const job = await TranscriptionJobModel.findOneAndUpdate(
+    {
+      _id: jobId,
+      workerId: workerId(workerClient),
+      status: TranscriptionJobStatus.ready,
+      localSourcePath: { $exists: true, $ne: '' },
+    },
+    {
+      $set: {
+        status: TranscriptionJobStatus.transcribing,
+        heartbeatAt: now,
+      },
+    },
+    { new: true }
+  )
+  if (!job) {
+    throw new WorkerApiError(404, 'job_not_found')
+  }
+  publishTranscriptionJobProgress(job, 'processing').catch((error) =>
+    console.error('Failed to publish transcription job start', error)
+  )
+  return job
+}
+
+export async function claimNextJob(workerClient: DocumentType<WorkerClient>) {
+  const readyJob = await claimReadyJob(workerClient)
+  if (readyJob) {
+    return readyJob
+  }
+
+  const now = new Date()
+  const legacyJob = await TranscriptionJobModel.findOneAndUpdate(
+    {
+      status: TranscriptionJobStatus.queued,
+      sourceUrl: { $exists: true, $ne: '' },
+    },
+    {
+      $set: {
+        status: TranscriptionJobStatus.processing,
+        workerId: workerId(workerClient),
+        claimedAt: now,
+        heartbeatAt: now,
+      },
+      $inc: { attempts: 1 },
+    },
+    { sort: { createdAt: 1 }, new: true }
+  )
+
+  if (legacyJob) {
+    await WorkerClientModel.updateOne(
+      { _id: workerClient._id },
+      { $set: { lastClaimedAt: now } }
+    )
+    publishTranscriptionJobProgress(legacyJob, 'processing').catch((error) =>
+      console.error('Failed to publish transcription job start', error)
+    )
+  }
+
+  return legacyJob
+}
+
+export async function markJobDownloaded(
+  jobId: string,
+  workerClient: DocumentType<WorkerClient>,
+  body: Record<string, unknown>
+) {
+  assertObjectId(jobId)
+  const localSourcePath = validateOptionalString(
+    body.localSourcePath,
+    'invalid_local_source_path'
+  )
+  if (!localSourcePath?.trim()) {
+    throw new WorkerApiError(400, 'local_source_path_required')
+  }
+  const now = new Date()
+  const job = await TranscriptionJobModel.findOneAndUpdate(
+    {
+      _id: jobId,
+      workerId: workerId(workerClient),
+      status: TranscriptionJobStatus.downloading,
+    },
+    {
+      $set: {
+        status: TranscriptionJobStatus.ready,
+        localSourcePath,
+        downloadedAt: now,
+        heartbeatAt: now,
+      },
+      $unset: { lastError: '' },
+    },
+    { new: true }
+  )
+  if (!job) {
+    throw new WorkerApiError(404, 'job_not_found')
+  }
   return job
 }
 
@@ -201,7 +339,14 @@ export async function getOwnedJob(
   const job = await TranscriptionJobModel.findOne({
     _id: jobId,
     workerId: workerId(workerClient),
-    status: TranscriptionJobStatus.processing,
+    status: {
+      $in: [
+        TranscriptionJobStatus.downloading,
+        TranscriptionJobStatus.ready,
+        TranscriptionJobStatus.transcribing,
+        TranscriptionJobStatus.processing,
+      ],
+    },
   })
   if (!job) {
     throw new WorkerApiError(404, 'job_not_found')
@@ -218,7 +363,14 @@ export async function heartbeatJob(
     {
       _id: jobId,
       workerId: workerId(workerClient),
-      status: TranscriptionJobStatus.processing,
+      status: {
+        $in: [
+          TranscriptionJobStatus.downloading,
+          TranscriptionJobStatus.ready,
+          TranscriptionJobStatus.transcribing,
+          TranscriptionJobStatus.processing,
+        ],
+      },
     },
     { $set: { heartbeatAt: new Date() } },
     { new: true }
@@ -252,7 +404,12 @@ export async function updateJobProgress(
     {
       _id: jobId,
       workerId: workerId(workerClient),
-      status: TranscriptionJobStatus.processing,
+      status: {
+        $in: [
+          TranscriptionJobStatus.transcribing,
+          TranscriptionJobStatus.processing,
+        ],
+      },
     },
     {
       $set: {
@@ -300,7 +457,12 @@ export async function completeJob(
     {
       _id: jobId,
       workerId: workerId(workerClient),
-      status: TranscriptionJobStatus.processing,
+      status: {
+        $in: [
+          TranscriptionJobStatus.transcribing,
+          TranscriptionJobStatus.processing,
+        ],
+      },
     },
     {
       $set: {
@@ -344,10 +506,16 @@ export async function failJob(
   const update = shouldRetry
     ? {
         $set: {
-          status: TranscriptionJobStatus.queued,
+          status: TranscriptionJobStatus.queuedForDownload,
           lastError: truncateError(body.error),
         },
-        $unset: { workerId: '', claimedAt: '', heartbeatAt: '' },
+        $unset: {
+          workerId: '',
+          claimedAt: '',
+          heartbeatAt: '',
+          localSourcePath: '',
+          downloadedAt: '',
+        },
       }
     : {
         $set: {
@@ -362,7 +530,14 @@ export async function failJob(
     {
       _id: jobId,
       workerId: workerId(workerClient),
-      status: TranscriptionJobStatus.processing,
+      status: {
+        $in: [
+          TranscriptionJobStatus.downloading,
+          TranscriptionJobStatus.ready,
+          TranscriptionJobStatus.transcribing,
+          TranscriptionJobStatus.processing,
+        ],
+      },
     },
     update,
     { new: true }

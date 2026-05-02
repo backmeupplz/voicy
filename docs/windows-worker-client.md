@@ -142,8 +142,17 @@ $env:VOICY_WORKER_ENGINE = "faster-whisper"
 $env:VOICY_WORKER_MODEL = "large-v3"
 $env:VOICY_WORKER_HEARTBEAT_INTERVAL_MS = "30000"
 $env:VOICY_WORKER_POLL_INTERVAL_MS = "5000"
+$env:VOICY_WORKER_TELEGRAM_BOT_TOKEN = "<telegram-bot-token>"
+$env:VOICY_WORKER_TELEGRAM_API_URL = "http://127.0.0.1:8081"
+$env:VOICY_WORKER_DOWNLOAD_CONCURRENCY = "2"
+$env:VOICY_WORKER_TRANSCRIPTION_CONCURRENCY = "1"
 $env:VOICY_WORKER_TRANSCRIBE_COMMAND = "C:\voicy-worker\.venv\Scripts\python.exe C:\voicy-worker\transcribe.py {input} {output} {language} {model}"
 ```
+
+`VOICY_WORKER_TELEGRAM_API_URL` may point at a worker-local Telegram Bot API
+server. Leave it unset to use `https://api.telegram.org`. The token is read from
+`VOICY_WORKER_TELEGRAM_BOT_TOKEN` or `TOKEN` on the worker host and is not
+persisted in queued job URLs.
 
 For CPU or smoke-test environments with the OpenAI Whisper CLI installed, use the checked-in adapter instead:
 
@@ -165,9 +174,14 @@ spawns `whisper`, which protects the local test worker from launchd's default
 Optional:
 
 - `VOICY_WORKER_LANGUAGE=en` forces a language when the queued job has no hint.
-- `VOICY_WORKER_IDLE_EXIT=1` processes at most one available job and exits,
-  useful for smoke tests or scheduled runs.
+- `VOICY_WORKER_IDLE_EXIT=1` processes one available batch and exits, useful for
+  smoke tests or scheduled runs.
 - `VOICY_WORKER_DOWNLOAD_TIMEOUT_MS=300000` controls audio download timeout.
+- `VOICY_WORKER_DOWNLOAD_CONCURRENCY=2` controls parallel media downloads.
+- `VOICY_WORKER_TRANSCRIPTION_CONCURRENCY=1` controls concurrent local STT
+  commands.
+- `VOICY_MAX_MEDIA_FILE_SIZE_MB=20` controls the bot-side accepted Telegram
+  media size before a job is queued; set it on the backend.
 
 Run the worker:
 
@@ -175,23 +189,31 @@ Run the worker:
 yarn worker:run
 ```
 
-For a one-job smoke test, add `VOICY_WORKER_IDLE_EXIT=1` before running the
-worker. The process exits after processing one available job, or exits
-immediately if no queued job is available.
+For a smoke test, add `VOICY_WORKER_IDLE_EXIT=1` before running the worker. The
+process exits after one available batch, or exits immediately if no queued job is
+available.
 
 ## Runtime Behavior
 
-The client polls `POST /jobs/claim`. If there is no work, it sleeps for
+The client polls `POST /jobs/claim-download`. If there is no work, it sleeps for
 `VOICY_WORKER_POLL_INTERVAL_MS`.
 
 For each claimed job it:
 
 1. Reads source metadata from `GET /jobs/:id/source`.
-2. Downloads `sourceUrl` into `VOICY_WORKER_WORK_DIR`.
-3. Starts heartbeat posts while local transcription runs.
-4. Runs `VOICY_WORKER_TRANSCRIBE_COMMAND`.
-5. Reads transcript JSON from `{output}` or plain text from stdout.
-6. Uploads the result to `POST /jobs/:id/result`.
+2. Resolves Telegram `fileId`/`filePath` through the configured Telegram Bot API
+   endpoint when no legacy `sourceUrl` is present.
+3. Downloads the media into `VOICY_WORKER_WORK_DIR`.
+4. Marks the job `ready` with `POST /jobs/:id/downloaded`.
+5. Starts transcription with `POST /jobs/:id/transcribe`.
+6. Runs `VOICY_WORKER_TRANSCRIBE_COMMAND`.
+7. Reads transcript JSON from `{output}` or plain text from stdout.
+8. Uploads the result to `POST /jobs/:id/result`.
+
+Downloads run up to `VOICY_WORKER_DOWNLOAD_CONCURRENCY` in parallel. The
+transcription scheduler consumes whichever download becomes ready first, so a
+large slow file does not block a later smaller file that has already reached
+local disk.
 
 The command template supports `{input}`, `{output}`, `{language}`, and
 `{model}`. Paths and values are quoted before replacement so spaces in Windows
@@ -208,7 +230,8 @@ payloads and throttles visible Telegram edits server-side.
 
 Download failures, command crashes, and upload failures are reported to
 `POST /jobs/:id/failure` with `retryable: true`. The backend requeues retryable
-jobs until `VOICY_WORKER_MAX_ATTEMPTS` is reached, then marks them failed.
+jobs for download until `VOICY_WORKER_MAX_ATTEMPTS` is reached, then marks them
+failed.
 
 If the transcription command exits successfully but produces no transcript text,
 the client reports a non-retryable failure. That avoids repeatedly processing a
@@ -230,7 +253,8 @@ MONGO=mongodb://127.0.0.1:27017/voicy_worker_proof yarn test:worker-e2e
 
 `yarn test:worker-client` runs the compiled client against a mock worker API,
 downloads a fake audio payload, executes a fake transcriber, uploads the result,
-checks the no-work polling path, and checks retryable command failure reporting.
+checks the no-work polling path, checks retryable command failure reporting, and
+proves a smaller ready download can transcribe before a slower earlier download.
 
 `yarn test:worker-e2e` uses the real Express worker API, local Mongo, a queued
 `TranscriptionJob`, a local sample-audio HTTP server, and the worker client. It
