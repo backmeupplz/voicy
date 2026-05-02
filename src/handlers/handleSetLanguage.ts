@@ -11,6 +11,12 @@ export default async function handleSetLanguage(ctx: Context) {
   const isCommand = +options[1] === 1
   const language = options[2]
 
+  try {
+    await ctx.answerCallbackQuery()
+  } catch (error) {
+    report(error, { ctx, location: 'handleSetLanguage.answerCallbackQuery' })
+  }
+
   if (['<', '>'].includes(language)) {
     const page = +options[3]
     try {
@@ -33,6 +39,7 @@ export default async function handleSetLanguage(ctx: Context) {
   }
 
   ctx.dbchat.uiLanguage = languageObject.code
+  ctx.dbchat.uiLanguageSelectedManually = true
   await ctx.dbchat.save()
   ctx.i18n.locale(languageObject.code)
 

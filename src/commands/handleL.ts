@@ -15,6 +15,7 @@ export default async function handleL(ctx: Context) {
     return sendLanguage(ctx, true)
   }
   ctx.dbchat.uiLanguage = languageObject.code
+  ctx.dbchat.uiLanguageSelectedManually = true
   await ctx.dbchat.save()
   ctx.i18n.locale(languageObject.code)
   return ctx.reply(
