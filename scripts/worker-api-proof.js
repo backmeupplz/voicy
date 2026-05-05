@@ -114,6 +114,48 @@ async function main() {
       claimedToken
     )
     assert(source.status === 200, 'owning worker should read job source')
+    const sourceBody = await source.json()
+    assert(
+      sourceBody.source.sourceUrl === 'https://example.invalid/proof.ogg',
+      'safe legacy sourceUrl should remain available'
+    )
+
+    const tokenUrlJob = await TranscriptionJobModel.create({
+      chatId: 'proof-chat',
+      telegramChatId: '123',
+      sourceMessageId: 12,
+      fileId: 'proof-file-token-url',
+      sourceKind: TranscriptionJobSourceKind.voice,
+      sourceUrl: `https://api.telegram.org/file/bot${process.env.TOKEN}/voice/proof.ogg`,
+    })
+    const tokenUrlClaim = await request(
+      baseUrl,
+      '/jobs/claim-download',
+      claimedToken,
+      { method: 'POST' }
+    )
+    assert(tokenUrlClaim.status === 200, 'token URL job should be claimable')
+    const tokenUrlClaimBody = await tokenUrlClaim.json()
+    assert(
+      tokenUrlClaimBody.job.id === tokenUrlJob._id.toString(),
+      'claimed wrong token URL job'
+    )
+    assert(
+      !tokenUrlClaimBody.job.sourceUrl,
+      'token-bearing sourceUrl should be redacted from job payload'
+    )
+    const tokenUrlSource = await request(
+      baseUrl,
+      `/jobs/${tokenUrlClaimBody.job.id}/source`,
+      claimedToken
+    )
+    assert(tokenUrlSource.status === 200, 'worker should read token URL source')
+    const tokenUrlSourceBody = await tokenUrlSource.json()
+    assert(
+      !tokenUrlSourceBody.source.sourceUrl,
+      'token-bearing sourceUrl should be redacted from source payload'
+    )
+    await TranscriptionJobModel.deleteOne({ _id: tokenUrlJob._id })
 
     const stolenHeartbeat = await request(
       baseUrl,

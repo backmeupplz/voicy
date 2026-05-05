@@ -99,6 +99,26 @@ Backward-compatible transcription claim endpoint. It first claims an owned
 `ready` job, then falls back to legacy `queued` jobs that still have a
 `sourceUrl`. New workers should prefer `claim-download`.
 
+### Token-bearing source URL cleanup
+
+New jobs persist Telegram file metadata instead of Telegram file download URLs,
+because `https://api.telegram.org/file/bot<TOKEN>/...` URLs contain the bot
+token. Worker API responses also suppress any legacy `sourceUrl` that matches a
+Telegram bot-token URL.
+
+After deploying this code, scrub historical Mongo records before rotating the
+Telegram bot token:
+
+```sh
+yarn build-ts
+MONGO="$MONGO" yarn security:scrub-source-urls --dry-run
+MONGO="$MONGO" yarn security:scrub-source-urls
+```
+
+The scrubber unsets token-bearing `TranscriptionJob.sourceUrl` and legacy
+`Voice.url` values while leaving non-token source URLs untouched. Rotate `TOKEN`
+after the scrubber reports no remaining matches.
+
 ### `GET /jobs/:id`
 
 Returns metadata for an active job owned by the authenticated worker.

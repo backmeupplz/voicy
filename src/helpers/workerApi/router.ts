@@ -13,6 +13,7 @@ import {
   startTranscriptionJob,
   updateJobProgress,
 } from '@/helpers/workerApi/jobService'
+import { safeWorkerSourceUrl } from '@/helpers/sourceUrlSecurity'
 import authenticateWorker, {
   WorkerRequest,
 } from '@/helpers/workerApi/authenticateWorker'
@@ -123,7 +124,7 @@ workerRouter.get(
         mimeType: job.mimeType,
         fileName: job.fileName,
         sourceKind: job.sourceKind,
-        sourceUrl: job.sourceUrl,
+        sourceUrl: safeWorkerSourceUrl(job.sourceUrl),
       },
     })
   })
