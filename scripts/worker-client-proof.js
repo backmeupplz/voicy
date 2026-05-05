@@ -494,6 +494,51 @@ async function main() {
     await close(server)
   }
 
+  const emptyProof = createProofServer()
+  await listen(emptyProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${emptyProof.server.address().port}/worker/v1`
+    const config = loadConfig({
+      VOICY_WORKER_API_URL: baseUrl,
+      VOICY_WORKER_TOKEN: 'proof-worker-token',
+      VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+      VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+        '-e',
+        "process.stdout.write(JSON.stringify({ text: '', parts: [], language: 'en', duration: 0.1 }))",
+      ]),
+      VOICY_WORKER_WORK_DIR: path.join(
+        os.tmpdir(),
+        `voicy-worker-empty-proof-${process.pid}`
+      ),
+      VOICY_WORKER_TELEGRAM_API_URL: `http://127.0.0.1:${
+        emptyProof.server.address().port
+      }`,
+      VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
+    })
+
+    const processed = await processNextJob(config, {
+      info: () => undefined,
+      warn: () => undefined,
+      error: () => undefined,
+    })
+
+    assert(processed, 'worker should process the empty transcript job')
+    assert(
+      !emptyProof.state.failure,
+      `empty transcript should not report failure: ${JSON.stringify(
+        emptyProof.state.failure
+      )}`
+    )
+    assert(emptyProof.state.result, 'empty transcript should submit a result')
+    assert(
+      emptyProof.state.result.text === '',
+      'empty transcript should submit empty result text for backend fallback copy'
+    )
+  } finally {
+    await close(emptyProof.server)
+  }
+
   const failureProof = createProofServer()
   await listen(failureProof.server)
 

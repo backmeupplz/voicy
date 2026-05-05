@@ -57,7 +57,7 @@ function maxAttempts() {
 }
 
 function validateResultText(text: unknown) {
-  if (typeof text !== 'string' || !text.trim()) {
+  if (typeof text !== 'string') {
     throw new WorkerApiError(400, 'result_text_required')
   }
   if (text.length > MAX_RESULT_TEXT_LENGTH) {

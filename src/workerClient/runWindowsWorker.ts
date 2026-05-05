@@ -5,6 +5,7 @@ import { createWriteStream } from 'fs'
 import { mkdir, readFile, stat, unlink } from 'fs/promises'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
+import { redactSensitiveText } from '../helpers/report'
 import { spawn } from 'child_process'
 import axios, { AxiosInstance } from 'axios'
 
@@ -511,11 +512,7 @@ function normalizeTranscriptionOutput(
   inputPath: string
 ) {
   const parsed = parseJsonOutput(rawOutput.trim())
-  const text = parsed?.text || rawOutput.trim()
-
-  if (!text) {
-    throw new WorkerClientError('Transcription command produced no text', false)
-  }
+  const text = typeof parsed?.text === 'string' ? parsed.text : rawOutput.trim()
 
   return {
     text,
@@ -582,7 +579,9 @@ async function failJob(
   logger: Logger
 ) {
   const retryable = error instanceof WorkerClientError ? error.retryable : true
-  const message = error instanceof Error ? error.message : String(error)
+  const message = redactSensitiveText(
+    error instanceof Error ? error.message : String(error)
+  )
   logger.warn(`Reporting job ${jobId} failure: ${message}`)
   await api.post(`/jobs/${jobId}/failure`, { error: message, retryable })
 }
@@ -598,7 +597,9 @@ function startHeartbeat(
   }
   return setInterval(() => {
     api.post(`/jobs/${jobId}/heartbeat`).catch((error) => {
-      const message = error instanceof Error ? error.message : String(error)
+      const message = redactSensitiveText(
+        error instanceof Error ? error.message : String(error)
+      )
       logger.warn(`Heartbeat failed for job ${jobId}: ${message}`)
     })
   }, intervalMs)
