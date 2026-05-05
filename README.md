@@ -74,7 +74,8 @@ $env:VOICY_WORKER_TELEGRAM_BOT_TOKEN = "<telegram-bot-token>"
 $env:VOICY_WORKER_TELEGRAM_API_URL = "http://127.0.0.1:8081"
 $env:VOICY_WORKER_DOWNLOAD_CONCURRENCY = "2"
 $env:VOICY_WORKER_TRANSCRIPTION_CONCURRENCY = "1"
-$env:VOICY_WORKER_TRANSCRIBE_COMMAND = "C:\voicy-worker\.venv\Scripts\python.exe C:\voicy-worker\transcribe.py {input} {output} {language} {model}"
+$env:VOICY_WORKER_TRANSCRIBE_EXECUTABLE = "C:\voicy-worker\.venv\Scripts\python.exe"
+$env:VOICY_WORKER_TRANSCRIBE_ARGS_JSON = '["C:\\voicy-worker\\transcribe.py","{input}","{output}","{language}","{model}"]'
 yarn worker:run
 ```
 
@@ -96,7 +97,8 @@ export the worker API/token environment, then inspect the generated plist:
 yarn build-ts
 export VOICY_WORKER_API_URL=http://127.0.0.1:3000/worker/v1
 export VOICY_WORKER_TOKEN=voicy_worker_...
-export VOICY_WORKER_TRANSCRIBE_COMMAND='node scripts/whisper-transcriber.js {input} {output} {language}'
+export VOICY_WORKER_TRANSCRIBE_EXECUTABLE="$(command -v node)"
+export VOICY_WORKER_TRANSCRIBE_ARGS_JSON='["scripts/whisper-transcriber.js","{input}","{output}","{language}"]'
 yarn worker:print-macos-test-launchd
 ```
 

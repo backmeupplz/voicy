@@ -26,6 +26,6 @@ fs.writeFileSync(
     ],
     language: 'en',
     duration: 1.5,
-    metadata: { model },
+    metadata: { model, inputPath, outputPath, argv: process.argv.slice(2) },
   })
 )

@@ -279,8 +279,13 @@ async function main() {
         server.address().port
       }/worker/v1`,
       VOICY_WORKER_TOKEN: 'local-whisper-proof-token',
-      VOICY_WORKER_TRANSCRIBE_COMMAND:
-        'node scripts/whisper-transcriber.js {input} {output} {language}',
+      VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+      VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+        'scripts/whisper-transcriber.js',
+        '{input}',
+        '{output}',
+        '{language}',
+      ]),
       VOICY_WORKER_WORK_DIR: workerDir,
       VOICY_WORKER_ENGINE: 'openai-whisper-cli',
       VOICY_WORKER_MODEL: process.env.VOICY_WORKER_MODEL || 'tiny',
