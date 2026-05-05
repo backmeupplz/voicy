@@ -32,6 +32,20 @@ export class Chat extends FindOrCreate {
   lastVoiceMessageSentAt?: Date
   @prop({ required: true, default: false })
   paid: boolean
+  @prop()
+  stripeCheckoutSessionId?: string
+  @prop()
+  stripePaymentIntentId?: string
+  @prop()
+  stripePaidAt?: Date
+  @prop()
+  stripeAmountSubtotal?: number
+  @prop()
+  stripeAmountTotal?: number
+  @prop()
+  stripeCurrency?: string
+  @prop()
+  stripePriceId?: string
   @prop({ required: true, default: false })
   banned: boolean
 }

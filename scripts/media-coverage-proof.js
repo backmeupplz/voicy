@@ -82,6 +82,34 @@ assert(
   }),
   'octet-stream documents with unsupported extensions should not be transcribable'
 )
+assert(
+  !transcribableMediaFromMessage({
+    document: {
+      file_id: 'anonymous-octet-file',
+      mime_type: 'application/octet-stream',
+    },
+  }),
+  'anonymous octet-stream documents should not be transcribable'
+)
+assert(
+  !transcribableMediaFromMessage({
+    document: {
+      file_id: 'missing-mime-file',
+      file_name: 'upload',
+    },
+  }),
+  'documents without MIME or supported extension should not be transcribable'
+)
+assertMedia(
+  {
+    document: {
+      file_id: 'missing-mime-audio-file',
+      file_name: 'meeting.wav',
+    },
+  },
+  'document',
+  'missing-mime-audio-file'
+)
 
 assert(
   extensionForSource({
