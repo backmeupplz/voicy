@@ -34,6 +34,7 @@ import handleTranscribeAll from './commands/handleTranscribeAll'
 import i18n from '@/helpers/i18n'
 import ignoreOldMessageUpdates from '@/middlewares/ignoreOldMessageUpdates'
 import recordTimeReceived from '@/middlewares/recordTimeReceived'
+import report from '@/helpers/report'
 import startMongo from '@/helpers/startMongo'
 import telegramAllowedUpdates from '@/helpers/telegramAllowedUpdates'
 
@@ -73,7 +74,9 @@ async function runApp() {
   // Callabcks
   bot.callbackQuery(/li.+/, handleSetLanguage)
   // Errors
-  bot.catch(console.error)
+  bot.catch((error) => {
+    report(error.error, { ctx: error.ctx, location: 'bot.catch' })
+  })
   // Start bot
   await bot.init()
   await configureBotCommands()
