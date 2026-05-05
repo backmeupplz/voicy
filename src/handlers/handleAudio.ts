@@ -4,6 +4,10 @@ import {
   transcribableMediaFromMessage,
 } from '@/helpers/transcribableTelegramMedia'
 import {
+  TranscriptionAbuseLimitReason,
+  checkTranscriptionAbuseLimits,
+} from '@/helpers/transcriptionJobs/abuseLimits'
+import {
   TranscriptionJobModel,
   TranscriptionJobSourceKind,
   TranscriptionJobStatus,
@@ -79,6 +83,15 @@ async function enqueueTranscription(
   if (!audio) {
     throw new Error('No supported audio payload found on message')
   }
+  const abuseLimit = await checkTranscriptionAbuseLimits({
+    chatId: ctx.dbchat.id,
+    userId: ctx.from?.id ? String(ctx.from.id) : undefined,
+  })
+  if (abuseLimit) {
+    await sendTranscriptionLimitError(ctx, abuseLimit.reason, sourceMessage)
+    return undefined
+  }
+
   const queuedJob = await TranscriptionJobModel.create({
     status: TranscriptionJobStatus.queuedForDownload,
     chatId: ctx.dbchat.id,
@@ -123,6 +136,27 @@ async function enqueueTranscription(
     }s`
   )
   return queuedJob
+}
+
+function sendTranscriptionLimitError(
+  ctx: Context,
+  reason: TranscriptionAbuseLimitReason,
+  sourceMessage: Message
+) {
+  return ctx.reply(markdownI18n(ctx, transcriptionLimitMessageKey(reason)), {
+    parse_mode: 'Markdown',
+    reply_to_message_id: sourceMessage.message_id,
+  })
+}
+
+function transcriptionLimitMessageKey(reason: TranscriptionAbuseLimitReason) {
+  if (reason === TranscriptionAbuseLimitReason.chatQueueFull) {
+    return 'error_transcription_queue_full'
+  }
+  if (reason === TranscriptionAbuseLimitReason.userRateLimited) {
+    return 'error_transcription_user_limited'
+  }
+  return 'error_transcription_chat_limited'
 }
 
 function sourceKind(sourceType: TranscribableTelegramFile['sourceType']) {
