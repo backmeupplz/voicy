@@ -19,6 +19,7 @@
     "test:language-selection": "node scripts/language-selection-proof.js",
     "test:progress-policy": "node scripts/progress-policy-proof.js",
     "test:media-coverage": "node scripts/media-coverage-proof.js",
+    "test:transcription-abuse-limits": "node scripts/transcription-abuse-limits-proof.js",
     "test:telegram-runtime": "node scripts/telegram-runtime-check.js",
     "test:local-runtime-health": "node scripts/local-runtime-health.js",
     "qa:telegram-upload": "node scripts/telegram-web-upload-qa.mjs",

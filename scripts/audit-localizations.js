@@ -134,6 +134,9 @@ const dynamicKeys = new Set([
   'silent_false',
   'transcribe_all_true',
   'transcribe_all_false',
+  'error_transcription_queue_full',
+  'error_transcription_chat_limited',
+  'error_transcription_user_limited',
 ])
 const usedKeys = new Set([...directKeys, ...dynamicKeys])
 
