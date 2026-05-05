@@ -124,6 +124,11 @@ const directKeys = new Set([
       /localizedTranscriptionText\([^,]+,\s*['"]([A-Za-z0-9_]+)['"]/g
     ),
   ].map((match) => match[1]),
+  ...[
+    ...sourceText.matchAll(
+      /transcriptionProgressStatus(?:Html|Line)\([^,]+,\s*['"]([A-Za-z0-9_]+)['"]/g
+    ),
+  ].map((match) => match[1]),
 ])
 const dynamicKeys = new Set([
   'files_false',
