@@ -10,7 +10,9 @@ const {
   isDonationWallEnabled,
   isTranscriptionAllowedByDonationWall,
 } = require('../dist/helpers/donationWall')
+const handleDonate = require('../dist/commands/handleDonate').default
 const handleAudio = require('../dist/handlers/handleAudio').default
+const stripeHelper = require('../dist/helpers/stripe')
 const {
   TranscriptionJobModel,
   TranscriptionJobStatus,
@@ -25,9 +27,11 @@ function assert(condition, message) {
 
 function mockContext({ paid, chatType = 'channel' }) {
   const replies = []
+  const chatActions = []
 
   return {
     replies,
+    chatActions,
     dbchat: {
       id: `donation-wall-proof-${paid ? 'paid' : 'unpaid'}`,
       paid,
@@ -48,11 +52,32 @@ function mockContext({ paid, chatType = 'channel' }) {
     i18n: {
       t: (key) => key,
     },
+    api: {
+      sendChatAction: async (chatId, action) => {
+        chatActions.push({ chatId, action })
+      },
+    },
     reply: async (text, options) => {
       replies.push({ text, options })
       return { message_id: 222 }
     },
     timeReceived: new Date(),
+  }
+}
+
+async function withPatchedStripeCheckout(callback) {
+  const originalCreate = stripeHelper.stripe.checkout.sessions.create
+  const createdSessions = []
+
+  stripeHelper.stripe.checkout.sessions.create = async (session) => {
+    createdSessions.push(session)
+    return { url: 'https://stripe.test/donation-wall-proof' }
+  }
+
+  try {
+    await callback(createdSessions)
+  } finally {
+    stripeHelper.stripe.checkout.sessions.create = originalCreate
   }
 }
 
@@ -134,6 +159,28 @@ async function main() {
     assert(createdJobs.length === 0, 'enabled wall should block unpaid audio')
     assert(ctx.replies.length === 1, 'enabled wall should send donate guidance')
     assert(ctx.replies[0].text === 'sunsetting', 'donate copy should be used')
+  })
+
+  await withPatchedStripeCheckout(async (createdSessions) => {
+    process.env.VOICY_DONATION_WALL_ENABLED = 'false'
+    const ctx = mockContext({ paid: false, chatType: 'private' })
+    await handleDonate(ctx)
+
+    assert(
+      createdSessions.length === 1,
+      'disabled wall should keep /donate checkout available'
+    )
+    assert(
+      ctx.chatActions.length === 1,
+      'donate checkout should send typing action'
+    )
+    assert(ctx.replies.length === 1, 'donate checkout should reply once')
+    assert(ctx.replies[0].text === 'pay', 'donate checkout should use pay copy')
+    assert(
+      ctx.replies[0].options.reply_markup.inline_keyboard[0][0].url ===
+        'https://stripe.test/donation-wall-proof',
+      'donate checkout should include Stripe session URL'
+    )
   })
 
   delete process.env.VOICY_DONATION_WALL_ENABLED

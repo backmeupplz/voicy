@@ -2,7 +2,6 @@ import {
   VOICY_STRIPE_PRICE_ID,
   stripeCheckoutMetadata,
 } from '@/helpers/stripeCheckoutActivation'
-import { isDonationWallEnabled } from '@/helpers/donationWall'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import { stripe } from '@/helpers/stripe'
 import Context from '@/models/Context'
@@ -12,11 +11,6 @@ export default async function handleDonate(ctx: Context) {
   console.log('/donate called', !!ctx.dbchat.paid)
   if (ctx.dbchat.paid) {
     await ctx.reply(markdownI18n(ctx, 'already_paid'), {
-      parse_mode: 'Markdown',
-      disable_web_page_preview: true,
-    })
-  } else if (!isDonationWallEnabled()) {
-    await ctx.reply(markdownI18n(ctx, 'donation_wall_testing'), {
       parse_mode: 'Markdown',
       disable_web_page_preview: true,
     })
