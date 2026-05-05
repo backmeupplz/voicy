@@ -22,6 +22,7 @@ import handleAudio from '@/handlers/handleAudio'
 import handleDonate from '@/commands/handleDonate'
 import handleFiles from '@/commands/handleFiles'
 import handleHelp from '@/commands/handleHelp'
+import handleId from '@/commands/handleId'
 import handleLanguage from '@/commands/handleLanguage'
 import handleLock from '@/commands/handleLock'
 import handleMyChatMember from '@/handlers/handleMyChatMember'
@@ -64,6 +65,7 @@ async function runApp() {
   bot.command('donate', handleDonate)
   bot.command('start', checkAdminLock, handleStart)
   bot.command('help', checkAdminLock, handleHelp)
+  bot.command('id', handleId)
   bot.command('lock', disallowPrivate, checkAdminLock, handleLock)
   bot.command('files', checkAdminLock, handleFiles)
   bot.command('silent', checkAdminLock, handleSilent)

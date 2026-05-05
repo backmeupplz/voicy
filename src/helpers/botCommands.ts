@@ -16,6 +16,11 @@ export const publicBotCommands: BotCommandDefinition[] = [
     russianDescription: 'Показать помощь',
   },
   {
+    command: 'id',
+    description: 'Show chat and user IDs',
+    russianDescription: 'Показать ID чата и пользователя',
+  },
+  {
     command: 'language',
     description: 'Change the interface language',
     russianDescription: 'Сменить язык интерфейса',

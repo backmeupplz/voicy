@@ -23,6 +23,7 @@
     "test:source-url-security": "node scripts/source-url-security-proof.js",
     "test:transcription-abuse-limits": "node scripts/transcription-abuse-limits-proof.js",
     "test:telegram-runtime": "node scripts/telegram-runtime-check.js",
+    "test:id-command": "node scripts/id-command-proof.js",
     "test:local-runtime-health": "node scripts/local-runtime-health.js",
     "test:stripe-webhook": "node scripts/stripe-webhook-proof.js",
     "qa:telegram-upload": "node scripts/telegram-web-upload-qa.mjs",
