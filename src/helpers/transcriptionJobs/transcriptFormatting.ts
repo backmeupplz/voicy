@@ -30,7 +30,9 @@ export function transcriptTextFromParts(
 }
 
 export function transcriptText(job: DocumentType<TranscriptionJob>) {
-  return job.resultText?.trim() || transcriptTextFromParts(job.resultParts)
+  return (
+    job.resultText?.trim() || transcriptTextFromParts(job.resultParts) || ''
+  )
 }
 
 export function partialTranscriptText(job: DocumentType<TranscriptionJob>) {
