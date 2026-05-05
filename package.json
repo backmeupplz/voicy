@@ -18,6 +18,7 @@
     "test:worker-api": "node scripts/worker-api-proof.js",
     "test:language-selection": "node scripts/language-selection-proof.js",
     "test:progress-policy": "node scripts/progress-policy-proof.js",
+    "test:progress-status-format": "node scripts/progress-status-format-proof.js",
     "test:media-coverage": "node scripts/media-coverage-proof.js",
     "test:report-sanitizer": "node scripts/report-sanitizer-proof.js",
     "test:source-url-security": "node scripts/source-url-security-proof.js",

@@ -4,35 +4,32 @@ import {
   liveProgressAllowedForChatType,
   shouldThrottleProgressPublish,
 } from '@/helpers/transcriptionJobs/progressPublishingPolicy'
+import { partialTranscriptText } from '@/helpers/transcriptionJobs/transcriptFormatting'
 import {
-  partialTranscriptText,
-  progressPreview,
-} from '@/helpers/transcriptionJobs/transcriptFormatting'
+  transcriptionProgressPreviewHtml,
+  transcriptionProgressStatusHtml,
+} from '@/helpers/transcriptionJobs/progressStatusText'
 import bot from '@/helpers/bot'
-import localizedTranscriptionText from '@/helpers/localizedTranscriptionText'
 
 type ProgressPhase = 'processing' | 'partial' | 'retrying' | 'failed'
 
-function statusText(phase: ProgressPhase, job: DocumentType<TranscriptionJob>) {
+function statusTextHtml(
+  phase: ProgressPhase,
+  job: DocumentType<TranscriptionJob>
+) {
   if (phase === 'processing') {
-    return localizedTranscriptionText(job.uiLocale, 'progress_processing')
+    return transcriptionProgressStatusHtml(job.uiLocale, 'progress_processing')
   }
   if (phase === 'retrying') {
-    return localizedTranscriptionText(job.uiLocale, 'progress_retrying')
+    return transcriptionProgressStatusHtml(job.uiLocale, 'progress_retrying')
   }
   if (phase === 'failed') {
-    return localizedTranscriptionText(job.uiLocale, 'progress_failed')
+    return transcriptionProgressStatusHtml(job.uiLocale, 'progress_failed')
   }
   const partialText = partialTranscriptText(job)
   return partialText
-    ? progressPreview(partialText, {
-        header: localizedTranscriptionText(job.uiLocale, 'progress_partial'),
-        footer: localizedTranscriptionText(
-          job.uiLocale,
-          'progress_partial_footer'
-        ),
-      })
-    : localizedTranscriptionText(job.uiLocale, 'progress_partial')
+    ? transcriptionProgressPreviewHtml(job.uiLocale, partialText)
+    : transcriptionProgressStatusHtml(job.uiLocale, 'progress_partial')
 }
 
 export default async function publishTranscriptionJobProgress(
@@ -56,7 +53,8 @@ export default async function publishTranscriptionJobProgress(
     await bot.api.editMessageText(
       job.telegramChatId,
       job.statusMessageId,
-      statusText(phase, job)
+      statusTextHtml(phase, job),
+      { parse_mode: 'HTML' }
     )
   } catch (error) {
     const description =
@@ -75,3 +73,5 @@ export default async function publishTranscriptionJobProgress(
 
   return true
 }
+
+export { statusTextHtml }

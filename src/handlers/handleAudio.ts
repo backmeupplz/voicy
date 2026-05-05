@@ -13,6 +13,7 @@ import {
   TranscriptionJobStatus,
 } from '@/models/TranscriptionJob'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
+import { transcriptionProgressStatusHtml } from '@/helpers/transcriptionJobs/progressStatusText'
 import Context from '@/models/Context'
 import report from '@/helpers/report'
 
@@ -120,10 +121,16 @@ async function enqueueTranscription(
   }
 
   try {
-    const ackMessage = await ctx.reply(markdownI18n(ctx, 'initiated'), {
-      reply_to_message_id: sourceMessage.message_id,
-      parse_mode: 'Markdown',
-    })
+    const ackMessage = await ctx.reply(
+      transcriptionProgressStatusHtml(
+        ctx.dbchat.uiLanguage,
+        'progress_processing'
+      ),
+      {
+        reply_to_message_id: sourceMessage.message_id,
+        parse_mode: 'HTML',
+      }
+    )
     queuedJob.statusMessageId = ackMessage.message_id
     await queuedJob.save()
   } catch (error) {
