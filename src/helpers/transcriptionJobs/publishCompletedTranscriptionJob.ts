@@ -31,7 +31,7 @@ async function storeVoiceRecord(job: DocumentType<TranscriptionJob>) {
     completedAt: job.completedAt || new Date(),
     duration: job.duration || 0,
     language: job.recognitionLanguage || job.recognitionLanguageHint || 'auto',
-    text: job.resultText || transcriptText(job),
+    text: transcriptText(job),
     textWithTimecodes: job.resultParts?.map((part) => [
       part.timeCode || '',
       part.text,

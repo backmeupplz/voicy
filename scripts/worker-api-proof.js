@@ -243,6 +243,62 @@ async function main() {
       'result text missing'
     )
 
+    const emptyJob = await TranscriptionJobModel.create({
+      chatId: 'proof-chat',
+      telegramChatId: '123',
+      sourceMessageId: 13,
+      fileId: 'proof-file-empty',
+      sourceKind: TranscriptionJobSourceKind.voice,
+      sourceUrl: 'https://example.invalid/empty.ogg',
+    })
+    const claimEmpty = await request(baseUrl, '/jobs/claim-download', tokenA, {
+      method: 'POST',
+    })
+    assert(claimEmpty.status === 200, 'empty job should be claimable')
+    const emptyClaim = await claimEmpty.json()
+    assert(emptyClaim.job.id === emptyJob._id.toString(), 'claimed wrong empty job')
+    const emptyDownloaded = await request(
+      baseUrl,
+      `/jobs/${emptyClaim.job.id}/downloaded`,
+      tokenA,
+      {
+        method: 'POST',
+        body: JSON.stringify({ localSourcePath: '/tmp/proof-empty.ogg' }),
+      }
+    )
+    assert(emptyDownloaded.status === 200, 'empty job should mark downloaded')
+    const emptyTranscribe = await request(
+      baseUrl,
+      `/jobs/${emptyClaim.job.id}/transcribe`,
+      tokenA,
+      { method: 'POST' }
+    )
+    assert(emptyTranscribe.status === 200, 'empty job should start transcription')
+    const emptyResult = await request(
+      baseUrl,
+      `/jobs/${emptyClaim.job.id}/result`,
+      tokenA,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          text: '',
+          parts: [],
+          language: 'en',
+          engine: 'proof-engine',
+          duration: 0,
+        }),
+      }
+    )
+    assert(emptyResult.status === 200, 'empty result should be accepted')
+    const completedEmptyJob = await TranscriptionJobModel.findById(
+      emptyClaim.job.id
+    )
+    assert(
+      completedEmptyJob.status === TranscriptionJobStatus.completed,
+      'empty result should complete job'
+    )
+    assert(completedEmptyJob.resultText === '', 'empty result text should persist')
+
     const retryJob = await TranscriptionJobModel.create({
       chatId: 'proof-chat',
       telegramChatId: '123',

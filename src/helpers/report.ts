@@ -136,6 +136,11 @@ function redactSensitiveText(value: string) {
       /([?&](?:token|key|secret|password|signature)=)[^&\s]+/gi,
       '$1[redacted]'
     )
+    .replace(
+      /(^|[\s(["'])(\/(?:Users|home|tmp|var|private|Volumes)\/[^\s,)"']+)/g,
+      '$1[redacted-local-path]'
+    )
+    .replace(/(^|[\s(["'])([A-Za-z]:\\[^\s,)"']+)/g, '$1[redacted-local-path]')
 }
 
 function sanitizeMeta(meta?: ExtraErrorInfo['meta']) {
@@ -161,4 +166,4 @@ function compactObject<T extends object>(value: T) {
   }, {} as Partial<T>)
 }
 
-export { sanitizeErrorReport }
+export { redactSensitiveText, sanitizeErrorReport }

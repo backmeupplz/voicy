@@ -1,11 +1,43 @@
 import {
-  VOICY_STRIPE_PRICE_ID,
-  stripeCheckoutMetadata,
+  VOICY_STRIPE_FIXED_AMOUNTS,
+  VOICY_STRIPE_MINIMUM_AMOUNT,
+  formatStripeDonationAmount,
+  parseStripeDonationAmount,
+  stripeCheckoutSessionRequest,
+  stripeDonationOption,
 } from '@/helpers/stripeCheckoutActivation'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import { stripe } from '@/helpers/stripe'
 import Context from '@/models/Context'
+import Stripe from 'stripe'
 import logAnswerTime from '@/helpers/logAnswerTime'
+
+function commandAmountInput(ctx: Context) {
+  const match = (ctx as Context & { match?: string }).match
+  if (typeof match === 'string' && match.trim()) {
+    return match
+  }
+  return ctx.message?.text?.replace(/^\/donate(?:@\w+)?\s*/i, '')
+}
+
+function createCheckoutSession(chatId: string, amount: number) {
+  return stripe.checkout.sessions.create(
+    stripeCheckoutSessionRequest(chatId, stripeDonationOption(amount))
+  )
+}
+
+function checkoutButton(
+  ctx: Context,
+  session: Stripe.Response<Stripe.Checkout.Session>,
+  amount: number
+) {
+  return {
+    text: ctx.i18n.t('pay_button', {
+      amount: formatStripeDonationAmount(amount),
+    }),
+    url: session.url,
+  }
+}
 
 export default async function handleDonate(ctx: Context) {
   console.log('/donate called', !!ctx.dbchat.paid)
@@ -18,40 +50,62 @@ export default async function handleDonate(ctx: Context) {
     try {
       console.log('Not paid, sending typing action')
       await ctx.api.sendChatAction(ctx.dbchat.id, 'typing')
-      console.log('Not paid, creating session')
-      const session = await stripe.checkout.sessions.create({
-        line_items: [
+      const chatId = `${ctx.dbchat.id}`
+      const requestedAmount = parseStripeDonationAmount(commandAmountInput(ctx))
+      if (
+        typeof requestedAmount === 'number' &&
+        requestedAmount < VOICY_STRIPE_MINIMUM_AMOUNT
+      ) {
+        await ctx.reply(
+          ctx.i18n.t('pay_amount_too_low', {
+            amount: formatStripeDonationAmount(VOICY_STRIPE_MINIMUM_AMOUNT),
+          }),
           {
-            price: VOICY_STRIPE_PRICE_ID,
-            quantity: 1,
-          },
-        ],
-        success_url: 'https://t.me/voicybot',
-        cancel_url: 'https://t.me/voicybot',
-        client_reference_id: `${ctx.dbchat.id}`,
-        metadata: stripeCheckoutMetadata(`${ctx.dbchat.id}`),
-        mode: 'payment',
-        automatic_tax: {
-          enabled: true,
-        },
-      })
+            disable_web_page_preview: true,
+          }
+        )
+        return
+      }
+      if (typeof requestedAmount === 'number') {
+        console.log('Not paid, creating custom donation session')
+        const session = await createCheckoutSession(chatId, requestedAmount)
+        await ctx.reply(
+          ctx.i18n.t('pay_custom', {
+            amount: formatStripeDonationAmount(requestedAmount),
+          }),
+          {
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [checkoutButton(ctx, session, requestedAmount)],
+              ],
+            },
+          }
+        )
+        return
+      }
+      console.log('Not paid, creating fixed donation sessions')
+      const sessions = await Promise.all(
+        VOICY_STRIPE_FIXED_AMOUNTS.map((amount) =>
+          createCheckoutSession(chatId, amount)
+        )
+      )
       console.log('Not paid, sending message')
       await ctx.reply(markdownI18n(ctx, 'pay'), {
         parse_mode: 'Markdown',
         disable_web_page_preview: true,
         reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: ctx.i18n.t('pay_button'),
-                url: session.url,
-              },
-            ],
-          ],
+          inline_keyboard: sessions.map((session, index) => [
+            checkoutButton(ctx, session, VOICY_STRIPE_FIXED_AMOUNTS[index]),
+          ]),
         },
       })
     } catch (error) {
       console.log('error sending checkout', error)
+      await ctx.reply(markdownI18n(ctx, 'error_donation_checkout'), {
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true,
+      })
     }
   }
   logAnswerTime(ctx, '/donate')
