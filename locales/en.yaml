@@ -34,6 +34,7 @@ error_twenty: "_\U0001F46E Telegram files over 20 MB cannot be processed here. F
 initiated: "_\U0001F984 Turning into text..._"
 sunsetting: 'Voicy asks for a one-time $6.99 donation for this chat to help cover compute costs and get more compute for transcription. Use /donate in the chat where you want voice transcription activated.'
 already_paid: 'Voice transcription is already activated for this chat. Thank you.'
+donation_wall_testing: 'Voice transcription is currently enabled for testing. Donations remain available again after the testing wall is re-enabled.'
 pay: 'Donate $6.99 for this chat to help Voicy cover compute costs and get more compute for transcription. Only this chat will be activated. To activate a group, run /donate in that group. You can also send $6.99 worth of tokens to `borodutch.eth` and send the transaction to @borodutch.'
 pay_button: 'Donate $6.99'
 transcribe_all_true: 'Voicy will now *turn every voice message* in this chat into text.'

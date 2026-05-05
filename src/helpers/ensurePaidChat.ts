@@ -1,8 +1,9 @@
+import { isTranscriptionAllowedByDonationWall } from '@/helpers/donationWall'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import Context from '@/models/Context'
 
 export default async function ensurePaidChat(ctx: Context) {
-  if (ctx.dbchat.paid) {
+  if (isTranscriptionAllowedByDonationWall(ctx.dbchat)) {
     return true
   }
   await ctx.reply(markdownI18n(ctx, 'sunsetting'), {
