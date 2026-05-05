@@ -24,6 +24,40 @@ assert.equal(
   'empty completed transcript parts should remain empty for fallback publishing'
 )
 assert.equal(
+  transcriptText({
+    resultText: JSON.stringify({
+      text: '',
+      parts: [],
+      language: 'nn',
+      duration: 1,
+      metadata: { model: 'large-v3' },
+    }),
+  }),
+  '',
+  'structured empty worker JSON should remain empty for fallback publishing'
+)
+assert.equal(
+  transcriptText({
+    resultText: JSON.stringify({
+      text: 'structured transcript',
+      parts: [],
+      language: 'en',
+    }),
+  }),
+  'structured transcript',
+  'structured worker JSON should publish its text field'
+)
+assert.equal(
+  transcriptText({
+    resultText: JSON.stringify({
+      text: 'ignored fallback',
+      parts: [{ timeCode: '00:01', text: 'part transcript' }],
+    }),
+  }),
+  '00:01:\npart transcript',
+  'structured worker JSON should prefer timecoded parts when present'
+)
+assert.equal(
   localizedTranscriptionText('en', 'completed_empty'),
   'Done, but no text was detected.',
   'English empty-result copy should clearly describe no detected text'
@@ -68,6 +102,10 @@ const publishSource = fs.readFileSync(
 assert(
   publishSource.includes('firstText || fallbackText'),
   'completed publisher should use empty-result fallback text'
+)
+assert(
+  publishSource.includes('text: transcriptText(job)'),
+  'completed voice records should store normalized transcript text'
 )
 assert(
   !publishSource.includes('editMessageCaption'),

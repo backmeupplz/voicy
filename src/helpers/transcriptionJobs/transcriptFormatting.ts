@@ -11,6 +11,11 @@ type ProgressPreviewOptions = {
   footer?: string
 }
 
+type StructuredTranscriptResult = {
+  text?: unknown
+  parts?: unknown
+}
+
 export function splitTelegramText(text: string) {
   return text.match(new RegExp(`[\\s\\S]{1,${TELEGRAM_MESSAGE_LIMIT}}`, 'g'))
 }
@@ -29,7 +34,55 @@ export function transcriptTextFromParts(
   return fallback
 }
 
+function parseStructuredTranscriptResult(
+  resultText?: string
+): StructuredTranscriptResult | undefined {
+  const trimmed = resultText?.trim()
+  if (!trimmed || !trimmed.startsWith('{')) {
+    return undefined
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed)
+    return parsed && typeof parsed === 'object'
+      ? (parsed as StructuredTranscriptResult)
+      : undefined
+  } catch {
+    return undefined
+  }
+}
+
+function structuredTranscriptParts(parts: unknown) {
+  if (!Array.isArray(parts)) {
+    return undefined
+  }
+
+  return parts
+    .map((part) => {
+      if (!part || typeof part !== 'object') {
+        return undefined
+      }
+      const { timeCode, text } = part as Partial<TranscriptionResultPart>
+      return typeof text === 'string' &&
+        (timeCode === undefined || typeof timeCode === 'string')
+        ? { timeCode, text }
+        : undefined
+    })
+    .filter(Boolean) as TranscriptionResultPart[]
+}
+
 export function transcriptText(job: DocumentType<TranscriptionJob>) {
+  const structured = parseStructuredTranscriptResult(job.resultText)
+  if (structured) {
+    const partsText = transcriptTextFromParts(
+      structuredTranscriptParts(structured.parts)
+    )
+    if (partsText) {
+      return partsText
+    }
+    return typeof structured.text === 'string' ? structured.text.trim() : ''
+  }
+
   return (
     job.resultText?.trim() || transcriptTextFromParts(job.resultParts) || ''
   )
