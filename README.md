@@ -82,6 +82,12 @@ yarn worker:run
 Set `VOICY_MAX_MEDIA_FILE_SIZE_MB` on the backend to tune the largest Telegram
 media message that Voicy will enqueue for local workers.
 
+The donation wall is temporarily disabled by default for testing. Leave
+`VOICY_DONATION_WALL_ENABLED=false` unset or false to let unpaid chats enqueue
+voice/audio transcription. Set `VOICY_DONATION_WALL_ENABLED=true` to re-enable
+the paid-chat gate while keeping the Stripe `/donate` flow and webhook support
+intact.
+
 See [`docs/windows-worker-client.md`](docs/windows-worker-client.md) for the
 full Windows setup, environment variables, retry behavior, and validation steps.
 See [`docs/worker-api.md`](docs/worker-api.md) for the authenticated API

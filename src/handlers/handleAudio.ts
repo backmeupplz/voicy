@@ -12,6 +12,7 @@ import {
   TranscriptionJobSourceKind,
   TranscriptionJobStatus,
 } from '@/models/TranscriptionJob'
+import { isTranscriptionAllowedByDonationWall } from '@/helpers/donationWall'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import { transcriptionProgressStatusHtml } from '@/helpers/transcriptionJobs/progressStatusText'
 import Context from '@/models/Context'
@@ -19,7 +20,7 @@ import report from '@/helpers/report'
 
 export default async function handleAudio(ctx: Context) {
   try {
-    if (!ctx.dbchat.paid) {
+    if (!isTranscriptionAllowedByDonationWall(ctx.dbchat)) {
       console.log('Sending the donate message')
       await ctx.reply(markdownI18n(ctx, 'sunsetting'), {
         parse_mode: 'Markdown',
