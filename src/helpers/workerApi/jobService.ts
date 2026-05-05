@@ -8,6 +8,7 @@ import {
 } from '@/models/TranscriptionJob'
 import { Types } from 'mongoose'
 import { WorkerClient, WorkerClientModel } from '@/models/WorkerClient'
+import { safeWorkerSourceUrl } from '@/helpers/sourceUrlSecurity'
 import publishCompletedTranscriptionJob from '@/helpers/transcriptionJobs/publishCompletedTranscriptionJob'
 import publishTranscriptionJobProgress from '@/helpers/transcriptionJobs/publishTranscriptionJobProgress'
 
@@ -149,7 +150,7 @@ export function serializeJob(job: DocumentType<TranscriptionJob>) {
     mimeType: job.mimeType,
     fileName: job.fileName,
     sourceKind: job.sourceKind,
-    sourceUrl: job.sourceUrl,
+    sourceUrl: safeWorkerSourceUrl(job.sourceUrl),
     requestedByUserId: job.requestedByUserId,
     forwardedFromUserId: job.forwardedFromUserId,
     forwardedSenderName: job.forwardedSenderName,
