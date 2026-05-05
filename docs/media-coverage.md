@@ -12,7 +12,7 @@ available.
 | Video note | Yes | Circular video messages are queued as `video_note`. |
 | Video message | Yes | Telegram `video` messages are queued as `video`. |
 | Audio message | Yes | Telegram `audio` messages are queued directly. |
-| Document upload | Yes, when media-like | Documents are accepted when MIME is audio/video, a known audio/video application MIME, a transcribable filename extension, or an unknown octet-stream without a filename. |
+| Document upload | Yes, when media-like | Documents are accepted when MIME is audio/video, a known audio/video application MIME, or a transcribable filename extension. Anonymous octet-stream documents are rejected. |
 | Non-media document | No | Documents such as PDF files are ignored by media intake. |
 
 ## Container hints
@@ -34,7 +34,8 @@ available.
 ## Verified coverage
 
 Automated proof currently verifies media classification for Telegram audio,
-Telegram video, supported media documents, rejected PDF documents, and worker
-extension selection for FLAC, filename-derived WebM, and default Telegram video
-sources. Live Telegram client upload coverage should be recorded separately when
-run against a deployed bot and worker.
+Telegram video, supported media documents, rejected PDF/octet-stream documents,
+missing-MIME document handling, and worker extension selection for FLAC,
+filename-derived WebM, and default Telegram video sources. Live Telegram client
+upload coverage should be recorded separately when run against a deployed bot
+and worker.

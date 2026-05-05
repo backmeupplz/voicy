@@ -22,6 +22,7 @@
     "test:report-sanitizer": "node scripts/report-sanitizer-proof.js",
     "test:telegram-runtime": "node scripts/telegram-runtime-check.js",
     "test:local-runtime-health": "node scripts/local-runtime-health.js",
+    "test:stripe-webhook": "node scripts/stripe-webhook-proof.js",
     "qa:telegram-upload": "node scripts/telegram-web-upload-qa.mjs",
     "worker:create-client": "node scripts/create-worker-client.js",
     "worker:install-macos-test-launchd": "node scripts/install-macos-test-worker-launchd.js --load",

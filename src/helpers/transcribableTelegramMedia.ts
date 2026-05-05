@@ -81,12 +81,6 @@ export function isTranscribableTelegramFile(file: TranscribableTelegramFile) {
   if (transcribableExtension(file.file_name)) {
     return true
   }
-  if (
-    file.mime_type?.toLowerCase().split(';')[0].trim() ===
-    'application/octet-stream'
-  ) {
-    return !file.file_name
-  }
   return isTranscribableMimeType(file.mime_type)
 }
 

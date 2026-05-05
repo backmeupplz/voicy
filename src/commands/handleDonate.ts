@@ -1,3 +1,7 @@
+import {
+  VOICY_STRIPE_PRICE_ID,
+  stripeCheckoutMetadata,
+} from '@/helpers/stripeCheckoutActivation'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import { stripe } from '@/helpers/stripe'
 import Context from '@/models/Context'
@@ -18,15 +22,15 @@ export default async function handleDonate(ctx: Context) {
       const session = await stripe.checkout.sessions.create({
         line_items: [
           {
-            price: 'price_1LyeHbKXsMRGkVL4i2xZnaZk',
+            price: VOICY_STRIPE_PRICE_ID,
             quantity: 1,
           },
         ],
         success_url: 'https://t.me/voicybot',
         cancel_url: 'https://t.me/voicybot',
         client_reference_id: `${ctx.dbchat.id}`,
+        metadata: stripeCheckoutMetadata(`${ctx.dbchat.id}`),
         mode: 'payment',
-        allow_promotion_codes: true,
         automatic_tax: {
           enabled: true,
         },
