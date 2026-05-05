@@ -102,6 +102,10 @@ export default async function handleDonate(ctx: Context) {
       })
     } catch (error) {
       console.log('error sending checkout', error)
+      await ctx.reply(markdownI18n(ctx, 'error_donation_checkout'), {
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true,
+      })
     }
   }
   logAnswerTime(ctx, '/donate')
