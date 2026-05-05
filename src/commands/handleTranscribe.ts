@@ -1,5 +1,4 @@
 import { enqueueTranscription, isMediaTooLarge } from '@/handlers/handleAudio'
-import { isTranscriptionAllowedByDonationWall } from '@/helpers/donationWall'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import { transcribableMediaFromMessage } from '@/helpers/transcribableTelegramMedia'
 import Context from '@/models/Context'
@@ -7,15 +6,6 @@ import report from '@/helpers/report'
 
 export default async function handleTranscribe(ctx: Context) {
   try {
-    if (!isTranscriptionAllowedByDonationWall(ctx.dbchat)) {
-      console.log('Sending the donate message')
-      await ctx.reply(markdownI18n(ctx, 'sunsetting'), {
-        parse_mode: 'Markdown',
-        reply_to_message_id: ctx.msg.message_id,
-        disable_web_page_preview: true,
-      })
-      return
-    }
     const message = ctx.msg.reply_to_message
     if (!message) {
       await ctx.reply(ctx.i18n.t('reply_to_voice'), {

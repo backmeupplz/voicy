@@ -22,6 +22,7 @@ const {
   TranscriptionJobStatus,
 } = require('../dist/models/TranscriptionJob')
 const abuseLimits = require('../dist/helpers/transcriptionJobs/abuseLimits')
+const goldenBorodutchAllowance = require('../dist/helpers/goldenBorodutchFreeTranscriptions')
 
 function assert(condition, message) {
   if (!condition) {
@@ -91,9 +92,10 @@ async function withPatchedStripeCheckout(callback) {
   }
 }
 
-async function withPatchedQueue(callback) {
+async function withPatchedQueue(callback, accessResult) {
   const originalCreate = TranscriptionJobModel.create
   const originalCheckLimits = abuseLimits.checkTranscriptionAbuseLimits
+  const originalCheckAccess = goldenBorodutchAllowance.checkTranscriptionAccess
   const createdJobs = []
 
   TranscriptionJobModel.create = async (job) => {
@@ -104,12 +106,15 @@ async function withPatchedQueue(callback) {
     }
   }
   abuseLimits.checkTranscriptionAbuseLimits = async () => undefined
+  goldenBorodutchAllowance.checkTranscriptionAccess = async () =>
+    accessResult || { allowed: true, consumedFreeTranscription: false }
 
   try {
     await callback(createdJobs)
   } finally {
     TranscriptionJobModel.create = originalCreate
     abuseLimits.checkTranscriptionAbuseLimits = originalCheckLimits
+    goldenBorodutchAllowance.checkTranscriptionAccess = originalCheckAccess
   }
 }
 
@@ -167,8 +172,18 @@ async function main() {
     await handleAudio(ctx)
 
     assert(createdJobs.length === 0, 'enabled wall should block unpaid audio')
-    assert(ctx.replies.length === 1, 'enabled wall should send donate guidance')
-    assert(ctx.replies[0].text === 'sunsetting', 'donate copy should be used')
+    assert(
+      ctx.replies.length === 1,
+      'enabled wall should send subscriber guidance'
+    )
+    assert(
+      ctx.replies[0].text === 'golden_borodutch_subscription_required',
+      'subscriber copy should be used'
+    )
+  }, {
+    allowed: false,
+    consumedFreeTranscription: false,
+    reason: 'subscription_required',
   })
 
   await withPatchedStripeCheckout(async (createdSessions) => {

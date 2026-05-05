@@ -1,6 +1,6 @@
 type DonationWallEnv = Record<string, string | undefined>
 
-function isDonationWallEnabled(env: DonationWallEnv = process.env) {
+export function isDonationWallEnabled(env: DonationWallEnv = process.env) {
   const configured = env.VOICY_DONATION_WALL_ENABLED
   if (!configured) {
     return false
@@ -16,4 +16,4 @@ function isTranscriptionAllowedByDonationWall(
   return !isDonationWallEnabled(env) || Boolean(chat.paid)
 }
 
-export { isDonationWallEnabled, isTranscriptionAllowedByDonationWall }
+export { isTranscriptionAllowedByDonationWall }

@@ -8,11 +8,15 @@ import {
   checkTranscriptionAbuseLimits,
 } from '@/helpers/transcriptionJobs/abuseLimits'
 import {
+  TranscriptionAccessDenialReason,
+  checkTranscriptionAccess,
+  refundGoldenBorodutchFreeTranscription,
+} from '@/helpers/goldenBorodutchFreeTranscriptions'
+import {
   TranscriptionJobModel,
   TranscriptionJobSourceKind,
   TranscriptionJobStatus,
 } from '@/models/TranscriptionJob'
-import { isTranscriptionAllowedByDonationWall } from '@/helpers/donationWall'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import { transcriptionProgressStatusHtml } from '@/helpers/transcriptionJobs/progressStatusText'
 import Context from '@/models/Context'
@@ -20,16 +24,6 @@ import report from '@/helpers/report'
 
 export default async function handleAudio(ctx: Context) {
   try {
-    if (!isTranscriptionAllowedByDonationWall(ctx.dbchat)) {
-      console.log('Sending the donate message')
-      await ctx.reply(markdownI18n(ctx, 'sunsetting'), {
-        parse_mode: 'Markdown',
-        reply_to_message_id: ctx.msg.message_id,
-        disable_web_page_preview: true,
-      })
-      return
-    }
-
     const isGroup = ctx.chat.type === 'group' || ctx.chat.type === 'supergroup'
     if (!ctx.dbchat.transcribeAllAudio && isGroup) {
       console.log('Ignored cause transcribeAllAudio is false')
@@ -94,27 +88,46 @@ async function enqueueTranscription(
     return undefined
   }
 
-  const queuedJob = await TranscriptionJobModel.create({
-    status: TranscriptionJobStatus.queuedForDownload,
-    chatId: ctx.dbchat.id,
-    telegramChatId: String(ctx.chat.id),
-    telegramChatType: ctx.chat.type,
-    sourceMessageId: sourceMessage.message_id,
-    requestMessageId: ctx.msg?.message_id,
-    fileId,
-    filePath,
-    fileSize: audio.file_size,
-    mimeType: audio.mime_type,
-    fileName: audio.file_name,
-    fileUniqueId: fileUniqueId(audio),
-    sourceKind: sourceKind(audio.sourceType),
-    requestedByUserId: ctx.from?.id ? String(ctx.from.id) : undefined,
-    forwardedFromUserId: sourceMessage.forward_from?.id
-      ? String(sourceMessage.forward_from.id)
-      : undefined,
-    forwardSenderName: sourceMessage.forward_sender_name,
-    uiLocale: ctx.dbchat.uiLanguage,
+  const freeAccessUserId = transcriptionAccessUserId(sourceMessage, ctx)
+  const access = await checkTranscriptionAccess({
+    chat: ctx.dbchat,
+    telegramUserId: freeAccessUserId,
+    telegramApi: ctx.api,
   })
+  if (!access.allowed) {
+    await sendTranscriptionAccessError(ctx, access.reason, sourceMessage)
+    return undefined
+  }
+
+  let queuedJob
+  try {
+    queuedJob = await TranscriptionJobModel.create({
+      status: TranscriptionJobStatus.queuedForDownload,
+      chatId: ctx.dbchat.id,
+      telegramChatId: String(ctx.chat.id),
+      telegramChatType: ctx.chat.type,
+      sourceMessageId: sourceMessage.message_id,
+      requestMessageId: ctx.msg?.message_id,
+      fileId,
+      filePath,
+      fileSize: audio.file_size,
+      mimeType: audio.mime_type,
+      fileName: audio.file_name,
+      fileUniqueId: fileUniqueId(audio),
+      sourceKind: sourceKind(audio.sourceType),
+      requestedByUserId: ctx.from?.id ? String(ctx.from.id) : undefined,
+      forwardedFromUserId: sourceMessage.forward_from?.id
+        ? String(sourceMessage.forward_from.id)
+        : undefined,
+      forwardSenderName: sourceMessage.forward_sender_name,
+      uiLocale: ctx.dbchat.uiLanguage,
+    })
+  } catch (error) {
+    if (access.consumedFreeTranscription && freeAccessUserId) {
+      await refundGoldenBorodutchFreeTranscription(freeAccessUserId)
+    }
+    throw error
+  }
 
   if (ctx.chat.type === 'channel') {
     console.info('Skipping live transcription status message in channel chat')
@@ -146,6 +159,14 @@ async function enqueueTranscription(
   return queuedJob
 }
 
+function transcriptionAccessUserId(sourceMessage: Message, ctx: Context) {
+  return sourceMessage.from?.id
+    ? String(sourceMessage.from.id)
+    : ctx.from?.id
+    ? String(ctx.from.id)
+    : undefined
+}
+
 function sendTranscriptionLimitError(
   ctx: Context,
   reason: TranscriptionAbuseLimitReason,
@@ -165,6 +186,33 @@ function transcriptionLimitMessageKey(reason: TranscriptionAbuseLimitReason) {
     return 'error_transcription_user_limited'
   }
   return 'error_transcription_chat_limited'
+}
+
+function sendTranscriptionAccessError(
+  ctx: Context,
+  reason: TranscriptionAccessDenialReason | undefined,
+  sourceMessage: Message
+) {
+  return ctx.reply(markdownI18n(ctx, transcriptionAccessMessageKey(reason)), {
+    parse_mode: 'Markdown',
+    reply_to_message_id: sourceMessage.message_id,
+    disable_web_page_preview: true,
+  })
+}
+
+function transcriptionAccessMessageKey(
+  reason: TranscriptionAccessDenialReason | undefined
+) {
+  if (reason === TranscriptionAccessDenialReason.freeAllowanceExhausted) {
+    return 'golden_borodutch_free_transcriptions_exhausted'
+  }
+  if (
+    reason === TranscriptionAccessDenialReason.membershipCheckFailed ||
+    reason === TranscriptionAccessDenialReason.missingUser
+  ) {
+    return 'golden_borodutch_membership_check_failed'
+  }
+  return 'golden_borodutch_subscription_required'
 }
 
 function sourceKind(sourceType: TranscribableTelegramFile['sourceType']) {
@@ -189,4 +237,4 @@ async function sendQueueError(ctx: Context) {
   }
 }
 
-export { enqueueTranscription, isMediaTooLarge }
+export { enqueueTranscription, isMediaTooLarge, transcriptionAccessUserId }
