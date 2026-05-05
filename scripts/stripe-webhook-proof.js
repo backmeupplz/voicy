@@ -10,12 +10,14 @@ require('module-alias/register')
 
 const {
   VOICY_STRIPE_CURRENCY,
-  VOICY_STRIPE_EXPECTED_AMOUNT,
+  VOICY_STRIPE_FIXED_AMOUNTS,
   VOICY_STRIPE_METADATA_PURPOSE,
-  VOICY_STRIPE_PRICE_ID,
+  VOICY_STRIPE_MINIMUM_AMOUNT,
   checkoutSessionActivationErrors,
+  parseStripeDonationAmount,
   requireStripeWebhookSigningSecret,
   stripeCheckoutMetadata,
+  stripeDonationOption,
 } = require('../dist/helpers/stripeCheckoutActivation')
 const { stripe } = require('../dist/helpers/stripe')
 
@@ -25,28 +27,31 @@ function assert(condition, message) {
   }
 }
 
-function validSession(overrides = {}) {
+function validSession(amount = VOICY_STRIPE_MINIMUM_AMOUNT, overrides = {}) {
   const chatId = '-1001234567890'
+  const donation = stripeDonationOption(amount)
   return {
     id: 'cs_test_valid',
     client_reference_id: chatId,
     payment_status: 'paid',
     mode: 'payment',
-    amount_subtotal: VOICY_STRIPE_EXPECTED_AMOUNT,
-    amount_total: VOICY_STRIPE_EXPECTED_AMOUNT,
+    amount_subtotal: amount,
+    amount_total: amount,
     currency: VOICY_STRIPE_CURRENCY,
-    metadata: stripeCheckoutMetadata(chatId),
+    metadata: stripeCheckoutMetadata(chatId, donation),
     payment_intent: 'pi_test_valid',
     ...overrides,
   }
 }
 
-function validLineItems(overrides = {}) {
+function validLineItems(amount = VOICY_STRIPE_MINIMUM_AMOUNT, overrides = {}) {
   return [
     {
       quantity: 1,
       price: {
-        id: VOICY_STRIPE_PRICE_ID,
+        id: 'price_generated_by_checkout',
+        unit_amount: amount,
+        currency: VOICY_STRIPE_CURRENCY,
       },
       ...overrides,
     },
@@ -73,52 +78,93 @@ const secret = requireStripeWebhookSigningSecret()
 assert(secret === process.env.STRIPE_WEBHOOK_SIGNING_SECRET, 'secret mismatch')
 assertValid()
 
+for (const amount of VOICY_STRIPE_FIXED_AMOUNTS) {
+  assertValid(validSession(amount), validLineItems(amount))
+}
+assertValid(
+  validSession(VOICY_STRIPE_MINIMUM_AMOUNT + 432),
+  validLineItems(VOICY_STRIPE_MINIMUM_AMOUNT + 432)
+)
+assert(
+  parseStripeDonationAmount('$12.34') === 1234,
+  'custom donation amount should parse'
+)
+assert(
+  parseStripeDonationAmount('6.98') === VOICY_STRIPE_MINIMUM_AMOUNT - 1,
+  'below-minimum donation amount should parse before validation'
+)
+
 assertInvalid(
-  validSession({ payment_status: 'unpaid' }),
+  validSession(VOICY_STRIPE_MINIMUM_AMOUNT, { payment_status: 'unpaid' }),
   validLineItems(),
   'payment_status'
 )
-assertInvalid(validSession({ mode: 'setup' }), validLineItems(), 'mode')
 assertInvalid(
-  validSession({ amount_subtotal: VOICY_STRIPE_EXPECTED_AMOUNT + 1 }),
+  validSession(VOICY_STRIPE_MINIMUM_AMOUNT, { mode: 'setup' }),
+  validLineItems(),
+  'mode'
+)
+assertInvalid(
+  validSession(VOICY_STRIPE_MINIMUM_AMOUNT, {
+    amount_subtotal: VOICY_STRIPE_MINIMUM_AMOUNT + 1,
+  }),
   validLineItems(),
   'amount_subtotal'
 )
 assertInvalid(
-  validSession({ amount_total: VOICY_STRIPE_EXPECTED_AMOUNT - 1 }),
+  validSession(VOICY_STRIPE_MINIMUM_AMOUNT, {
+    amount_total: VOICY_STRIPE_MINIMUM_AMOUNT - 1,
+  }),
   validLineItems(),
   'amount_total'
 )
 assertInvalid(
-  validSession({ currency: 'eur' }),
+  validSession(VOICY_STRIPE_MINIMUM_AMOUNT, { currency: 'eur' }),
   validLineItems(),
   'currency'
 )
 assertInvalid(
-  validSession({
+  validSession(VOICY_STRIPE_MINIMUM_AMOUNT, {
     metadata: {
       voicy_payment_purpose: VOICY_STRIPE_METADATA_PURPOSE,
       voicy_chat_id: 'other-chat',
-      voicy_price_id: VOICY_STRIPE_PRICE_ID,
+      voicy_donation_amount: `${VOICY_STRIPE_MINIMUM_AMOUNT}`,
+      voicy_donation_tier: 'fixed',
     },
   }),
   validLineItems(),
   'chat id mismatch'
 )
 assertInvalid(
-  validSession({
+  validSession(VOICY_STRIPE_MINIMUM_AMOUNT, {
     metadata: {
-      ...stripeCheckoutMetadata('-1001234567890'),
-      voicy_price_id: 'price_wrong',
+      ...stripeCheckoutMetadata(
+        '-1001234567890',
+        stripeDonationOption(VOICY_STRIPE_MINIMUM_AMOUNT)
+      ),
+      voicy_donation_amount: `${VOICY_STRIPE_MINIMUM_AMOUNT - 1}`,
     },
   }),
   validLineItems(),
-  'metadata price id mismatch'
+  'below minimum'
+)
+assertInvalid(
+  validSession(VOICY_STRIPE_MINIMUM_AMOUNT + 1, {
+    metadata: {
+      ...stripeCheckoutMetadata(
+        '-1001234567890',
+        stripeDonationOption(VOICY_STRIPE_MINIMUM_AMOUNT + 1)
+      ),
+      voicy_donation_tier: 'fixed',
+    },
+  }),
+  validLineItems(VOICY_STRIPE_MINIMUM_AMOUNT + 1),
+  'fixed donation amount'
 )
 assertInvalid(
   validSession(),
-  validLineItems({ price: { id: 'price_wrong' } }),
-  'price line item'
+  validLineItems(VOICY_STRIPE_MINIMUM_AMOUNT + 1),
+  'donation line item'
 )
 
 const payload = JSON.stringify({

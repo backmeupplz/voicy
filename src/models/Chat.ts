@@ -46,6 +46,8 @@ export class Chat extends FindOrCreate {
   stripeCurrency?: string
   @prop()
   stripePriceId?: string
+  @prop()
+  stripeDonationTier?: string
   @prop({ required: true, default: false })
   banned: boolean
 }
