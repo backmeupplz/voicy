@@ -88,6 +88,15 @@ voice/audio transcription. Set `VOICY_DONATION_WALL_ENABLED=true` to re-enable
 the paid-chat gate while keeping the Stripe `/donate` flow and webhook support
 intact.
 
+Stripe `/donate` uses Checkout Sessions with inline `price_data`, so no
+dashboard Price IDs are required for Voicy donation tiers. Configure
+`STRIPE_MINIMUM_AMOUNT=699`, `STRIPE_FIXED_AMOUNTS=699,999,1299,1599`,
+`STRIPE_CURRENCY=usd`, and `STRIPE_WEBHOOK_SIGNING_SECRET`. Webhook activation
+validates the signed Checkout session, chat metadata, currency, selected amount,
+tier, and line item before marking only that chat as paid. Users can choose a
+fixed tier from `/donate` or send `/donate 12.34` to pay another amount above
+the minimum.
+
 See [`docs/windows-worker-client.md`](docs/windows-worker-client.md) for the
 full Windows setup, environment variables, retry behavior, and validation steps.
 See [`docs/worker-api.md`](docs/worker-api.md) for the authenticated API
