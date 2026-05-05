@@ -86,7 +86,11 @@ The donation wall is temporarily disabled by default for testing. Leave
 `VOICY_DONATION_WALL_ENABLED=false` unset or false to let unpaid chats enqueue
 voice/audio transcription. Set `VOICY_DONATION_WALL_ENABLED=true` to re-enable
 the paid-chat gate while keeping the Stripe `/donate` flow and webhook support
-intact.
+intact. When the wall is enabled, paid chats bypass the free allowance entirely.
+Unpaid chats can still enqueue up to 50 lifetime free transcriptions per
+Telegram user when the voice/audio sender is currently a member of
+`@golden_borodutch`; Voicy checks that membership live with `getChatMember` and
+fails closed if the bot cannot read the channel membership.
 
 See [`docs/windows-worker-client.md`](docs/windows-worker-client.md) for the
 full Windows setup, environment variables, retry behavior, and validation steps.
