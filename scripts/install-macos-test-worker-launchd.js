@@ -117,9 +117,16 @@ function plist() {
       process.env.VOICY_WORKER_MODEL ||
       process.env.VOICY_WHISPER_MODEL ||
       'turbo',
-    VOICY_WORKER_TRANSCRIBE_COMMAND:
-      process.env.VOICY_WORKER_TRANSCRIBE_COMMAND ||
-      'node scripts/whisper-transcriber.js {input} {output} {language}',
+    VOICY_WORKER_TRANSCRIBE_EXECUTABLE:
+      process.env.VOICY_WORKER_TRANSCRIBE_EXECUTABLE || process.execPath,
+    VOICY_WORKER_TRANSCRIBE_ARGS_JSON:
+      process.env.VOICY_WORKER_TRANSCRIBE_ARGS_JSON ||
+      JSON.stringify([
+        'scripts/whisper-transcriber.js',
+        '{input}',
+        '{output}',
+        '{language}',
+      ]),
     VOICY_WHISPER_MODEL:
       process.env.VOICY_WHISPER_MODEL ||
       process.env.VOICY_WORKER_MODEL ||

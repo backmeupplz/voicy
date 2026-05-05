@@ -150,11 +150,11 @@ Recommendation:
 
 ### MEDIUM-01: Worker command execution still uses a shell template
 
-Status: follow-up required.
+Status: remediated in VOI-KANEO-28.
 
-`src/workerClient/runWindowsWorker.ts` builds a command string from
-`VOICY_WORKER_TRANSCRIBE_COMMAND` and runs it with `spawn(command, { shell:
-true })`. Inputs are quoted with `JSON.stringify`, which is not a complete
+The vulnerable implementation built a command string from
+`VOICY_WORKER_TRANSCRIBE_COMMAND` and ran it with `spawn(command, { shell:
+true })`. Inputs were quoted with `JSON.stringify`, which is not a complete
 shell-escaping strategy on POSIX shells and is brittle across Windows shells.
 
 Impact:
@@ -162,11 +162,12 @@ Impact:
   command injection becomes possible.
 - Operator-provided command templates are harder to validate and test safely.
 
-Recommendation:
-- Replace the shell-template contract with an executable plus argument array, or
-  a small fixed set of supported engines.
-- If shell execution must remain, implement explicit per-platform escaping and
-  tests for paths containing quotes, spaces, `$`, backticks, and parentheses.
+Remediation:
+- The worker now requires `VOICY_WORKER_TRANSCRIBE_EXECUTABLE` plus
+  `VOICY_WORKER_TRANSCRIBE_ARGS_JSON` and calls `spawn(executable, args, {
+  shell: false })`.
+- Worker proof coverage includes paths containing quotes, spaces, `$`,
+  backticks, and parentheses.
 
 ### MEDIUM-02: Error reporting logs the full Grammy context
 

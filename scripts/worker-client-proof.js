@@ -412,15 +412,21 @@ async function main() {
 
   try {
     const baseUrl = `http://127.0.0.1:${server.address().port}/worker/v1`
+    const shellSensitiveWorkDir = path.join(
+      os.tmpdir(),
+      `voicy worker proof ' "$\`$(x)-${process.pid}`
+    )
     const env = {
       VOICY_WORKER_API_URL: baseUrl,
       VOICY_WORKER_TOKEN: 'proof-worker-token',
-      VOICY_WORKER_TRANSCRIBE_COMMAND:
-        'node scripts/fake-transcriber.js {input} {output} {model}',
-      VOICY_WORKER_WORK_DIR: path.join(
-        os.tmpdir(),
-        `voicy-worker-proof-${process.pid}`
-      ),
+      VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+      VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+        'scripts/fake-transcriber.js',
+        '{input}',
+        '{output}',
+        '{model}',
+      ]),
+      VOICY_WORKER_WORK_DIR: shellSensitiveWorkDir,
       VOICY_WORKER_IDLE_EXIT: '1',
       VOICY_WORKER_ENGINE: 'proof-engine',
       VOICY_WORKER_MODEL: 'proof-model',
@@ -437,7 +443,10 @@ async function main() {
     })
 
     assert(processed, 'worker should process the claimed job')
-    assert(!state.failure, 'worker should not report failure')
+    assert(
+      !state.failure,
+      `worker should not report failure: ${JSON.stringify(state.failure)}`
+    )
     assert(state.downloaded, 'worker should mark media downloaded before STT')
     assert(
       state.transcribing,
@@ -456,6 +465,19 @@ async function main() {
     assert(
       state.result.metadata.model === 'proof-model',
       'worker should submit model metadata'
+    )
+    assert(
+      state.result.metadata.inputPath.includes(shellSensitiveWorkDir),
+      'worker should pass shell-sensitive input paths as a single argv value'
+    )
+    assert(
+      state.result.metadata.outputPath.includes(shellSensitiveWorkDir),
+      'worker should pass shell-sensitive output paths as a single argv value'
+    )
+    assert(
+      state.result.metadata.argv[0].includes(shellSensitiveWorkDir) &&
+        state.result.metadata.argv[1].includes(shellSensitiveWorkDir),
+      'worker transcriber argv should preserve spaces, quotes, dollar signs, backticks, and parentheses'
     )
     assert(
       !state.audioAuthorization,
@@ -482,8 +504,11 @@ async function main() {
     const config = loadConfig({
       VOICY_WORKER_API_URL: baseUrl,
       VOICY_WORKER_TOKEN: 'proof-worker-token',
-      VOICY_WORKER_TRANSCRIBE_COMMAND:
-        'node -e "process.stderr.write(\\"boom\\"); process.exit(3)"',
+      VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+      VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+        '-e',
+        'process.stderr.write("boom"); process.exit(3)',
+      ]),
       VOICY_WORKER_WORK_DIR: path.join(
         os.tmpdir(),
         `voicy-worker-failure-proof-${process.pid}`
@@ -525,8 +550,12 @@ async function main() {
       loadConfig({
         VOICY_WORKER_API_URL: baseUrl,
         VOICY_WORKER_TOKEN: 'proof-worker-token',
-        VOICY_WORKER_TRANSCRIBE_COMMAND:
-          'node scripts/fake-transcriber.js {input} {output}',
+        VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+        VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+          'scripts/fake-transcriber.js',
+          '{input}',
+          '{output}',
+        ]),
         VOICY_WORKER_WORK_DIR: path.join(
           os.tmpdir(),
           `voicy-worker-scheduling-proof-${process.pid}`

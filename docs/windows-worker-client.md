@@ -66,8 +66,8 @@ python -m pip install faster-whisper
 becomes a problem.
 
 Use `VOICY_WORKER_MODEL` as the worker-level model selector. The worker passes
-that value to the transcription command as the `{model}` template token, exports
-it to child processes as `VOICY_WORKER_MODEL`, and records it in result
+that value to transcription argv entries through the `{model}` placeholder,
+exports it to child processes as `VOICY_WORKER_MODEL`, and records it in result
 metadata. If unset, the worker defaults to `large-v3`, which is the recommended
 quality-first model for the RTX 4070 Ti host. Use smaller models only when the
 machine cannot meet memory or latency needs.
@@ -146,7 +146,8 @@ $env:VOICY_WORKER_TELEGRAM_BOT_TOKEN = "<telegram-bot-token>"
 $env:VOICY_WORKER_TELEGRAM_API_URL = "http://127.0.0.1:8081"
 $env:VOICY_WORKER_DOWNLOAD_CONCURRENCY = "2"
 $env:VOICY_WORKER_TRANSCRIPTION_CONCURRENCY = "1"
-$env:VOICY_WORKER_TRANSCRIBE_COMMAND = "C:\voicy-worker\.venv\Scripts\python.exe C:\voicy-worker\transcribe.py {input} {output} {language} {model}"
+$env:VOICY_WORKER_TRANSCRIBE_EXECUTABLE = "C:\voicy-worker\.venv\Scripts\python.exe"
+$env:VOICY_WORKER_TRANSCRIBE_ARGS_JSON = '["C:\\voicy-worker\\transcribe.py","{input}","{output}","{language}","{model}"]'
 ```
 
 `VOICY_WORKER_TELEGRAM_API_URL` may point at a worker-local Telegram Bot API
@@ -161,7 +162,8 @@ $env:VOICY_WHISPER_MODEL = "small"
 $env:VOICY_WHISPER_COMMAND = "C:\Users\<user>\AppData\Local\Programs\Python\Python311\Scripts\whisper.exe"
 $env:VOICY_WORKER_ENGINE = "openai-whisper-cli"
 $env:VOICY_WORKER_MODEL = "small"
-$env:VOICY_WORKER_TRANSCRIBE_COMMAND = "node scripts/whisper-transcriber.js {input} {output} {language}"
+$env:VOICY_WORKER_TRANSCRIBE_EXECUTABLE = "node"
+$env:VOICY_WORKER_TRANSCRIBE_ARGS_JSON = '["scripts/whisper-transcriber.js","{input}","{output}","{language}"]'
 ```
 
 `VOICY_WHISPER_COMMAND` is optional when `whisper` is already on `PATH`, but it
@@ -206,7 +208,8 @@ For each claimed job it:
 3. Downloads the media into `VOICY_WORKER_WORK_DIR`.
 4. Marks the job `ready` with `POST /jobs/:id/downloaded`.
 5. Starts transcription with `POST /jobs/:id/transcribe`.
-6. Runs `VOICY_WORKER_TRANSCRIBE_COMMAND`.
+6. Runs `VOICY_WORKER_TRANSCRIBE_EXECUTABLE` with
+   `VOICY_WORKER_TRANSCRIBE_ARGS_JSON`.
 7. Reads transcript JSON from `{output}` or plain text from stdout.
 8. Uploads the result to `POST /jobs/:id/result`.
 
@@ -215,10 +218,13 @@ transcription scheduler consumes whichever download becomes ready first, so a
 large slow file does not block a later smaller file that has already reached
 local disk.
 
-The command template supports `{input}`, `{output}`, `{language}`, and
-`{model}`. Paths and values are quoted before replacement so spaces in Windows
-paths are supported. `scripts/whisper-transcriber.js` reads
-`VOICY_WORKER_MODEL` directly, so it does not need `{model}` in the command.
+`VOICY_WORKER_TRANSCRIBE_ARGS_JSON` must be a JSON array of argument strings.
+Each argument may contain `{input}`, `{output}`, `{language}`, and `{model}`.
+The worker replaces those placeholders and then starts the executable with an
+argv array, without a shell. That preserves spaces, quotes, dollar signs,
+backticks, and parentheses in paths and prevents shell expansion.
+`scripts/whisper-transcriber.js` reads `VOICY_WORKER_MODEL` directly, so it does
+not need `{model}` in the args array.
 
 The checked-in worker client uploads the final result after the command exits.
 Streaming-capable custom workers may call `POST /jobs/:id/progress` while a
@@ -275,7 +281,8 @@ Build the repo, export the worker environment, and print the generated plist:
 yarn build-ts
 export VOICY_WORKER_API_URL=http://127.0.0.1:3000/worker/v1
 export VOICY_WORKER_TOKEN=voicy_worker_...
-export VOICY_WORKER_TRANSCRIBE_COMMAND='node scripts/whisper-transcriber.js {input} {output} {language}'
+export VOICY_WORKER_TRANSCRIBE_EXECUTABLE="$(command -v node)"
+export VOICY_WORKER_TRANSCRIBE_ARGS_JSON='["scripts/whisper-transcriber.js","{input}","{output}","{language}"]'
 yarn worker:print-macos-test-launchd
 ```
 

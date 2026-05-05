@@ -62,7 +62,8 @@ interface TranscriptionOutput {
 interface WorkerConfig {
   apiUrl: string
   token: string
-  transcribeCommand: string
+  transcribeExecutable: string
+  transcribeArgs: string[]
   workDir: string
   pollIntervalMs: number
   heartbeatIntervalMs: number
@@ -134,16 +135,55 @@ function booleanFromEnv(value: string | undefined) {
   return value === '1' || value === 'true'
 }
 
+function stringArrayFromJsonEnv(
+  value: string | undefined,
+  name: string
+): string[] {
+  if (!value) {
+    throw new Error(`${name} is required`)
+  }
+
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(value)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    throw new Error(`${name} must be a JSON array of strings: ${message}`)
+  }
+
+  if (
+    !Array.isArray(parsed) ||
+    parsed.some((item) => typeof item !== 'string')
+  ) {
+    throw new Error(`${name} must be a JSON array of strings`)
+  }
+
+  return parsed
+}
+
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
+  if (
+    env.VOICY_WORKER_TRANSCRIBE_COMMAND &&
+    !env.VOICY_WORKER_TRANSCRIBE_EXECUTABLE
+  ) {
+    throw new Error(
+      'VOICY_WORKER_TRANSCRIBE_COMMAND shell templates are no longer supported; set VOICY_WORKER_TRANSCRIBE_EXECUTABLE and VOICY_WORKER_TRANSCRIBE_ARGS_JSON'
+    )
+  }
+
   return {
     apiUrl: required(env.VOICY_WORKER_API_URL, 'VOICY_WORKER_API_URL').replace(
       /\/+$/,
       ''
     ),
     token: required(env.VOICY_WORKER_TOKEN, 'VOICY_WORKER_TOKEN'),
-    transcribeCommand: required(
-      env.VOICY_WORKER_TRANSCRIBE_COMMAND,
-      'VOICY_WORKER_TRANSCRIBE_COMMAND'
+    transcribeExecutable: required(
+      env.VOICY_WORKER_TRANSCRIBE_EXECUTABLE,
+      'VOICY_WORKER_TRANSCRIBE_EXECUTABLE'
+    ),
+    transcribeArgs: stringArrayFromJsonEnv(
+      env.VOICY_WORKER_TRANSCRIBE_ARGS_JSON,
+      'VOICY_WORKER_TRANSCRIBE_ARGS_JSON'
     ),
     workDir: env.VOICY_WORKER_WORK_DIR || DEFAULT_WORK_DIR,
     pollIntervalMs: numberFromEnv(
@@ -389,21 +429,19 @@ async function downloadSource(
   return inputPath
 }
 
-function quoteShellValue(value: string) {
-  return JSON.stringify(value)
-}
-
-function commandForJob(
+function commandArgsForJob(
   config: WorkerConfig,
   inputPath: string,
   outputPath: string,
   language?: string
 ) {
-  return config.transcribeCommand
-    .replace(/\{input\}/g, quoteShellValue(inputPath))
-    .replace(/\{output\}/g, quoteShellValue(outputPath))
-    .replace(/\{language\}/g, quoteShellValue(language || ''))
-    .replace(/\{model\}/g, quoteShellValue(config.model))
+  return config.transcribeArgs.map((arg) =>
+    arg
+      .replace(/\{input\}/g, () => inputPath)
+      .replace(/\{output\}/g, () => outputPath)
+      .replace(/\{language\}/g, () => language || '')
+      .replace(/\{model\}/g, () => config.model)
+  )
 }
 
 function commandEnv(config: WorkerConfig) {
@@ -415,12 +453,13 @@ function commandEnv(config: WorkerConfig) {
 }
 
 function runCommand(
-  command: string,
+  executable: string,
+  args: string[],
   config: WorkerConfig
 ): Promise<RunCommandResult> {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, {
-      shell: true,
+    const child = spawn(executable, args, {
+      shell: false,
       windowsHide: true,
       env: commandEnv(config),
     })
@@ -429,7 +468,18 @@ function runCommand(
 
     child.stdout.on('data', (chunk) => stdoutChunks.push(Buffer.from(chunk)))
     child.stderr.on('data', (chunk) => stderrChunks.push(Buffer.from(chunk)))
-    child.on('error', reject)
+    child.on('error', (error: NodeJS.ErrnoException) => {
+      if (error.code === 'ENOENT') {
+        reject(
+          new WorkerClientError(
+            `Unable to start transcription executable "${executable}". Set VOICY_WORKER_TRANSCRIBE_EXECUTABLE to an absolute executable path or include it in PATH.`,
+            false
+          )
+        )
+        return
+      }
+      reject(error)
+    })
     child.on('close', (code) => {
       const stdout = Buffer.concat(stdoutChunks).toString('utf8')
       const stderr = Buffer.concat(stderrChunks).toString('utf8')
@@ -510,8 +560,12 @@ async function transcribeJob(
   const outputPath = path.join(config.workDir, `${job.id}.transcript.json`)
   await removeIfExists(outputPath)
   const language = job.recognitionLanguageHint || config.language
-  const command = commandForJob(config, inputPath, outputPath, language)
-  const commandResult = await runCommand(command, config)
+  const args = commandArgsForJob(config, inputPath, outputPath, language)
+  const commandResult = await runCommand(
+    config.transcribeExecutable,
+    args,
+    config
+  )
   return readTranscriptionOutput(
     commandResult,
     outputPath,
