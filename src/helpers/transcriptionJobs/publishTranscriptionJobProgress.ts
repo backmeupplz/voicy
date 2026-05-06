@@ -4,7 +4,11 @@ import {
   classifyTelegramReachabilityFailure,
   markChatUnreachableByIdForTelegramError,
 } from '@/helpers/chatReachability'
-import { TranscriptionJob } from '@/models/TranscriptionJob'
+import {
+  TranscriptionJob,
+  TranscriptionJobModel,
+} from '@/models/TranscriptionJob'
+import { Types } from 'mongoose'
 import {
   liveProgressAllowedForChatType,
   shouldThrottleProgressPublish,
@@ -18,6 +22,8 @@ import {
 import bot from '@/helpers/bot'
 
 type ProgressPhase = 'processing' | 'partial' | 'retrying' | 'failed'
+
+const SILENT_STATUS_MESSAGE_PUBLISHING_LEASE_MS = 30_000
 
 function statusTextHtml(
   phase: ProgressPhase,
@@ -36,6 +42,92 @@ function statusTextHtml(
   return partialText
     ? transcriptionProgressPreviewHtml(job.uiLocale, partialText)
     : transcriptionProgressStatusHtml(job.uiLocale, 'progress_partial')
+}
+
+function persistedJobId(job: DocumentType<TranscriptionJob>) {
+  const id = (job as { _id?: unknown })._id
+  return id instanceof Types.ObjectId || typeof id === 'string' ? id : undefined
+}
+
+async function claimSilentStatusMessagePublish(
+  job: DocumentType<TranscriptionJob>
+) {
+  const id = persistedJobId(job)
+  if (!id || job.statusMessageId) {
+    return true
+  }
+
+  const now = new Date()
+  const staleBefore = new Date(
+    now.getTime() - SILENT_STATUS_MESSAGE_PUBLISHING_LEASE_MS
+  )
+  const claimedJob = await TranscriptionJobModel.findOneAndUpdate(
+    {
+      _id: id,
+      silent: true,
+      $and: [
+        {
+          $or: [
+            { statusMessageId: { $exists: false } },
+            { statusMessageId: null },
+          ],
+        },
+        {
+          $or: [
+            { statusMessagePublishingAt: { $exists: false } },
+            { statusMessagePublishingAt: null },
+            { statusMessagePublishingAt: { $lt: staleBefore } },
+          ],
+        },
+      ],
+    },
+    { $set: { statusMessagePublishingAt: now } },
+    { new: true }
+  )
+
+  return Boolean(claimedJob)
+}
+
+async function persistSilentStatusMessage(
+  job: DocumentType<TranscriptionJob>,
+  statusMessageId: number
+) {
+  const now = new Date()
+  job.statusMessageId = statusMessageId
+  job.lastProgressPublishedAt = now
+  job.statusMessagePublishingAt = undefined
+
+  const id = persistedJobId(job)
+  if (!id) {
+    await job.save()
+    return
+  }
+
+  await TranscriptionJobModel.updateOne(
+    { _id: id },
+    {
+      $set: { statusMessageId, lastProgressPublishedAt: now },
+      $unset: { statusMessagePublishingAt: '' },
+    }
+  )
+}
+
+async function releaseSilentStatusMessagePublish(
+  job: DocumentType<TranscriptionJob>
+) {
+  const id = persistedJobId(job)
+  if (!id || job.statusMessageId) {
+    return
+  }
+
+  job.statusMessagePublishingAt = undefined
+  await TranscriptionJobModel.updateOne(
+    {
+      _id: id,
+      $or: [{ statusMessageId: { $exists: false } }, { statusMessageId: null }],
+    },
+    { $unset: { statusMessagePublishingAt: '' } }
+  )
 }
 
 export default async function publishTranscriptionJobProgress(
@@ -66,6 +158,14 @@ export default async function publishTranscriptionJobProgress(
       return false
     }
 
+    const claimedStatusMessagePublish = await claimSilentStatusMessagePublish(
+      job
+    )
+    if (!claimedStatusMessagePublish) {
+      return false
+    }
+
+    let persistedStatusMessage = false
     try {
       if (job.statusMessageId) {
         await bot.api.editMessageText(
@@ -79,9 +179,11 @@ export default async function publishTranscriptionJobProgress(
           parse_mode: 'HTML',
           reply_to_message_id: job.sourceMessageId,
         })
-        job.statusMessageId = message.message_id
+        await persistSilentStatusMessage(job, message.message_id)
+        persistedStatusMessage = true
       }
     } catch (error) {
+      await releaseSilentStatusMessagePublish(job)
       const description =
         error && typeof error === 'object' && 'description' in error
           ? String((error as { description?: string }).description)
@@ -91,8 +193,10 @@ export default async function publishTranscriptionJobProgress(
       }
     }
 
-    job.lastProgressPublishedAt = new Date()
-    await job.save()
+    if (job.statusMessageId && !persistedStatusMessage) {
+      job.lastProgressPublishedAt = new Date()
+      await job.save()
+    }
     return true
   }
 
