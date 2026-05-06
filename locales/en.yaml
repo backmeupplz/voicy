@@ -33,9 +33,9 @@ language: "\U0001F44B Choose the bot interface language."
 language_success: "\U0001F44D Voicy will now use *${language}* for bot messages in this chat."
 error_twenty: "_\U0001F46E Telegram files over 20 MB cannot be processed here. For larger files, use https://voicybot.com directly._"
 sunsetting: 'Voicy asks for a one-time donation for this chat to help cover compute costs and get more compute for transcription. Use /donate in the chat where you want voice transcription activated.'
-golden_borodutch_subscription_required: '_👮 Subscribe to @golden\_borodutch to use up to 50 free Voicy transcriptions, or use /donate to activate transcription for this chat._'
-golden_borodutch_free_transcriptions_exhausted: '_👮 You have used all 50 free Voicy transcriptions from @golden\_borodutch. Use /donate to activate transcription for this chat._'
-golden_borodutch_membership_check_failed: '_👮 Voicy could not confirm @golden\_borodutch membership for this user. The bot must be able to read that channel membership; try again later or use /donate to activate this chat._'
+golden_borodutch_subscription_required: '👮 Subscribe to @golden\_borodutch to use up to 50 free Voicy transcriptions, or use /donate to activate transcription for this chat.'
+golden_borodutch_free_transcriptions_exhausted: '👮 You have used all 50 free Voicy transcriptions from @golden\_borodutch. Use /donate to activate transcription for this chat.'
+golden_borodutch_membership_check_failed: '👮 Voicy could not confirm @golden\_borodutch membership for this user. The bot must be able to read that channel membership; try again later or use /donate to activate this chat.'
 already_paid: 'Voice transcription is already activated for this chat. Thank you.'
 pay: 'Donate for this chat to help Voicy cover compute costs and get more compute for transcription. Only this chat will be activated. To activate a group, run /donate in that group. Choose a tier below, or send /donate 12.34 to pay what you want with a $6.99 minimum. You can also send tokens worth at least $6.99 to `borodutch.eth` and send the transaction to @borodutch.'
 pay_custom: 'Donate ${amount} for this chat. Only this chat will be activated.'

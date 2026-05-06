@@ -33,9 +33,9 @@ language: "👋 Escolha o idioma da interface do bot."
 language_success: "👍 O Voicy agora usará *${language}* para mensagens do bot neste chat."
 error_twenty: "_👮 Arquivos do Telegram com mais de 20 MB não podem ser processados aqui. Para arquivos maiores, use https://voicybot.com diretamente._"
 sunsetting: 'O Voicy pede uma doação única para este chat para ajudar a cobrir custos de computação e obter mais capacidade de transcrição. Use /donate no chat em que você quer ativar a transcrição de voz.'
-golden_borodutch_subscription_required: '_👮 Inscreva-se em @golden\_borodutch para usar até 50 transcrições gratuitas do Voicy, ou use /donate para ativar a transcrição neste chat._'
-golden_borodutch_free_transcriptions_exhausted: '_👮 Você usou todas as 50 transcrições gratuitas do Voicy de @golden\_borodutch. Use /donate para ativar a transcrição neste chat._'
-golden_borodutch_membership_check_failed: '_👮 O Voicy não conseguiu confirmar a participação deste usuário em @golden\_borodutch. O bot precisa conseguir ler essa participação no canal; tente novamente mais tarde ou use /donate para ativar este chat._'
+golden_borodutch_subscription_required: '👮 Inscreva-se em @golden\_borodutch para usar até 50 transcrições gratuitas do Voicy, ou use /donate para ativar a transcrição neste chat.'
+golden_borodutch_free_transcriptions_exhausted: '👮 Você usou todas as 50 transcrições gratuitas do Voicy de @golden\_borodutch. Use /donate para ativar a transcrição neste chat.'
+golden_borodutch_membership_check_failed: '👮 O Voicy não conseguiu confirmar a participação deste usuário em @golden\_borodutch. O bot precisa conseguir ler essa participação no canal; tente novamente mais tarde ou use /donate para ativar este chat.'
 already_paid: 'A transcrição de voz já está ativada para este chat. Obrigado.'
 pay: 'Doe para este chat para ajudar o Voicy a cobrir custos de computação e obter mais capacidade de transcrição. Só este chat será ativado. Para ativar um grupo, execute /donate nesse grupo. Escolha uma opção abaixo ou envie /donate 12.34 para pagar quanto quiser com mínimo de $6.99. Você também pode enviar tokens no valor de pelo menos $6.99 para `borodutch.eth` e enviar a transação para @borodutch.'
 pay_custom: 'Doe ${amount} para este chat. Só este chat será ativado.'
