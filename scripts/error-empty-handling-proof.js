@@ -104,7 +104,9 @@ assert(
   'completed publisher should use empty-result fallback text'
 )
 assert(
-  publishSource.includes('text: transcriptText(job)'),
+  publishSource.includes('text: transcriptText(job)') &&
+    publishSource.includes('findOneAndUpdate') &&
+    publishSource.includes('upsert: true'),
   'completed voice records should store normalized transcript text'
 )
 assert(

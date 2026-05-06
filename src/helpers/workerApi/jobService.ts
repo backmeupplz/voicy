@@ -467,7 +467,6 @@ export async function completeJob(
     },
     {
       $set: {
-        status: TranscriptionJobStatus.completed,
         resultText,
         resultParts,
         recognitionLanguage,
@@ -475,7 +474,6 @@ export async function completeJob(
         duration,
         workerEngineMetadata,
         heartbeatAt: now,
-        completedAt: now,
       },
       $unset: { lastError: '' },
     },
@@ -489,8 +487,34 @@ export async function completeJob(
     await publishCompletedTranscriptionJob(job)
   } catch (error) {
     console.error('Failed to publish completed transcription job', error)
+    throw error
   }
-  return job
+
+  const completedJob = await TranscriptionJobModel.findOneAndUpdate(
+    {
+      _id: jobId,
+      workerId: workerId(workerClient),
+      status: {
+        $in: [
+          TranscriptionJobStatus.transcribing,
+          TranscriptionJobStatus.processing,
+        ],
+      },
+    },
+    {
+      $set: {
+        status: TranscriptionJobStatus.completed,
+        heartbeatAt: now,
+        completedAt: now,
+      },
+      $unset: { lastError: '' },
+    },
+    { new: true }
+  )
+  if (!completedJob) {
+    throw new WorkerApiError(404, 'job_not_found')
+  }
+  return completedJob
 }
 
 export async function failJob(
