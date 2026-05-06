@@ -80,7 +80,11 @@ yarn worker:run
 ```
 
 Set `VOICY_MAX_MEDIA_FILE_SIZE_MB` on the backend to tune the largest Telegram
-media message that Voicy will enqueue for local workers.
+media message that Voicy will enqueue for local workers. For files above the
+cloud Bot API download limit, run a local Telegram Bot API server on the worker
+host and point `VOICY_WORKER_TELEGRAM_API_URL` at it; see
+`docs/windows-worker-client.md` for the scheduled-task installer and validation
+steps.
 
 Production long polling deliberately drops Telegram's pending update backlog
 before startup by default (`VOICY_DROP_PENDING_UPDATES_ON_STARTUP=true`). This

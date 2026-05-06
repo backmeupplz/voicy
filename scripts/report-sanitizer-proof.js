@@ -7,12 +7,14 @@ const secretTelegramToken = [
 ].join(':')
 const secretStripeKey = ['sk', 'live', 'abcdefghijklmnopqrstuvwxyz'].join('_')
 const secretMongoUrl = 'mongodb://user:password@example.test/voicy'
+const secretLocalBotApiUrl =
+  'http://voicy:local-api-password@127.0.0.1:8081/bot123456789:abcdefghijklmnopqrstuvwxyzABCDE/getFile?api_hash=telegram-api-hash'
 const localPosixPath = '/Users/nikita/voicy-worker/input.ogg'
 const localWindowsPath = 'C:\\voicy-worker\\input.ogg'
 const privateMessageText = '/start private transcript contents'
 
 const error = new Error(
-  `failed with ${secretTelegramToken} ${secretStripeKey} ${secretMongoUrl}?token=secret ${localPosixPath} ${localWindowsPath}`
+  `failed with ${secretTelegramToken} ${secretStripeKey} ${secretMongoUrl}?token=secret ${secretLocalBotApiUrl} ${localPosixPath} ${localWindowsPath}`
 )
 error.stack = `Error: ${error.message}\n    at proof (/tmp/report-sanitizer-proof.js:1:1)`
 
@@ -55,6 +57,11 @@ assert.strictEqual(report.context.command, '/start')
 assert(!serialized.includes(secretTelegramToken), 'Telegram token leaked')
 assert(!serialized.includes(secretStripeKey), 'Stripe key leaked')
 assert(!serialized.includes('mongodb://user:password'), 'Mongo password leaked')
+assert(
+  !serialized.includes('local-api-password'),
+  'local Bot API URL password leaked'
+)
+assert(!serialized.includes('telegram-api-hash'), 'Telegram API hash leaked')
 assert(!serialized.includes(localPosixPath), 'POSIX local path leaked')
 assert(!serialized.includes(localWindowsPath), 'Windows local path leaked')
 assert(!serialized.includes('private transcript'), 'message text leaked')

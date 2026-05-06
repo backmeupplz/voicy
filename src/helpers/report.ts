@@ -121,6 +121,10 @@ function commandName(text?: string) {
 
 function redactSensitiveText(value: string) {
   return value
+    .replace(
+      /(\/(?:file\/)?bot)\d+:[A-Za-z0-9_-]+(?=\/|\?|$)/g,
+      '$1[redacted-telegram-token]'
+    )
     .replace(/\b\d{5,}:[A-Za-z0-9_-]{20,}\b/g, '[redacted-telegram-token]')
     .replace(
       /\b(?:Bearer|Token|Authorization|Api-Key)\s+[^,\s)]+/gi,
@@ -133,7 +137,11 @@ function redactSensitiveText(value: string) {
       '$1[redacted-password]$2'
     )
     .replace(
-      /([?&](?:token|key|secret|password|signature)=)[^&\s]+/gi,
+      /(\b[a-z][a-z0-9+.-]*:\/\/[^:/\s@]+:)[^@\s/]+(@)/gi,
+      '$1[redacted-password]$2'
+    )
+    .replace(
+      /([?&](?:token|key|secret|password|signature|api_hash)=)[^&\s]+/gi,
       '$1[redacted]'
     )
     .replace(

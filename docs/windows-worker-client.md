@@ -51,6 +51,7 @@ Install these on the Windows machine:
 - Node.js 20 LTS or newer.
 - Git.
 - FFmpeg available on `PATH`.
+- Telegram Bot API server binary from `tdlib/telegram-bot-api`.
 
 Create a Python virtual environment for GPU transcription:
 
@@ -123,6 +124,59 @@ with open(output_path, "w", encoding="utf-8") as output:
     json.dump(result, output, ensure_ascii=False)
 ```
 
+## Local Telegram Bot API
+
+Run the Telegram Bot API server on the Windows worker host so worker-side
+downloads are not limited by Telegram cloud Bot API's 20 MB file download cap.
+Keep the Telegram API ID/hash and bot token out of the repo and outside task
+comments.
+
+Recommended production layout on `backm@borodutch-pc`:
+
+- `C:\voicy-worker\telegram-bot-api\telegram-bot-api.exe` - server binary.
+- `C:\ProgramData\Voicy\telegram-bot-api\telegram-bot-api.env` - local API
+  ID/hash and server paths, ACLed to SYSTEM, Administrators, and the installing
+  user.
+- Scheduled task `VoicyLocalTelegramBotApi` - starts at boot as SYSTEM and
+  restarts after failures.
+- Scheduled task `VoicyWorker4070Ti` - keeps running the worker and points at
+  `http://127.0.0.1:8081` through `VOICY_WORKER_TELEGRAM_API_URL`.
+
+Install or refresh the local Bot API scheduled task from an elevated PowerShell
+prompt on the Windows host:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\install-windows-telegram-bot-api.ps1 `
+  -TelegramBotApiExe "C:\voicy-worker\telegram-bot-api\telegram-bot-api.exe" `
+  -ApiId "<telegram-api-id>" `
+  -ApiHash "<telegram-api-hash>" `
+  -InstallRoot "C:\voicy-worker\telegram-bot-api" `
+  -SecretDir "C:\ProgramData\Voicy\telegram-bot-api" `
+  -TaskName "VoicyLocalTelegramBotApi" `
+  -Port 8081 `
+  -Start
+```
+
+The installer copies `scripts/run-windows-telegram-bot-api.ps1` into the install
+root, writes the secret env file outside the repo, ACLs it, and registers the
+scheduled task. It does not store the bot token; the worker still reads the bot
+token from `VOICY_WORKER_TELEGRAM_BOT_TOKEN` or `TOKEN`.
+
+Health check from the Windows host:
+
+```powershell
+Get-ScheduledTask -TaskName VoicyLocalTelegramBotApi | Select-Object TaskName,State
+Invoke-RestMethod "http://127.0.0.1:8081/bot$env:VOICY_WORKER_TELEGRAM_BOT_TOKEN/getMe"
+```
+
+If the Bot API server cannot bind to `127.0.0.1:8081`, stop any old instance and
+restart the task:
+
+```powershell
+Stop-ScheduledTask -TaskName VoicyLocalTelegramBotApi
+Start-ScheduledTask -TaskName VoicyLocalTelegramBotApi
+```
+
 ## Worker Configuration
 
 Build the repo on the Windows machine:
@@ -155,6 +209,12 @@ server. Leave it unset to use `https://api.telegram.org`. The token is read from
 `VOICY_WORKER_TELEGRAM_BOT_TOKEN` or `TOKEN` on the worker host and is not
 persisted in queued job URLs.
 
+For production large-file support, deploy the backend with
+`VOICY_MAX_MEDIA_FILE_SIZE_MB=2048` or another value accepted by the local
+Telegram Bot API server and local disk capacity. Leaving the backend default at
+20 MB preserves cloud Bot API behavior and will reject larger media before the
+worker can download it.
+
 For CPU or smoke-test environments with the OpenAI Whisper CLI installed, use the checked-in adapter instead:
 
 ```powershell
@@ -182,8 +242,9 @@ Optional:
 - `VOICY_WORKER_DOWNLOAD_CONCURRENCY=2` controls parallel media downloads.
 - `VOICY_WORKER_TRANSCRIPTION_CONCURRENCY=1` controls concurrent local STT
   commands.
-- `VOICY_MAX_MEDIA_FILE_SIZE_MB=20` controls the bot-side accepted Telegram
-  media size before a job is queued; set it on the backend.
+- `VOICY_MAX_MEDIA_FILE_SIZE_MB=2048` controls the bot-side accepted Telegram
+  media size before a job is queued; set it on the backend only after the
+  Windows worker is using a local Bot API endpoint.
 
 Run the worker:
 
@@ -296,6 +357,18 @@ End-to-end validation needs a deployed Voicy backend with Mongo, Telegram token,
 and a real worker token. Send or enqueue a sample Telegram voice message, start
 the Windows worker, and verify the Telegram status message is replaced with the
 final transcript after the worker submits the result.
+
+Large-file production QA:
+
+1. Verify `VoicyLocalTelegramBotApi` is running on `backm@borodutch-pc`.
+2. Verify `VoicyWorker4070Ti` has `VOICY_WORKER_TELEGRAM_API_URL=http://127.0.0.1:8081`.
+3. Verify the backend has `VOICY_MAX_MEDIA_FILE_SIZE_MB` set above the test
+   file size.
+4. Send or replay a supported audio/video/audio-file larger than 20 MB.
+5. Confirm worker logs show claim/download/transcribe/result without bot tokens,
+   source URLs with Telegram file tokens, raw audio contents, or full
+   transcripts.
+6. Confirm the Telegram chat receives the final transcript.
 
 ## macOS Test Bot LaunchAgent
 
