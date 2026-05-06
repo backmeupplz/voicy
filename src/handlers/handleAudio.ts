@@ -104,11 +104,24 @@ async function enqueueTranscription(
   }
 
   const freeAccessUserId = transcriptionAccessUserId(sourceMessage, ctx)
-  const access = await checkTranscriptionAccess({
-    chat: ctx.dbchat,
-    telegramUserId: freeAccessUserId,
-    telegramApi: ctx.api,
-  })
+  let access
+  try {
+    access = await checkTranscriptionAccess({
+      chat: ctx.dbchat,
+      telegramUserId: freeAccessUserId,
+      telegramApi: ctx.api,
+    })
+  } catch (error) {
+    report(error, { ctx, location: 'checkTranscriptionAccess' })
+    if (!ctx.dbchat.silent) {
+      await sendTranscriptionAccessError(
+        ctx,
+        TranscriptionAccessDenialReason.membershipCheckFailed,
+        sourceMessage
+      )
+    }
+    return undefined
+  }
   if (!access.allowed) {
     if (!ctx.dbchat.silent) {
       await sendTranscriptionAccessError(ctx, access.reason, sourceMessage)
