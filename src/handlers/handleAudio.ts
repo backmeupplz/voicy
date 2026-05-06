@@ -148,7 +148,13 @@ async function enqueueTranscription(
   }
 
   if (ctx.dbchat.silent) {
-    await sendSilentTranscriptionChatAction(ctx)
+    const markedUnreachable = await sendSilentTranscriptionChatAction(ctx)
+    if (markedUnreachable) {
+      queuedJob.status = TranscriptionJobStatus.failed
+      queuedJob.failedAt = new Date()
+      queuedJob.lastError = 'Telegram chat is unreachable for transcription'
+      await queuedJob.save()
+    }
     console.info('Skipping live transcription status message in silent mode')
     return queuedJob
   }
@@ -273,17 +279,23 @@ function fileUniqueId(audio: TranscribableTelegramFile) {
 
 async function sendSilentTranscriptionChatAction(ctx: Context) {
   if (ctx.chat.type === 'channel') {
-    return
+    return false
   }
 
   try {
     await ctx.api.sendChatAction(ctx.chat.id, 'typing')
+    return false
   } catch (error) {
-    await markChatUnreachableForTelegramError(ctx, error, {
-      location: 'sendSilentTranscriptionChatAction',
-      action: 'sendChatAction',
-    })
+    const markedUnreachable = await markChatUnreachableForTelegramError(
+      ctx,
+      error,
+      {
+        location: 'sendSilentTranscriptionChatAction',
+        action: 'sendChatAction',
+      }
+    )
     report(error, { ctx, location: 'sendSilentTranscriptionChatAction' })
+    return markedUnreachable
   }
 }
 

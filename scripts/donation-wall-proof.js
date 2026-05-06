@@ -30,20 +30,44 @@ function assert(condition, message) {
   }
 }
 
-function mockContext({ paid, chatType = 'channel', text = '/donate' }) {
+function telegramError(error_code, description) {
+  const error = new Error(description)
+  error.error_code = error_code
+  error.description = description
+  return error
+}
+
+function mockContext({
+  paid,
+  chatType = 'channel',
+  text = '/donate',
+  sendChatActionError,
+}) {
   const replies = []
   const chatActions = []
+  const chatSaves = []
+  const dbchat = {
+    id: `donation-wall-proof-${paid ? 'paid' : 'unpaid'}`,
+    paid,
+    transcribeAllAudio: true,
+    uiLanguage: 'en',
+    silent: false,
+    save: async () => {
+      chatSaves.push({
+        botCanSendMessages: dbchat.botCanSendMessages,
+        transcriptionDisabledUntilReachable:
+          dbchat.transcriptionDisabledUntilReachable,
+        transcriptionUnreachableReason: dbchat.transcriptionUnreachableReason,
+        transcriptionUnreachableAt: dbchat.transcriptionUnreachableAt,
+      })
+    },
+  }
 
   return {
     replies,
     chatActions,
-    dbchat: {
-      id: `donation-wall-proof-${paid ? 'paid' : 'unpaid'}`,
-      paid,
-      transcribeAllAudio: true,
-      uiLanguage: 'en',
-      silent: false,
-    },
+    chatSaves,
+    dbchat,
     chat: { id: 12345, type: chatType },
     from: { id: 67890 },
     msg: {
@@ -64,6 +88,9 @@ function mockContext({ paid, chatType = 'channel', text = '/donate' }) {
     api: {
       sendChatAction: async (chatId, action) => {
         chatActions.push({ chatId, action })
+        if (sendChatActionError) {
+          throw sendChatActionError
+        }
       },
     },
     reply: async (text, options) => {
@@ -99,11 +126,19 @@ async function withPatchedQueue(callback, accessResult) {
   const createdJobs = []
 
   TranscriptionJobModel.create = async (job) => {
-    createdJobs.push(job)
-    return {
+    const jobDoc = {
       ...job,
-      save: async () => undefined,
+      saves: [],
+      save: async () => {
+        jobDoc.saves.push({
+          status: jobDoc.status,
+          failedAt: jobDoc.failedAt,
+          lastError: jobDoc.lastError,
+        })
+      },
     }
+    createdJobs.push(jobDoc)
+    return jobDoc
   }
   abuseLimits.checkTranscriptionAbuseLimits = async () => undefined
   goldenBorodutchAllowance.checkTranscriptionAccess = async () =>
@@ -183,24 +218,79 @@ async function main() {
   })
 
   await withPatchedQueue(async (createdJobs) => {
-    process.env.VOICY_DONATION_WALL_ENABLED = 'true'
-    const ctx = mockContext({ paid: false, chatType: 'private' })
+    process.env.VOICY_DONATION_WALL_ENABLED = 'false'
+    const ctx = mockContext({
+      paid: true,
+      chatType: 'private',
+      sendChatActionError: telegramError(
+        400,
+        'Bad Request: not enough rights to send messages'
+      ),
+    })
+    ctx.dbchat.silent = true
     await handleAudio(ctx)
 
-    assert(createdJobs.length === 0, 'enabled wall should block unpaid audio')
     assert(
-      ctx.replies.length === 1,
-      'enabled wall should send subscriber guidance'
+      createdJobs.length === 1,
+      'silent audio should create the job before chat action'
     )
     assert(
-      ctx.replies[0].text === 'golden_borodutch_subscription_required',
-      'subscriber copy should be used'
+      ctx.replies.length === 0,
+      'silent chat action failure should not reply'
     )
-  }, {
-    allowed: false,
-    consumedFreeTranscription: false,
-    reason: 'subscription_required',
+    assert(
+      ctx.chatActions.length === 1,
+      'silent chat action failure should still attempt one chat action'
+    )
+    assert(
+      ctx.chatSaves.length === 1,
+      'permanent chat action failure should mark chat unreachable'
+    )
+    assert(
+      ctx.dbchat.transcriptionDisabledUntilReachable === true,
+      'chat should be blocked from future queueing'
+    )
+    assert(
+      createdJobs[0].status === TranscriptionJobStatus.failed,
+      'permanent chat action failure should fail the queued job'
+    )
+    assert(
+      createdJobs[0].failedAt instanceof Date,
+      'failed silent job should record failedAt'
+    )
+    assert(
+      createdJobs[0].lastError ===
+        'Telegram chat is unreachable for transcription',
+      'failed silent job should record unreachable reason'
+    )
+    assert(
+      createdJobs[0].saves.length === 1,
+      'failed silent job should be saved'
+    )
   })
+
+  await withPatchedQueue(
+    async (createdJobs) => {
+      process.env.VOICY_DONATION_WALL_ENABLED = 'true'
+      const ctx = mockContext({ paid: false, chatType: 'private' })
+      await handleAudio(ctx)
+
+      assert(createdJobs.length === 0, 'enabled wall should block unpaid audio')
+      assert(
+        ctx.replies.length === 1,
+        'enabled wall should send subscriber guidance'
+      )
+      assert(
+        ctx.replies[0].text === 'golden_borodutch_subscription_required',
+        'subscriber copy should be used'
+      )
+    },
+    {
+      allowed: false,
+      consumedFreeTranscription: false,
+      reason: 'subscription_required',
+    }
+  )
 
   await withPatchedStripeCheckout(async (createdSessions) => {
     process.env.VOICY_DONATION_WALL_ENABLED = 'false'
