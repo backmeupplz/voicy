@@ -20,9 +20,14 @@ const DEFAULT_WORKER_MODEL = 'large-v3'
 interface WorkerJob {
   id: string
   status: string
+  chatId?: string
+  telegramChatId?: string
+  telegramChatType?: string
+  sourceMessageId?: number
   sourceUrl?: string
   sourceKind?: string
   mimeType?: string
+  fileSize?: number
   localSourcePath?: string
   recognitionLanguageHint?: string
   attempts?: number
@@ -88,6 +93,7 @@ interface Logger {
 interface RunCommandResult {
   stdout: string
   stderr: string
+  elapsedMs: number
 }
 
 interface DownloadedJob {
@@ -99,6 +105,45 @@ const consoleLogger: Logger = {
   info: (message) => console.log(message),
   warn: (message) => console.warn(message),
   error: (message) => console.error(message),
+}
+
+type LogValue = string | number | boolean | undefined
+
+function formatLogValue(value: LogValue) {
+  if (typeof value === 'string') {
+    return JSON.stringify(value)
+  }
+  return String(value)
+}
+
+function formatLogContext(context: Record<string, LogValue>) {
+  return Object.entries(context)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => `${key}=${formatLogValue(value)}`)
+    .join(' ')
+}
+
+function logWorkerActivity(
+  logger: Logger,
+  message: string,
+  context: Record<string, LogValue>
+) {
+  const formattedContext = formatLogContext(context)
+  logger.info(formattedContext ? `${message} ${formattedContext}` : message)
+}
+
+function jobLogContext(job: WorkerJob): Record<string, LogValue> {
+  return {
+    jobId: job.id,
+    chatId: job.chatId,
+    telegramChatId: job.telegramChatId,
+    telegramChatType: job.telegramChatType,
+    sourceMessageId: job.sourceMessageId,
+    sourceKind: job.sourceKind,
+    fileSize: job.fileSize,
+    language: job.recognitionLanguageHint,
+    attempts: job.attempts,
+  }
 }
 
 class WorkerClientError extends Error {
@@ -459,6 +504,7 @@ function runCommand(
   config: WorkerConfig
 ): Promise<RunCommandResult> {
   return new Promise((resolve, reject) => {
+    const startedAt = Date.now()
     const child = spawn(executable, args, {
       shell: false,
       windowsHide: true,
@@ -484,6 +530,7 @@ function runCommand(
     child.on('close', (code) => {
       const stdout = Buffer.concat(stdoutChunks).toString('utf8')
       const stderr = Buffer.concat(stderrChunks).toString('utf8')
+      const elapsedMs = Date.now() - startedAt
       if (code !== 0) {
         reject(
           new WorkerClientError(
@@ -492,7 +539,7 @@ function runCommand(
         )
         return
       }
-      resolve({ stdout, stderr })
+      resolve({ stdout, stderr, elapsedMs })
     })
   })
 }
@@ -540,24 +587,48 @@ async function readTranscriptionOutput(
   outputPath: string,
   config: WorkerConfig,
   job: WorkerJob,
-  inputPath: string
+  inputPath: string,
+  logger: Logger
 ) {
   const outputStat = await stat(outputPath).catch(() => undefined)
   const rawOutput = outputStat
     ? await readFile(outputPath, 'utf8')
     : commandResult.stdout
-  return normalizeTranscriptionOutput(rawOutput, config, job, inputPath)
+  const result = normalizeTranscriptionOutput(rawOutput, config, job, inputPath)
+  logWorkerActivity(logger, 'Worker transcription command completed', {
+    jobId: job.id,
+    engine: config.engine,
+    model: config.model,
+    language: result.language,
+    elapsedMs: commandResult.elapsedMs,
+    outputSource: outputStat ? 'file' : 'stdout',
+    textChars: result.text.length,
+    parts: result.parts?.length || 0,
+    duration: result.duration,
+  })
+  return result
 }
 
 async function transcribeJob(
   config: WorkerConfig,
   job: WorkerJob,
-  inputPath: string
+  inputPath: string,
+  logger: Logger
 ) {
   const outputPath = path.join(config.workDir, `${job.id}.transcript.json`)
   await removeIfExists(outputPath)
   const language = job.recognitionLanguageHint || config.language
   const args = commandArgsForJob(config, inputPath, outputPath, language)
+  logWorkerActivity(logger, 'Worker transcription command starting', {
+    jobId: job.id,
+    engine: config.engine,
+    model: config.model,
+    language,
+    sourceKind: job.sourceKind,
+    attempts: job.attempts,
+    inputFile: path.basename(inputPath),
+    outputFile: path.basename(outputPath),
+  })
   const commandResult = await runCommand(
     config.transcribeExecutable,
     args,
@@ -568,7 +639,8 @@ async function transcribeJob(
     outputPath,
     config,
     job,
-    inputPath
+    inputPath,
+    logger
   )
 }
 
@@ -619,7 +691,12 @@ async function downloadJob(
   job: WorkerJob,
   logger: Logger
 ): Promise<DownloadedJob | undefined> {
-  logger.info(`Claimed media download job ${job.id}`)
+  const startedAt = Date.now()
+  logWorkerActivity(
+    logger,
+    'Worker media download job claimed',
+    jobLogContext(job)
+  )
   const heartbeat = startHeartbeat(
     api,
     job.id,
@@ -631,9 +708,20 @@ async function downloadJob(
     const source = await getSource(api, job.id)
     const inputPath = await downloadSource(config, job, source)
     const readyJob = await markDownloaded(api, job.id, inputPath)
-    logger.info(`Downloaded media for job ${job.id}`)
+    logWorkerActivity(logger, 'Worker media download completed', {
+      ...jobLogContext(readyJob),
+      elapsedMs: Date.now() - startedAt,
+      inputFile: path.basename(inputPath),
+    })
     return { job: readyJob, inputPath }
   } catch (error) {
+    const retryable =
+      error instanceof WorkerClientError ? error.retryable : true
+    logWorkerActivity(logger, 'Worker media download failed', {
+      ...jobLogContext(job),
+      elapsedMs: Date.now() - startedAt,
+      retryable,
+    })
     await failJob(api, job.id, error, logger)
     return undefined
   } finally {
@@ -649,10 +737,16 @@ async function transcribeDownloadedJob(
   downloaded: DownloadedJob,
   logger: Logger
 ) {
+  const startedAt = Date.now()
   const job = ['processing', 'transcribing'].includes(downloaded.job.status)
     ? downloaded.job
     : await startTranscription(api, downloaded.job.id)
-  logger.info(`Started transcription job ${job.id}`)
+  logWorkerActivity(logger, 'Worker transcription job started', {
+    ...jobLogContext(job),
+    engine: config.engine,
+    model: config.model,
+    inputFile: path.basename(downloaded.inputPath),
+  })
   const heartbeat = startHeartbeat(
     api,
     job.id,
@@ -661,10 +755,43 @@ async function transcribeDownloadedJob(
   )
 
   try {
-    const result = await transcribeJob(config, job, downloaded.inputPath)
+    const result = await transcribeJob(
+      config,
+      job,
+      downloaded.inputPath,
+      logger
+    )
+    logWorkerActivity(logger, 'Worker transcription result uploading', {
+      jobId: job.id,
+      engine: config.engine,
+      model: config.model,
+      language: result.language,
+      elapsedMs: Date.now() - startedAt,
+      textChars: result.text.length,
+      emptyResult: result.text.length === 0,
+      parts: result.parts?.length || 0,
+    })
     await api.post(`/jobs/${job.id}/result`, result)
-    logger.info(`Completed transcription job ${job.id}`)
+    logWorkerActivity(logger, 'Worker transcription job completed', {
+      jobId: job.id,
+      engine: config.engine,
+      model: config.model,
+      language: result.language,
+      elapsedMs: Date.now() - startedAt,
+      textChars: result.text.length,
+      emptyResult: result.text.length === 0,
+      parts: result.parts?.length || 0,
+    })
   } catch (error) {
+    const retryable =
+      error instanceof WorkerClientError ? error.retryable : true
+    logWorkerActivity(logger, 'Worker transcription job failed', {
+      ...jobLogContext(job),
+      engine: config.engine,
+      model: config.model,
+      elapsedMs: Date.now() - startedAt,
+      retryable,
+    })
     await failJob(api, job.id, error, logger)
   } finally {
     if (heartbeat) {
@@ -745,6 +872,11 @@ export async function processAvailableJobs(
     return processed
   }
 
+  logWorkerActivity(
+    logger,
+    'Worker legacy transcription job claimed',
+    jobLogContext(legacyJob)
+  )
   const source = await getSource(api, legacyJob.id)
   const inputPath =
     legacyJob.localSourcePath ||

@@ -78,7 +78,14 @@ function createProofServer() {
           job: {
             id: 'proof-job',
             status: 'processing',
+            chatId: 'proof-chat',
+            telegramChatId: '12345',
+            telegramChatType: 'private',
+            sourceMessageId: 101,
             sourceKind: 'voice',
+            sourceUrl:
+              'https://api.telegram.org/file/botproof-telegram-token/audio/proof.ogg',
+            fileSize: 17,
             recognitionLanguageHint: 'en',
             attempts: 1,
           },
@@ -103,7 +110,14 @@ function createProofServer() {
           job: {
             id: 'proof-job',
             status: 'downloading',
+            chatId: 'proof-chat',
+            telegramChatId: '12345',
+            telegramChatType: 'private',
+            sourceMessageId: 101,
             sourceKind: 'voice',
+            sourceUrl:
+              'https://api.telegram.org/file/botproof-telegram-token/audio/proof.ogg',
+            fileSize: 17,
             recognitionLanguageHint: 'en',
             attempts: 1,
           },
@@ -164,7 +178,12 @@ function createProofServer() {
           job: {
             id: 'proof-job',
             status: 'ready',
+            chatId: 'proof-chat',
+            telegramChatId: '12345',
+            telegramChatType: 'private',
+            sourceMessageId: 101,
             sourceKind: 'voice',
+            fileSize: 17,
             recognitionLanguageHint: 'en',
             attempts: 1,
           },
@@ -184,7 +203,12 @@ function createProofServer() {
           job: {
             id: 'proof-job',
             status: 'transcribing',
+            chatId: 'proof-chat',
+            telegramChatId: '12345',
+            telegramChatType: 'private',
+            sourceMessageId: 101,
             sourceKind: 'voice',
+            fileSize: 17,
             recognitionLanguageHint: 'en',
             attempts: 1,
           },
@@ -436,13 +460,90 @@ async function main() {
       VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
     }
     const config = loadConfig(env)
+    const logLines = []
     const processed = await processNextJob(config, {
-      info: () => undefined,
-      warn: () => undefined,
-      error: () => undefined,
+      info: (message) => logLines.push(message),
+      warn: (message) => logLines.push(message),
+      error: (message) => logLines.push(message),
     })
 
     assert(processed, 'worker should process the claimed job')
+    assert(
+      logLines.every(
+        (line) =>
+          !line.includes('proof-telegram-token') &&
+          !line.includes('api.telegram.org/file') &&
+          !line.includes('fake transcript from worker client proof')
+      ),
+      'worker activity logs should not include tokens, source URLs, or transcript text'
+    )
+    assert(
+      logLines.some(
+        (line) =>
+          line.includes('Worker media download job claimed') &&
+          line.includes('jobId="proof-job"') &&
+          line.includes('chatId="proof-chat"') &&
+          line.includes('telegramChatId="12345"') &&
+          line.includes('sourceMessageId=101') &&
+          line.includes('sourceKind="voice"') &&
+          line.includes('fileSize=17')
+      ),
+      'worker should log media claim context'
+    )
+    assert(
+      logLines.some(
+        (line) =>
+          line.includes('Worker transcription job started') &&
+          line.includes('jobId="proof-job"') &&
+          line.includes('engine="proof-engine"') &&
+          line.includes('model="proof-model"') &&
+          line.includes('sourceKind="voice"') &&
+          line.includes('fileSize=17')
+      ),
+      'worker should log transcription job start context'
+    )
+    assert(
+      logLines.some(
+        (line) =>
+          line.includes('Worker transcription command starting') &&
+          line.includes('jobId="proof-job"') &&
+          line.includes('engine="proof-engine"') &&
+          line.includes('model="proof-model"') &&
+          line.includes('language="en"')
+      ),
+      'worker should log transcription command start context'
+    )
+    assert(
+      logLines.some(
+        (line) =>
+          line.includes('Worker transcription command completed') &&
+          line.includes('jobId="proof-job"') &&
+          line.includes('outputSource="file"') &&
+          line.includes('textChars=40') &&
+          line.includes('parts=1')
+      ),
+      'worker should log transcription command completion metrics'
+    )
+    assert(
+      logLines.some(
+        (line) =>
+          line.includes('Worker transcription result uploading') &&
+          line.includes('jobId="proof-job"') &&
+          line.includes('textChars=40') &&
+          line.includes('emptyResult=false')
+      ),
+      'worker should log transcription result upload metrics'
+    )
+    assert(
+      logLines.some(
+        (line) =>
+          line.includes('Worker transcription job completed') &&
+          line.includes('jobId="proof-job"') &&
+          line.includes('textChars=40') &&
+          line.includes('emptyResult=false')
+      ),
+      'worker should log transcription job completion metrics'
+    )
     assert(
       !state.failure,
       `worker should not report failure: ${JSON.stringify(state.failure)}`
@@ -498,7 +599,9 @@ async function main() {
   await listen(emptyProof.server)
 
   try {
-    const baseUrl = `http://127.0.0.1:${emptyProof.server.address().port}/worker/v1`
+    const baseUrl = `http://127.0.0.1:${
+      emptyProof.server.address().port
+    }/worker/v1`
     const config = loadConfig({
       VOICY_WORKER_API_URL: baseUrl,
       VOICY_WORKER_TOKEN: 'proof-worker-token',
