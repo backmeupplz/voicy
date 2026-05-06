@@ -321,12 +321,69 @@ async function provesSilentCompletionOmitsTimecodes() {
   )
 }
 
+async function provesSilentCompletionPrefersPartsWhenRawTextHasTimecodes() {
+  const botPath = require.resolve('../dist/helpers/bot')
+  const voicePath = require.resolve('../dist/models/Voice')
+  const publisherPath = require.resolve(
+    '../dist/helpers/transcriptionJobs/publishCompletedTranscriptionJob'
+  )
+  const editCalls = []
+  const voiceUpserts = []
+
+  clearModule(publisherPath)
+  mockModule(botPath, {
+    __esModule: true,
+    default: {
+      api: {
+        editMessageText: async (...args) => {
+          editCalls.push(args)
+        },
+      },
+    },
+  })
+  mockModule(voicePath, {
+    VoiceModel: {
+      findOneAndUpdate: async (...args) => {
+        voiceUpserts.push(args)
+      },
+    },
+  })
+
+  const publishCompletedTranscriptionJob = require(publisherPath).default
+  await publishCompletedTranscriptionJob({
+    silent: true,
+    chatId: 'chat-1',
+    telegramChatId: '123',
+    telegramChatType: 'private',
+    sourceMessageId: 10,
+    statusMessageId: 777,
+    fileId: 'file-1',
+    sourceKind: 'voice',
+    resultText: '00:00:\nRaw first chunk.\n00:02:\nRaw second chunk.',
+    resultParts: [
+      { timeCode: '00:00', text: 'Raw first chunk.' },
+      { timeCode: '00:02', text: 'Raw second chunk.' },
+    ],
+  })
+
+  assert.equal(editCalls.length, 1)
+  assert.equal(editCalls[0][2], 'Raw first chunk.\nRaw second chunk.')
+  assert(!editCalls[0][2].includes('00:00:'))
+  assert(!editCalls[0][2].includes('00:02:'))
+  assert.equal(voiceUpserts.length, 1)
+  assert(
+    voiceUpserts[0][1].$set.text.includes('00:00:'),
+    'regular stored transcript text should retain timecodes'
+  )
+}
+
 async function main() {
   await provesSilentProgressStartsWithTranscriptText()
   await provesSilentProgressEditsOneTimecodeFreeMessage()
   await provesSilentCompletionSuppressesEmptyFallback()
   await provesSilentCompletionSendsFinalTranscript()
   await provesSilentCompletionOmitsTimecodes()
+  await provesSilentCompletionPrefersPartsWhenRawTextHasTimecodes()
   console.log('silent mode proof passed')
 }
 

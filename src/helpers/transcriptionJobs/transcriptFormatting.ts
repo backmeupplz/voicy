@@ -95,11 +95,12 @@ export function transcriptText(
     return typeof structured.text === 'string' ? structured.text.trim() : ''
   }
 
-  return (
-    job.resultText?.trim() ||
-    transcriptTextFromParts(job.resultParts, '', options) ||
-    ''
-  )
+  const partsText = transcriptTextFromParts(job.resultParts, '', options)
+  if (options.includeTimecodes === false && partsText) {
+    return partsText
+  }
+
+  return job.resultText?.trim() || partsText || ''
 }
 
 export function partialTranscriptText(
