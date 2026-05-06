@@ -58,6 +58,19 @@ assert.equal(
   'structured worker JSON should prefer timecoded parts when present'
 )
 assert.equal(
+  transcriptText(
+    {
+      resultParts: [
+        { timeCode: '00:01', text: 'first line\ncontinues' },
+        { timeCode: '00:03', text: 'second line' },
+      ],
+    },
+    { includeTimecodes: false }
+  ),
+  'first line continues second line',
+  'plain transcript rendering should remove worker segment line breaks'
+)
+assert.equal(
   localizedTranscriptionText('en', 'completed_empty'),
   'Done, but no text was detected.',
   'English empty-result copy should clearly describe no detected text'

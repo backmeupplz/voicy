@@ -148,7 +148,7 @@ async function provesSilentProgressEditsOneTimecodeFreeMessage() {
   assert.deepEqual(editCalls[0], [
     '123',
     777,
-    'First transcript chunk.\nSecond transcript chunk.\nThird transcript chunk.',
+    'First transcript chunk. Second transcript chunk. Third transcript chunk.',
     { parse_mode: 'HTML' },
   ])
   assert.equal(saveCount, 2)
@@ -377,7 +377,7 @@ async function provesSilentCompletionOmitsTimecodes() {
   assert.deepEqual(editCalls[0], [
     '123',
     777,
-    'Final first chunk.\nFinal second chunk.',
+    'Final first chunk. Final second chunk.',
   ])
   assert(!editCalls[0][2].includes('00:00:'))
   assert(!editCalls[0][2].includes('00:02:'))
@@ -434,7 +434,7 @@ async function provesSilentCompletionPrefersPartsWhenRawTextHasTimecodes() {
   })
 
   assert.equal(editCalls.length, 1)
-  assert.equal(editCalls[0][2], 'Raw first chunk.\nRaw second chunk.')
+  assert.equal(editCalls[0][2], 'Raw first chunk. Raw second chunk.')
   assert(!editCalls[0][2].includes('00:00:'))
   assert(!editCalls[0][2].includes('00:02:'))
   assert.equal(voiceUpserts.length, 1)
