@@ -1,24 +1,37 @@
 import { publicBotCommands } from '@/helpers/botCommands'
 import bot from '@/helpers/bot'
 
-const englishCommands = publicBotCommands.map(({ command, description }) => ({
-  command,
-  description,
-}))
+const commandLocales = [
+  { languageCode: undefined, descriptionKey: 'description' },
+  { languageCode: 'de', descriptionKey: 'germanDescription' },
+  { languageCode: 'es', descriptionKey: 'spanishDescription' },
+  { languageCode: 'pt', descriptionKey: 'portugueseDescription' },
+  { languageCode: 'ru', descriptionKey: 'russianDescription' },
+  { languageCode: 'uk', descriptionKey: 'ukrainianDescription' },
+] as const
 
-const russianCommands = publicBotCommands.map(
-  ({ command, russianDescription }) => ({
-    command,
-    description: russianDescription,
-  })
-)
+function commandsForLocale(
+  descriptionKey: (typeof commandLocales)[number]['descriptionKey']
+) {
+  return publicBotCommands.map((definition) => ({
+    command: definition.command,
+    description: definition[descriptionKey],
+  }))
+}
+
+function setCommands({
+  languageCode,
+  descriptionKey,
+}: (typeof commandLocales)[number]) {
+  const commands = commandsForLocale(descriptionKey)
+  return languageCode
+    ? bot.api.setMyCommands(commands, { language_code: languageCode })
+    : bot.api.setMyCommands(commands)
+}
 
 export default async function configureBotCommands() {
   try {
-    await Promise.all([
-      bot.api.setMyCommands(englishCommands),
-      bot.api.setMyCommands(russianCommands, { language_code: 'ru' }),
-    ])
+    await Promise.all(commandLocales.map(setCommands))
   } catch (error) {
     console.error('Could not configure bot command menu', error)
   }

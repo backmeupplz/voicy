@@ -22,7 +22,7 @@ function pageFromList(list: UiLanguage[], page: number, isCommand: boolean) {
 }
 
 export default function languageKeyboard(isCommand: boolean, page = 0) {
-  const list = uiLanguages.sort((a, b) => (a.name < b.name ? -1 : 1))
+  const list = [...uiLanguages].sort((a, b) => (a.name < b.name ? -1 : 1))
   const keyboard = pageFromList(list, page, isCommand)
   if (list.length > pageSize) {
     if (page > 0) {

@@ -4,12 +4,29 @@ const assert = require('assert')
 
 const handleSetLanguage = require('../dist/handlers/handleSetLanguage').default
 const handleStart = require('../dist/commands/handleStart').default
+const {
+  findUiLanguage,
+  uiLanguageForTelegramCode,
+  uiLanguages,
+} = require('../dist/helpers/language/uiLanguages')
+const languageKeyboard =
+  require('../dist/helpers/language/languageKeyboard').default
 const telegramAllowedUpdates =
   require('../dist/helpers/telegramAllowedUpdates').default
+
+const languageCases = [
+  ['en', 'English'],
+  ['de', 'Deutsch'],
+  ['es', 'Español'],
+  ['pt', 'Português'],
+  ['ru', 'Русский'],
+  ['uk', 'Українська'],
+]
 
 function createContext({
   telegramLanguage = 'en',
   uiLanguage = 'en',
+  selectedLanguage = 'ru',
   manual = false,
   editMessageText,
 } = {}) {
@@ -39,7 +56,7 @@ function createContext({
   return {
     ctx: {
       timeReceived: new Date(),
-      callbackQuery: { data: 'li~1~ru' },
+      callbackQuery: { data: `li~1~${selectedLanguage}` },
       dbchat,
       i18n,
       editMessageText:
@@ -74,6 +91,47 @@ async function provesManualLanguageSurvivesStart() {
   assert.equal(ctx.dbchat.uiLanguage, 'ru')
   assert.equal(ctx.i18n.currentLocale, 'ru')
   assert.deepEqual(calls, [['reply', 'ru:start:', { parse_mode: 'Markdown' }]])
+}
+
+async function provesEverySupportedLanguageCanBeSelected() {
+  for (const [code, name] of languageCases) {
+    const { ctx, calls } = createContext({ selectedLanguage: code })
+
+    await handleSetLanguage(ctx)
+
+    assert.equal(ctx.dbchat.uiLanguage, code)
+    assert.equal(ctx.dbchat.uiLanguageSelectedManually, true)
+    assert.deepEqual(calls[0], ['answerCallbackQuery'])
+    assert.deepEqual(calls[1], ['save', code, true])
+    assert.equal(calls[2][0], 'edit')
+    assert.equal(calls[2][1], `${code}:language_success:${name}`)
+  }
+}
+
+function provesLanguageRegistryContainsExpectedLabels() {
+  assert.deepEqual(
+    uiLanguages.map(({ code, name }) => [code, name]),
+    languageCases
+  )
+
+  for (const [code, name] of languageCases) {
+    assert.equal(findUiLanguage(code).name, name)
+    assert.equal(findUiLanguage(name).code, code)
+  }
+}
+
+function provesTelegramLanguageCodesInitializeSupportedChats() {
+  assert.equal(uiLanguageForTelegramCode('de').code, 'de')
+  assert.equal(uiLanguageForTelegramCode('es-MX').code, 'es')
+  assert.equal(uiLanguageForTelegramCode('pt-BR').code, 'pt')
+  assert.equal(uiLanguageForTelegramCode('uk').code, 'uk')
+  assert.equal(uiLanguageForTelegramCode('fr').code, 'en')
+}
+
+function provesRenderingLanguageKeyboardKeepsEnglishFallback() {
+  languageKeyboard(true)
+
+  assert.equal(uiLanguageForTelegramCode('fr').code, 'en')
 }
 
 async function provesTelegramLanguageStillInitializesUnselectedChats() {
@@ -125,6 +183,10 @@ function provesRuntimePollsForCallbackQueries() {
 
 Promise.resolve()
   .then(provesRuntimePollsForCallbackQueries)
+  .then(provesLanguageRegistryContainsExpectedLabels)
+  .then(provesTelegramLanguageCodesInitializeSupportedChats)
+  .then(provesRenderingLanguageKeyboardKeepsEnglishFallback)
+  .then(provesEverySupportedLanguageCanBeSelected)
   .then(provesManualLanguageSurvivesStart)
   .then(provesTelegramLanguageStillInitializesUnselectedChats)
   .then(provesLanguageCallbackFallsBackWhenEditFails)

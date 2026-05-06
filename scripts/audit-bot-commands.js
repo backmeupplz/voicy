@@ -8,6 +8,14 @@ const root = path.join(__dirname, '..')
 const appPath = path.join(root, 'src', 'app.ts')
 const commandsPath = path.join(root, 'src', 'helpers', 'botCommands.ts')
 const localeDir = path.join(root, 'locales')
+const supportedLocaleFiles = [
+  'de.yaml',
+  'en.yaml',
+  'es.yaml',
+  'pt.yaml',
+  'ru.yaml',
+  'uk.yaml',
+]
 
 function uniq(values) {
   return [...new Set(values)]
@@ -65,7 +73,7 @@ if (extraHandlers.length) {
   fail(`Commands registered but not listed: ${extraHandlers.join(', ')}`)
 }
 
-for (const file of ['en.yaml', 'ru.yaml']) {
+for (const file of supportedLocaleFiles) {
   const localePath = path.join(localeDir, file)
   const locale = yaml.load(fs.readFileSync(localePath, 'utf8'))
   const help = String(locale.help || '').replace(/\\_/g, '_')
