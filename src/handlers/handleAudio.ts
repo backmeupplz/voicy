@@ -241,6 +241,19 @@ function replyAndTrackReachability(
   reply: { text: string; options?: Record<string, unknown> }
 ) {
   return ctx.reply(reply.text, reply.options).catch(async (error) => {
+    if (reply.options?.reply_to_message_id) {
+      try {
+        const fallbackOptions = { ...reply.options }
+        delete fallbackOptions.reply_to_message_id
+        return await ctx.reply(reply.text, fallbackOptions)
+      } catch (fallbackError) {
+        await markChatUnreachableForTelegramError(ctx, fallbackError, {
+          location,
+          action: 'reply',
+        })
+        throw fallbackError
+      }
+    }
     await markChatUnreachableForTelegramError(ctx, error, {
       location,
       action: 'reply',
