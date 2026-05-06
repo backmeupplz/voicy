@@ -10,21 +10,29 @@ const {
   escapeTelegramMarkdownText,
 } = require('../dist/helpers/telegramMarkdown')
 
+const retiredBotUsername = ['@voicy', 'legacy', 'bot'].join('_')
+const escapedRetiredBotUsername = retiredBotUsername.replace(/_/g, '\\_')
+const removedSupportChatUsername = ['@golden', 'borodutch', 'chat'].join('_')
+const escapedRemovedSupportChatUsername = removedSupportChatUsername.replace(
+  /_/g,
+  '\\_'
+)
+
 assert.equal(
-  escapeTelegramMarkdownText('@golden_borodutch_chat'),
-  '@golden\\_borodutch\\_chat',
+  escapeTelegramMarkdownText('@golden_borodutch'),
+  '@golden\\_borodutch',
   'underscore-bearing bot usernames should be escaped for Telegram Markdown'
 )
 
 assert.equal(
-  escapeTelegramMarkdownText('@golden\\_borodutch\\_chat'),
-  '@golden\\_borodutch\\_chat',
+  escapeTelegramMarkdownText('@golden\\_borodutch'),
+  '@golden\\_borodutch',
   'already escaped usernames should stay stable'
 )
 
 assert.equal(
-  escapeTelegramMarkdownText('`@golden_borodutch_chat`'),
-  '`@golden_borodutch_chat`',
+  escapeTelegramMarkdownText('`@golden_borodutch`'),
+  '`@golden_borodutch`',
   'code spans should not be rewritten by Markdown escaping'
 )
 
@@ -35,13 +43,25 @@ for (const locale of ['en', 'ru']) {
   )
 
   assert(
-    source.includes('@golden\\_borodutch\\_chat'),
-    `${locale} start/help copy should include escaped Golden Borodutch support chat`
+    source.includes('@golden\\_borodutch'),
+    `${locale} locale should keep escaped Golden Borodutch channel references`
   )
 
   assert(
-    !source.includes('@golden_borodutch_chat'),
-    `${locale} locale should not contain bare support chat username`
+    !source.includes('@golden_borodutch'),
+    `${locale} locale should not contain bare Golden Borodutch usernames`
+  )
+
+  assert(
+    !source.includes(escapedRetiredBotUsername) &&
+      !source.includes(retiredBotUsername),
+    `${locale} locale should not mention the retired bot`
+  )
+
+  assert(
+    !source.includes(escapedRemovedSupportChatUsername) &&
+      !source.includes(removedSupportChatUsername),
+    `${locale} locale should not mention the removed help chat`
   )
 }
 

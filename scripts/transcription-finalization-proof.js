@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 require('module-alias/register')
+require('reflect-metadata')
 
 const assert = require('assert')
 

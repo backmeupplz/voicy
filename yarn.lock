@@ -523,6 +523,11 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@grammyjs/auto-retry@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@grammyjs/auto-retry/-/auto-retry-1.1.1.tgz#0391aec411585b30269eaaab7ca10043b099054a"
+  integrity sha512-vaQDl45Unhidi4r5+JrwDKfmPFJuJpAh9YmE38pACcP3TyKnwUMQxQ3bRdl0Y1ME/uBwTm9YiX1pwol0vnubCw==
+
 "@grammyjs/i18n@^0.5.1":
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/@grammyjs/i18n/-/i18n-0.5.1.tgz#17af779ea3aa1557af3cf3b69112db4372c66bde"

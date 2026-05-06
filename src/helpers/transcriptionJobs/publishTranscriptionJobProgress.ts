@@ -1,4 +1,9 @@
 import { DocumentType } from '@typegoose/typegoose'
+import {
+  TelegramReachabilityFailureKind,
+  classifyTelegramReachabilityFailure,
+  markChatUnreachableByIdForTelegramError,
+} from '@/helpers/chatReachability'
 import { TranscriptionJob } from '@/models/TranscriptionJob'
 import {
   liveProgressAllowedForChatType,
@@ -103,13 +108,21 @@ export default async function publishTranscriptionJobProgress(
       { parse_mode: 'HTML' }
     )
   } catch (error) {
-    const description =
-      error && typeof error === 'object' && 'description' in error
-        ? String((error as { description?: string }).description)
-        : ''
-    if (!description.includes('message is not modified')) {
-      throw error
+    const failure = classifyTelegramReachabilityFailure(error)
+    if (failure.kind === TelegramReachabilityFailureKind.benign) {
+      return false
     }
+    if (failure.kind === TelegramReachabilityFailureKind.staleStatusMessage) {
+      console.warn(
+        `Skipping stale transcription progress message for chat ${job.chatId}`
+      )
+      return false
+    }
+    await markChatUnreachableByIdForTelegramError(job.chatId, error, {
+      location: 'publishTranscriptionJobProgress',
+      action: 'editMessageText',
+    })
+    throw error
   }
 
   if (phase === 'partial') {

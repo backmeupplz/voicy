@@ -1,4 +1,9 @@
 import { DocumentType } from '@typegoose/typegoose'
+import {
+  TelegramReachabilityFailureKind,
+  classifyTelegramReachabilityFailure,
+  markChatUnreachableByIdForTelegramError,
+} from '@/helpers/chatReachability'
 import { TranscriptionJob } from '@/models/TranscriptionJob'
 import { VoiceModel } from '@/models/Voice'
 import {
@@ -47,12 +52,6 @@ async function storeVoiceRecord(job: DocumentType<TranscriptionJob>) {
   )
 }
 
-function telegramErrorDescription(error: unknown) {
-  return error && typeof error === 'object' && 'description' in error
-    ? String((error as { description?: string }).description)
-    : ''
-}
-
 async function deleteStatusMessage(job: DocumentType<TranscriptionJob>) {
   if (!job.statusMessageId) {
     return
@@ -99,30 +98,37 @@ export default async function publishCompletedTranscriptionJob(
         firstText || fallbackText
       )
     } catch (error) {
-      if (
-        !telegramErrorDescription(error).includes('message is not modified')
-      ) {
+      const failure = classifyTelegramReachabilityFailure(error)
+      if (failure.kind !== TelegramReachabilityFailureKind.benign) {
         await deleteStatusMessage(job)
-        await bot.api.sendMessage(
-          job.telegramChatId,
-          firstText || fallbackText,
-          {
-            ...replyOptions,
-          }
-        )
+        await sendFinalMessage(job, firstText || fallbackText, replyOptions)
       }
     }
   } else {
-    await bot.api.sendMessage(job.telegramChatId, firstText || fallbackText, {
-      ...replyOptions,
-    })
+    await sendFinalMessage(job, firstText || fallbackText, replyOptions)
   }
 
   for (const chunk of chunks) {
-    await bot.api.sendMessage(job.telegramChatId, chunk, {
-      ...replyOptions,
-    })
+    await sendFinalMessage(job, chunk, replyOptions)
   }
 
   await storeVoiceRecord(job)
+}
+
+async function sendFinalMessage(
+  job: DocumentType<TranscriptionJob>,
+  text: string,
+  replyOptions: Record<string, number>
+) {
+  try {
+    await bot.api.sendMessage(job.telegramChatId, text, {
+      ...replyOptions,
+    })
+  } catch (error) {
+    await markChatUnreachableByIdForTelegramError(job.chatId, error, {
+      location: 'publishCompletedTranscriptionJob',
+      action: 'sendMessage',
+    })
+    throw error
+  }
 }

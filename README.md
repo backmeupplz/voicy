@@ -82,6 +82,19 @@ yarn worker:run
 Set `VOICY_MAX_MEDIA_FILE_SIZE_MB` on the backend to tune the largest Telegram
 media message that Voicy will enqueue for local workers.
 
+Production long polling deliberately drops Telegram's pending update backlog
+before startup by default (`VOICY_DROP_PENDING_UPDATES_ON_STARTUP=true`). This
+prevents old voice/audio messages from being replayed into new transcription
+jobs after deploys, restarts, or downtime. Message updates are also ignored when
+their Telegram `date` is older than the current bot process startup cutoff or
+older than `VOICY_MAX_TELEGRAM_UPDATE_AGE_SECONDS` seconds, defaulting to 300.
+
+Before restarting production, pause local transcription workers if there are
+active claimable jobs, deploy/restart the bot, confirm logs include the pending
+update drop, and then restart workers only after the backend is accepting fresh
+updates. Operators should expect voice/audio messages sent while the bot was
+down to be discarded rather than transcribed late.
+
 The donation wall is temporarily disabled by default for testing. Leave
 `VOICY_DONATION_WALL_ENABLED=false` unset or false to let unpaid chats enqueue
 voice/audio transcription. Set `VOICY_DONATION_WALL_ENABLED=true` to re-enable

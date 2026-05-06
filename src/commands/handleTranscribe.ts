@@ -1,4 +1,5 @@
 import { enqueueTranscription, isMediaTooLarge } from '@/handlers/handleAudio'
+import { markChatUnreachableForTelegramError } from '@/helpers/chatReachability'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import { transcribableMediaFromMessage } from '@/helpers/transcribableTelegramMedia'
 import Context from '@/models/Context'
@@ -37,10 +38,18 @@ export default async function handleTranscribe(ctx: Context) {
   } catch (error) {
     report(error, { ctx, location: 'handleTranscribe' })
     if (!ctx.dbchat.silent) {
-      await ctx.reply(markdownI18n(ctx, 'error_queue'), {
-        parse_mode: 'Markdown',
-        reply_to_message_id: ctx.msg?.message_id,
-      })
+      try {
+        await ctx.reply(markdownI18n(ctx, 'error_queue'), {
+          parse_mode: 'Markdown',
+          reply_to_message_id: ctx.msg?.message_id,
+        })
+      } catch (replyError) {
+        await markChatUnreachableForTelegramError(ctx, replyError, {
+          location: 'handleTranscribe.errorReply',
+          action: 'reply',
+        })
+        report(replyError, { ctx, location: 'handleTranscribe.errorReply' })
+      }
     }
   }
 }

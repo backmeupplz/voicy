@@ -28,6 +28,16 @@ export class Chat extends FindOrCreate {
   filesBanned: boolean
   @prop({ required: true, default: true })
   transcribeAllAudio: boolean
+  @prop({ required: true, default: true })
+  botCanSendMessages: boolean
+  @prop({ required: true, default: false })
+  transcriptionDisabledUntilReachable: boolean
+  @prop()
+  transcriptionUnreachableReason?: string
+  @prop()
+  transcriptionUnreachableAt?: Date
+  @prop()
+  transcriptionReachableAt?: Date
   @prop()
   lastVoiceMessageSentAt?: Date
   @prop({ required: true, default: false })
