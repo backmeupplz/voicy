@@ -33,6 +33,7 @@
     "test:local-runtime-health": "node scripts/local-runtime-health.js",
     "test:stripe-webhook": "node scripts/stripe-webhook-proof.js",
     "test:telegram-markdown": "node scripts/telegram-markdown-proof.js",
+    "test:telegram-api-retry": "node scripts/telegram-api-retry-proof.js",
     "test:stale-telegram-updates": "node scripts/stale-telegram-update-proof.js",
     "qa:telegram-upload": "node scripts/telegram-web-upload-qa.mjs",
     "worker:create-client": "node scripts/create-worker-client.js",
@@ -48,6 +49,7 @@
     "lint": "yarn pretty && eslint --max-warnings 0 --ext ts,tsx,json src"
   },
   "dependencies": {
+    "@grammyjs/auto-retry": "1.1.1",
     "@grammyjs/i18n": "^0.5.1",
     "@grammyjs/runner": "^1.0.4",
     "@typegoose/typegoose": "^9.13.2",
