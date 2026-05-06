@@ -32,6 +32,7 @@
     "test:local-runtime-health": "node scripts/local-runtime-health.js",
     "test:stripe-webhook": "node scripts/stripe-webhook-proof.js",
     "test:telegram-markdown": "node scripts/telegram-markdown-proof.js",
+    "test:stale-telegram-updates": "node scripts/stale-telegram-update-proof.js",
     "qa:telegram-upload": "node scripts/telegram-web-upload-qa.mjs",
     "worker:create-client": "node scripts/create-worker-client.js",
     "security:scrub-source-urls": "node scripts/scrub-token-bearing-source-urls.js",

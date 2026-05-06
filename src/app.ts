@@ -5,6 +5,7 @@ import 'module-alias/register'
 import * as dotenv from 'dotenv'
 dotenv.config({ path: `${__dirname}/../.env` })
 // Dependencies
+import { dropPendingTelegramUpdatesBeforePolling } from '@/helpers/staleTelegramUpdates'
 import { run } from '@grammyjs/runner'
 import { webhookApp } from '@/helpers/startWebhook'
 import Cluster from '@/helpers/Cluster'
@@ -82,6 +83,7 @@ async function runApp() {
   // Start bot
   await bot.init()
   await configureBotCommands()
+  await dropPendingTelegramUpdatesBeforePolling(bot.api)
   run(bot, 500, { allowed_updates: telegramAllowedUpdates })
   console.info(`Bot ${bot.botInfo.username} is up and running`)
   // Start webhook app
