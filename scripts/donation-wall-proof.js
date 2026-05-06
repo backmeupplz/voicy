@@ -319,6 +319,10 @@ async function main() {
         'fixed tier checkout should use the selected amount'
       )
       assert(
+        createdSession.line_items[0].price_data.tax_behavior === 'inclusive',
+        'fixed tier checkout should set tax behavior for automatic tax'
+      )
+      assert(
         createdSession.metadata.voicy_donation_amount === `${amount}`,
         'fixed tier checkout should include amount metadata'
       )

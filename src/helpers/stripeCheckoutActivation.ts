@@ -25,6 +25,8 @@ export const VOICY_STRIPE_METADATA_PURPOSE = 'voicy_chat_activation'
 export const VOICY_STRIPE_CUSTOM_TIER = 'custom'
 export const VOICY_STRIPE_PRODUCT_NAME =
   process.env.STRIPE_PRODUCT_NAME || 'Voicy chat transcription activation'
+export const VOICY_STRIPE_TAX_BEHAVIOR =
+  process.env.STRIPE_TAX_BEHAVIOR === 'exclusive' ? 'exclusive' : 'inclusive'
 
 export type StripeDonationTier = 'fixed' | 'custom'
 
@@ -210,6 +212,7 @@ export function stripeCheckoutSessionRequest(
           product_data: {
             name: VOICY_STRIPE_PRODUCT_NAME,
           },
+          tax_behavior: VOICY_STRIPE_TAX_BEHAVIOR,
           unit_amount: donation.amount,
         },
         quantity: 1,
