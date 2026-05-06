@@ -17,7 +17,7 @@ help: |
   /transcribe — die Sprachnachricht oder Audiodatei transkribieren, auf die du antwortest
   /privacy — Datenschutzerklärung öffnen
 
-  Voicy nutzt jetzt Worker, um Nachrichten in Text umzuwandeln. Der alte enginebasierte Bot ist unter @voicy\_legacy\_bot verfügbar. Voicy ist Open Source: https://github.com/backmeupplz/voicy. Support gibt es in @golden\_borodutch\_chat.
+  Voicy nutzt jetzt Worker, um Nachrichten in Text umzuwandeln. Voicy ist Open Source: https://github.com/backmeupplz/voicy.
 error_group: "😅 Dieser Befehl funktioniert nur in Gruppenchats."
 lock_true: "🔑 Voicy akzeptiert Befehle jetzt nur noch von Gruppenadmins."
 lock_false: "🔑 Voicy akzeptiert Befehle jetzt von allen in diesem Chat."
@@ -28,7 +28,7 @@ start: |
 
   Sende eine Sprachnachricht, und Voicy wandelt sie in Text um. Mit /language änderst du die Sprache der Bot-Oberfläche.
 
-  Der alte enginebasierte Bot ist unter @voicy\_legacy\_bot verfügbar. Voicy ist Open Source: https://github.com/backmeupplz/voicy. Support gibt es in @golden\_borodutch\_chat.
+  Voicy ist Open Source: https://github.com/backmeupplz/voicy.
 language: "👋 Wähle die Sprache der Bot-Oberfläche."
 language_success: "👍 Voicy verwendet jetzt *${language}* für Bot-Nachrichten in diesem Chat."
 error_twenty: "_👮 Telegram-Dateien über 20 MB können hier nicht verarbeitet werden. Für größere Dateien nutze https://voicybot.com direkt._"
