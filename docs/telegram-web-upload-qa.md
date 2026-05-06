@@ -77,8 +77,8 @@ yarn qa:telegram-upload \
 ```
 
 Use the exact strings the bot should render in the active locale. Include
-Markdown-sensitive strings such as `@voicy_legacy_bot` when the QA goal is to
-prove formatting in the visible Telegram Web output.
+Markdown-sensitive strings when the QA goal is to prove formatting in the
+visible Telegram Web output.
 
 ## Group Chat
 
