@@ -148,6 +148,7 @@ async function enqueueTranscription(
   }
 
   if (ctx.dbchat.silent) {
+    await sendSilentTranscriptionChatAction(ctx)
     console.info('Skipping live transcription status message in silent mode')
     return queuedJob
   }
@@ -268,6 +269,22 @@ function sourceKind(sourceType: TranscribableTelegramFile['sourceType']) {
 
 function fileUniqueId(audio: TranscribableTelegramFile) {
   return 'file_unique_id' in audio ? audio.file_unique_id : undefined
+}
+
+async function sendSilentTranscriptionChatAction(ctx: Context) {
+  if (ctx.chat.type === 'channel') {
+    return
+  }
+
+  try {
+    await ctx.api.sendChatAction(ctx.chat.id, 'typing')
+  } catch (error) {
+    await markChatUnreachableForTelegramError(ctx, error, {
+      location: 'sendSilentTranscriptionChatAction',
+      action: 'sendChatAction',
+    })
+    report(error, { ctx, location: 'sendSilentTranscriptionChatAction' })
+  }
 }
 
 async function sendQueueError(ctx: Context) {

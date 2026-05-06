@@ -167,6 +167,22 @@ async function main() {
   })
 
   await withPatchedQueue(async (createdJobs) => {
+    process.env.VOICY_DONATION_WALL_ENABLED = 'false'
+    const ctx = mockContext({ paid: true, chatType: 'private' })
+    ctx.dbchat.silent = true
+    await handleAudio(ctx)
+
+    assert(createdJobs.length === 1, 'silent audio should enqueue')
+    assert(ctx.replies.length === 0, 'silent enqueue should not reply')
+    assert(
+      ctx.chatActions.length === 1,
+      'silent enqueue should send a chat action'
+    )
+    assert(ctx.chatActions[0].chatId === 12345, 'chat action targets chat')
+    assert(ctx.chatActions[0].action === 'typing', 'chat action is typing')
+  })
+
+  await withPatchedQueue(async (createdJobs) => {
     process.env.VOICY_DONATION_WALL_ENABLED = 'true'
     const ctx = mockContext({ paid: false, chatType: 'private' })
     await handleAudio(ctx)
