@@ -24,21 +24,30 @@ export function splitTelegramText(text: string) {
   return text.match(new RegExp(`[\\s\\S]{1,${TELEGRAM_MESSAGE_LIMIT}}`, 'g'))
 }
 
+function plainTranscriptText(text: string) {
+  return text.replace(/\s+/g, ' ').trim()
+}
+
 export function transcriptTextFromParts(
   parts?: TranscriptionResultPart[],
   fallback = '',
   { includeTimecodes = true }: TranscriptTextOptions = {}
 ) {
   if (parts?.length) {
+    if (!includeTimecodes) {
+      return parts
+        .map((part) => plainTranscriptText(part.text))
+        .filter(Boolean)
+        .join(' ')
+    }
+
     return parts
       .map((part) =>
-        includeTimecodes && part.timeCode
-          ? `${part.timeCode}:\n${part.text}`
-          : part.text
+        part.timeCode ? `${part.timeCode}:\n${part.text}` : part.text
       )
       .join('\n')
   }
-  return fallback
+  return includeTimecodes ? fallback : plainTranscriptText(fallback)
 }
 
 function parseStructuredTranscriptResult(
@@ -92,7 +101,12 @@ export function transcriptText(
     if (partsText) {
       return partsText
     }
-    return typeof structured.text === 'string' ? structured.text.trim() : ''
+    if (typeof structured.text !== 'string') {
+      return ''
+    }
+    return options.includeTimecodes === false
+      ? plainTranscriptText(structured.text)
+      : structured.text.trim()
   }
 
   const partsText = transcriptTextFromParts(job.resultParts, '', options)
@@ -100,7 +114,13 @@ export function transcriptText(
     return partsText
   }
 
-  return job.resultText?.trim() || partsText || ''
+  if (!job.resultText) {
+    return partsText || ''
+  }
+
+  return options.includeTimecodes === false
+    ? plainTranscriptText(job.resultText)
+    : job.resultText.trim() || partsText || ''
 }
 
 export function partialTranscriptText(
