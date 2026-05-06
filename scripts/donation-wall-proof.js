@@ -42,6 +42,7 @@ function mockContext({
   chatType = 'channel',
   text = '/donate',
   sendChatActionError,
+  failReplyToMessageId,
 }) {
   const replies = []
   const chatActions = []
@@ -94,6 +95,9 @@ function mockContext({
       },
     },
     reply: async (text, options) => {
+      if (failReplyToMessageId && options?.reply_to_message_id) {
+        throw telegramError(400, 'Bad Request: replied message not found')
+      }
       replies.push({ text, options })
       return { message_id: 222 }
     },
@@ -276,17 +280,25 @@ async function main() {
   await withPatchedQueue(
     async (createdJobs) => {
       process.env.VOICY_DONATION_WALL_ENABLED = 'true'
-      const ctx = mockContext({ paid: false, chatType: 'private' })
+      const ctx = mockContext({
+        paid: false,
+        chatType: 'private',
+        failReplyToMessageId: true,
+      })
       await handleAudio(ctx)
 
       assert(createdJobs.length === 0, 'enabled wall should block unpaid audio')
       assert(
         ctx.replies.length === 1,
-        'enabled wall should send subscriber guidance'
+        'enabled wall should retry subscriber guidance without reply target'
       )
       assert(
         ctx.replies[0].text === 'golden_borodutch_subscription_required',
         'subscriber copy should be used'
+      )
+      assert(
+        !ctx.replies[0].options.reply_to_message_id,
+        'fallback subscriber guidance should not keep invalid reply target'
       )
     },
     {
