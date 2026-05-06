@@ -1,3 +1,4 @@
+import { markChatReachable } from '@/helpers/chatReachability'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import Context from '@/models/Context'
 import logAnswerTime from '@/helpers/logAnswerTime'
@@ -19,5 +20,6 @@ export default async function toggleChatBoolean(
   await ctx.reply(markdownI18n(ctx, messageForValue(ctx.dbchat[setting])), {
     parse_mode: 'Markdown',
   })
+  await markChatReachable(ctx, logLabel)
   logAnswerTime(ctx, logLabel)
 }
