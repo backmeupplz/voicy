@@ -80,6 +80,31 @@ assert.equal(
   'Готово, но текст не найден.',
   'Russian empty-result copy should clearly describe no detected text'
 )
+assert.equal(
+  localizedTranscriptionText('de', 'completed_empty'),
+  'Fertig, aber es wurde kein Text erkannt.',
+  'German empty-result copy should clearly describe no detected text'
+)
+assert.equal(
+  localizedTranscriptionText('es', 'completed_empty'),
+  'Listo, pero no se detectó texto.',
+  'Spanish empty-result copy should clearly describe no detected text'
+)
+assert.equal(
+  localizedTranscriptionText('pt', 'completed_empty'),
+  'Concluído, mas nenhum texto foi detectado.',
+  'Portuguese empty-result copy should clearly describe no detected text'
+)
+assert.equal(
+  localizedTranscriptionText('uk', 'completed_empty'),
+  'Готово, але текст не виявлено.',
+  'Ukrainian empty-result copy should clearly describe no detected text'
+)
+assert.equal(
+  localizedTranscriptionText('fr', 'completed_empty'),
+  'Done, but no text was detected.',
+  'unsupported empty-result locale should fall back to English'
+)
 
 const sensitive = [
   '123456789:abcdefghijklmnopqrstuvwxyzABCDE',

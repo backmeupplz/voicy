@@ -39,6 +39,31 @@ assert.equal(
   '<i>✨ Превращаем в текст...</i>',
   'Russian processing status should italicize the full emoji-prefixed line'
 )
+assert.equal(
+  transcriptionProgressStatusHtml('de', 'progress_processing', () => 0.5),
+  '<i>🎧 Wird in Text umgewandelt...</i>',
+  'German processing status should use localized status copy'
+)
+assert.equal(
+  transcriptionProgressStatusHtml('es', 'progress_retrying', () => 0.75),
+  '<i>📝 No se pudo convertir eso en texto; intentándolo de nuevo...</i>',
+  'Spanish retrying status should use localized status copy'
+)
+assert.equal(
+  transcriptionProgressStatusHtml('pt', 'progress_failed', () => 0.999),
+  '<i>🔮 Não foi possível transformar isso em texto. Tente novamente mais tarde.</i>',
+  'Portuguese failure status should use localized status copy'
+)
+assert.equal(
+  transcriptionProgressStatusHtml('uk', 'progress_partial', () => 0),
+  '<i>🪄 Перетворюємо на текст...</i>',
+  'Ukrainian partial status should use localized status copy'
+)
+assert.equal(
+  transcriptionProgressStatusHtml('fr', 'progress_processing', () => 0),
+  '<i>🪄 Turning into text...</i>',
+  'unsupported status locale should fall back to English'
+)
 
 const preview = transcriptionProgressPreviewHtml(
   'en',
@@ -56,6 +81,22 @@ assert(
 assert(
   preview.endsWith('\n\nDraft text; final text may still change.'),
   'partial preview should keep the localized footer outside the italic line'
+)
+
+const localizedPreview = transcriptionProgressPreviewHtml(
+  'es',
+  'borrador',
+  () => 0
+)
+assert(
+  localizedPreview.startsWith('<i>🪄 Convirtiendo en texto...</i>\n\n'),
+  'partial preview should localize the status line'
+)
+assert(
+  localizedPreview.endsWith(
+    '\n\nTexto preliminar; el texto final todavía puede cambiar.'
+  ),
+  'partial preview should localize the footer'
 )
 
 const publishProgressSource = fs.readFileSync(
