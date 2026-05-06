@@ -534,7 +534,7 @@ function runCommand(
       if (code !== 0) {
         reject(
           new WorkerClientError(
-            `Transcription command exited with ${code}: ${stderr || stdout}`
+            `Transcription command exited with ${code}; stdoutChars=${stdout.length}; stderrChars=${stderr.length}`
           )
         )
         return

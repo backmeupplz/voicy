@@ -655,7 +655,7 @@ async function main() {
       VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
       VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
         '-e',
-        'process.stderr.write("boom"); process.exit(3)',
+        'process.stdout.write("PRIVATE TRANSCRIPT"); process.stderr.write("PRIVATE STDERR"); process.exit(3)',
       ]),
       VOICY_WORKER_WORK_DIR: path.join(
         os.tmpdir(),
@@ -667,10 +667,11 @@ async function main() {
       VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
     })
 
+    const failureLogLines = []
     const processed = await processNextJob(config, {
-      info: () => undefined,
-      warn: () => undefined,
-      error: () => undefined,
+      info: (message) => failureLogLines.push(message),
+      warn: (message) => failureLogLines.push(message),
+      error: (message) => failureLogLines.push(message),
     })
 
     assert(processed, 'worker should process the failure job')
@@ -682,6 +683,24 @@ async function main() {
     assert(
       failureProof.state.failure.retryable === true,
       'command failure should be retryable'
+    )
+    assert(
+      failureProof.state.failure.error.includes('stdoutChars=18') &&
+        failureProof.state.failure.error.includes('stderrChars=14'),
+      'failed command should report output lengths for diagnostics'
+    )
+    assert(
+      !failureProof.state.failure.error.includes('PRIVATE TRANSCRIPT') &&
+        !failureProof.state.failure.error.includes('PRIVATE STDERR'),
+      'failed command should not report raw stdout or stderr'
+    )
+    assert(
+      failureLogLines.every(
+        (line) =>
+          !line.includes('PRIVATE TRANSCRIPT') &&
+          !line.includes('PRIVATE STDERR')
+      ),
+      'failed command logs should not include raw stdout or stderr'
     )
   } finally {
     await close(failureProof.server)
