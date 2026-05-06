@@ -141,8 +141,12 @@ async function withPatchedQueue(callback, accessResult) {
     return jobDoc
   }
   abuseLimits.checkTranscriptionAbuseLimits = async () => undefined
-  goldenBorodutchAllowance.checkTranscriptionAccess = async () =>
-    accessResult || { allowed: true, consumedFreeTranscription: false }
+  goldenBorodutchAllowance.checkTranscriptionAccess = async () => {
+    if (accessResult instanceof Error) {
+      throw accessResult
+    }
+    return accessResult || { allowed: true, consumedFreeTranscription: false }
+  }
 
   try {
     await callback(createdJobs)
@@ -290,6 +294,28 @@ async function main() {
       consumedFreeTranscription: false,
       reason: 'subscription_required',
     }
+  )
+
+  await withPatchedQueue(
+    async (createdJobs) => {
+      process.env.VOICY_DONATION_WALL_ENABLED = 'true'
+      const ctx = mockContext({ paid: false, chatType: 'private' })
+      await handleAudio(ctx)
+
+      assert(
+        createdJobs.length === 0,
+        'access-check failure should not enqueue audio'
+      )
+      assert(
+        ctx.replies.length === 1,
+        'access-check failure should still explain donation/subscription access'
+      )
+      assert(
+        ctx.replies[0].text === 'golden_borodutch_membership_check_failed',
+        'access-check failure should not fall through to generic queue error'
+      )
+    },
+    new Error('database unavailable while recording membership check')
   )
 
   await withPatchedStripeCheckout(async (createdSessions) => {

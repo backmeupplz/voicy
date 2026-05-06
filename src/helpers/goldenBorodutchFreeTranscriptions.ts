@@ -109,9 +109,10 @@ export async function checkTranscriptionAccess({
     return {
       allowed: false,
       consumedFreeTranscription: false,
-      reason: membership.error
-        ? TranscriptionAccessDenialReason.membershipCheckFailed
-        : TranscriptionAccessDenialReason.subscriptionRequired,
+      reason:
+        membership.error && !isExpectedNonMemberError(membership.error)
+          ? TranscriptionAccessDenialReason.membershipCheckFailed
+          : TranscriptionAccessDenialReason.subscriptionRequired,
     }
   }
 
@@ -182,6 +183,16 @@ function isActiveTelegramMember(member: {
     ['creator', 'administrator', 'member'].includes(member.status) ||
     (member.status === 'restricted' && member.is_member === true)
   )
+}
+
+function isExpectedNonMemberError(error: string) {
+  const normalized = error.toLowerCase()
+  return [
+    'user not found',
+    'participant_id_invalid',
+    'user_not_participant',
+    'chat member not found',
+  ].some((expectedError) => normalized.includes(expectedError))
 }
 
 const mongoFreeTranscriptionStore: FreeTranscriptionStore = {

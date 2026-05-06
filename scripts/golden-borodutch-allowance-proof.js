@@ -191,6 +191,26 @@ async function main() {
   )
   assert.equal(errorStore.records.get('101').transcriptionsUsed, 0)
 
+  const expectedNonMemberErrorApi = telegramApi([
+    new Error('Bad Request: user not found'),
+  ])
+  const expectedNonMemberErrorStore = memoryStore()
+  const expectedNonMemberErrorResult = await check({
+    chat: { paid: false },
+    userId: '101',
+    api: expectedNonMemberErrorApi,
+    store: expectedNonMemberErrorStore,
+  })
+  assert.equal(expectedNonMemberErrorResult.allowed, false)
+  assert.equal(
+    expectedNonMemberErrorResult.reason,
+    TranscriptionAccessDenialReason.subscriptionRequired
+  )
+  assert.equal(
+    expectedNonMemberErrorStore.records.get('101').transcriptionsUsed,
+    0
+  )
+
   const missingUserResult = await check({
     chat: { paid: false },
     api: telegramApi([]),
