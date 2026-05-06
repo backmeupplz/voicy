@@ -48,6 +48,11 @@ for (const locale of ['de', 'en', 'es', 'pt', 'ru', 'uk']) {
   )
 
   assert(
+    source.includes('stripe_activation_confirmed:'),
+    `${locale} locale should include Stripe activation confirmation copy`
+  )
+
+  assert(
     !source.includes('@golden_borodutch'),
     `${locale} locale should not contain bare Golden Borodutch usernames`
   )

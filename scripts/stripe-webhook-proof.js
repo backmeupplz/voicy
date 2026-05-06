@@ -14,13 +14,17 @@ const {
   VOICY_STRIPE_METADATA_PURPOSE,
   VOICY_STRIPE_MINIMUM_AMOUNT,
   VOICY_STRIPE_TAX_BEHAVIOR,
+  activatePaidCheckoutSession,
   checkoutSessionActivationErrors,
   parseStripeDonationAmount,
   requireStripeWebhookSigningSecret,
+  stripeCheckoutActivationConfirmationText,
   stripeCheckoutSessionRequest,
   stripeCheckoutMetadata,
   stripeDonationOption,
 } = require('../dist/helpers/stripeCheckoutActivation')
+const { ChatModel } = require('../dist/models/Chat')
+const bot = require('../dist/helpers/bot').default
 const { stripe } = require('../dist/helpers/stripe')
 
 function assert(condition, message) {
@@ -58,6 +62,51 @@ function validLineItems(amount = VOICY_STRIPE_MINIMUM_AMOUNT, overrides = {}) {
       ...overrides,
     },
   ]
+}
+
+function validChat(overrides = {}) {
+  const chat = {
+    id: '-1001234567890',
+    paid: false,
+    uiLanguage: 'en',
+    saves: 0,
+    save: async () => {
+      chat.saves += 1
+    },
+    ...overrides,
+  }
+  return chat
+}
+
+async function withPatchedActivation({ chat, sendMessage }, callback) {
+  const originalFindOne = ChatModel.findOne
+  const originalListLineItems = stripe.checkout.sessions.listLineItems
+  const originalSendMessage = bot.api.sendMessage
+  const sentMessages = []
+
+  ChatModel.findOne = async (query) => {
+    assert(
+      query.id === '-1001234567890',
+      `activation should look up the checkout chat, got ${query.id}`
+    )
+    return chat
+  }
+  stripe.checkout.sessions.listLineItems = async () => ({
+    data: validLineItems(),
+  })
+  bot.api.sendMessage =
+    sendMessage ||
+    (async (chatId, text, options) => {
+      sentMessages.push({ chatId, text, options })
+    })
+
+  try {
+    await callback(sentMessages)
+  } finally {
+    ChatModel.findOne = originalFindOne
+    stripe.checkout.sessions.listLineItems = originalListLineItems
+    bot.api.sendMessage = originalSendMessage
+  }
 }
 
 function assertValid(session = validSession(), lineItems = validLineItems()) {
@@ -212,4 +261,101 @@ try {
 }
 assert(rejectedTamperedPayload, 'tampered webhook payload should be rejected')
 
-console.log('stripe webhook proof passed')
+for (const [locale, expectedFragment] of [
+  ['de', 'aktiviert'],
+  ['en', 'activated for this chat'],
+  ['es', 'activado para este chat'],
+  ['pt', 'ativado para este chat'],
+  ['ru', 'для этого чата'],
+  ['uk', 'для цього чату'],
+]) {
+  assert(
+    stripeCheckoutActivationConfirmationText(
+      validChat({ uiLanguage: locale })
+    ).includes(expectedFragment),
+    `${locale} activation confirmation should be localized`
+  )
+}
+
+async function assertActivationNotificationBehavior() {
+  const chat = validChat()
+
+  await withPatchedActivation({ chat }, async (sentMessages) => {
+    const activated = await activatePaidCheckoutSession(validSession())
+
+    assert(activated === true, 'valid checkout session should activate chat')
+    assert(chat.paid === true, 'activation should mark chat paid')
+    assert(chat.saves === 1, 'activation should save chat once')
+    assert(
+      sentMessages.length === 1,
+      'fresh activation should send one confirmation'
+    )
+    assert(
+      sentMessages[0].chatId === chat.id,
+      'activation confirmation should target the activated chat'
+    )
+    assert(
+      sentMessages[0].text === stripeCheckoutActivationConfirmationText(chat),
+      'activation confirmation should use localized copy'
+    )
+    assert(
+      sentMessages[0].options.parse_mode === 'Markdown',
+      'activation confirmation should use Telegram Markdown'
+    )
+    assert(
+      sentMessages[0].options.disable_web_page_preview === true,
+      'activation confirmation should disable web previews'
+    )
+
+    const retried = await activatePaidCheckoutSession(validSession())
+    assert(retried === true, 'duplicate valid webhook should remain successful')
+    assert(
+      sentMessages.length === 1,
+      'duplicate paid activation should not send another confirmation'
+    )
+  })
+}
+
+async function assertActivationNotificationFailureIsNonFatal() {
+  const chat = validChat()
+  const originalWarn = console.warn
+  console.warn = () => undefined
+
+  try {
+    await withPatchedActivation(
+      {
+        chat,
+        sendMessage: async () => {
+          throw new Error('sendMessage blocked')
+        },
+      },
+      async () => {
+        const activated = await activatePaidCheckoutSession(validSession())
+        assert(
+          activated === true,
+          'send failure should not fail checkout activation'
+        )
+        assert(
+          chat.paid === true,
+          'send failure should not roll back paid flag'
+        )
+        assert(
+          chat.saves === 1,
+          'send failure should still persist activation'
+        )
+      }
+    )
+  } finally {
+    console.warn = originalWarn
+  }
+}
+
+assertActivationNotificationBehavior()
+  .then(assertActivationNotificationFailureIsNonFatal)
+  .then(() => {
+    console.log('stripe webhook proof passed')
+  })
+  .catch((error) => {
+    console.error(error)
+    process.exitCode = 1
+  })

@@ -37,6 +37,7 @@ golden_borodutch_subscription_required: '👮 Inscreva-se em @golden\_borodutch 
 golden_borodutch_free_transcriptions_exhausted: '👮 Você usou todas as 50 transcrições gratuitas do Voicy de @golden\_borodutch. Use /donate para ativar a transcrição neste chat.'
 golden_borodutch_membership_check_failed: '👮 O Voicy não conseguiu confirmar a participação deste usuário em @golden\_borodutch. O bot precisa conseguir ler essa participação no canal; tente novamente mais tarde ou use /donate para ativar este chat.'
 already_paid: 'A transcrição de voz já está ativada para este chat. Obrigado.'
+stripe_activation_confirmed: 'O Voicy agora está ativado para este chat. Obrigado por apoiar a transcrição local privada.'
 pay: 'Doe para este chat para ajudar o Voicy a cobrir custos de computação e obter mais capacidade de transcrição. Só este chat será ativado. Para ativar um grupo, execute /donate nesse grupo. Escolha uma opção abaixo ou envie /donate 12.34 para pagar quanto quiser com mínimo de $6.99. Você também pode enviar tokens no valor de pelo menos $6.99 para `borodutch.eth` e enviar a transação para @borodutch.'
 pay_custom: 'Doe ${amount} para este chat. Só este chat será ativado.'
 pay_amount_too_low: 'A doação mínima é ${amount}. Envie /donate ${amount} ou escolha uma opção em /donate.'
