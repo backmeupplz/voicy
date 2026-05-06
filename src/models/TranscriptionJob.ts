@@ -64,6 +64,8 @@ export class TranscriptionJob {
   @prop()
   statusMessageId?: number
   @prop()
+  silent?: boolean
+  @prop()
   requestMessageId?: number
   @prop({ required: true })
   fileId: string

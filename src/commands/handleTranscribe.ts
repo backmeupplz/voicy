@@ -37,17 +37,19 @@ export default async function handleTranscribe(ctx: Context) {
     await enqueueTranscription(ctx, voice.file_id, message)
   } catch (error) {
     report(error, { ctx, location: 'handleTranscribe' })
-    try {
-      await ctx.reply(markdownI18n(ctx, 'error_queue'), {
-        parse_mode: 'Markdown',
-        reply_to_message_id: ctx.msg?.message_id,
-      })
-    } catch (replyError) {
-      await markChatUnreachableForTelegramError(ctx, replyError, {
-        location: 'handleTranscribe.errorReply',
-        action: 'reply',
-      })
-      report(replyError, { ctx, location: 'handleTranscribe.errorReply' })
+    if (!ctx.dbchat.silent) {
+      try {
+        await ctx.reply(markdownI18n(ctx, 'error_queue'), {
+          parse_mode: 'Markdown',
+          reply_to_message_id: ctx.msg?.message_id,
+        })
+      } catch (replyError) {
+        await markChatUnreachableForTelegramError(ctx, replyError, {
+          location: 'handleTranscribe.errorReply',
+          action: 'reply',
+        })
+        report(replyError, { ctx, location: 'handleTranscribe.errorReply' })
+      }
     }
   }
 }

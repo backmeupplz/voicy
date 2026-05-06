@@ -11,6 +11,7 @@ import {
 } from '@/helpers/transcriptionJobs/progressPublishingPolicy'
 import { partialTranscriptText } from '@/helpers/transcriptionJobs/transcriptFormatting'
 import {
+  silentTranscriptionProgressPreviewHtml,
   transcriptionProgressPreviewHtml,
   transcriptionProgressStatusHtml,
 } from '@/helpers/transcriptionJobs/progressStatusText'
@@ -44,13 +45,58 @@ export default async function publishTranscriptionJobProgress(
 ) {
   if (
     process.env.VOICY_DISABLE_TELEGRAM_PUBLISH === '1' ||
-    !job.statusMessageId ||
     !liveProgressAllowedForChatType(job.telegramChatType) ||
     shouldThrottleProgressPublish({
       force,
       lastPublishedAt: job.lastProgressPublishedAt,
     })
   ) {
+    return false
+  }
+
+  if (job.silent) {
+    if (phase !== 'partial') {
+      return false
+    }
+
+    const text = silentTranscriptionProgressPreviewHtml(
+      partialTranscriptText(job)
+    )
+    if (!text) {
+      return false
+    }
+
+    try {
+      if (job.statusMessageId) {
+        await bot.api.editMessageText(
+          job.telegramChatId,
+          job.statusMessageId,
+          text,
+          { parse_mode: 'HTML' }
+        )
+      } else {
+        const message = await bot.api.sendMessage(job.telegramChatId, text, {
+          parse_mode: 'HTML',
+          reply_to_message_id: job.sourceMessageId,
+        })
+        job.statusMessageId = message.message_id
+      }
+    } catch (error) {
+      const description =
+        error && typeof error === 'object' && 'description' in error
+          ? String((error as { description?: string }).description)
+          : ''
+      if (!description.includes('message is not modified')) {
+        throw error
+      }
+    }
+
+    job.lastProgressPublishedAt = new Date()
+    await job.save()
+    return true
+  }
+
+  if (!job.statusMessageId) {
     return false
   }
 

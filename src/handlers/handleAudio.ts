@@ -56,7 +56,9 @@ export default async function handleAudio(ctx: Context) {
     await enqueueTranscription(ctx, audio.file_id, message)
   } catch (error) {
     report(error, { ctx, location: 'handleMessage' })
-    await sendQueueError(ctx)
+    if (!ctx.dbchat.silent) {
+      await sendQueueError(ctx)
+    }
   }
 }
 
@@ -95,7 +97,9 @@ async function enqueueTranscription(
     userId: ctx.from?.id ? String(ctx.from.id) : undefined,
   })
   if (abuseLimit) {
-    await sendTranscriptionLimitError(ctx, abuseLimit.reason, sourceMessage)
+    if (!ctx.dbchat.silent) {
+      await sendTranscriptionLimitError(ctx, abuseLimit.reason, sourceMessage)
+    }
     return undefined
   }
 
@@ -106,7 +110,9 @@ async function enqueueTranscription(
     telegramApi: ctx.api,
   })
   if (!access.allowed) {
-    await sendTranscriptionAccessError(ctx, access.reason, sourceMessage)
+    if (!ctx.dbchat.silent) {
+      await sendTranscriptionAccessError(ctx, access.reason, sourceMessage)
+    }
     return undefined
   }
 
@@ -119,6 +125,7 @@ async function enqueueTranscription(
       telegramChatType: ctx.chat.type,
       sourceMessageId: sourceMessage.message_id,
       requestMessageId: ctx.msg?.message_id,
+      silent: ctx.dbchat.silent,
       fileId,
       filePath,
       fileSize: audio.file_size,
@@ -138,6 +145,11 @@ async function enqueueTranscription(
       await refundGoldenBorodutchFreeTranscription(freeAccessUserId)
     }
     throw error
+  }
+
+  if (ctx.dbchat.silent) {
+    console.info('Skipping live transcription status message in silent mode')
+    return queuedJob
   }
 
   if (ctx.chat.type === 'channel') {
