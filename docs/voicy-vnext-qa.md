@@ -83,8 +83,8 @@ yarn qa:telegram-upload \
 
 Expected result:
 
-- `/start` and `/help` explain that Voicy turns voice messages into text and mention
-  `@voicy_legacy_bot`.
+- `/start` and `/help` explain that Voicy turns voice messages into text without
+  retired-bot or external help-chat promotion.
 - `/donate` and the unpaid voice-message response frame payment as helping Voicy
   turn voice messages into text.
 - The paid voice message creates one pending `TranscriptionJob`.

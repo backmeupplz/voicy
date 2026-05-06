@@ -117,7 +117,7 @@ language.
   optional manual override later.
 - Donation copy remains, but donation framing changes to funding transcription
   compute.
-- Legacy engine-based Voicy behavior is directed to `@voicy_legacy_bot`.
+- Legacy engine-based Voicy behavior is no longer promoted in active bot copy.
 
 ## Target Data Model
 
@@ -274,7 +274,7 @@ Add a service module such as `src/helpers/transcriptionJobs/publishResult.ts`:
    - Existing chats with engine language settings should derive initial
      `uiLocale` from the old `localeCodeForChat` result.
    - Do not preserve recognition engine selection in vNext behavior.
-   - If users require the old controls, direct them to `@voicy_legacy_bot`.
+   - Do not promote old engine controls in active bot copy.
 
 ### Phase 5: copy changes
 
@@ -286,8 +286,7 @@ Update all active locale keys touched by the new flow:
 - `sunsetting`, `pay`, `already_paid`: frame donations as funding
   turning voice messages into text.
 - `language`, `language_without_engine`, `language_success`: UI language only.
-- Add `queued`, `processing`, `completed`, `failed`, and legacy-bot guidance
-  keys as needed.
+- Add `queued`, `processing`, `completed`, and `failed` keys as needed.
 
 For the first implementation pass, update English and Russian fully, then audit
 the remaining locales. If not all locales can be responsibly translated in the
@@ -381,8 +380,8 @@ Manual/OpenClaw QA:
   transcript.
 - Verify donation wall copy says donations help turn voice messages into text.
 - Verify `/language` changes bot UI language only.
-- Verify help/start copy mentions `@voicy_legacy_bot` for the old engine-based
-  experience.
+- Verify help/start copy does not mention the old engine-based experience or
+  external help-chat promotion.
 
 ## Feature Branch and PR Workflow
 
@@ -414,7 +413,7 @@ implementation work:
 - `KANEO-3`: authenticated transcription client API.
 - `KANEO-4`: Windows worker client.
 - `KANEO-5`: live transcript streaming/edit-message UX.
-- `KANEO-6`: donation and legacy-bot messaging.
+- `KANEO-6`: donation and retired-bot messaging cleanup.
 - `KANEO-7`: end-to-end QA.
 - `KANEO-8`: cleanup of dead legacy paths.
 - `KANEO-9`: locale audit and stale translation cleanup.
