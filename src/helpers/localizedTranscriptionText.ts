@@ -1,7 +1,12 @@
+import { uiLanguages } from '@/helpers/language/uiLanguages'
 import i18n from '@/helpers/i18n'
 
+const supportedLocaleCodes = new Set(
+  uiLanguages.map((language) => language.code)
+)
+
 function supportedLocale(locale?: string) {
-  return locale === 'ru' ? 'ru' : 'en'
+  return locale && supportedLocaleCodes.has(locale) ? locale : 'en'
 }
 
 export default function localizedTranscriptionText(
