@@ -32,15 +32,31 @@ start: |
 language: "👋 Wähle die Sprache der Bot-Oberfläche."
 language_success: "👍 Voicy verwendet jetzt *${language}* für Bot-Nachrichten in diesem Chat."
 error_twenty: "_👮 Telegram-Dateien über 20 MB können hier nicht verarbeitet werden. Für größere Dateien nutze https://voicybot.com direkt._"
-sunsetting: 'Voicy bittet um eine einmalige Spende für diesen Chat, um Rechenkosten zu decken und mehr Rechenleistung für Transkriptionen zu bekommen. Verwende /donate in dem Chat, in dem du Sprachtranskription aktivieren möchtest.'
+sunsetting: |
+  *Voicy braucht eine einmalige Spende, um in diesem Chat weiter zu transkribieren.*
+
+  Spenden decken die Rechenkosten, die beim Umwandeln von Sprache in Text entstehen. Sende /donate in dem Chat, den du aktivieren möchtest.
 golden_borodutch_subscription_required: '👮 Abonniere @golden\_borodutch, um bis zu 50 kostenlose Voicy-Transkriptionen zu nutzen, oder verwende /donate, um Transkription für diesen Chat zu aktivieren.'
 golden_borodutch_free_transcriptions_exhausted: '👮 Du hast alle 50 kostenlosen Voicy-Transkriptionen von @golden\_borodutch verbraucht. Verwende /donate, um Transkription für diesen Chat zu aktivieren.'
 golden_borodutch_membership_check_failed: '👮 Voicy konnte die Mitgliedschaft dieses Nutzers bei @golden\_borodutch nicht bestätigen. Der Bot muss diese Kanalmitgliedschaft lesen können; versuche es später erneut oder verwende /donate, um diesen Chat zu aktivieren.'
 already_paid: 'Sprachtranskription ist für diesen Chat bereits aktiviert. Danke.'
 stripe_activation_confirmed: 'Voicy ist jetzt für diesen Chat aktiviert. Danke, dass du private lokale Transkription unterstützt.'
-pay: 'Spende für diesen Chat, damit Voicy Rechenkosten decken und mehr Rechenleistung für Transkriptionen bekommen kann. Nur dieser Chat wird aktiviert. Um eine Gruppe zu aktivieren, führe /donate in dieser Gruppe aus. Wähle unten einen Betrag oder sende /donate 12.34, um einen eigenen Betrag mit einem Minimum von $6.99 zu zahlen. Du kannst auch Token im Wert von mindestens $6.99 an `borodutch.eth` senden und die Transaktion an @borodutch schicken.'
-pay_custom: 'Spende ${amount} für diesen Chat. Nur dieser Chat wird aktiviert.'
-pay_amount_too_low: 'Die Mindestspende beträgt ${amount}. Sende /donate ${amount} oder wähle einen Betrag über /donate.'
+pay: |
+  Voicy wandelt Audio mit lokaler Rechenleistung in Text um. So bleibt die Transkription privat, und dein Audio wird nicht an Drittanbieter-Transkriptions-APIs gesendet.
+
+  Lokale Rechenleistung kostet Geld. Eine einmalige Spende aktiviert Voicy für diesen Chat und hilft uns, mehr Rechenkapazität aufzubauen.
+
+  Spenden gelten pro Chat, nicht pro Nutzer. Wenn du in privaten Nachrichten mit Voicy spendest, wird Voicy in deinem privaten Chat aktiviert. Wenn du eine Gruppe aktivieren möchtest, führe /donate in dieser Gruppe aus.
+
+  Wähle unten einen Betrag oder sende <code>/donate 15.69</code>, um einen beliebigen Betrag mit einem Minimum von $6.99 zu zahlen. Du kannst auch Token im Wert von mindestens $6.99 an <code>borodutch.eth</code> senden und die Transaktion an @borodutch schicken.
+pay_custom: |
+  Spende <b>${amount}</b>, um Sprachtranskription für diesen Chat zu aktivieren.
+
+  Nur dieser Chat wird aktiviert.
+pay_amount_too_low: |
+  Die Mindestspende beträgt <b>${amount}</b>.
+
+  Sende <code>/donate ${amount}</code> oder wähle einen Betrag mit /donate.
 pay_button: '${amount} spenden'
 transcribe_all_true: 'Voicy wird jetzt *jede Sprachnachricht* in diesem Chat in Text umwandeln.'
 transcribe_all_false: 'Voicy wird jetzt *neue Sprachnachrichten ignorieren*, außer jemand antwortet darauf mit /transcribe.'

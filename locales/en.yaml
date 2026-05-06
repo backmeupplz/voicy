@@ -32,15 +32,31 @@ start: |
 language: "\U0001F44B Choose the bot interface language."
 language_success: "\U0001F44D Voicy will now use *${language}* for bot messages in this chat."
 error_twenty: "_\U0001F46E Telegram files over 20 MB cannot be processed here. For larger files, use https://voicybot.com directly._"
-sunsetting: 'Voicy asks for a one-time donation for this chat to help cover compute costs and get more compute for transcription. Use /donate in the chat where you want voice transcription activated.'
+sunsetting: |
+  *Voicy needs a one-time donation to keep transcribing in this chat.*
+
+  Donations cover the compute used to turn voice into text. Send /donate in the chat you want to activate.
 golden_borodutch_subscription_required: '👮 Subscribe to @golden\_borodutch to use up to 50 free Voicy transcriptions, or use /donate to activate transcription for this chat.'
 golden_borodutch_free_transcriptions_exhausted: '👮 You have used all 50 free Voicy transcriptions from @golden\_borodutch. Use /donate to activate transcription for this chat.'
 golden_borodutch_membership_check_failed: '👮 Voicy could not confirm @golden\_borodutch membership for this user. The bot must be able to read that channel membership; try again later or use /donate to activate this chat.'
 already_paid: 'Voice transcription is already activated for this chat. Thank you.'
 stripe_activation_confirmed: 'Voicy is now activated for this chat. Thanks for supporting private local transcription.'
-pay: 'Donate for this chat to help Voicy cover compute costs and get more compute for transcription. Only this chat will be activated. To activate a group, run /donate in that group. Choose a tier below, or send /donate 12.34 to pay what you want with a $6.99 minimum. You can also send tokens worth at least $6.99 to `borodutch.eth` and send the transaction to @borodutch.'
-pay_custom: 'Donate ${amount} for this chat. Only this chat will be activated.'
-pay_amount_too_low: 'The minimum donation is ${amount}. Send /donate ${amount} or choose a tier from /donate.'
+pay: |
+  Voicy turns audio into text using local compute. That keeps transcription private and avoids sending your audio to third-party transcription APIs.
+
+  Running local compute costs money. A one-time donation activates Voicy for this chat and helps us add more compute capacity.
+
+  Donations are per chat, not per user. If you donate in private messages with Voicy, it activates Voicy in your private chat. If you want to activate a group, run /donate inside that group.
+
+  Choose a tier below, or send <code>/donate 15.69</code> to pay any amount with a $6.99 minimum. You can also send tokens worth at least $6.99 to <code>borodutch.eth</code> and send the transaction to @borodutch.
+pay_custom: |
+  Donate <b>${amount}</b> to activate voice transcription for this chat.
+
+  Only this chat will be activated.
+pay_amount_too_low: |
+  The minimum donation is <b>${amount}</b>.
+
+  Send <code>/donate ${amount}</code> or choose a tier with /donate.
 pay_button: 'Donate ${amount}'
 transcribe_all_true: 'Voicy will now *turn every voice message* in this chat into text.'
 transcribe_all_false: 'Voicy will now *ignore new voice messages* in this chat unless someone replies to one with /transcribe.'
