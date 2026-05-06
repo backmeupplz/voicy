@@ -13,9 +13,11 @@ const {
   VOICY_STRIPE_FIXED_AMOUNTS,
   VOICY_STRIPE_METADATA_PURPOSE,
   VOICY_STRIPE_MINIMUM_AMOUNT,
+  VOICY_STRIPE_TAX_BEHAVIOR,
   checkoutSessionActivationErrors,
   parseStripeDonationAmount,
   requireStripeWebhookSigningSecret,
+  stripeCheckoutSessionRequest,
   stripeCheckoutMetadata,
   stripeDonationOption,
 } = require('../dist/helpers/stripeCheckoutActivation')
@@ -80,6 +82,15 @@ assertValid()
 
 for (const amount of VOICY_STRIPE_FIXED_AMOUNTS) {
   assertValid(validSession(amount), validLineItems(amount))
+  const request = stripeCheckoutSessionRequest(
+    '-1001234567890',
+    stripeDonationOption(amount)
+  )
+  assert(
+    request.line_items[0].price_data.tax_behavior ===
+      VOICY_STRIPE_TAX_BEHAVIOR,
+    'checkout price data should include tax behavior for automatic tax'
+  )
 }
 assertValid(
   validSession(VOICY_STRIPE_MINIMUM_AMOUNT + 432),
