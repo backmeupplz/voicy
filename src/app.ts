@@ -6,6 +6,7 @@ import * as dotenv from 'dotenv'
 dotenv.config({ path: `${__dirname}/../.env` })
 // Dependencies
 import { dropPendingTelegramUpdatesBeforePolling } from '@/helpers/staleTelegramUpdates'
+import { markChatUnreachableForTelegramError } from '@/helpers/chatReachability'
 import { run } from '@grammyjs/runner'
 import { webhookApp } from '@/helpers/startWebhook'
 import Cluster from '@/helpers/Cluster'
@@ -77,7 +78,10 @@ async function runApp() {
   // Callabcks
   bot.callbackQuery(/li.+/, handleSetLanguage)
   // Errors
-  bot.catch((error) => {
+  bot.catch(async (error) => {
+    await markChatUnreachableForTelegramError(error.ctx, error.error, {
+      location: 'bot.catch',
+    })
     report(error.error, { ctx: error.ctx, location: 'bot.catch' })
   })
   // Start bot

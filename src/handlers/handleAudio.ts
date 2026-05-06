@@ -17,6 +17,10 @@ import {
   TranscriptionJobSourceKind,
   TranscriptionJobStatus,
 } from '@/models/TranscriptionJob'
+import {
+  chatCanQueueTranscriptions,
+  markChatUnreachableForTelegramError,
+} from '@/helpers/chatReachability'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import { transcriptionProgressStatusHtml } from '@/helpers/transcriptionJobs/progressStatusText'
 import Context from '@/models/Context'
@@ -24,6 +28,13 @@ import report from '@/helpers/report'
 
 export default async function handleAudio(ctx: Context) {
   try {
+    if (!chatCanQueueTranscriptions(ctx.dbchat)) {
+      console.info(
+        `Skipping transcription queue for unreachable chat ${ctx.dbchat.id}`
+      )
+      return
+    }
+
     const isGroup = ctx.chat.type === 'group' || ctx.chat.type === 'supergroup'
     if (!ctx.dbchat.transcribeAllAudio && isGroup) {
       console.log('Ignored cause transcribeAllAudio is false')
@@ -49,13 +60,6 @@ export default async function handleAudio(ctx: Context) {
   }
 }
 
-function sendLargeFileError(ctx: Context) {
-  return ctx.reply(markdownI18n(ctx, 'error_twenty'), {
-    parse_mode: 'Markdown',
-    reply_to_message_id: ctx.msg.message_id,
-  })
-}
-
 function maxMediaFileSizeBytes() {
   const configuredMb = Number(process.env.VOICY_MAX_MEDIA_FILE_SIZE_MB || 20)
   if (!Number.isFinite(configuredMb) || configuredMb <= 0) {
@@ -75,6 +79,13 @@ async function enqueueTranscription(
   sourceMessage: Message = ctx.msg,
   filePath?: string
 ) {
+  if (!chatCanQueueTranscriptions(ctx.dbchat)) {
+    console.info(
+      `Skipping transcription queue for unreachable chat ${ctx.dbchat.id}`
+    )
+    return undefined
+  }
+
   const audio = transcribableMediaFromMessage(sourceMessage)
   if (!audio) {
     throw new Error('No supported audio payload found on message')
@@ -148,6 +159,17 @@ async function enqueueTranscription(
     queuedJob.statusMessageId = ackMessage.message_id
     await queuedJob.save()
   } catch (error) {
+    const markedUnreachable = await markChatUnreachableForTelegramError(
+      ctx,
+      error,
+      { location: 'ackQueuedTranscription', action: 'reply' }
+    )
+    if (markedUnreachable) {
+      queuedJob.status = TranscriptionJobStatus.failed
+      queuedJob.failedAt = new Date()
+      queuedJob.lastError = 'Telegram chat is unreachable for transcription'
+      await queuedJob.save()
+    }
     report(error, { ctx, location: 'ackQueuedTranscription' })
   }
 
@@ -172,20 +194,27 @@ function sendTranscriptionLimitError(
   reason: TranscriptionAbuseLimitReason,
   sourceMessage: Message
 ) {
-  return ctx.reply(markdownI18n(ctx, transcriptionLimitMessageKey(reason)), {
-    parse_mode: 'Markdown',
-    reply_to_message_id: sourceMessage.message_id,
+  return replyAndTrackReachability(ctx, 'sendTranscriptionLimitError', {
+    text: markdownI18n(ctx, transcriptionLimitMessageKey(reason)),
+    options: {
+      parse_mode: 'Markdown',
+      reply_to_message_id: sourceMessage.message_id,
+    },
   })
 }
 
-function transcriptionLimitMessageKey(reason: TranscriptionAbuseLimitReason) {
-  if (reason === TranscriptionAbuseLimitReason.chatQueueFull) {
-    return 'error_transcription_queue_full'
-  }
-  if (reason === TranscriptionAbuseLimitReason.userRateLimited) {
-    return 'error_transcription_user_limited'
-  }
-  return 'error_transcription_chat_limited'
+function replyAndTrackReachability(
+  ctx: Context,
+  location: string,
+  reply: { text: string; options?: Record<string, unknown> }
+) {
+  return ctx.reply(reply.text, reply.options).catch(async (error) => {
+    await markChatUnreachableForTelegramError(ctx, error, {
+      location,
+      action: 'reply',
+    })
+    throw error
+  })
 }
 
 function sendTranscriptionAccessError(
@@ -193,10 +222,13 @@ function sendTranscriptionAccessError(
   reason: TranscriptionAccessDenialReason | undefined,
   sourceMessage: Message
 ) {
-  return ctx.reply(markdownI18n(ctx, transcriptionAccessMessageKey(reason)), {
-    parse_mode: 'Markdown',
-    reply_to_message_id: sourceMessage.message_id,
-    disable_web_page_preview: true,
+  return replyAndTrackReachability(ctx, 'sendTranscriptionAccessError', {
+    text: markdownI18n(ctx, transcriptionAccessMessageKey(reason)),
+    options: {
+      parse_mode: 'Markdown',
+      reply_to_message_id: sourceMessage.message_id,
+      disable_web_page_preview: true,
+    },
   })
 }
 
@@ -228,13 +260,36 @@ function fileUniqueId(audio: TranscribableTelegramFile) {
 
 async function sendQueueError(ctx: Context) {
   try {
-    await ctx.reply(markdownI18n(ctx, 'error_queue'), {
-      parse_mode: 'Markdown',
-      reply_to_message_id: ctx.msg?.message_id,
+    await replyAndTrackReachability(ctx, 'sendQueueError', {
+      text: markdownI18n(ctx, 'error_queue'),
+      options: {
+        parse_mode: 'Markdown',
+        reply_to_message_id: ctx.msg?.message_id,
+      },
     })
   } catch (error) {
     report(error, { ctx, location: 'sendQueueError' })
   }
+}
+
+function sendLargeFileError(ctx: Context) {
+  return replyAndTrackReachability(ctx, 'sendLargeFileError', {
+    text: markdownI18n(ctx, 'error_twenty'),
+    options: {
+      parse_mode: 'Markdown',
+      reply_to_message_id: ctx.msg.message_id,
+    },
+  })
+}
+
+function transcriptionLimitMessageKey(reason: TranscriptionAbuseLimitReason) {
+  if (reason === TranscriptionAbuseLimitReason.chatQueueFull) {
+    return 'error_transcription_queue_full'
+  }
+  if (reason === TranscriptionAbuseLimitReason.userRateLimited) {
+    return 'error_transcription_user_limited'
+  }
+  return 'error_transcription_chat_limited'
 }
 
 export { enqueueTranscription, isMediaTooLarge, transcriptionAccessUserId }

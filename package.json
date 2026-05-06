@@ -24,6 +24,7 @@
     "test:media-coverage": "node scripts/media-coverage-proof.js",
     "test:report-sanitizer": "node scripts/report-sanitizer-proof.js",
     "test:source-url-security": "node scripts/source-url-security-proof.js",
+    "test:chat-reachability": "node scripts/chat-reachability-proof.js",
     "test:transcription-abuse-limits": "node scripts/transcription-abuse-limits-proof.js",
     "test:golden-borodutch-allowance": "node scripts/golden-borodutch-allowance-proof.js",
     "test:donation-wall": "node scripts/donation-wall-proof.js",
