@@ -38,7 +38,7 @@ function statusTextHtml(
   if (phase === 'failed') {
     return transcriptionProgressStatusHtml(job.uiLocale, 'progress_failed')
   }
-  const partialText = partialTranscriptText(job)
+  const partialText = partialTranscriptText(job, { includeTimecodes: false })
   return partialText
     ? transcriptionProgressPreviewHtml(job.uiLocale, partialText)
     : transcriptionProgressStatusHtml(job.uiLocale, 'progress_partial')
