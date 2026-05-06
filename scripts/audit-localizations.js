@@ -4,7 +4,14 @@ const path = require('path')
 const root = path.join(__dirname, '..')
 const localeDir = path.join(root, 'locales')
 const sourceDir = path.join(root, 'src')
-const supportedLocaleFiles = ['en.yaml', 'ru.yaml']
+const supportedLocaleFiles = [
+  'de.yaml',
+  'en.yaml',
+  'es.yaml',
+  'pt.yaml',
+  'ru.yaml',
+  'uk.yaml',
+]
 
 function walk(dir) {
   return fs.readdirSync(dir).flatMap((entry) => {

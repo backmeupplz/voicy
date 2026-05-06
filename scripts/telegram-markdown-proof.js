@@ -36,7 +36,7 @@ assert.equal(
   'code spans should not be rewritten by Markdown escaping'
 )
 
-for (const locale of ['en', 'ru']) {
+for (const locale of ['de', 'en', 'es', 'pt', 'ru', 'uk']) {
   const source = fs.readFileSync(
     path.join(__dirname, '..', 'locales', `${locale}.yaml`),
     'utf8'

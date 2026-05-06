@@ -1,0 +1,58 @@
+files_false: "📁 Voicy ignorará los archivos de audio en este chat."
+files_true: "📁 Voicy convertirá en texto los archivos de audio compatibles de este chat."
+help: |
+  😎 *Voicy* convierte mensajes de voz y archivos de audio (.ogg, .flac, .wav, .mp3) en texto.
+
+  Envía un mensaje de voz en un chat privado o añade Voicy a un grupo. En grupos, Voicy puede convertir todos los mensajes de voz en texto o esperar a que alguien responda a un mensaje con /transcribe.
+
+  /start — iniciar Voicy
+  /help — mostrar este mensaje
+  /id — mostrar IDs del chat y del usuario
+  /language — cambiar el idioma de la interfaz del bot
+  /donate — activar la transcripción de voz para este chat
+  /files — activar o desactivar archivos de audio
+  /silent — activar o desactivar mensajes de estado adicionales
+  /lock — restringir comandos a administradores del grupo
+  /transcribe\_all — convertir todos los mensajes de voz de este grupo en texto
+  /transcribe — convertir en texto el mensaje de voz o audio al que respondes
+  /privacy — abrir la política de privacidad
+
+  Voicy ahora usa workers para convertir mensajes en texto. El bot antiguo basado en motores está disponible en @voicy\_legacy\_bot. Voicy es de código abierto: https://github.com/backmeupplz/voicy. Para soporte, únete a @golden\_borodutch\_chat.
+error_group: "😅 Este comando solo funciona en chats de grupo."
+lock_true: "🔑 Voicy ahora aceptará comandos solo de administradores del grupo."
+lock_false: "🔑 Voicy ahora aceptará comandos de cualquier persona en este chat."
+silent_true: "😶 El modo silencioso está activado. Voicy solo enviará el texto final."
+silent_false: "😏 El modo silencioso está desactivado. Voicy enviará mensajes de estado mientras convierte audio en texto."
+start: |
+  👋 Hola. *Voicy* convierte mensajes de voz y archivos de audio (.ogg, .flac, .wav, .mp3) en texto.
+
+  Envía un mensaje de voz y Voicy lo convertirá en texto. Usa /language para cambiar el idioma de la interfaz del bot.
+
+  El bot antiguo basado en motores está disponible en @voicy\_legacy\_bot. Voicy es de código abierto: https://github.com/backmeupplz/voicy. Para soporte, únete a @golden\_borodutch\_chat.
+language: "👋 Elige el idioma de la interfaz del bot."
+language_success: "👍 Voicy ahora usará *${language}* para los mensajes del bot en este chat."
+error_twenty: "_👮 Los archivos de Telegram de más de 20 MB no se pueden procesar aquí. Para archivos más grandes, usa https://voicybot.com directamente._"
+sunsetting: 'Voicy pide una donación única para este chat para cubrir costos de cómputo y obtener más capacidad de transcripción. Usa /donate en el chat donde quieras activar la transcripción de voz.'
+golden_borodutch_subscription_required: '_👮 Suscríbete a @golden\_borodutch para usar hasta 50 transcripciones gratuitas de Voicy, o usa /donate para activar la transcripción en este chat._'
+golden_borodutch_free_transcriptions_exhausted: '_👮 Ya usaste las 50 transcripciones gratuitas de Voicy de @golden\_borodutch. Usa /donate para activar la transcripción en este chat._'
+golden_borodutch_membership_check_failed: '_👮 Voicy no pudo confirmar la membresía de este usuario en @golden\_borodutch. El bot debe poder leer esa membresía del canal; inténtalo más tarde o usa /donate para activar este chat._'
+already_paid: 'La transcripción de voz ya está activada para este chat. Gracias.'
+pay: 'Dona para este chat y ayuda a Voicy a cubrir costos de cómputo y obtener más capacidad de transcripción. Solo se activará este chat. Para activar un grupo, ejecuta /donate en ese grupo. Elige una opción abajo o envía /donate 12.34 para pagar el monto que quieras con un mínimo de $6.99. También puedes enviar tokens por al menos $6.99 a `borodutch.eth` y enviar la transacción a @borodutch.'
+pay_custom: 'Dona ${amount} para este chat. Solo se activará este chat.'
+pay_amount_too_low: 'La donación mínima es ${amount}. Envía /donate ${amount} o elige una opción desde /donate.'
+pay_button: 'Donar ${amount}'
+transcribe_all_true: 'Voicy ahora *convertirá todos los mensajes de voz* de este chat en texto.'
+transcribe_all_false: 'Voicy ahora *ignorará los nuevos mensajes de voz* en este chat, salvo que alguien responda a uno con /transcribe.'
+reply_to_voice: 'Responde a un mensaje de voz, nota de video o archivo de audio compatible y luego envía /transcribe.'
+error_queue: "_👮 Voicy no pudo empezar a convertir ese mensaje en texto. Inténtalo más tarde._"
+error_donation_checkout: "_👮 Voicy no pudo crear una página de donación. Inténtalo más tarde._"
+error_transcription_queue_full: "_👮 Este chat ya tiene demasiados mensajes de audio esperando convertirse en texto. Inténtalo cuando terminen los mensajes actuales._"
+error_transcription_chat_limited: "_👮 Este chat está enviando mensajes de audio demasiado rápido. Espera un poco antes de iniciar otra transcripción._"
+error_transcription_user_limited: "_👮 Estás iniciando transcripciones demasiado rápido. Espera un poco e inténtalo de nuevo._"
+banned: 'Estás bloqueado, probablemente por fraude de pago. Contacta a @borodutch si es un error.'
+progress_processing: 'Convirtiendo en texto...'
+progress_retrying: 'No se pudo convertir eso en texto; intentándolo de nuevo...'
+progress_failed: 'No se pudo convertir eso en texto. Inténtalo más tarde.'
+progress_partial: 'Convirtiendo en texto...'
+progress_partial_footer: 'Texto preliminar; el texto final todavía puede cambiar.'
+completed_empty: 'Listo, pero no se detectó texto.'

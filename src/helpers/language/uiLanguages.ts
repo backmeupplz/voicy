@@ -5,7 +5,11 @@ export type UiLanguage = {
 
 export const uiLanguages: UiLanguage[] = [
   { code: 'en', name: 'English' },
+  { code: 'de', name: 'Deutsch' },
+  { code: 'es', name: 'Español' },
+  { code: 'pt', name: 'Português' },
   { code: 'ru', name: 'Русский' },
+  { code: 'uk', name: 'Українська' },
 ]
 
 export function uiLanguageForTelegramCode(code?: string): UiLanguage {
