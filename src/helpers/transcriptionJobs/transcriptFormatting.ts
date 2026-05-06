@@ -16,18 +16,25 @@ type StructuredTranscriptResult = {
   parts?: unknown
 }
 
+type TranscriptTextOptions = {
+  includeTimecodes?: boolean
+}
+
 export function splitTelegramText(text: string) {
   return text.match(new RegExp(`[\\s\\S]{1,${TELEGRAM_MESSAGE_LIMIT}}`, 'g'))
 }
 
 export function transcriptTextFromParts(
   parts?: TranscriptionResultPart[],
-  fallback = ''
+  fallback = '',
+  { includeTimecodes = true }: TranscriptTextOptions = {}
 ) {
   if (parts?.length) {
     return parts
       .map((part) =>
-        part.timeCode ? `${part.timeCode}:\n${part.text}` : part.text
+        includeTimecodes && part.timeCode
+          ? `${part.timeCode}:\n${part.text}`
+          : part.text
       )
       .join('\n')
   }
@@ -71,11 +78,16 @@ function structuredTranscriptParts(parts: unknown) {
     .filter(Boolean) as TranscriptionResultPart[]
 }
 
-export function transcriptText(job: DocumentType<TranscriptionJob>) {
+export function transcriptText(
+  job: DocumentType<TranscriptionJob>,
+  options: TranscriptTextOptions = {}
+) {
   const structured = parseStructuredTranscriptResult(job.resultText)
   if (structured) {
     const partsText = transcriptTextFromParts(
-      structuredTranscriptParts(structured.parts)
+      structuredTranscriptParts(structured.parts),
+      '',
+      options
     )
     if (partsText) {
       return partsText
@@ -84,14 +96,20 @@ export function transcriptText(job: DocumentType<TranscriptionJob>) {
   }
 
   return (
-    job.resultText?.trim() || transcriptTextFromParts(job.resultParts) || ''
+    job.resultText?.trim() ||
+    transcriptTextFromParts(job.resultParts, '', options) ||
+    ''
   )
 }
 
-export function partialTranscriptText(job: DocumentType<TranscriptionJob>) {
+export function partialTranscriptText(
+  job: DocumentType<TranscriptionJob>,
+  options: TranscriptTextOptions = {}
+) {
   return transcriptTextFromParts(
     job.partialResultParts,
-    job.partialResultText || job.resultText || ''
+    job.partialResultText || job.resultText || '',
+    options
   )
 }
 

@@ -72,7 +72,9 @@ export default async function publishCompletedTranscriptionJob(
     return
   }
 
-  const finalText = transcriptText(job).trim()
+  const finalText = transcriptText(job, {
+    includeTimecodes: !job.silent,
+  }).trim()
   if (job.silent && !finalText) {
     await deleteStatusMessage(job)
     await storeVoiceRecord(job)

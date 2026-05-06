@@ -60,7 +60,7 @@ export default async function publishTranscriptionJobProgress(
     }
 
     const text = silentTranscriptionProgressPreviewHtml(
-      partialTranscriptText(job)
+      partialTranscriptText(job, { includeTimecodes: false })
     )
     if (!text) {
       return false
