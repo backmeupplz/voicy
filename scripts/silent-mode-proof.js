@@ -154,6 +154,73 @@ async function provesSilentProgressEditsOneTimecodeFreeMessage() {
   assert.equal(saveCount, 2)
 }
 
+async function provesSilentProgressClaimsFirstMessageAtomically() {
+  const botPath = require.resolve('../dist/helpers/bot')
+  const modelPath = require.resolve('../dist/models/TranscriptionJob')
+  const publisherPath = require.resolve(
+    '../dist/helpers/transcriptionJobs/publishTranscriptionJobProgress'
+  )
+  const sendCalls = []
+  const updateCalls = []
+  let claimAvailable = true
+
+  clearModule(publisherPath)
+  mockModule(botPath, {
+    __esModule: true,
+    default: {
+      api: {
+        sendMessage: async (...args) => {
+          sendCalls.push(args)
+          return { message_id: 901 }
+        },
+      },
+    },
+  })
+  mockModule(modelPath, {
+    TranscriptionJobModel: {
+      findOneAndUpdate: async (...args) => {
+        updateCalls.push(['findOneAndUpdate', ...args])
+        if (!claimAvailable) {
+          return null
+        }
+        claimAvailable = false
+        return { _id: 'job-1' }
+      },
+      updateOne: async (...args) => {
+        updateCalls.push(['updateOne', ...args])
+      },
+    },
+  })
+
+  const publishTranscriptionJobProgress = require(publisherPath).default
+  const makeJob = (partialResultText) => ({
+    _id: 'job-1',
+    silent: true,
+    telegramChatId: '123',
+    telegramChatType: 'private',
+    sourceMessageId: 10,
+    uiLocale: 'en',
+    partialResultText,
+    save: async () => {
+      throw new Error('persisted jobs should update atomically')
+    },
+  })
+
+  const results = await Promise.all([
+    publishTranscriptionJobProgress(makeJob('first partial'), 'partial'),
+    publishTranscriptionJobProgress(makeJob('second partial'), 'partial'),
+  ])
+
+  assert.deepEqual(results.sort(), [false, true])
+  assert.equal(sendCalls.length, 1)
+  assert.equal(sendCalls[0][1], 'first partial')
+  assert.equal(updateCalls.length, 3)
+  assert.equal(updateCalls[0][0], 'findOneAndUpdate')
+  assert.equal(updateCalls[1][0], 'findOneAndUpdate')
+  assert.equal(updateCalls[2][0], 'updateOne')
+  assert.deepEqual(updateCalls[2][2].$set.statusMessageId, 901)
+}
+
 async function provesSilentCompletionSuppressesEmptyFallback() {
   const botPath = require.resolve('../dist/helpers/bot')
   const voicePath = require.resolve('../dist/models/Voice')
@@ -380,6 +447,7 @@ async function provesSilentCompletionPrefersPartsWhenRawTextHasTimecodes() {
 async function main() {
   await provesSilentProgressStartsWithTranscriptText()
   await provesSilentProgressEditsOneTimecodeFreeMessage()
+  await provesSilentProgressClaimsFirstMessageAtomically()
   await provesSilentCompletionSuppressesEmptyFallback()
   await provesSilentCompletionSendsFinalTranscript()
   await provesSilentCompletionOmitsTimecodes()

@@ -64,6 +64,8 @@ export class TranscriptionJob {
   @prop()
   statusMessageId?: number
   @prop()
+  statusMessagePublishingAt?: Date
+  @prop()
   silent?: boolean
   @prop()
   requestMessageId?: number
