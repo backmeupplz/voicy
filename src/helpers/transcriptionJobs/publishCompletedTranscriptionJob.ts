@@ -73,7 +73,14 @@ export default async function publishCompletedTranscriptionJob(
     return
   }
 
-  const chunks = splitTelegramText(transcriptText(job).trim()) || ['']
+  const finalText = transcriptText(job).trim()
+  if (job.silent && !finalText) {
+    await deleteStatusMessage(job)
+    await storeVoiceRecord(job)
+    return
+  }
+
+  const chunks = splitTelegramText(finalText) || ['']
   const firstText = chunks.shift() || ''
   const fallbackText = localizedTranscriptionText(
     job.uiLocale,

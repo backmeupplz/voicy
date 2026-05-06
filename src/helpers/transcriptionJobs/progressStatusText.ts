@@ -70,3 +70,15 @@ export function transcriptionProgressPreviewHtml(
     preview
   )}\n\n${escapeHtml(footer)}`
 }
+
+export function silentTranscriptionProgressPreviewHtml(partialText: string) {
+  const normalized = partialText.trim()
+  if (!normalized) {
+    return ''
+  }
+  const preview =
+    normalized.length > TELEGRAM_MESSAGE_LIMIT
+      ? `${normalized.slice(0, TELEGRAM_MESSAGE_LIMIT - 3)}...`
+      : normalized
+  return escapeHtml(preview)
+}

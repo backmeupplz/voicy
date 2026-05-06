@@ -36,9 +36,11 @@ export default async function handleTranscribe(ctx: Context) {
     await enqueueTranscription(ctx, voice.file_id, message)
   } catch (error) {
     report(error, { ctx, location: 'handleTranscribe' })
-    await ctx.reply(markdownI18n(ctx, 'error_queue'), {
-      parse_mode: 'Markdown',
-      reply_to_message_id: ctx.msg?.message_id,
-    })
+    if (!ctx.dbchat.silent) {
+      await ctx.reply(markdownI18n(ctx, 'error_queue'), {
+        parse_mode: 'Markdown',
+        reply_to_message_id: ctx.msg?.message_id,
+      })
+    }
   }
 }

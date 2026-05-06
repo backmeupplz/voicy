@@ -20,6 +20,7 @@
     "test:progress-policy": "node scripts/progress-policy-proof.js",
     "test:progress-status-format": "node scripts/progress-status-format-proof.js",
     "test:transcription-finalization": "node scripts/transcription-finalization-proof.js",
+    "test:silent-mode": "node scripts/silent-mode-proof.js",
     "test:error-empty-handling": "node scripts/error-empty-handling-proof.js",
     "test:media-coverage": "node scripts/media-coverage-proof.js",
     "test:report-sanitizer": "node scripts/report-sanitizer-proof.js",
