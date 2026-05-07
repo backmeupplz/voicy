@@ -237,11 +237,12 @@ server. Leave it unset to use `https://api.telegram.org`. The token is read from
 `VOICY_WORKER_TELEGRAM_BOT_TOKEN` or `TOKEN` on the worker host and is not
 persisted in queued job URLs.
 
-For production large-file support, deploy the backend with
-`VOICY_MAX_MEDIA_FILE_SIZE_MB=2048` or another value accepted by the local
-Telegram Bot API server and local disk capacity. Leaving the backend default at
-20 MB preserves cloud Bot API behavior and will reject larger media before the
-worker can download it.
+For production large-file support, the backend defaults to
+`VOICY_MAX_MEDIA_FILE_SIZE_MB=2048`, matching Telegram local Bot API's larger
+download ceiling. Set a lower value accepted by local disk capacity if needed.
+Cloud-only deployments should explicitly set `VOICY_MAX_MEDIA_FILE_SIZE_MB=20`
+to reject larger media before workers try to download it through Telegram's
+cloud Bot API.
 
 For CPU or smoke-test environments with the OpenAI Whisper CLI installed, use the checked-in adapter instead:
 
@@ -271,8 +272,8 @@ Optional:
 - `VOICY_WORKER_TRANSCRIPTION_CONCURRENCY=1` controls concurrent local STT
   commands.
 - `VOICY_MAX_MEDIA_FILE_SIZE_MB=2048` controls the bot-side accepted Telegram
-  media size before a job is queued; set it on the backend only after the
-  Windows worker is using a local Bot API endpoint.
+  media size before a job is queued. This is the backend default for local Bot
+  API workers; set `20` on cloud-only deployments.
 
 Run the worker:
 

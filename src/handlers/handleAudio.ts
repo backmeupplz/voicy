@@ -21,6 +21,7 @@ import {
   chatCanQueueTranscriptions,
   markChatUnreachableForTelegramError,
 } from '@/helpers/chatReachability'
+import { isMediaTooLarge } from '@/helpers/mediaSizeLimit'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import {
   publishCachedTranscriptionResult,
@@ -65,19 +66,6 @@ export default async function handleAudio(ctx: Context) {
       await sendQueueError(ctx)
     }
   }
-}
-
-function maxMediaFileSizeBytes() {
-  const configuredMb = Number(process.env.VOICY_MAX_MEDIA_FILE_SIZE_MB || 20)
-  if (!Number.isFinite(configuredMb) || configuredMb <= 0) {
-    return undefined
-  }
-  return configuredMb * 1024 * 1024
-}
-
-function isMediaTooLarge(fileSize?: number) {
-  const limit = maxMediaFileSizeBytes()
-  return Boolean(limit && fileSize && fileSize >= limit)
 }
 
 async function enqueueTranscription(
@@ -423,4 +411,4 @@ function transcriptionLimitMessageKey(reason: TranscriptionAbuseLimitReason) {
   return 'error_transcription_chat_limited'
 }
 
-export { enqueueTranscription, isMediaTooLarge, transcriptionAccessUserId }
+export { enqueueTranscription, transcriptionAccessUserId }

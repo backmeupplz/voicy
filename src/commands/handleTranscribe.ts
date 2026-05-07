@@ -1,4 +1,5 @@
-import { enqueueTranscription, isMediaTooLarge } from '@/handlers/handleAudio'
+import { enqueueTranscription } from '@/handlers/handleAudio'
+import { isMediaTooLarge } from '@/helpers/mediaSizeLimit'
 import { markChatUnreachableForTelegramError } from '@/helpers/chatReachability'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import { transcribableMediaFromMessage } from '@/helpers/transcribableTelegramMedia'
