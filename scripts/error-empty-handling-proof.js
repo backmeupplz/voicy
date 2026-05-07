@@ -148,6 +148,11 @@ assert(
   'completed voice records should store normalized transcript text'
 )
 assert(
+  publishSource.includes('replyOptions.reply_to_message_id') &&
+    publishSource.includes('await bot.api.sendMessage(job.telegramChatId, text)'),
+  'completed publisher should retry final transcript messages without a reply target'
+)
+assert(
   !publishSource.includes('editMessageCaption'),
   'completed publisher should not mutate original media captions'
 )
