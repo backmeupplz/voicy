@@ -11,7 +11,13 @@ const path = require('path')
 
 const TRANSCRIPTION_STATUSES = {
   queuedForDownload: 'queued_for_download',
+  downloading: 'downloading',
+  ready: 'ready',
+  queued: 'queued',
+  processing: 'processing',
+  transcribing: 'transcribing',
   completed: 'completed',
+  failed: 'failed',
 }
 
 const TRANSCRIPTION_SOURCE_KINDS = {
@@ -75,12 +81,16 @@ function mockContext({
 }
 
 function installHandleAudioMocks({
+  activeJob,
   cachedResult,
+  createDuplicateOnConcurrentRequest = false,
   accessResult = { allowed: true, consumedFreeTranscription: true },
 } = {}) {
   clearVoicyModules()
 
-  const transcriptionJobPath = require.resolve('../dist/models/TranscriptionJob')
+  const transcriptionJobPath = require.resolve(
+    '../dist/models/TranscriptionJob'
+  )
   const cacheModelPath = require.resolve(
     '../dist/models/TranscriptionResultCache'
   )
@@ -95,22 +105,53 @@ function installHandleAudioMocks({
   )
 
   const createdJobs = []
+  const activeJobQueries = []
   const cacheQueries = []
   const publishedJobs = []
   const accessCalls = []
   const refunds = []
+  let createCalls = 0
+  let duplicateRaised = false
 
   mockModule(transcriptionJobPath, {
     TranscriptionJobStatus: TRANSCRIPTION_STATUSES,
+    activeTranscriptionJobStatuses: [
+      TRANSCRIPTION_STATUSES.queuedForDownload,
+      TRANSCRIPTION_STATUSES.downloading,
+      TRANSCRIPTION_STATUSES.ready,
+      TRANSCRIPTION_STATUSES.queued,
+      TRANSCRIPTION_STATUSES.processing,
+      TRANSCRIPTION_STATUSES.transcribing,
+    ],
     TranscriptionJobSourceKind: TRANSCRIPTION_SOURCE_KINDS,
     TranscriptionJobModel: {
       create: async (job) => {
+        if (createDuplicateOnConcurrentRequest && createCalls > 0) {
+          duplicateRaised = true
+          throw {
+            code: 11000,
+            keyPattern: { activeMediaCacheKey: 1 },
+            message: 'E11000 duplicate key error activeMediaCacheKey',
+          }
+        }
+        createCalls += 1
         const jobDoc = {
+          _id: `created-job-${createdJobs.length + 1}`,
           ...job,
           save: async () => undefined,
         }
         createdJobs.push(jobDoc)
+        if (createDuplicateOnConcurrentRequest) {
+          await new Promise((resolve) => setTimeout(resolve, 5))
+        }
         return jobDoc
+      },
+      findOne: async (query) => {
+        activeJobQueries.push(query)
+        if (duplicateRaised && createdJobs[0]) {
+          return createdJobs[0]
+        }
+        return activeJob || null
       },
     },
   })
@@ -151,6 +192,7 @@ function installHandleAudioMocks({
 
   return {
     createdJobs,
+    activeJobQueries,
     cacheQueries,
     publishedJobs,
     accessCalls,
@@ -291,9 +333,84 @@ async function provesCacheMissQueuesJob() {
     'queued jobs should preserve the stable Telegram media id for caching'
   )
   assert.equal(
+    proof.createdJobs[0].mediaCacheKey,
+    'telegram:file_unique_id:proof-file-unique-id',
+    'queued jobs should store the stable media cache key'
+  )
+  assert.equal(
+    proof.createdJobs[0].activeMediaCacheKey,
+    'telegram:file_unique_id:proof-file-unique-id',
+    'queued jobs should hold the active media dedupe lock'
+  )
+  assert.equal(
     proof.publishedJobs.length,
     0,
     'cache miss should not publish a cached replay'
+  )
+}
+
+async function provesActiveJobDedupeSkipsNewQueue() {
+  const proof = installHandleAudioMocks({
+    activeJob: {
+      _id: 'active-job-id',
+      status: TRANSCRIPTION_STATUSES.queuedForDownload,
+      activeMediaCacheKey: 'telegram:file_unique_id:proof-file-unique-id',
+    },
+  })
+  const handleAudio = require('../dist/handlers/handleAudio').default
+
+  await handleAudio(mockContext({ chatType: 'channel' }))
+
+  assert.equal(
+    proof.createdJobs.length,
+    0,
+    'active in-flight media should not enqueue another worker job'
+  )
+  assert.deepEqual(proof.activeJobQueries[0], {
+    activeMediaCacheKey: 'telegram:file_unique_id:proof-file-unique-id',
+    status: {
+      $in: [
+        TRANSCRIPTION_STATUSES.queuedForDownload,
+        TRANSCRIPTION_STATUSES.downloading,
+        TRANSCRIPTION_STATUSES.ready,
+        TRANSCRIPTION_STATUSES.queued,
+        TRANSCRIPTION_STATUSES.processing,
+        TRANSCRIPTION_STATUSES.transcribing,
+      ],
+    },
+  })
+  assert.deepEqual(
+    proof.refunds,
+    ['67890'],
+    'active in-flight dedupe should refund free allowance consumed during access checks'
+  )
+}
+
+async function provesConcurrentCacheMissesCreateOneWorkerJob() {
+  const proof = installHandleAudioMocks({
+    cachedResult: null,
+    createDuplicateOnConcurrentRequest: true,
+  })
+  const handleAudio = require('../dist/handlers/handleAudio').default
+
+  await Promise.all([
+    handleAudio(mockContext({ chatType: 'channel' })),
+    handleAudio(mockContext({ chatType: 'channel' })),
+  ])
+
+  assert.equal(
+    proof.createdJobs.length,
+    1,
+    'two concurrent misses for one file_unique_id should create one worker job'
+  )
+  assert.equal(
+    proof.createdJobs[0].activeMediaCacheKey,
+    'telegram:file_unique_id:proof-file-unique-id'
+  )
+  assert.deepEqual(
+    proof.refunds,
+    ['67890'],
+    'the deduped concurrent request should refund consumed free allowance'
   )
 }
 
@@ -363,8 +480,23 @@ function provesTtlIndexAndNoFailureCaching() {
   )
 
   assert(
-    modelSource.includes("@index({ expiresAt: 1 }, { expireAfterSeconds: 0 })"),
+    modelSource.includes('@index({ expiresAt: 1 }, { expireAfterSeconds: 0 })'),
     'cache model should define a Mongo TTL index'
+  )
+  assert(
+    fs
+      .readFileSync(
+        path.join(__dirname, '..', 'src', 'models', 'TranscriptionJob.ts'),
+        'utf8'
+      )
+      .includes('partialFilterExpression') &&
+      fs
+        .readFileSync(
+          path.join(__dirname, '..', 'src', 'models', 'TranscriptionJob.ts'),
+          'utf8'
+        )
+        .includes('activeMediaCacheKey'),
+    'transcription jobs should define a unique active media dedupe lock index'
   )
   assert(
     jobServiceSource.indexOf('await publishCompletedTranscriptionJob(job)') <
@@ -380,6 +512,85 @@ function provesTtlIndexAndNoFailureCaching() {
       .includes('cacheCompletedTranscriptionJob'),
     'transient/permanent worker failures should not be cached as results'
   )
+  assert(
+    jobServiceSource.includes(
+      "$unset: { lastError: '', activeMediaCacheKey: '' }"
+    ),
+    'completed jobs should release the active media dedupe lock'
+  )
+  assert(
+    jobServiceSource
+      .slice(jobServiceSource.indexOf('status: TranscriptionJobStatus.failed'))
+      .includes("activeMediaCacheKey: ''"),
+    'failed non-retry jobs should release the active media dedupe lock'
+  )
+}
+
+async function provesFinalFailuresReleaseActiveDedupeLock() {
+  clearVoicyModules()
+  const transcriptionJobPath = require.resolve(
+    '../dist/models/TranscriptionJob'
+  )
+  const workerClientPath = require.resolve('../dist/models/WorkerClient')
+  const cacheHelperPath = require.resolve(
+    '../dist/helpers/transcriptionJobs/transcriptionResultCache'
+  )
+  const completedPublisherPath = require.resolve(
+    '../dist/helpers/transcriptionJobs/publishCompletedTranscriptionJob'
+  )
+  const progressPublisherPath = require.resolve(
+    '../dist/helpers/transcriptionJobs/publishTranscriptionJobProgress'
+  )
+  const updates = []
+  const ownedJob = {
+    _id: '507f1f77bcf86cd799439011',
+    workerId: 'worker-id',
+    attempts: 3,
+    status: TRANSCRIPTION_STATUSES.transcribing,
+    activeMediaCacheKey: 'telegram:file_unique_id:proof-file-unique-id',
+  }
+
+  mockModule(transcriptionJobPath, {
+    TranscriptionJobStatus: TRANSCRIPTION_STATUSES,
+    TranscriptionJobModel: {
+      findOne: async () => ownedJob,
+      findOneAndUpdate: async (query, update, options) => {
+        updates.push({ query, update, options })
+        return {
+          ...ownedJob,
+          ...update.$set,
+        }
+      },
+    },
+  })
+  mockModule(workerClientPath, {
+    WorkerClientModel: {},
+  })
+  mockModule(cacheHelperPath, {
+    cacheCompletedTranscriptionJob: async () => undefined,
+  })
+  mockModule(completedPublisherPath, {
+    __esModule: true,
+    default: async () => undefined,
+  })
+  mockModule(progressPublisherPath, {
+    __esModule: true,
+    default: async () => undefined,
+  })
+
+  const { failJob } = require('../dist/helpers/workerApi/jobService')
+  await failJob(
+    '507f1f77bcf86cd799439011',
+    { _id: { toString: () => 'worker-id' } },
+    { retryable: false, error: 'proof failure' }
+  )
+
+  assert.equal(updates.length, 1, 'final failure should persist one update')
+  assert.deepEqual(
+    updates[0].update.$unset,
+    { activeMediaCacheKey: '' },
+    'final failed jobs should release the active media dedupe lock so later requests can queue'
+  )
 }
 
 async function main() {
@@ -387,8 +598,11 @@ async function main() {
   await provesCacheHitPublishesWithoutQueue()
   await provesEmptyCacheHitPublishesWithoutQueue()
   await provesCacheMissQueuesJob()
+  await provesActiveJobDedupeSkipsNewQueue()
+  await provesConcurrentCacheMissesCreateOneWorkerJob()
   await provesCompletionCacheUpsertShape()
   provesTtlIndexAndNoFailureCaching()
+  await provesFinalFailuresReleaseActiveDedupeLock()
   console.log('transcription cache proof passed')
 }
 

@@ -1,6 +1,6 @@
 import {
   TranscriptionJobModel,
-  TranscriptionJobStatus,
+  activeTranscriptionJobStatuses,
 } from '@/models/TranscriptionJob'
 
 export enum TranscriptionAbuseLimitReason {
@@ -34,15 +34,6 @@ interface CheckTranscriptionAbuseLimitOptions {
   settings?: TranscriptionAbuseLimitSettings
   counter?: Counter
 }
-
-const activeStatuses = [
-  TranscriptionJobStatus.queuedForDownload,
-  TranscriptionJobStatus.downloading,
-  TranscriptionJobStatus.ready,
-  TranscriptionJobStatus.queued,
-  TranscriptionJobStatus.processing,
-  TranscriptionJobStatus.transcribing,
-]
 
 export function transcriptionAbuseLimitSettings(
   env: NodeJS.ProcessEnv = process.env
@@ -83,7 +74,7 @@ export async function checkTranscriptionAbuseLimits({
   if (settings.chatActiveJobLimit > 0) {
     const activeJobs = await counter.countDocuments({
       chatId,
-      status: { $in: activeStatuses },
+      status: { $in: activeTranscriptionJobStatuses },
     })
     if (activeJobs >= settings.chatActiveJobLimit) {
       return {
@@ -138,5 +129,3 @@ function numberFromEnv(value: string | undefined, fallback: number) {
 function windowStart(now: Date, windowMs: number) {
   return new Date(now.getTime() - windowMs)
 }
-
-export { activeStatuses as activeTranscriptionJobStatuses }
