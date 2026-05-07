@@ -113,11 +113,16 @@ async function provesCompletionWaitsForPublish() {
   const publisherPath = require.resolve(
     '../dist/helpers/transcriptionJobs/publishCompletedTranscriptionJob'
   )
+  const cacheHelperPath = require.resolve(
+    '../dist/helpers/transcriptionJobs/transcriptionResultCache'
+  )
   const jobId = '507f1f77bcf86cd799439011'
   const updates = []
+  const cacheCalls = []
   const workerClient = { _id: { toString: () => 'worker-1' } }
 
   clearModule(jobServicePath)
+  clearModule(cacheHelperPath)
   mockModule(transcriptionJobPath, {
     TranscriptionJobStatus: TRANSCRIPTION_STATUSES,
     TranscriptionJobModel: {
@@ -149,6 +154,11 @@ async function provesCompletionWaitsForPublish() {
     __esModule: true,
     default: async () => undefined,
   })
+  mockModule(cacheHelperPath, {
+    cacheCompletedTranscriptionJob: async (job) => {
+      cacheCalls.push(job)
+    },
+  })
 
   const { completeJob } = require(jobServicePath)
   const job = await completeJob(jobId, workerClient, {
@@ -166,6 +176,7 @@ async function provesCompletionWaitsForPublish() {
     TRANSCRIPTION_STATUSES.completed,
     'job should be completed only after final publish succeeds'
   )
+  assert.equal(cacheCalls.length, 1, 'published jobs should be cached once')
 }
 
 async function provesPublishFailureLeavesJobRetryable() {
@@ -174,12 +185,17 @@ async function provesPublishFailureLeavesJobRetryable() {
   const publisherPath = require.resolve(
     '../dist/helpers/transcriptionJobs/publishCompletedTranscriptionJob'
   )
+  const cacheHelperPath = require.resolve(
+    '../dist/helpers/transcriptionJobs/transcriptionResultCache'
+  )
   const jobId = '507f1f77bcf86cd799439012'
   const updates = []
+  const cacheCalls = []
   const workerClient = { _id: { toString: () => 'worker-1' } }
   const originalConsoleError = console.error
 
   clearModule(jobServicePath)
+  clearModule(cacheHelperPath)
   mockModule(transcriptionJobPath, {
     TranscriptionJobStatus: TRANSCRIPTION_STATUSES,
     TranscriptionJobModel: {
@@ -207,6 +223,11 @@ async function provesPublishFailureLeavesJobRetryable() {
       throw new Error('publish failed')
     },
   })
+  mockModule(cacheHelperPath, {
+    cacheCompletedTranscriptionJob: async (job) => {
+      cacheCalls.push(job)
+    },
+  })
 
   const { completeJob } = require(jobServicePath)
   try {
@@ -225,12 +246,89 @@ async function provesPublishFailureLeavesJobRetryable() {
     undefined,
     'publish failure must not convert an in-progress job into completed'
   )
+  assert.equal(
+    cacheCalls.length,
+    0,
+    'publish failures should not write cache entries'
+  )
+}
+
+async function provesCacheFailureDoesNotBlockCompletion() {
+  const jobServicePath = require.resolve('../dist/helpers/workerApi/jobService')
+  const transcriptionJobPath = require.resolve('../dist/models/TranscriptionJob')
+  const publisherPath = require.resolve(
+    '../dist/helpers/transcriptionJobs/publishCompletedTranscriptionJob'
+  )
+  const cacheHelperPath = require.resolve(
+    '../dist/helpers/transcriptionJobs/transcriptionResultCache'
+  )
+  const jobId = '507f1f77bcf86cd799439013'
+  const updates = []
+  const workerClient = { _id: { toString: () => 'worker-1' } }
+  const originalConsoleError = console.error
+
+  clearModule(jobServicePath)
+  clearModule(cacheHelperPath)
+  mockModule(transcriptionJobPath, {
+    TranscriptionJobStatus: TRANSCRIPTION_STATUSES,
+    TranscriptionJobModel: {
+      findOneAndUpdate: async (...args) => {
+        updates.push(args)
+        if (updates.length === 1) {
+          return {
+            _id: { toString: () => jobId },
+            status: TRANSCRIPTION_STATUSES.transcribing,
+            workerId: 'worker-1',
+            chatId: 'chat-1',
+            telegramChatId: '123',
+            telegramChatType: 'private',
+            sourceMessageId: 10,
+            statusMessageId: 20,
+            fileId: 'file-1',
+            sourceKind: 'voice',
+            resultText: 'final transcript',
+          }
+        }
+        return {
+          _id: { toString: () => jobId },
+          status: TRANSCRIPTION_STATUSES.completed,
+        }
+      },
+    },
+  })
+  mockModule(publisherPath, {
+    __esModule: true,
+    default: async () => undefined,
+  })
+  mockModule(cacheHelperPath, {
+    cacheCompletedTranscriptionJob: async () => {
+      throw new Error('cache unavailable')
+    },
+  })
+
+  try {
+    console.error = () => undefined
+    const { completeJob } = require(jobServicePath)
+    const job = await completeJob(jobId, workerClient, {
+      text: 'final transcript',
+    })
+    assert.equal(job.status, TRANSCRIPTION_STATUSES.completed)
+  } finally {
+    console.error = originalConsoleError
+  }
+
+  assert.equal(
+    updates[1][1].$set.status,
+    TRANSCRIPTION_STATUSES.completed,
+    'cache failures should not block worker completion'
+  )
 }
 
 async function main() {
   await provesCompletedPublisherFallsBackToFinalMessage()
   await provesCompletionWaitsForPublish()
   await provesPublishFailureLeavesJobRetryable()
+  await provesCacheFailureDoesNotBlockCompletion()
   console.log('transcription finalization proof passed')
 }
 
