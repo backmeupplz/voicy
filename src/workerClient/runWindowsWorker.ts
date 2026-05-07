@@ -1,8 +1,8 @@
 import * as path from 'path'
 import { Readable } from 'stream'
 import { URL } from 'url'
+import { copyFile, mkdir, readFile, stat, unlink } from 'fs/promises'
 import { createWriteStream } from 'fs'
-import { mkdir, readFile, stat, unlink } from 'fs/promises'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 import { redactSensitiveText } from '../helpers/report'
@@ -99,6 +99,11 @@ interface RunCommandResult {
 interface DownloadedJob {
   job: WorkerJob
   inputPath: string
+}
+
+interface ResolvedSource {
+  sourceUrl?: string
+  localPath?: string
 }
 
 const consoleLogger: Logger = {
@@ -404,6 +409,15 @@ function isLoopbackHost(hostname: string) {
   )
 }
 
+function isAbsoluteFilePath(filePath: string) {
+  return path.isAbsolute(filePath) || path.win32.isAbsolute(filePath)
+}
+
+function canUseLocalTelegramFilePath(config: WorkerConfig, filePath: string) {
+  const telegramApi = new URL(config.telegramBotApiUrl)
+  return isLoopbackHost(telegramApi.hostname) && isAbsoluteFilePath(filePath)
+}
+
 function assertAllowedSourceUrl(sourceUrl: string, config: WorkerConfig) {
   const parsed = new URL(sourceUrl)
   const api = new URL(config.apiUrl)
@@ -445,12 +459,18 @@ function telegramFileUrl(config: WorkerConfig, filePath: string) {
   return `${config.telegramBotApiUrl}/file/bot${config.telegramBotToken}/${encodedPath}`
 }
 
-async function resolveSourceUrl(config: WorkerConfig, source: WorkerSource) {
+async function resolveSource(
+  config: WorkerConfig,
+  source: WorkerSource
+): Promise<ResolvedSource> {
   if (source.sourceUrl) {
-    return source.sourceUrl
+    return { sourceUrl: source.sourceUrl }
   }
   if (source.filePath) {
-    return telegramFileUrl(config, source.filePath)
+    if (canUseLocalTelegramFilePath(config, source.filePath)) {
+      return { localPath: source.filePath }
+    }
+    return { sourceUrl: telegramFileUrl(config, source.filePath) }
   }
   if (!source.fileId) {
     throw new WorkerClientError('Job source has no URL or Telegram file id')
@@ -474,7 +494,10 @@ async function resolveSourceUrl(config: WorkerConfig, source: WorkerSource) {
       'Telegram getFile response did not include file_path'
     )
   }
-  return telegramFileUrl(config, filePath)
+  if (canUseLocalTelegramFilePath(config, filePath)) {
+    return { localPath: filePath }
+  }
+  return { sourceUrl: telegramFileUrl(config, filePath) }
 }
 
 async function downloadSource(
@@ -488,9 +511,16 @@ async function downloadSource(
     `${job.id}${extensionForSource(source)}`
   )
   await removeIfExists(inputPath)
-  const sourceUrl = await resolveSourceUrl(config, source)
-  assertAllowedSourceUrl(sourceUrl, config)
-  const response = await axios.get(sourceUrl, {
+  const resolved = await resolveSource(config, source)
+  if (resolved.localPath) {
+    await copyFile(resolved.localPath, inputPath)
+    return inputPath
+  }
+  if (!resolved.sourceUrl) {
+    throw new WorkerClientError('Job source did not resolve to a file')
+  }
+  assertAllowedSourceUrl(resolved.sourceUrl, config)
+  const response = await axios.get(resolved.sourceUrl, {
     responseType: 'stream',
     timeout: config.downloadTimeoutMs,
   })

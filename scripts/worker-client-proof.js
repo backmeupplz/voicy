@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const fs = require('fs')
 const http = require('http')
 const os = require('os')
 const path = require('path')
@@ -35,7 +36,7 @@ function readJson(request) {
   })
 }
 
-function createProofServer() {
+function createProofServer(options = {}) {
   const state = {
     claimed: false,
     downloaded: false,
@@ -44,6 +45,7 @@ function createProofServer() {
     failure: undefined,
     heartbeats: 0,
     audioAuthorization: undefined,
+    fileDownloadRequests: 0,
   }
 
   const server = http.createServer(async (request, response) => {
@@ -153,7 +155,12 @@ function createProofServer() {
       )
       response.writeHead(200, { 'Content-Type': 'application/json' })
       response.end(
-        JSON.stringify({ ok: true, result: { file_path: 'audio/proof.ogg' } })
+        JSON.stringify({
+          ok: true,
+          result: {
+            file_path: options.telegramFilePath || 'audio/proof.ogg',
+          },
+        })
       )
       return
     }
@@ -162,6 +169,7 @@ function createProofServer() {
       request.method === 'GET' &&
       url.pathname === '/file/botproof-telegram-token/audio/proof.ogg'
     ) {
+      state.fileDownloadRequests += 1
       response.writeHead(200, { 'Content-Type': 'audio/ogg' })
       response.end(Buffer.from('proof audio bytes'))
       return
@@ -620,6 +628,74 @@ async function main() {
     assert(!idleProcessed, 'worker should return false when no job is queued')
   } finally {
     await close(server)
+  }
+
+  const localTelegramDir = fs.mkdtempSync(
+    path.join(os.tmpdir(), `voicy-worker-local-telegram-proof-${process.pid}-`)
+  )
+  const localTelegramFile = path.join(localTelegramDir, 'telegram-local.ogg')
+  fs.writeFileSync(localTelegramFile, Buffer.from('local telegram api bytes'))
+  const localTelegramProof = createProofServer({
+    telegramFilePath: localTelegramFile,
+  })
+  await listen(localTelegramProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      localTelegramProof.server.address().port
+    }/worker/v1`
+    const config = loadConfig({
+      VOICY_WORKER_API_URL: baseUrl,
+      VOICY_WORKER_TOKEN: 'proof-worker-token',
+      VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+      VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+        'scripts/fake-transcriber.js',
+        '{input}',
+        '{output}',
+        '{model}',
+      ]),
+      VOICY_WORKER_WORK_DIR: path.join(
+        os.tmpdir(),
+        `voicy-worker-local-telegram-output-${process.pid}`
+      ),
+      VOICY_WORKER_IDLE_EXIT: '1',
+      VOICY_WORKER_TELEGRAM_API_URL: `http://127.0.0.1:${
+        localTelegramProof.server.address().port
+      }`,
+      VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
+    })
+
+    const processed = await processNextJob(config, {
+      info: () => undefined,
+      warn: () => undefined,
+      error: () => undefined,
+    })
+
+    assert(
+      processed,
+      'worker should process local Telegram Bot API file_path jobs'
+    )
+    assert(
+      localTelegramProof.state.fileDownloadRequests === 0,
+      'worker should copy absolute local Telegram file_path instead of requesting /file/bot'
+    )
+    assert(
+      localTelegramProof.state.downloaded,
+      'local Telegram file_path job should mark media downloaded'
+    )
+    assert(
+      localTelegramProof.state.result,
+      'local Telegram file_path job should submit a result'
+    )
+    assert(
+      !localTelegramProof.state.failure,
+      `local Telegram file_path job should not fail: ${JSON.stringify(
+        localTelegramProof.state.failure
+      )}`
+    )
+  } finally {
+    await close(localTelegramProof.server)
+    fs.rmSync(localTelegramDir, { recursive: true, force: true })
   }
 
   const emptyProof = createProofServer()
