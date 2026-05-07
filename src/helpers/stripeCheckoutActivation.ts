@@ -1,7 +1,10 @@
 import { Chat, ChatModel } from '@/models/Chat'
 import { DocumentType } from '@typegoose/typegoose'
+import { escapeTelegramMarkdownText } from '@/helpers/telegramMarkdown'
 import { stripe } from '@/helpers/stripe'
 import Stripe from 'stripe'
+import bot from '@/helpers/bot'
+import i18n from '@/helpers/i18n'
 
 export const VOICY_STRIPE_MINIMUM_AMOUNT = Number(
   process.env.STRIPE_MINIMUM_AMOUNT ||
@@ -244,6 +247,37 @@ function storeStripeActivation(
   chat.stripeDonationTier = session.metadata?.voicy_donation_tier
 }
 
+export function stripeCheckoutActivationConfirmationText(
+  chat: Pick<Chat, 'uiLanguage'>
+) {
+  return escapeTelegramMarkdownText(
+    i18n.t(chat.uiLanguage || 'en', 'stripe_activation_confirmed')
+  )
+}
+
+export async function sendStripeActivationConfirmation(
+  chat: Pick<Chat, 'id' | 'uiLanguage'>
+) {
+  try {
+    await bot.api.sendMessage(
+      chat.id,
+      stripeCheckoutActivationConfirmationText(chat),
+      {
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true,
+      }
+    )
+  } catch (error) {
+    const errorDetails =
+      error instanceof Error
+        ? `${error.name}: ${error.message}`
+        : 'Unknown Telegram send error'
+    console.warn(
+      `Failed to send Stripe activation confirmation to chat ${chat.id}: ${errorDetails}`
+    )
+  }
+}
+
 export async function activatePaidCheckoutSession(
   session: Stripe.Checkout.Session
 ) {
@@ -266,7 +300,11 @@ export async function activatePaidCheckoutSession(
     return false
   }
 
+  const wasAlreadyPaid = chat.paid
   storeStripeActivation(chat, session)
   await chat.save()
+  if (!wasAlreadyPaid) {
+    await sendStripeActivationConfirmation(chat)
+  }
   return true
 }

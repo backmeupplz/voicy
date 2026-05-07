@@ -124,6 +124,11 @@ const directKeys = new Set([
     (match) => match[1]
   ),
   ...[
+    ...sourceText.matchAll(
+      /i18n\.t\(\s*[^,\n]+,\s*['"]([A-Za-z0-9_]+)['"]/g
+    ),
+  ].map((match) => match[1]),
+  ...[
     ...sourceText.matchAll(/markdownI18n\([^,]+,\s*['"]([A-Za-z0-9_]+)['"]/g),
   ].map((match) => match[1]),
   ...[
