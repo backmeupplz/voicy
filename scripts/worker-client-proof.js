@@ -461,11 +461,24 @@ async function main() {
     }
     const config = loadConfig(env)
     const logLines = []
-    const processed = await processNextJob(config, {
-      info: (message) => logLines.push(message),
-      warn: (message) => logLines.push(message),
-      error: (message) => logLines.push(message),
-    })
+    const transcriptText =
+      'fake transcript from worker client proof with token 123456:ABCDEFGHIJKLMNOPQRSTUVWXYZabc'
+    const previousFakeTranscriptText = process.env.VOICY_FAKE_TRANSCRIPT_TEXT
+    process.env.VOICY_FAKE_TRANSCRIPT_TEXT = transcriptText
+    let processed
+    try {
+      processed = await processNextJob(config, {
+        info: (message) => logLines.push(message),
+        warn: (message) => logLines.push(message),
+        error: (message) => logLines.push(message),
+      })
+    } finally {
+      if (previousFakeTranscriptText === undefined) {
+        delete process.env.VOICY_FAKE_TRANSCRIPT_TEXT
+      } else {
+        process.env.VOICY_FAKE_TRANSCRIPT_TEXT = previousFakeTranscriptText
+      }
+    }
 
     assert(processed, 'worker should process the claimed job')
     assert(
@@ -473,9 +486,19 @@ async function main() {
         (line) =>
           !line.includes('proof-telegram-token') &&
           !line.includes('api.telegram.org/file') &&
-          !line.includes('fake transcript from worker client proof')
+          !line.includes('123456:ABCDEFGHIJKLMNOPQRSTUVWXYZabc')
       ),
-      'worker activity logs should not include tokens, source URLs, or transcript text'
+      'worker activity logs should not include tokens, source URLs, or unredacted sensitive transcript text'
+    )
+    assert(
+      logLines.some(
+        (line) =>
+          line.includes('Worker transcription job completed') &&
+          line.includes(
+            'transcriptionResult="fake transcript from worker client proof with [redacted-secret]"'
+          )
+      ),
+      'worker completion logs should include redacted final transcript text'
     )
     assert(
       logLines.some(
@@ -519,7 +542,7 @@ async function main() {
           line.includes('Worker transcription command completed') &&
           line.includes('jobId="proof-job"') &&
           line.includes('outputSource="file"') &&
-          line.includes('textChars=40') &&
+          line.includes(`textChars=${transcriptText.length}`) &&
           line.includes('parts=1')
       ),
       'worker should log transcription command completion metrics'
@@ -529,7 +552,9 @@ async function main() {
         (line) =>
           line.includes('Worker transcription result uploading') &&
           line.includes('jobId="proof-job"') &&
-          line.includes('textChars=40') &&
+          line.includes('sourceKind="voice"') &&
+          line.includes('detectedLanguage="en"') &&
+          line.includes(`textChars=${transcriptText.length}`) &&
           line.includes('emptyResult=false')
       ),
       'worker should log transcription result upload metrics'
@@ -539,7 +564,9 @@ async function main() {
         (line) =>
           line.includes('Worker transcription job completed') &&
           line.includes('jobId="proof-job"') &&
-          line.includes('textChars=40') &&
+          line.includes('sourceKind="voice"') &&
+          line.includes('detectedLanguage="en"') &&
+          line.includes(`textChars=${transcriptText.length}`) &&
           line.includes('emptyResult=false')
       ),
       'worker should log transcription job completion metrics'
@@ -555,7 +582,7 @@ async function main() {
     )
     assert(state.result, 'worker should submit a result')
     assert(
-      state.result.text === 'fake transcript from worker client proof',
+      state.result.text === transcriptText,
       'worker should submit transcript text'
     )
     assert(
@@ -620,10 +647,11 @@ async function main() {
       VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
     })
 
+    const emptyLogLines = []
     const processed = await processNextJob(config, {
-      info: () => undefined,
-      warn: () => undefined,
-      error: () => undefined,
+      info: (message) => emptyLogLines.push(message),
+      warn: (message) => emptyLogLines.push(message),
+      error: (message) => emptyLogLines.push(message),
     })
 
     assert(processed, 'worker should process the empty transcript job')
@@ -637,6 +665,15 @@ async function main() {
     assert(
       emptyProof.state.result.text === '',
       'empty transcript should submit empty result text for backend fallback copy'
+    )
+    assert(
+      emptyLogLines.some(
+        (line) =>
+          line.includes('Worker transcription job completed') &&
+          line.includes('emptyResult=true') &&
+          line.includes('transcriptionResult=""')
+      ),
+      'empty transcript completion log should explicitly show an empty final result'
     )
   } finally {
     await close(emptyProof.server)

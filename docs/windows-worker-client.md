@@ -226,15 +226,18 @@ backticks, and parentheses in paths and prevents shell expansion.
 `scripts/whisper-transcriber.js` reads `VOICY_WORKER_MODEL` directly, so it does
 not need `{model}` in the args array.
 
-The worker logs transcription activity without transcript text, tokens, or
-source URLs. For each job, the Windows service log includes command start,
-command completion, result upload, and final completion lines with `jobId`,
-`chatId`, `telegramChatId`, `sourceKind`, file size, requested/detected
-language, attempt count, local input/output file names, elapsed command time,
-text character count, empty-result status, part count, and optional audio
-duration. Use these lines to confirm that the Windows host is actively
-transcribing and uploading results while keeping media URLs, worker tokens, raw
-audio, and transcript text out of logs.
+The worker logs transcription activity without tokens or source URLs. For each
+job, the Windows service log includes command start, command completion, result
+upload, and final completion lines with `jobId`, `chatId`, `telegramChatId`,
+`sourceKind`, file size, requested/detected language, attempt count, local
+input/output file names, elapsed command time, text character count,
+empty-result status, part count, and optional audio duration. The final
+completion line also includes `transcriptionResult` with the completed
+transcript text; empty/no-speech results are logged as
+`transcriptionResult=""` with `emptyResult=true`. Use these lines to confirm
+that the Windows host is actively transcribing and uploading results while
+keeping media URLs, worker tokens, and raw audio out of logs. Token-like secrets
+inside transcript text are redacted before writing to the console or log file.
 
 For persistent Windows Task Scheduler logs, run `yarn worker:run` from a
 PowerShell wrapper that redirects standard output and error to a local file the
