@@ -352,6 +352,10 @@ async function main() {
     assert(ctx.replies.length === 1, 'donate checkout should reply once')
     assert(ctx.replies[0].text === 'pay', 'donate checkout should use pay copy')
     assert(
+      ctx.replies[0].options.parse_mode === 'HTML',
+      'donate checkout should render fixed-tier copy as HTML'
+    )
+    assert(
       ctx.replies[0].options.reply_markup.inline_keyboard.length ===
         VOICY_STRIPE_FIXED_AMOUNTS.length,
       'donate checkout should include one button per fixed tier'
@@ -407,6 +411,10 @@ async function main() {
       ctx.replies[0].text === `pay_custom:$${(customAmount / 100).toFixed(2)}`,
       'custom donation checkout should use custom copy'
     )
+    assert(
+      ctx.replies[0].options.parse_mode === 'HTML',
+      'custom donation checkout should render copy as HTML'
+    )
   })
 
   await withPatchedStripeCheckout(async (createdSessions) => {
@@ -426,6 +434,10 @@ async function main() {
       ctx.replies[0].text ===
         `pay_amount_too_low:$${(VOICY_STRIPE_MINIMUM_AMOUNT / 100).toFixed(2)}`,
       'below-minimum custom donation should explain the minimum'
+    )
+    assert(
+      ctx.replies[0].options.parse_mode === 'HTML',
+      'below-minimum custom donation should render copy as HTML'
     )
   })
 

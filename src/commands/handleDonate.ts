@@ -6,7 +6,7 @@ import {
   stripeCheckoutSessionRequest,
   stripeDonationOption,
 } from '@/helpers/stripeCheckoutActivation'
-import { markdownI18n } from '@/helpers/telegramMarkdown'
+import { htmlI18n, markdownI18n } from '@/helpers/telegramMarkdown'
 import { stripe } from '@/helpers/stripe'
 import Context from '@/models/Context'
 import Stripe from 'stripe'
@@ -57,10 +57,11 @@ export default async function handleDonate(ctx: Context) {
         requestedAmount < VOICY_STRIPE_MINIMUM_AMOUNT
       ) {
         await ctx.reply(
-          ctx.i18n.t('pay_amount_too_low', {
+          htmlI18n(ctx, 'pay_amount_too_low', {
             amount: formatStripeDonationAmount(VOICY_STRIPE_MINIMUM_AMOUNT),
           }),
           {
+            parse_mode: 'HTML',
             disable_web_page_preview: true,
           }
         )
@@ -70,10 +71,11 @@ export default async function handleDonate(ctx: Context) {
         console.log('Not paid, creating custom donation session')
         const session = await createCheckoutSession(chatId, requestedAmount)
         await ctx.reply(
-          ctx.i18n.t('pay_custom', {
+          htmlI18n(ctx, 'pay_custom', {
             amount: formatStripeDonationAmount(requestedAmount),
           }),
           {
+            parse_mode: 'HTML',
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -91,8 +93,8 @@ export default async function handleDonate(ctx: Context) {
         )
       )
       console.log('Not paid, sending message')
-      await ctx.reply(markdownI18n(ctx, 'pay'), {
-        parse_mode: 'Markdown',
+      await ctx.reply(htmlI18n(ctx, 'pay'), {
+        parse_mode: 'HTML',
         disable_web_page_preview: true,
         reply_markup: {
           inline_keyboard: sessions.map((session, index) => [

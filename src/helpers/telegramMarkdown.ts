@@ -2,6 +2,12 @@ import type Context from '@/models/Context'
 
 type I18nReplacements = Record<string, string | number>
 
+function escapeTelegramHtmlReplacement(value: string | number) {
+  return typeof value === 'string'
+    ? value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    : value
+}
+
 function escapeTelegramMarkdownReplacement(value: string | number) {
   return typeof value === 'string'
     ? value.replace(/([*_`])/g, '\\$1').replace(/\[/g, '\\[')
@@ -52,4 +58,21 @@ export function markdownI18n(
     : undefined
 
   return escapeTelegramMarkdownText(ctx.i18n.t(key, escapedReplacements))
+}
+
+export function htmlI18n(
+  ctx: Context,
+  key: string,
+  replacements?: I18nReplacements
+) {
+  const escapedReplacements = replacements
+    ? Object.fromEntries(
+        Object.entries(replacements).map(([replacementKey, value]) => [
+          replacementKey,
+          escapeTelegramHtmlReplacement(value),
+        ])
+      )
+    : undefined
+
+  return ctx.i18n.t(key, escapedReplacements)
 }
