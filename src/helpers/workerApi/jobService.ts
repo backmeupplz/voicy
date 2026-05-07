@@ -514,7 +514,7 @@ export async function completeJob(
         heartbeatAt: now,
         completedAt: now,
       },
-      $unset: { lastError: '' },
+      $unset: { lastError: '', activeMediaCacheKey: '' },
     },
     { new: true }
   )
@@ -555,6 +555,9 @@ export async function failJob(
           lastError: truncateError(body.error),
           heartbeatAt: now,
           failedAt: now,
+        },
+        $unset: {
+          activeMediaCacheKey: '',
         },
       }
 

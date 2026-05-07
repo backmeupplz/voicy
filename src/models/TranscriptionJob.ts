@@ -18,6 +18,15 @@ export enum TranscriptionJobStatus {
   failed = 'failed',
 }
 
+export const activeTranscriptionJobStatuses = [
+  TranscriptionJobStatus.queuedForDownload,
+  TranscriptionJobStatus.downloading,
+  TranscriptionJobStatus.ready,
+  TranscriptionJobStatus.queued,
+  TranscriptionJobStatus.processing,
+  TranscriptionJobStatus.transcribing,
+]
+
 export enum TranscriptionJobSourceKind {
   voice = 'voice',
   videoNote = 'video_note',
@@ -41,6 +50,15 @@ export interface WorkerEngineMetadata {
 @index({ status: 1, createdAt: 1 })
 @index({ workerId: 1, status: 1 })
 @index({ chatId: 1, sourceMessageId: 1 })
+@index(
+  { activeMediaCacheKey: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      activeMediaCacheKey: { $type: 'string' },
+    },
+  }
+)
 @modelOptions({
   schemaOptions: { timestamps: true },
   options: { allowMixed: Severity.ALLOW },
@@ -73,6 +91,10 @@ export class TranscriptionJob {
   fileId: string
   @prop()
   fileUniqueId?: string
+  @prop({ index: true })
+  mediaCacheKey?: string
+  @prop()
+  activeMediaCacheKey?: string
   @prop()
   filePath?: string
   @prop()

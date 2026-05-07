@@ -15,6 +15,7 @@ import {
 import {
   TranscriptionJobModel,
   TranscriptionJobStatus,
+  activeTranscriptionJobStatuses,
 } from '@/models/TranscriptionJob'
 import {
   chatCanQueueTranscriptions,
@@ -24,6 +25,7 @@ import { markdownI18n } from '@/helpers/telegramMarkdown'
 import {
   publishCachedTranscriptionResult,
   sourceKindFromTelegramSourceType,
+  transcriptionResultCacheKey,
 } from '@/helpers/transcriptionJobs/transcriptionResultCache'
 import { transcriptionProgressStatusHtml } from '@/helpers/transcriptionJobs/progressStatusText'
 import Context from '@/models/Context'
@@ -152,6 +154,18 @@ async function enqueueTranscription(
     throw error
   }
 
+  const mediaCacheKey = transcriptionResultCacheKey(audio)
+  const existingActiveJob = await findActiveTranscriptionJob(mediaCacheKey)
+  if (existingActiveJob) {
+    if (access.consumedFreeTranscription && freeAccessUserId) {
+      await refundGoldenBorodutchFreeTranscription(freeAccessUserId)
+    }
+    console.info(
+      `Deduped transcription request against active job ${existingActiveJob._id}`
+    )
+    return existingActiveJob
+  }
+
   let queuedJob
   try {
     queuedJob = await TranscriptionJobModel.create({
@@ -168,6 +182,8 @@ async function enqueueTranscription(
       mimeType: audio.mime_type,
       fileName: audio.file_name,
       fileUniqueId: fileUniqueId(audio),
+      mediaCacheKey,
+      activeMediaCacheKey: mediaCacheKey,
       sourceKind: sourceKindFromTelegramSourceType(audio.sourceType),
       requestedByUserId: ctx.from?.id ? String(ctx.from.id) : undefined,
       forwardedFromUserId: sourceMessage.forward_from?.id
@@ -177,6 +193,16 @@ async function enqueueTranscription(
       uiLocale: ctx.dbchat.uiLanguage,
     })
   } catch (error) {
+    if (isDuplicateActiveMediaCacheKeyError(error)) {
+      if (access.consumedFreeTranscription && freeAccessUserId) {
+        await refundGoldenBorodutchFreeTranscription(freeAccessUserId)
+      }
+      const activeJob = await findActiveTranscriptionJob(mediaCacheKey)
+      console.info(
+        `Deduped concurrent transcription request for ${mediaCacheKey}`
+      )
+      return activeJob || undefined
+    }
     if (access.consumedFreeTranscription && freeAccessUserId) {
       await refundGoldenBorodutchFreeTranscription(freeAccessUserId)
     }
@@ -189,6 +215,7 @@ async function enqueueTranscription(
       queuedJob.status = TranscriptionJobStatus.failed
       queuedJob.failedAt = new Date()
       queuedJob.lastError = 'Telegram chat is unreachable for transcription'
+      queuedJob.activeMediaCacheKey = undefined
       await queuedJob.save()
     }
     console.info('Skipping live transcription status message in silent mode')
@@ -223,6 +250,7 @@ async function enqueueTranscription(
       queuedJob.status = TranscriptionJobStatus.failed
       queuedJob.failedAt = new Date()
       queuedJob.lastError = 'Telegram chat is unreachable for transcription'
+      queuedJob.activeMediaCacheKey = undefined
       await queuedJob.save()
     }
     report(error, { ctx, location: 'ackQueuedTranscription' })
@@ -317,6 +345,26 @@ function transcriptionAccessMessageKey(
 
 function fileUniqueId(audio: TranscribableTelegramFile) {
   return 'file_unique_id' in audio ? audio.file_unique_id : undefined
+}
+
+function findActiveTranscriptionJob(mediaCacheKey: string) {
+  return TranscriptionJobModel.findOne({
+    activeMediaCacheKey: mediaCacheKey,
+    status: { $in: activeTranscriptionJobStatuses },
+  })
+}
+
+function isDuplicateActiveMediaCacheKeyError(error: unknown) {
+  const mongoError = error as {
+    code?: number
+    keyPattern?: Record<string, unknown>
+    message?: string
+  }
+  return (
+    mongoError.code === 11000 &&
+    (Boolean(mongoError.keyPattern?.activeMediaCacheKey) ||
+      Boolean(mongoError.message?.includes('activeMediaCacheKey')))
+  )
 }
 
 async function sendSilentTranscriptionChatAction(ctx: Context) {
