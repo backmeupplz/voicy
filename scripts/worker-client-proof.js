@@ -755,6 +755,71 @@ async function main() {
     await close(emptyProof.server)
   }
 
+  const nonZeroOutputProof = createProofServer()
+  await listen(nonZeroOutputProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      nonZeroOutputProof.server.address().port
+    }/worker/v1`
+    const config = loadConfig({
+      VOICY_WORKER_API_URL: baseUrl,
+      VOICY_WORKER_TOKEN: 'proof-worker-token',
+      VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+      VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+        '-e',
+        [
+          "const fs = require('fs')",
+          "fs.writeFileSync(process.argv[2], JSON.stringify({ text: 'recovered transcript', parts: [], language: 'en', duration: 1 }))",
+          'process.exit(7)',
+        ].join('; '),
+        '{input}',
+        '{output}',
+      ]),
+      VOICY_WORKER_WORK_DIR: path.join(
+        os.tmpdir(),
+        `voicy-worker-nonzero-output-proof-${process.pid}`
+      ),
+      VOICY_WORKER_TELEGRAM_API_URL: `http://127.0.0.1:${
+        nonZeroOutputProof.server.address().port
+      }`,
+      VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
+    })
+
+    const nonZeroLogLines = []
+    const processed = await processNextJob(config, {
+      info: (message) => nonZeroLogLines.push(message),
+      warn: (message) => nonZeroLogLines.push(message),
+      error: (message) => nonZeroLogLines.push(message),
+    })
+
+    assert(
+      processed,
+      'worker should process the non-zero command with valid output'
+    )
+    assert(
+      !nonZeroOutputProof.state.failure,
+      `non-zero command with valid output should not report failure: ${JSON.stringify(
+        nonZeroOutputProof.state.failure
+      )}`
+    )
+    assert(
+      nonZeroOutputProof.state.result?.text === 'recovered transcript',
+      'worker should submit valid transcript output even when the command exits non-zero'
+    )
+    assert(
+      nonZeroLogLines.some(
+        (line) =>
+          line.includes('Worker transcription command completed') &&
+          line.includes('exitCode=7') &&
+          line.includes('outputSource="file"')
+      ),
+      'worker should log the recovered non-zero exit code with file output'
+    )
+  } finally {
+    await close(nonZeroOutputProof.server)
+  }
+
   const failureProof = createProofServer()
   await listen(failureProof.server)
 

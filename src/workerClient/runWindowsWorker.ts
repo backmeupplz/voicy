@@ -94,6 +94,7 @@ interface RunCommandResult {
   stdout: string
   stderr: string
   elapsedMs: number
+  exitCode: number | null
 }
 
 interface DownloadedJob {
@@ -584,17 +585,13 @@ function runCommand(
       const stdout = Buffer.concat(stdoutChunks).toString('utf8')
       const stderr = Buffer.concat(stderrChunks).toString('utf8')
       const elapsedMs = Date.now() - startedAt
-      if (code !== 0) {
-        reject(
-          new WorkerClientError(
-            `Transcription command exited with ${code}; stdoutChars=${stdout.length}; stderrChars=${stderr.length}`
-          )
-        )
-        return
-      }
-      resolve({ stdout, stderr, elapsedMs })
+      resolve({ stdout, stderr, elapsedMs, exitCode: code })
     })
   })
+}
+
+function commandFailureMessage(commandResult: RunCommandResult) {
+  return `Transcription command exited with ${commandResult.exitCode}; stdoutChars=${commandResult.stdout.length}; stderrChars=${commandResult.stderr.length}`
 }
 
 function parseJsonOutput(value: string) {
@@ -654,6 +651,10 @@ async function readTranscriptionOutput(
     model: config.model,
     language: result.language,
     elapsedMs: commandResult.elapsedMs,
+    exitCode:
+      commandResult.exitCode && commandResult.exitCode !== 0
+        ? commandResult.exitCode
+        : undefined,
     outputSource: outputStat ? 'file' : 'stdout',
     textChars: result.text.length,
     parts: result.parts?.length || 0,
@@ -687,6 +688,13 @@ async function transcribeJob(
     args,
     config
   )
+  if (commandResult.exitCode !== 0) {
+    const rawOutput = await readFile(outputPath, 'utf8').catch(() => undefined)
+    const parsed = rawOutput ? parseJsonOutput(rawOutput.trim()) : undefined
+    if (!parsed || typeof parsed.text !== 'string') {
+      throw new WorkerClientError(commandFailureMessage(commandResult))
+    }
+  }
   return readTranscriptionOutput(
     commandResult,
     outputPath,
