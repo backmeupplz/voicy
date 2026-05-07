@@ -17,13 +17,15 @@ if (input.length === 0) {
   throw new Error('input file is empty')
 }
 
+const transcriptText =
+  process.env.VOICY_FAKE_TRANSCRIPT_TEXT ||
+  'fake transcript from worker client proof'
+
 fs.writeFileSync(
   outputPath,
   JSON.stringify({
-    text: 'fake transcript from worker client proof',
-    parts: [
-      { timeCode: '00:00', text: 'fake transcript from worker client proof' },
-    ],
+    text: transcriptText,
+    parts: [{ timeCode: '00:00', text: transcriptText }],
     language: 'en',
     duration: 1.5,
     metadata: { model, inputPath, outputPath, argv: process.argv.slice(2) },

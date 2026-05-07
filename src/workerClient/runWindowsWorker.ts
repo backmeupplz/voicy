@@ -146,6 +146,29 @@ function jobLogContext(job: WorkerJob): Record<string, LogValue> {
   }
 }
 
+function transcriptionResultLogContext(
+  job: WorkerJob,
+  result: TranscriptionOutput,
+  config: WorkerConfig,
+  elapsedMs: number
+): Record<string, LogValue> {
+  return {
+    ...jobLogContext(job),
+    engine: config.engine,
+    model: config.model,
+    detectedLanguage: result.language,
+    elapsedMs,
+    textChars: result.text.length,
+    emptyResult: result.text.length === 0,
+    parts: result.parts?.length || 0,
+    duration: result.duration,
+  }
+}
+
+function transcriptionResultTextForLog(result: TranscriptionOutput) {
+  return redactSensitiveText(result.text)
+}
+
 class WorkerClientError extends Error {
   retryable: boolean
 
@@ -762,25 +785,22 @@ async function transcribeDownloadedJob(
       logger
     )
     logWorkerActivity(logger, 'Worker transcription result uploading', {
-      jobId: job.id,
-      engine: config.engine,
-      model: config.model,
-      language: result.language,
-      elapsedMs: Date.now() - startedAt,
-      textChars: result.text.length,
-      emptyResult: result.text.length === 0,
-      parts: result.parts?.length || 0,
+      ...transcriptionResultLogContext(
+        job,
+        result,
+        config,
+        Date.now() - startedAt
+      ),
     })
     await api.post(`/jobs/${job.id}/result`, result)
     logWorkerActivity(logger, 'Worker transcription job completed', {
-      jobId: job.id,
-      engine: config.engine,
-      model: config.model,
-      language: result.language,
-      elapsedMs: Date.now() - startedAt,
-      textChars: result.text.length,
-      emptyResult: result.text.length === 0,
-      parts: result.parts?.length || 0,
+      ...transcriptionResultLogContext(
+        job,
+        result,
+        config,
+        Date.now() - startedAt
+      ),
+      transcriptionResult: transcriptionResultTextForLog(result),
     })
   } catch (error) {
     const retryable =
