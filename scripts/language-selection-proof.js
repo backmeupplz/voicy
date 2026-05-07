@@ -91,7 +91,13 @@ async function provesManualLanguageSurvivesStart() {
 
   assert.equal(ctx.dbchat.uiLanguage, 'ru')
   assert.equal(ctx.i18n.currentLocale, 'ru')
-  assert.deepEqual(calls, [['reply', 'ru:start:', { parse_mode: 'Markdown' }]])
+  assert.deepEqual(calls, [
+    [
+      'reply',
+      'ru:start:',
+      { disable_web_page_preview: true, parse_mode: 'Markdown' },
+    ],
+  ])
 }
 
 async function provesEverySupportedLanguageCanBeSelected() {
@@ -147,7 +153,11 @@ async function provesTelegramLanguageStillInitializesUnselectedChats() {
   assert.equal(ctx.dbchat.uiLanguage, 'ru')
   assert.equal(ctx.dbchat.uiLanguageSelectedManually, false)
   assert.deepEqual(calls[0], ['save', 'ru', false])
-  assert.deepEqual(calls[1], ['reply', 'ru:start:', { parse_mode: 'Markdown' }])
+  assert.deepEqual(calls[1], [
+    'reply',
+    'ru:start:',
+    { disable_web_page_preview: true, parse_mode: 'Markdown' },
+  ])
 }
 
 async function provesLanguageCallbackFallsBackWhenEditFails() {
