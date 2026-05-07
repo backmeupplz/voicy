@@ -13,6 +13,10 @@ import {
 import bot from '@/helpers/bot'
 import localizedTranscriptionText from '@/helpers/localizedTranscriptionText'
 
+type FinalReplyOptions = {
+  reply_to_message_id?: number
+}
+
 async function storeVoiceRecord(job: DocumentType<TranscriptionJob>) {
   await VoiceModel.findOneAndUpdate(
     { chatId: job.chatId, messageId: job.sourceMessageId },
@@ -120,13 +124,30 @@ export default async function publishCompletedTranscriptionJob(
 async function sendFinalMessage(
   job: DocumentType<TranscriptionJob>,
   text: string,
-  replyOptions: Record<string, number>
+  replyOptions: FinalReplyOptions
 ) {
   try {
     await bot.api.sendMessage(job.telegramChatId, text, {
       ...replyOptions,
     })
   } catch (error) {
+    if (replyOptions.reply_to_message_id) {
+      try {
+        await bot.api.sendMessage(job.telegramChatId, text)
+        return
+      } catch (fallbackError) {
+        await markChatUnreachableByIdForTelegramError(
+          job.chatId,
+          fallbackError,
+          {
+            location: 'publishCompletedTranscriptionJob',
+            action: 'sendMessage',
+          }
+        )
+        throw fallbackError
+      }
+    }
+
     await markChatUnreachableByIdForTelegramError(job.chatId, error, {
       location: 'publishCompletedTranscriptionJob',
       action: 'sendMessage',
