@@ -88,15 +88,37 @@ async function provesSendMessageFailureMarksChatUnreachable() {
   const publisherPath = require.resolve(
     '../dist/helpers/transcriptionJobs/publishCompletedTranscriptionJob'
   )
+  const transcriptionJobPath = require.resolve('../dist/models/TranscriptionJob')
   const updates = []
+  const jobUpdates = []
 
   clearModule(helperPath)
   clearModule(publisherPath)
+  clearModule(transcriptionJobPath)
   mockModule(chatPath, {
     ChatModel: {
       findOneAndUpdate: async (...args) => {
         updates.push(args)
         return {}
+      },
+    },
+  })
+  mockModule(transcriptionJobPath, {
+    activeTranscriptionJobStatuses: [
+      'queued_for_download',
+      'downloading',
+      'ready',
+      'queued',
+      'processing',
+      'transcribing',
+    ],
+    TranscriptionJobStatus: {
+      failed: 'failed',
+    },
+    TranscriptionJobModel: {
+      updateMany: async (...args) => {
+        jobUpdates.push(args)
+        return { modifiedCount: 3 }
       },
     },
   })
@@ -149,6 +171,29 @@ async function provesSendMessageFailureMarksChatUnreachable() {
     updates[0][1].$set.transcriptionUnreachableReason.includes(
       'publishCompletedTranscriptionJob'
     )
+  )
+  assert.equal(jobUpdates.length, 1)
+  assert.deepEqual(jobUpdates[0][0], {
+    chatId: 'chat-unreachable',
+    status: {
+      $in: [
+        'queued_for_download',
+        'downloading',
+        'ready',
+        'queued',
+        'processing',
+        'transcribing',
+      ],
+    },
+  })
+  assert.equal(jobUpdates[0][1].$set.status, 'failed')
+  assert(
+    jobUpdates[0][1].$unset.activeMediaCacheKey !== undefined,
+    'Cancelled jobs should release active media cache locks'
+  )
+  assert(
+    jobUpdates[0][1].$unset.workerId !== undefined,
+    'Cancelled jobs should release worker ownership'
   )
 }
 

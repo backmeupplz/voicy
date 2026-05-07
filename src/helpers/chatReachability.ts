@@ -1,5 +1,10 @@
 import { Chat, ChatModel } from '@/models/Chat'
 import { DocumentType } from '@typegoose/typegoose'
+import {
+  TranscriptionJobModel,
+  TranscriptionJobStatus,
+  activeTranscriptionJobStatuses,
+} from '@/models/TranscriptionJob'
 import Context from '@/models/Context'
 
 export enum TelegramReachabilityFailureKind {
@@ -188,6 +193,11 @@ export async function markChatUnreachableByIdForTelegramError(
       },
     }
   )
+  await cancelActiveTranscriptionJobsForUnreachableChat(
+    chatId,
+    compactTelegramFailureReason(failure, update.location),
+    now
+  )
   logUnreachable(chatId, failure, update)
   return true
 }
@@ -205,7 +215,51 @@ async function markChatUnreachable(
   )
   chat.transcriptionUnreachableAt = new Date()
   await chat.save()
+  await cancelActiveTranscriptionJobsForUnreachableChat(
+    chat.id,
+    chat.transcriptionUnreachableReason,
+    chat.transcriptionUnreachableAt
+  )
   logUnreachable(chat.id, failure, update)
+}
+
+export async function cancelActiveTranscriptionJobsForUnreachableChat(
+  chatId: string,
+  reason: string,
+  now = new Date()
+) {
+  const result = await TranscriptionJobModel.updateMany(
+    {
+      chatId,
+      status: { $in: activeTranscriptionJobStatuses },
+    },
+    {
+      $set: {
+        status: TranscriptionJobStatus.failed,
+        lastError: reason.slice(0, 2000),
+        failedAt: now,
+      },
+      $unset: {
+        activeMediaCacheKey: '',
+        workerId: '',
+        claimedAt: '',
+        downloadedAt: '',
+        heartbeatAt: '',
+        localSourcePath: '',
+        statusMessagePublishingAt: '',
+      },
+    }
+  )
+
+  const modifiedCount = result.modifiedCount || 0
+  if (modifiedCount > 0) {
+    console.warn(
+      `Cancelled ${modifiedCount} active transcription job${
+        modifiedCount === 1 ? '' : 's'
+      } for unreachable chat ${chatId}`
+    )
+  }
+  return modifiedCount
 }
 
 function logUnreachable(
