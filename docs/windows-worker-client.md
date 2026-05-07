@@ -51,7 +51,8 @@ Install these on the Windows machine:
 - Node.js 20 LTS or newer.
 - Git.
 - FFmpeg available on `PATH`.
-- Telegram Bot API server binary from `tdlib/telegram-bot-api`.
+- Telegram Bot API server binary from `tdlib/telegram-bot-api`; build it on
+  the worker host as described below.
 
 Create a Python virtual environment for GPU transcription:
 
@@ -141,6 +142,33 @@ Recommended production layout on `backm@borodutch-pc`:
   restarts after failures.
 - Scheduled task `VoicyWorker4070Ti` - keeps running the worker and points at
   `http://127.0.0.1:8081` through `VOICY_WORKER_TELEGRAM_API_URL`.
+
+The official Telegram Bot API project does not publish Windows release
+binaries. On the Windows worker, build it from source once and keep the output
+under `C:\voicy-worker\telegram-bot-api`:
+
+```powershell
+winget install --id Kitware.CMake -e --source winget --accept-package-agreements --accept-source-agreements
+winget install --id Microsoft.VisualStudio.2022.BuildTools -e --source winget `
+  --accept-package-agreements --accept-source-agreements `
+  --override "--quiet --wait --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+
+git clone --recursive https://github.com/tdlib/telegram-bot-api.git C:\voicy-worker\telegram-bot-api-src
+cd C:\voicy-worker\telegram-bot-api-src
+git clone https://github.com/Microsoft/vcpkg.git
+.\vcpkg\bootstrap-vcpkg.bat
+.\vcpkg\vcpkg.exe install gperf:x64-windows openssl:x64-windows zlib:x64-windows
+
+mkdir build
+cd build
+cmake -A x64 `
+  -DCMAKE_INSTALL_PREFIX:PATH=C:\voicy-worker\telegram-bot-api `
+  -DCMAKE_TOOLCHAIN_FILE:FILEPATH=C:\voicy-worker\telegram-bot-api-src\vcpkg\scripts\buildsystems\vcpkg.cmake `
+  ..
+cmake --build . --target install --config Release
+Copy-Item C:\voicy-worker\telegram-bot-api\bin\* C:\voicy-worker\telegram-bot-api\ -Force
+C:\voicy-worker\telegram-bot-api\telegram-bot-api.exe --help
+```
 
 Install or refresh the local Bot API scheduled task from an elevated PowerShell
 prompt on the Windows host:
