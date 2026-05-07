@@ -8,6 +8,7 @@ import {
 } from '@/models/TranscriptionJob'
 import { Types } from 'mongoose'
 import { WorkerClient, WorkerClientModel } from '@/models/WorkerClient'
+import { cacheCompletedTranscriptionJob } from '@/helpers/transcriptionJobs/transcriptionResultCache'
 import { safeWorkerSourceUrl } from '@/helpers/sourceUrlSecurity'
 import publishCompletedTranscriptionJob from '@/helpers/transcriptionJobs/publishCompletedTranscriptionJob'
 import publishTranscriptionJobProgress from '@/helpers/transcriptionJobs/publishTranscriptionJobProgress'
@@ -488,6 +489,12 @@ export async function completeJob(
   } catch (error) {
     console.error('Failed to publish completed transcription job', error)
     throw error
+  }
+
+  try {
+    await cacheCompletedTranscriptionJob(job)
+  } catch (error) {
+    console.error('Failed to cache completed transcription job', error)
   }
 
   const completedJob = await TranscriptionJobModel.findOneAndUpdate(

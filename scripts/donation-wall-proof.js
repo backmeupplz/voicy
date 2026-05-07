@@ -21,6 +21,9 @@ const {
   TranscriptionJobModel,
   TranscriptionJobStatus,
 } = require('../dist/models/TranscriptionJob')
+const {
+  TranscriptionResultCacheModel,
+} = require('../dist/models/TranscriptionResultCache')
 const abuseLimits = require('../dist/helpers/transcriptionJobs/abuseLimits')
 const goldenBorodutchAllowance = require('../dist/helpers/goldenBorodutchFreeTranscriptions')
 
@@ -125,6 +128,7 @@ async function withPatchedStripeCheckout(callback) {
 
 async function withPatchedQueue(callback, accessResult) {
   const originalCreate = TranscriptionJobModel.create
+  const originalFindCache = TranscriptionResultCacheModel.findOne
   const originalCheckLimits = abuseLimits.checkTranscriptionAbuseLimits
   const originalCheckAccess = goldenBorodutchAllowance.checkTranscriptionAccess
   const createdJobs = []
@@ -144,6 +148,7 @@ async function withPatchedQueue(callback, accessResult) {
     createdJobs.push(jobDoc)
     return jobDoc
   }
+  TranscriptionResultCacheModel.findOne = async () => undefined
   abuseLimits.checkTranscriptionAbuseLimits = async () => undefined
   goldenBorodutchAllowance.checkTranscriptionAccess = async () => {
     if (accessResult instanceof Error) {
@@ -156,6 +161,7 @@ async function withPatchedQueue(callback, accessResult) {
     await callback(createdJobs)
   } finally {
     TranscriptionJobModel.create = originalCreate
+    TranscriptionResultCacheModel.findOne = originalFindCache
     abuseLimits.checkTranscriptionAbuseLimits = originalCheckLimits
     goldenBorodutchAllowance.checkTranscriptionAccess = originalCheckAccess
   }

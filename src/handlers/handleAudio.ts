@@ -14,7 +14,6 @@ import {
 } from '@/helpers/goldenBorodutchFreeTranscriptions'
 import {
   TranscriptionJobModel,
-  TranscriptionJobSourceKind,
   TranscriptionJobStatus,
 } from '@/models/TranscriptionJob'
 import {
@@ -22,6 +21,10 @@ import {
   markChatUnreachableForTelegramError,
 } from '@/helpers/chatReachability'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
+import {
+  publishCachedTranscriptionResult,
+  sourceKindFromTelegramSourceType,
+} from '@/helpers/transcriptionJobs/transcriptionResultCache'
 import { transcriptionProgressStatusHtml } from '@/helpers/transcriptionJobs/progressStatusText'
 import Context from '@/models/Context'
 import report from '@/helpers/report'
@@ -129,6 +132,26 @@ async function enqueueTranscription(
     return undefined
   }
 
+  try {
+    const servedFromCache = await publishCachedTranscriptionResult({
+      ctx,
+      media: audio,
+      sourceMessage,
+    })
+    if (servedFromCache) {
+      if (access.consumedFreeTranscription && freeAccessUserId) {
+        await refundGoldenBorodutchFreeTranscription(freeAccessUserId)
+      }
+      console.info('Served transcription result from cache')
+      return undefined
+    }
+  } catch (error) {
+    if (access.consumedFreeTranscription && freeAccessUserId) {
+      await refundGoldenBorodutchFreeTranscription(freeAccessUserId)
+    }
+    throw error
+  }
+
   let queuedJob
   try {
     queuedJob = await TranscriptionJobModel.create({
@@ -145,7 +168,7 @@ async function enqueueTranscription(
       mimeType: audio.mime_type,
       fileName: audio.file_name,
       fileUniqueId: fileUniqueId(audio),
-      sourceKind: sourceKind(audio.sourceType),
+      sourceKind: sourceKindFromTelegramSourceType(audio.sourceType),
       requestedByUserId: ctx.from?.id ? String(ctx.from.id) : undefined,
       forwardedFromUserId: sourceMessage.forward_from?.id
         ? String(sourceMessage.forward_from.id)
@@ -290,13 +313,6 @@ function transcriptionAccessMessageKey(
     return 'golden_borodutch_membership_check_failed'
   }
   return 'golden_borodutch_subscription_required'
-}
-
-function sourceKind(sourceType: TranscribableTelegramFile['sourceType']) {
-  if (sourceType === 'video_note') {
-    return TranscriptionJobSourceKind.videoNote
-  }
-  return sourceType as TranscriptionJobSourceKind
 }
 
 function fileUniqueId(audio: TranscribableTelegramFile) {
