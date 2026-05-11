@@ -47,36 +47,52 @@ if (!(Test-Path -LiteralPath $runScriptSource)) {
 New-Item -ItemType Directory -Force -Path $InstallRoot, $SecretDir, $logDir | Out-Null
 Copy-Item -Force -LiteralPath $runScriptSource -Destination $runScriptTarget
 
-$envNames = @(
+$envNameSet = [ordered]@{}
+
+function Add-EnvName {
+  param([string]$Name)
+
+  if (!$envNameSet.Contains($Name)) {
+    $envNameSet[$Name] = $true
+  }
+}
+
+$requiredEnvNames = @(
   "VOICY_WORKER_API_URL",
   "VOICY_WORKER_TOKEN",
-  "VOICY_WORKER_WORK_DIR",
-  "VOICY_WORKER_ENGINE",
-  "VOICY_WORKER_MODEL",
-  "VOICY_WORKER_HEARTBEAT_INTERVAL_MS",
-  "VOICY_WORKER_POLL_INTERVAL_MS",
-  "VOICY_WORKER_RESTART_DELAY_MS",
-  "VOICY_WORKER_TELEGRAM_BOT_TOKEN",
-  "VOICY_WORKER_TELEGRAM_API_URL",
-  "VOICY_WORKER_DOWNLOAD_CONCURRENCY",
-  "VOICY_WORKER_TRANSCRIPTION_CONCURRENCY",
   "VOICY_WORKER_TRANSCRIBE_EXECUTABLE",
-  "VOICY_WORKER_TRANSCRIBE_ARGS_JSON",
-  "VOICY_WORKER_LANGUAGE",
-  "VOICY_WHISPER_COMMAND",
-  "VOICY_WHISPER_MODEL",
-  "NODE_ENV",
-  "PATH"
+  "VOICY_WORKER_TRANSCRIBE_ARGS_JSON"
 )
 
+foreach ($name in $requiredEnvNames) {
+  Add-EnvName -Name $name
+}
+
+foreach ($envVar in Get-ChildItem Env:) {
+  $name = $envVar.Name
+  if (
+    $name -eq "PATH" -or
+    $name -eq "NODE_ENV" -or
+    $name -eq "PYTHONPATH" -or
+    $name -eq "PYTHONUTF8" -or
+    $name -eq "HF_HOME" -or
+    $name -eq "HUGGINGFACE_HUB_CACHE" -or
+    $name -eq "TRANSFORMERS_CACHE" -or
+    $name.StartsWith("VOICY_") -or
+    $name.StartsWith("CUDA") -or
+    $name.StartsWith("CUBLAS") -or
+    $name.StartsWith("CUDNN") -or
+    $name.StartsWith("CT2_") -or
+    $name.StartsWith("OMP_") -or
+    $name.StartsWith("KMP_")
+  ) {
+    Add-EnvName -Name $name
+  }
+}
+
 $envContent = New-Object System.Collections.Generic.List[string]
-foreach ($name in $envNames) {
-  $value = if ($name -in @(
-      "VOICY_WORKER_API_URL",
-      "VOICY_WORKER_TOKEN",
-      "VOICY_WORKER_TRANSCRIBE_EXECUTABLE",
-      "VOICY_WORKER_TRANSCRIBE_ARGS_JSON"
-    )) {
+foreach ($name in $envNameSet.Keys) {
+  $value = if ($name -in $requiredEnvNames) {
     Require-ProcessEnv -Name $name
   } else {
     Optional-ProcessEnv -Name $name

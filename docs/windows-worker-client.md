@@ -325,11 +325,14 @@ powershell -ExecutionPolicy Bypass -File .\scripts\install-windows-worker.ps1 `
 The installer copies `scripts/run-windows-worker.ps1` to the install root,
 writes `C:\ProgramData\Voicy\worker\worker.env`, ACLs that env file to SYSTEM,
 Administrators, and the installing user, and registers a restartable scheduled
-task that runs as SYSTEM. Re-run the installer after changing worker environment
-variables or after pulling updates to the wrapper script. If the transcription
-stack depends on the installing user's profile instead of explicit paths under
-`C:\voicy-worker`, pass `-RunAsCurrentUser` and verify the task still starts
-after login.
+task that runs as SYSTEM. It persists all `VOICY_*` settings plus common
+runtime variables needed by the Windows transcription stack, including `PATH`,
+Python, CUDA/CTranslate2, OpenMP, and Hugging Face cache variables. Re-run the
+installer after changing worker environment variables or after pulling updates
+to the wrapper script. If Yarn, Python, CUDA DLLs, or model caches are installed
+only in the interactive user's profile, either export explicit machine-visible
+paths before installing or pass `-RunAsCurrentUser` and verify the task still
+starts after login.
 
 Verify the task and logs:
 

@@ -1051,6 +1051,13 @@ async function main() {
       installerScript.includes('run-windows-worker.ps1'),
     'Windows worker installer should register a restartable scheduled task'
   )
+  assert(
+    installerScript.includes('Get-ChildItem Env:') &&
+      installerScript.includes('$name.StartsWith("CUDA")') &&
+      installerScript.includes('$name.StartsWith("CT2_")') &&
+      installerScript.includes('$name -eq "PATH"'),
+    'Windows worker installer should preserve runtime env needed by CUDA/Python workers'
+  )
 
   console.log('worker client proof passed')
 }
