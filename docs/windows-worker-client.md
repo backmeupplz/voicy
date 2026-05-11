@@ -140,7 +140,8 @@ Recommended production layout on `backm@borodutch-pc`:
   user.
 - Scheduled task `VoicyLocalTelegramBotApi` - starts at boot as SYSTEM and
   restarts after failures.
-- Scheduled task `VoicyWorker4070Ti` - keeps running the worker and points at
+- Scheduled task `VoicyWorker4070Ti` - runs
+  `scripts/run-windows-worker.ps1`, restarts after failures, and points at
   `http://127.0.0.1:8081` through `VOICY_WORKER_TELEGRAM_API_URL`.
 
 The official Telegram Bot API project does not publish Windows release
@@ -224,6 +225,7 @@ $env:VOICY_WORKER_ENGINE = "faster-whisper"
 $env:VOICY_WORKER_MODEL = "large-v3"
 $env:VOICY_WORKER_HEARTBEAT_INTERVAL_MS = "30000"
 $env:VOICY_WORKER_POLL_INTERVAL_MS = "5000"
+$env:VOICY_WORKER_RESTART_DELAY_MS = "10000"
 $env:VOICY_WORKER_TELEGRAM_BOT_TOKEN = "<telegram-bot-token>"
 $env:VOICY_WORKER_TELEGRAM_API_URL = "http://127.0.0.1:8081"
 $env:VOICY_WORKER_DOWNLOAD_CONCURRENCY = "2"
@@ -268,6 +270,8 @@ Optional:
 - `VOICY_WORKER_IDLE_EXIT=1` processes one available batch and exits, useful for
   smoke tests or scheduled runs.
 - `VOICY_WORKER_DOWNLOAD_TIMEOUT_MS=300000` controls audio download timeout.
+- `VOICY_WORKER_RESTART_DELAY_MS=10000` controls how long the long-running
+  worker waits before restarting its polling loop after an unexpected crash.
 - `VOICY_WORKER_DOWNLOAD_CONCURRENCY=2` controls parallel media downloads.
 - `VOICY_WORKER_TRANSCRIPTION_CONCURRENCY=1` controls concurrent local STT
   commands.
@@ -285,10 +289,71 @@ For a smoke test, add `VOICY_WORKER_IDLE_EXIT=1` before running the worker. The
 process exits after one available batch, or exits immediately if no queued job is
 available.
 
+## Windows Auto-Restart Setup
+
+Production Windows workers should run through the checked-in scheduled-task
+wrapper instead of a loose terminal window. The wrapper starts `yarn worker:run`,
+logs startup/shutdown/crash events to `C:\voicy-worker\logs`, and restarts the
+worker command after non-zero exits. The scheduled task is the outer guard: if
+PowerShell itself, Node, or the host kills the wrapper, Task Scheduler starts it
+again.
+
+From an elevated PowerShell prompt in the repo, export the same worker
+environment used above, then install or refresh the task:
+
+```powershell
+$env:VOICY_WORKER_API_URL = "https://<voicy-host>/worker/v1"
+$env:VOICY_WORKER_TOKEN = "voicy_worker_..."
+$env:VOICY_WORKER_WORK_DIR = "C:\voicy-worker\jobs"
+$env:VOICY_WORKER_ENGINE = "faster-whisper"
+$env:VOICY_WORKER_MODEL = "large-v3"
+$env:VOICY_WORKER_RESTART_DELAY_MS = "10000"
+$env:VOICY_WORKER_TELEGRAM_BOT_TOKEN = "<telegram-bot-token>"
+$env:VOICY_WORKER_TELEGRAM_API_URL = "http://127.0.0.1:8081"
+$env:VOICY_WORKER_DOWNLOAD_CONCURRENCY = "2"
+$env:VOICY_WORKER_TRANSCRIPTION_CONCURRENCY = "1"
+$env:VOICY_WORKER_TRANSCRIBE_EXECUTABLE = "C:\voicy-worker\.venv\Scripts\python.exe"
+$env:VOICY_WORKER_TRANSCRIBE_ARGS_JSON = '["C:\\voicy-worker\\transcribe.py","{input}","{output}","{language}","{model}"]'
+
+powershell -ExecutionPolicy Bypass -File .\scripts\install-windows-worker.ps1 `
+  -InstallRoot "C:\voicy-worker" `
+  -SecretDir "C:\ProgramData\Voicy\worker" `
+  -TaskName "VoicyWorker4070Ti" `
+  -Start
+```
+
+The installer copies `scripts/run-windows-worker.ps1` to the install root,
+writes `C:\ProgramData\Voicy\worker\worker.env`, ACLs that env file to SYSTEM,
+Administrators, and the installing user, and registers a restartable scheduled
+task that runs as SYSTEM. Re-run the installer after changing worker environment
+variables or after pulling updates to the wrapper script. If the transcription
+stack depends on the installing user's profile instead of explicit paths under
+`C:\voicy-worker`, pass `-RunAsCurrentUser` and verify the task still starts
+after login.
+
+Verify the task and logs:
+
+```powershell
+Get-ScheduledTask -TaskName VoicyWorker4070Ti | Select-Object TaskName,State
+Get-Content C:\voicy-worker\logs\worker-supervisor-$(Get-Date -Format yyyyMMdd).log -Tail 40
+```
+
+To restart after an update:
+
+```powershell
+Stop-ScheduledTask -TaskName VoicyWorker4070Ti
+Start-ScheduledTask -TaskName VoicyWorker4070Ti
+```
+
 ## Runtime Behavior
 
 The client polls `POST /jobs/claim-download`. If there is no work, it sleeps for
-`VOICY_WORKER_POLL_INTERVAL_MS`.
+`VOICY_WORKER_POLL_INTERVAL_MS`. If an unexpected API, scheduler, or processing
+error escapes a polling cycle, the long-running worker logs the redacted error
+with `crashCount`, waits `VOICY_WORKER_RESTART_DELAY_MS`, and starts polling
+again. Smoke-test runs with `VOICY_WORKER_IDLE_EXIT=1` still fail fast so broken
+setup is visible. Configuration errors happen before the worker loop starts and
+exit non-zero so the scheduled-task supervisor can detect them.
 
 For each claimed job it:
 
@@ -354,6 +419,13 @@ Download failures, command crashes, and upload failures are reported to
 jobs for download until `VOICY_WORKER_MAX_ATTEMPTS` is reached, then marks them
 failed.
 
+Unexpected worker loop crashes do not exit the production worker process. The
+client logs `Worker loop crashed; restarting...` with a crash count, waits
+`VOICY_WORKER_RESTART_DELAY_MS`, and resumes polling. The PowerShell supervisor
+logs process exits, repeated failures within a rolling window, and restart
+backoff. Use the Windows scheduled task restart settings as the outer guard for
+host reboots, Node process termination, or machine-level failures.
+
 If the transcription command exits successfully but produces no transcript text,
 the client reports a non-retryable failure. That avoids repeatedly processing a
 file the local model cannot decode into text.
@@ -398,6 +470,24 @@ Large-file production QA:
    source URLs with Telegram file tokens, raw audio contents, or full
    transcripts.
 6. Confirm the Telegram chat receives the final transcript.
+
+Worker auto-restart QA:
+
+1. Verify `VoicyWorker4070Ti` is running with `Get-ScheduledTask`.
+2. Confirm `C:\voicy-worker\logs\worker-supervisor-<date>.log` includes
+   `Supervisor starting worker task` and `Starting yarn worker:run`.
+3. Kill the Node worker child process from Task Manager or PowerShell. Expected:
+   the supervisor log records `Worker crashed exitCode=...` and then another
+   `Starting yarn worker:run` after the configured delay.
+4. Kill the PowerShell wrapper process or end the scheduled task process tree.
+   Expected: Task Scheduler restarts it according to the task recovery settings.
+5. Submit or replay a supported voice/audio message after the restart. Expected:
+   the worker claims the queued job and the Telegram chat receives the final
+   transcript.
+6. For repeated-failure visibility, temporarily point
+   `VOICY_WORKER_TRANSCRIBE_EXECUTABLE` at a missing executable, reinstall the
+   task env, and observe repeated `Worker crashed` lines plus the threshold log.
+   Restore the real executable and reinstall before leaving the host.
 
 ## macOS Test Bot LaunchAgent
 
