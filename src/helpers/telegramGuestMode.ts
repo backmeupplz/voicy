@@ -81,6 +81,19 @@ export async function answerGuestQueryWithText(
   return sent.inline_message_id
 }
 
+export function guestInlineMessageIdsFromJob(job: {
+  guestInlineMessageId?: string
+  guestInlineMessageIds?: string[]
+}) {
+  return Array.from(
+    new Set(
+      [job.guestInlineMessageId, ...(job.guestInlineMessageIds || [])].filter(
+        Boolean
+      ) as string[]
+    )
+  )
+}
+
 function guestResultId(guestQueryId: string) {
   const normalized = guestQueryId.replace(/[^a-zA-Z0-9_-]/g, '')
   return (normalized || 'guest').slice(0, 64)

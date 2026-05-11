@@ -17,7 +17,10 @@ import {
   TranscriptionJobStatus,
   activeTranscriptionJobStatuses,
 } from '@/models/TranscriptionJob'
-import { answerGuestQueryWithText } from '@/helpers/telegramGuestMode'
+import {
+  answerGuestQueryWithText,
+  guestInlineMessageIdsFromJob,
+} from '@/helpers/telegramGuestMode'
 import {
   chatCanQueueTranscriptions,
   markChatUnreachableForTelegramError,
@@ -165,7 +168,7 @@ async function enqueueTranscription(
   if (existingActiveJob) {
     try {
       if (options.guestQueryId) {
-        await answerGuestQueryWithText(
+        const guestInlineMessageId = await answerGuestQueryWithText(
           ctx,
           options.guestQueryId,
           transcriptionProgressStatusHtml(
@@ -173,6 +176,10 @@ async function enqueueTranscription(
             'progress_processing'
           ),
           { parse_mode: 'HTML' }
+        )
+        await attachGuestInlineMessageToJob(
+          existingActiveJob,
+          guestInlineMessageId
         )
       }
     } catch (error) {
@@ -221,6 +228,9 @@ async function enqueueTranscription(
       requestMessageId: ctx.msg?.message_id,
       guestQueryId: options.guestQueryId,
       guestInlineMessageId,
+      guestInlineMessageIds: guestInlineMessageId
+        ? [guestInlineMessageId]
+        : undefined,
       silent: ctx.dbchat.silent,
       fileId,
       filePath,
@@ -244,6 +254,9 @@ async function enqueueTranscription(
         await refundGoldenBorodutchFreeTranscription(freeAccessUserId)
       }
       const activeJob = await findActiveTranscriptionJob(mediaCacheKey)
+      if (activeJob && guestInlineMessageId) {
+        await attachGuestInlineMessageToJob(activeJob, guestInlineMessageId)
+      }
       console.info(
         `Deduped concurrent transcription request for ${mediaCacheKey}`
       )
@@ -421,6 +434,50 @@ function findActiveTranscriptionJob(mediaCacheKey: string) {
   return TranscriptionJobModel.findOne({
     activeMediaCacheKey: mediaCacheKey,
     status: { $in: activeTranscriptionJobStatuses },
+  })
+}
+
+async function attachGuestInlineMessageToJob(
+  job: Awaited<ReturnType<typeof findActiveTranscriptionJob>>,
+  guestInlineMessageId: string
+) {
+  if (!job) {
+    return
+  }
+
+  const jobId = (job as { _id?: unknown })._id
+  if (!jobId) {
+    const guestInlineMessageIds = guestInlineMessageIdsFromJob({
+      guestInlineMessageId: job.guestInlineMessageId,
+      guestInlineMessageIds: [
+        ...(job.guestInlineMessageIds || []),
+        guestInlineMessageId,
+      ],
+    })
+    job.guestInlineMessageId ||= guestInlineMessageId
+    job.guestInlineMessageIds = guestInlineMessageIds
+    await job.save()
+    return
+  }
+
+  const update: {
+    $addToSet: { guestInlineMessageIds: string }
+    $set?: { guestInlineMessageId: string }
+  } = {
+    $addToSet: { guestInlineMessageIds: guestInlineMessageId },
+  }
+  if (!job.guestInlineMessageId) {
+    update.$set = { guestInlineMessageId: guestInlineMessageId }
+  }
+
+  await TranscriptionJobModel.updateOne({ _id: jobId }, update)
+  job.guestInlineMessageId ||= guestInlineMessageId
+  job.guestInlineMessageIds = guestInlineMessageIdsFromJob({
+    guestInlineMessageId: job.guestInlineMessageId,
+    guestInlineMessageIds: [
+      ...(job.guestInlineMessageIds || []),
+      guestInlineMessageId,
+    ],
   })
 }
 

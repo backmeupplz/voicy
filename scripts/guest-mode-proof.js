@@ -151,6 +151,125 @@ async function main() {
   assert.equal(queued[0][2].message_id, 19)
   assert.deepEqual(queued[0][4], { guestQueryId: 'guest-query-queue' })
 
+  delete require.cache[handleAudioPath]
+  const activeJobUpdates = []
+  const transcriptionJobPath = require.resolve('@/models/TranscriptionJob')
+  require.cache[transcriptionJobPath] = {
+    id: transcriptionJobPath,
+    filename: transcriptionJobPath,
+    loaded: true,
+    exports: {
+      TranscriptionJobStatus: {
+        queuedForDownload: 'queued_for_download',
+        downloading: 'downloading',
+        ready: 'ready',
+        transcribing: 'transcribing',
+        queued: 'queued',
+        processing: 'processing',
+        completed: 'completed',
+        failed: 'failed',
+      },
+      activeTranscriptionJobStatuses: ['processing'],
+      TranscriptionJobModel: {
+        findOne: async () => ({
+          _id: 'active-job-1',
+          guestInlineMessageId: 'guest-inline-original',
+          guestInlineMessageIds: ['guest-inline-original'],
+        }),
+        updateOne: async (...args) => {
+          activeJobUpdates.push(args)
+          return { modifiedCount: 1 }
+        },
+      },
+    },
+  }
+  const abuseLimitsPath = require.resolve(
+    '@/helpers/transcriptionJobs/abuseLimits'
+  )
+  require.cache[abuseLimitsPath] = {
+    id: abuseLimitsPath,
+    filename: abuseLimitsPath,
+    loaded: true,
+    exports: {
+      TranscriptionAbuseLimitReason: {},
+      checkTranscriptionAbuseLimits: async () => undefined,
+    },
+  }
+  const goldenAccessPath = require.resolve(
+    '@/helpers/goldenBorodutchFreeTranscriptions'
+  )
+  require.cache[goldenAccessPath] = {
+    id: goldenAccessPath,
+    filename: goldenAccessPath,
+    loaded: true,
+    exports: {
+      TranscriptionAccessDenialReason: {},
+      checkTranscriptionAccess: async () => ({ allowed: true }),
+      refundGoldenBorodutchFreeTranscription: async () => undefined,
+    },
+  }
+  const cachePath = require.resolve(
+    '@/helpers/transcriptionJobs/transcriptionResultCache'
+  )
+  require.cache[cachePath] = {
+    id: cachePath,
+    filename: cachePath,
+    loaded: true,
+    exports: {
+      publishCachedTranscriptionResult: async () => false,
+      sourceKindFromTelegramSourceType: () => 'voice',
+      transcriptionResultCacheKey: () => 'voice-cache-key',
+    },
+  }
+  const { enqueueTranscription: actualEnqueueTranscription } =
+    require('@/handlers/handleAudio')
+  const dedupeAnswerCalls = []
+  const dedupeCtx = {
+    dbchat: {
+      id: 'guest:-100123',
+      uiLanguage: 'en',
+      silent: false,
+      paid: true,
+      botCanSendMessages: true,
+      transcriptionDisabledUntilReachable: false,
+    },
+    chat: { id: -100123, type: 'supergroup' },
+    from: { id: 101, is_bot: false, first_name: 'Ada' },
+    msg: { message_id: 20 },
+    api: {
+      raw: {
+        answerGuestQuery: async (payload) => {
+          dedupeAnswerCalls.push(payload)
+          return { inline_message_id: 'guest-inline-dedupe' }
+        },
+      },
+    },
+    timeReceived: new Date(),
+  }
+  const dedupeSourceMessage = {
+    message_id: 19,
+    date: Math.floor(Date.now() / 1000),
+    chat: { id: -100123, type: 'supergroup' },
+    from: { id: 202, is_bot: false, first_name: 'Grace' },
+    voice: {
+      file_id: 'voice-file-id',
+      file_unique_id: 'voice-unique-id',
+      file_size: 12345,
+    },
+  }
+  await actualEnqueueTranscription(
+    dedupeCtx,
+    'voice-file-id',
+    dedupeSourceMessage,
+    undefined,
+    { guestQueryId: 'guest-query-dedupe' }
+  )
+  assert.equal(dedupeAnswerCalls.length, 1)
+  assert.deepEqual(activeJobUpdates[0], [
+    { _id: 'active-job-1' },
+    { $addToSet: { guestInlineMessageIds: 'guest-inline-dedupe' } },
+  ])
+
   await handleGuestMessage(
     {
       update: {
@@ -193,6 +312,7 @@ async function main() {
     telegramChatType: 'supergroup',
     sourceMessageId: 19,
     guestInlineMessageId: 'guest-inline-1',
+    guestInlineMessageIds: ['guest-inline-1', 'guest-inline-2'],
     uiLocale: 'en',
     resultText: 'hello from guest mode',
     silent: false,
@@ -208,7 +328,18 @@ async function main() {
   assert.deepEqual(botCalls[0][3], { parse_mode: 'HTML' })
   assert.deepEqual(botCalls[1], [
     'editMessageTextInline',
+    'guest-inline-2',
+    botCalls[0][2],
+    { parse_mode: 'HTML' },
+  ])
+  assert.deepEqual(botCalls[2], [
+    'editMessageTextInline',
     'guest-inline-1',
+    'hello from guest mode',
+  ])
+  assert.deepEqual(botCalls[3], [
+    'editMessageTextInline',
+    'guest-inline-2',
     'hello from guest mode',
   ])
   assert.equal(voiceWrites.length, 1)

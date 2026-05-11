@@ -91,6 +91,8 @@ export class TranscriptionJob {
   guestQueryId?: string
   @prop()
   guestInlineMessageId?: string
+  @prop({ type: () => [String] })
+  guestInlineMessageIds?: string[]
   @prop({ required: true })
   fileId: string
   @prop()

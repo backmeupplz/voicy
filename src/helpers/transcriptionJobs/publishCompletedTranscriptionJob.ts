@@ -11,6 +11,7 @@ import {
 } from '@/helpers/chatReachability'
 import { TranscriptionJob } from '@/models/TranscriptionJob'
 import { VoiceModel } from '@/models/Voice'
+import { guestInlineMessageIdsFromJob } from '@/helpers/telegramGuestMode'
 import bot from '@/helpers/bot'
 import localizedTranscriptionText from '@/helpers/localizedTranscriptionText'
 
@@ -92,8 +93,14 @@ export default async function publishCompletedTranscriptionJob(
     job.uiLocale,
     'completed_empty'
   )
-  if (job.guestInlineMessageId) {
-    await editGuestFinalMessage(job, firstText || fallbackText, chunks.length)
+  const guestInlineMessageIds = guestInlineMessageIdsFromJob(job)
+  if (guestInlineMessageIds.length > 0) {
+    await editGuestFinalMessages(
+      job,
+      guestInlineMessageIds,
+      firstText || fallbackText,
+      chunks.length
+    )
     await storeVoiceRecord(job)
     return
   }
@@ -128,20 +135,21 @@ export default async function publishCompletedTranscriptionJob(
   await storeVoiceRecord(job)
 }
 
-async function editGuestFinalMessage(
+async function editGuestFinalMessages(
   job: DocumentType<TranscriptionJob>,
+  guestInlineMessageIds: string[],
   firstText: string,
   remainingChunks: number
 ) {
-  try {
-    await bot.api.editMessageTextInline(
-      job.guestInlineMessageId || '',
-      guestFinalTranscriptionText(job, firstText, remainingChunks)
-    )
-  } catch (error) {
-    const failure = classifyTelegramReachabilityFailure(error)
-    if (failure.kind !== TelegramReachabilityFailureKind.benign) {
-      throw error
+  const text = guestFinalTranscriptionText(job, firstText, remainingChunks)
+  for (const guestInlineMessageId of guestInlineMessageIds) {
+    try {
+      await bot.api.editMessageTextInline(guestInlineMessageId, text)
+    } catch (error) {
+      const failure = classifyTelegramReachabilityFailure(error)
+      if (failure.kind !== TelegramReachabilityFailureKind.benign) {
+        throw error
+      }
     }
   }
 }
