@@ -9,6 +9,7 @@ const {
   loadConfig,
   processAvailableJobs,
   processNextJob,
+  runWorker,
 } = require('../dist/workerClient/runWindowsWorker')
 
 function assert(condition, message) {
@@ -428,6 +429,52 @@ function createSchedulingProofServer() {
       response.end(
         JSON.stringify({ job: { id: failureMatch[1], status: 'failed' } })
       )
+      return
+    }
+
+    response.writeHead(404, { 'Content-Type': 'application/json' })
+    response.end(JSON.stringify({ error: 'not_found' }))
+  })
+
+  return { server, state }
+}
+
+function createRestartProofServer() {
+  const state = {
+    claimDownloadAttempts: 0,
+    legacyClaimAttempts: 0,
+    recovered: false,
+  }
+
+  const server = http.createServer(async (request, response) => {
+    const url = new URL(request.url, 'http://127.0.0.1')
+    if (request.headers.authorization !== 'Bearer proof-worker-token') {
+      response.writeHead(401, { 'Content-Type': 'application/json' })
+      response.end(JSON.stringify({ error: 'invalid_worker_token' }))
+      return
+    }
+
+    if (
+      request.method === 'POST' &&
+      url.pathname === '/worker/v1/jobs/claim-download'
+    ) {
+      state.claimDownloadAttempts += 1
+      if (state.claimDownloadAttempts === 1) {
+        response.writeHead(500, { 'Content-Type': 'application/json' })
+        response.end(JSON.stringify({ error: 'proof_crash' }))
+        return
+      }
+
+      response.writeHead(204)
+      response.end()
+      return
+    }
+
+    if (request.method === 'POST' && url.pathname === '/worker/v1/jobs/claim') {
+      state.legacyClaimAttempts += 1
+      state.recovered = true
+      response.writeHead(204)
+      response.end()
       return
     }
 
@@ -927,6 +974,83 @@ async function main() {
   } finally {
     await close(schedulingProof.server)
   }
+
+  const restartProof = createRestartProofServer()
+  await listen(restartProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      restartProof.server.address().port
+    }/worker/v1`
+    const restartLogLines = []
+    await runWorker(
+      loadConfig({
+        VOICY_WORKER_API_URL: baseUrl,
+        VOICY_WORKER_TOKEN: 'proof-worker-token',
+        VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+        VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+          'scripts/fake-transcriber.js',
+          '{input}',
+          '{output}',
+        ]),
+        VOICY_WORKER_WORK_DIR: path.join(
+          os.tmpdir(),
+          `voicy-worker-restart-proof-${process.pid}`
+        ),
+        VOICY_WORKER_POLL_INTERVAL_MS: '1',
+        VOICY_WORKER_RESTART_DELAY_MS: '1',
+      }),
+      {
+        info: (message) => restartLogLines.push(message),
+        warn: (message) => restartLogLines.push(message),
+        error: (message) => restartLogLines.push(message),
+      },
+      () => restartProof.state.recovered
+    )
+
+    assert(
+      restartProof.state.claimDownloadAttempts >= 2,
+      'worker should retry polling after a loop crash'
+    )
+    assert(
+      restartProof.state.recovered,
+      'worker should recover after the crashed poll cycle'
+    )
+    assert(
+      restartLogLines.some((line) =>
+        line.includes('Worker loop crashed; restarting in 1ms: crashCount=1')
+      ),
+      'worker should log crashed loops before restarting'
+    )
+  } finally {
+    await close(restartProof.server)
+  }
+
+  const supervisorScript = fs.readFileSync(
+    path.join(__dirname, 'run-windows-worker.ps1'),
+    'utf8'
+  )
+  const installerScript = fs.readFileSync(
+    path.join(__dirname, 'install-windows-worker.ps1'),
+    'utf8'
+  )
+  assert(
+    supervisorScript.includes('while ($true)') &&
+      supervisorScript.includes('Worker crashed exitCode=') &&
+      supervisorScript.includes('Start-Sleep -Seconds $RestartDelaySeconds'),
+    'Windows worker supervisor should restart crashed worker commands with logged backoff'
+  )
+  assert(
+    supervisorScript.includes('Repeated worker failures reached threshold'),
+    'Windows worker supervisor should make repeated failures visible in logs'
+  )
+  assert(
+    installerScript.includes('New-ScheduledTaskSettingsSet') &&
+      installerScript.includes('-RestartCount 999') &&
+      installerScript.includes('-UserId "SYSTEM"') &&
+      installerScript.includes('run-windows-worker.ps1'),
+    'Windows worker installer should register a restartable scheduled task'
+  )
 
   console.log('worker client proof passed')
 }

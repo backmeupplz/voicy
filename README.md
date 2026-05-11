@@ -70,6 +70,7 @@ $env:VOICY_WORKER_TOKEN = "voicy_worker_..."
 $env:VOICY_WORKER_WORK_DIR = "C:\voicy-worker\jobs"
 $env:VOICY_WORKER_ENGINE = "faster-whisper"
 $env:VOICY_WORKER_MODEL = "large-v3"
+$env:VOICY_WORKER_RESTART_DELAY_MS = "10000"
 $env:VOICY_WORKER_TELEGRAM_BOT_TOKEN = "<telegram-bot-token>"
 $env:VOICY_WORKER_TELEGRAM_API_URL = "http://127.0.0.1:8081"
 $env:VOICY_WORKER_DOWNLOAD_CONCURRENCY = "2"
@@ -78,6 +79,12 @@ $env:VOICY_WORKER_TRANSCRIBE_EXECUTABLE = "C:\voicy-worker\.venv\Scripts\python.
 $env:VOICY_WORKER_TRANSCRIBE_ARGS_JSON = '["C:\\voicy-worker\\transcribe.py","{input}","{output}","{language}","{model}"]'
 yarn worker:run
 ```
+
+For production on Windows, install the checked-in scheduled-task supervisor with
+`scripts/install-windows-worker.ps1` instead of leaving the worker in an
+interactive terminal. It writes a local env file, starts
+`scripts/run-windows-worker.ps1`, logs crashes/restarts, and lets Task Scheduler
+restart the wrapper if the process is killed.
 
 Set `VOICY_MAX_MEDIA_FILE_SIZE_MB` on the backend to tune the largest Telegram
 media message that Voicy will enqueue for local workers. For files above the

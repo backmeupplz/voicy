@@ -14,6 +14,7 @@ const streamPipeline = promisify(pipeline)
 const DEFAULT_POLL_INTERVAL_MS = 5000
 const DEFAULT_HEARTBEAT_INTERVAL_MS = 30000
 const DEFAULT_DOWNLOAD_TIMEOUT_MS = 300000
+const DEFAULT_RESTART_DELAY_MS = 10000
 const DEFAULT_WORK_DIR = path.join(process.cwd(), 'tmp', 'voicy-worker')
 const DEFAULT_WORKER_MODEL = 'large-v3'
 
@@ -74,6 +75,7 @@ interface WorkerConfig {
   pollIntervalMs: number
   heartbeatIntervalMs: number
   downloadTimeoutMs: number
+  restartDelayMs: number
   downloadConcurrency: number
   transcriptionConcurrency: number
   telegramBotApiUrl: string
@@ -275,6 +277,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
       env.VOICY_WORKER_DOWNLOAD_TIMEOUT_MS,
       DEFAULT_DOWNLOAD_TIMEOUT_MS,
       'VOICY_WORKER_DOWNLOAD_TIMEOUT_MS'
+    ),
+    restartDelayMs: numberFromEnv(
+      env.VOICY_WORKER_RESTART_DELAY_MS,
+      DEFAULT_RESTART_DELAY_MS,
+      'VOICY_WORKER_RESTART_DELAY_MS'
     ),
     downloadConcurrency: Math.max(
       1,
@@ -954,7 +961,8 @@ function delay(ms: number) {
 
 export async function runWorker(
   config: WorkerConfig = loadConfig(),
-  logger: Logger = consoleLogger
+  logger: Logger = consoleLogger,
+  shouldStop: () => boolean = () => false
 ) {
   logger.info(`Starting Voicy worker client against ${config.apiUrl}`)
   let stopped = false
@@ -964,8 +972,28 @@ export async function runWorker(
   process.once('SIGINT', stop)
   process.once('SIGTERM', stop)
 
-  while (!stopped) {
-    const processed = await processAvailableJobs(config, logger)
+  let loopCrashCount = 0
+  while (!stopped && !shouldStop()) {
+    let processed = 0
+    try {
+      processed = await processAvailableJobs(config, logger)
+      loopCrashCount = 0
+    } catch (error) {
+      loopCrashCount += 1
+      const message = redactSensitiveText(
+        error instanceof Error ? error.message : String(error)
+      )
+      logger.error(
+        `Worker loop crashed; restarting in ${config.restartDelayMs}ms: crashCount=${loopCrashCount}: ${message}`
+      )
+      if (config.idleExit) {
+        throw error
+      }
+      if (config.restartDelayMs > 0) {
+        await delay(config.restartDelayMs)
+      }
+      continue
+    }
     if (processed === 0 && config.idleExit) {
       logger.info(
         'No queued jobs; exiting because VOICY_WORKER_IDLE_EXIT is set'
@@ -976,6 +1004,7 @@ export async function runWorker(
       await delay(config.pollIntervalMs)
     }
   }
+  logger.info('Voicy worker client stopped')
 }
 
 if (require.main === module) {
