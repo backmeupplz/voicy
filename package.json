@@ -39,6 +39,7 @@
     "test:telegram-api-retry": "node scripts/telegram-api-retry-proof.js",
     "test:stale-telegram-updates": "node scripts/stale-telegram-update-proof.js",
     "test:transcription-cache": "node scripts/transcription-cache-proof.js",
+    "test:guest-mode": "node scripts/guest-mode-proof.js",
     "qa:telegram-upload": "node scripts/telegram-web-upload-qa.mjs",
     "worker:create-client": "node scripts/create-worker-client.js",
     "security:scrub-source-urls": "node scripts/scrub-token-bearing-source-urls.js",

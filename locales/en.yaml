@@ -61,6 +61,7 @@ pay_button: 'Donate ${amount}'
 transcribe_all_true: 'Voicy will now *turn every voice message* in this chat into text.'
 transcribe_all_false: 'Voicy will now *ignore new voice messages* in this chat unless someone replies to one with /transcribe.'
 reply_to_voice: 'Reply to a voice message, video note, or supported audio file, then send /transcribe.'
+guest_reply_to_media: 'Reply to a voice message, video note, or supported audio/video file with @voicybot to turn it into text.'
 error_queue: "_\U0001F46E Voicy could not start turning that message into text. Please try again later._"
 error_donation_checkout: "_\U0001F46E Voicy could not create a donation checkout. Please try again later._"
 error_transcription_queue_full: "_\U0001F46E This chat already has too many audio messages waiting to be turned into text. Please try again after the current messages finish._"
@@ -73,3 +74,4 @@ progress_failed: 'Could not turn that into text. Please try again later.'
 progress_partial: 'Turning into text...'
 progress_partial_footer: 'Draft text; final text may still change.'
 completed_empty: 'Done, but no text was detected.'
+guest_result_truncated: 'Transcript is longer than one Guest Mode reply. Add Voicy to the chat or message it directly for the full text.'

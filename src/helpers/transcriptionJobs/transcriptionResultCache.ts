@@ -13,8 +13,13 @@ import {
   TranscriptionResultCache,
   TranscriptionResultCacheModel,
 } from '@/models/TranscriptionResultCache'
+import { answerGuestQueryWithText } from '@/helpers/telegramGuestMode'
+import { splitTelegramText, transcriptText } from './transcriptFormatting'
 import Context from '@/models/Context'
-import publishCompletedTranscriptionJob from '@/helpers/transcriptionJobs/publishCompletedTranscriptionJob'
+import localizedTranscriptionText from '@/helpers/localizedTranscriptionText'
+import publishCompletedTranscriptionJob, {
+  guestFinalTranscriptionText,
+} from '@/helpers/transcriptionJobs/publishCompletedTranscriptionJob'
 
 const DEFAULT_CACHE_TTL_DAYS = 10
 const SECONDS_PER_DAY = 24 * 60 * 60
@@ -103,19 +108,35 @@ export async function publishCachedTranscriptionResult({
   ctx,
   media,
   sourceMessage,
+  guestQueryId,
 }: {
   ctx: Context
   media: TranscribableTelegramFile
   sourceMessage: Message
+  guestQueryId?: string
 }) {
   const cached = await cachedTranscriptionResult(media)
   if (!cached) {
     return false
   }
 
-  await publishCompletedTranscriptionJob(
-    cachedReplayJob(ctx, media, sourceMessage, cached)
-  )
+  const job = cachedReplayJob(ctx, media, sourceMessage, cached)
+  if (guestQueryId) {
+    const finalText = transcriptText(job, {
+      includeTimecodes: !job.silent,
+    }).trim()
+    const chunks = splitTelegramText(finalText) || ['']
+    const firstText =
+      chunks.shift() ||
+      localizedTranscriptionText(ctx.dbchat.uiLanguage, 'completed_empty')
+    job.guestInlineMessageId = await answerGuestQueryWithText(
+      ctx,
+      guestQueryId,
+      guestFinalTranscriptionText(job, firstText, chunks.length)
+    )
+  }
+
+  await publishCompletedTranscriptionJob(job)
   return true
 }
 

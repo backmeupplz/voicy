@@ -146,6 +146,32 @@ export default async function publishTranscriptionJobProgress(
     return false
   }
 
+  if (job.guestInlineMessageId) {
+    try {
+      await bot.api.editMessageTextInline(
+        job.guestInlineMessageId,
+        statusTextHtml(phase, job),
+        { parse_mode: 'HTML' }
+      )
+    } catch (error) {
+      const failure = classifyTelegramReachabilityFailure(error)
+      if (
+        failure.kind === TelegramReachabilityFailureKind.benign ||
+        failure.kind === TelegramReachabilityFailureKind.staleStatusMessage
+      ) {
+        return false
+      }
+      throw error
+    }
+
+    if (phase === 'partial') {
+      job.lastProgressPublishedAt = new Date()
+      await job.save()
+    }
+
+    return true
+  }
+
   if (job.silent) {
     if (phase !== 'partial') {
       return false

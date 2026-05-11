@@ -87,6 +87,10 @@ export class TranscriptionJob {
   silent?: boolean
   @prop()
   requestMessageId?: number
+  @prop()
+  guestQueryId?: string
+  @prop()
+  guestInlineMessageId?: string
   @prop({ required: true })
   fileId: string
   @prop()

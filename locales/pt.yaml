@@ -61,6 +61,7 @@ pay_button: 'Doar ${amount}'
 transcribe_all_true: 'Agora o Voicy vai *transformar todas as mensagens de voz* deste chat em texto.'
 transcribe_all_false: 'Agora o Voicy vai *ignorar novas mensagens de voz* neste chat, a menos que alguém responda a uma delas com /transcribe.'
 reply_to_voice: 'Responda a uma mensagem de voz, nota de vídeo ou arquivo de áudio compatível e envie /transcribe.'
+guest_reply_to_media: 'Responda a uma mensagem de voz, nota de vídeo ou arquivo de áudio/vídeo compatível com @voicybot para transformá-lo em texto.'
 error_queue: "_👮 O Voicy não conseguiu começar a transformar essa mensagem em texto. Tente novamente mais tarde._"
 error_donation_checkout: "_👮 O Voicy não conseguiu criar um checkout de doação. Tente novamente mais tarde._"
 error_transcription_queue_full: "_👮 Este chat já tem mensagens de áudio demais aguardando para virar texto. Tente novamente depois que as mensagens atuais terminarem._"
@@ -73,3 +74,4 @@ progress_failed: 'Não foi possível transformar isso em texto. Tente novamente 
 progress_partial: 'Transformando em texto...'
 progress_partial_footer: 'Texto preliminar; o texto final ainda pode mudar.'
 completed_empty: 'Concluído, mas nenhum texto foi detectado.'
+guest_result_truncated: 'A transcrição é maior que uma resposta do Guest Mode. Adicione o Voicy ao chat ou envie o arquivo diretamente para receber o texto completo.'
