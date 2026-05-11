@@ -61,6 +61,7 @@ pay_button: '${amount} spenden'
 transcribe_all_true: 'Voicy wird jetzt *jede Sprachnachricht* in diesem Chat in Text umwandeln.'
 transcribe_all_false: 'Voicy wird jetzt *neue Sprachnachrichten ignorieren*, außer jemand antwortet darauf mit /transcribe.'
 reply_to_voice: 'Antworte auf eine Sprachnachricht, Videonachricht oder unterstützte Audiodatei und sende dann /transcribe.'
+guest_reply_to_media: 'Antworte auf eine Sprachnachricht, Videonachricht oder unterstützte Audio-/Videodatei mit @voicybot, um sie in Text umzuwandeln.'
 error_queue: "_👮 Voicy konnte nicht anfangen, diese Nachricht in Text umzuwandeln. Bitte versuche es später erneut._"
 error_donation_checkout: "_👮 Voicy konnte keinen Spenden-Checkout erstellen. Bitte versuche es später erneut._"
 error_transcription_queue_full: "_👮 In diesem Chat warten bereits zu viele Audionachrichten darauf, in Text umgewandelt zu werden. Bitte versuche es erneut, nachdem die aktuellen Nachrichten fertig sind._"
@@ -73,3 +74,4 @@ progress_failed: 'Das konnte nicht in Text umgewandelt werden. Bitte versuche es
 progress_partial: 'Wird in Text umgewandelt...'
 progress_partial_footer: 'Entwurf; der endgültige Text kann sich noch ändern.'
 completed_empty: 'Fertig, aber es wurde kein Text erkannt.'
+guest_result_truncated: 'Das Transkript ist länger als eine Guest-Mode-Antwort. Füge Voicy zum Chat hinzu oder sende die Datei direkt an Voicy, um den ganzen Text zu erhalten.'

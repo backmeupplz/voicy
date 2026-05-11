@@ -18,6 +18,10 @@ import {
   activeTranscriptionJobStatuses,
 } from '@/models/TranscriptionJob'
 import {
+  answerGuestQueryWithText,
+  guestInlineMessageIdsFromJob,
+} from '@/helpers/telegramGuestMode'
+import {
   chatCanQueueTranscriptions,
   markChatUnreachableForTelegramError,
 } from '@/helpers/chatReachability'
@@ -31,6 +35,10 @@ import {
 import { transcriptionProgressStatusHtml } from '@/helpers/transcriptionJobs/progressStatusText'
 import Context from '@/models/Context'
 import report from '@/helpers/report'
+
+type QueueTranscriptionOptions = {
+  guestQueryId?: string
+}
 
 export default async function handleAudio(ctx: Context) {
   try {
@@ -72,7 +80,8 @@ async function enqueueTranscription(
   ctx: Context,
   fileId: string,
   sourceMessage: Message = ctx.msg,
-  filePath?: string
+  filePath?: string,
+  options: QueueTranscriptionOptions = {}
 ) {
   if (!chatCanQueueTranscriptions(ctx.dbchat)) {
     console.info(
@@ -91,7 +100,12 @@ async function enqueueTranscription(
   })
   if (abuseLimit) {
     if (!ctx.dbchat.silent) {
-      await sendTranscriptionLimitError(ctx, abuseLimit.reason, sourceMessage)
+      await sendTranscriptionLimitError(
+        ctx,
+        abuseLimit.reason,
+        sourceMessage,
+        options
+      )
     }
     return undefined
   }
@@ -110,14 +124,20 @@ async function enqueueTranscription(
       await sendTranscriptionAccessError(
         ctx,
         TranscriptionAccessDenialReason.membershipCheckFailed,
-        sourceMessage
+        sourceMessage,
+        options
       )
     }
     return undefined
   }
   if (!access.allowed) {
     if (!ctx.dbchat.silent) {
-      await sendTranscriptionAccessError(ctx, access.reason, sourceMessage)
+      await sendTranscriptionAccessError(
+        ctx,
+        access.reason,
+        sourceMessage,
+        options
+      )
     }
     return undefined
   }
@@ -127,6 +147,7 @@ async function enqueueTranscription(
       ctx,
       media: audio,
       sourceMessage,
+      guestQueryId: options.guestQueryId,
     })
     if (servedFromCache) {
       if (access.consumedFreeTranscription && freeAccessUserId) {
@@ -145,6 +166,28 @@ async function enqueueTranscription(
   const mediaCacheKey = transcriptionResultCacheKey(audio)
   const existingActiveJob = await findActiveTranscriptionJob(mediaCacheKey)
   if (existingActiveJob) {
+    try {
+      if (options.guestQueryId) {
+        const guestInlineMessageId = await answerGuestQueryWithText(
+          ctx,
+          options.guestQueryId,
+          transcriptionProgressStatusHtml(
+            ctx.dbchat.uiLanguage,
+            'progress_processing'
+          ),
+          { parse_mode: 'HTML' }
+        )
+        await attachGuestInlineMessageToJob(
+          existingActiveJob,
+          guestInlineMessageId
+        )
+      }
+    } catch (error) {
+      if (access.consumedFreeTranscription && freeAccessUserId) {
+        await refundGoldenBorodutchFreeTranscription(freeAccessUserId)
+      }
+      throw error
+    }
     if (access.consumedFreeTranscription && freeAccessUserId) {
       await refundGoldenBorodutchFreeTranscription(freeAccessUserId)
     }
@@ -152,6 +195,26 @@ async function enqueueTranscription(
       `Deduped transcription request against active job ${existingActiveJob._id}`
     )
     return existingActiveJob
+  }
+
+  let guestInlineMessageId: string | undefined
+  try {
+    guestInlineMessageId = options.guestQueryId
+      ? await answerGuestQueryWithText(
+          ctx,
+          options.guestQueryId,
+          transcriptionProgressStatusHtml(
+            ctx.dbchat.uiLanguage,
+            'progress_processing'
+          ),
+          { parse_mode: 'HTML' }
+        )
+      : undefined
+  } catch (error) {
+    if (access.consumedFreeTranscription && freeAccessUserId) {
+      await refundGoldenBorodutchFreeTranscription(freeAccessUserId)
+    }
+    throw error
   }
 
   let queuedJob
@@ -163,6 +226,11 @@ async function enqueueTranscription(
       telegramChatType: ctx.chat.type,
       sourceMessageId: sourceMessage.message_id,
       requestMessageId: ctx.msg?.message_id,
+      guestQueryId: options.guestQueryId,
+      guestInlineMessageId,
+      guestInlineMessageIds: guestInlineMessageId
+        ? [guestInlineMessageId]
+        : undefined,
       silent: ctx.dbchat.silent,
       fileId,
       filePath,
@@ -186,6 +254,9 @@ async function enqueueTranscription(
         await refundGoldenBorodutchFreeTranscription(freeAccessUserId)
       }
       const activeJob = await findActiveTranscriptionJob(mediaCacheKey)
+      if (activeJob && guestInlineMessageId) {
+        await attachGuestInlineMessageToJob(activeJob, guestInlineMessageId)
+      }
       console.info(
         `Deduped concurrent transcription request for ${mediaCacheKey}`
       )
@@ -195,6 +266,10 @@ async function enqueueTranscription(
       await refundGoldenBorodutchFreeTranscription(freeAccessUserId)
     }
     throw error
+  }
+
+  if (options.guestQueryId) {
+    return queuedJob
   }
 
   if (ctx.dbchat.silent) {
@@ -263,8 +338,18 @@ function transcriptionAccessUserId(sourceMessage: Message, ctx: Context) {
 function sendTranscriptionLimitError(
   ctx: Context,
   reason: TranscriptionAbuseLimitReason,
-  sourceMessage: Message
+  sourceMessage: Message,
+  options: QueueTranscriptionOptions = {}
 ) {
+  if (options.guestQueryId) {
+    return answerGuestQueryWithText(
+      ctx,
+      options.guestQueryId,
+      markdownI18n(ctx, transcriptionLimitMessageKey(reason)),
+      { parse_mode: 'Markdown' }
+    )
+  }
+
   return replyAndTrackReachability(ctx, 'sendTranscriptionLimitError', {
     text: markdownI18n(ctx, transcriptionLimitMessageKey(reason)),
     options: {
@@ -304,8 +389,18 @@ function replyAndTrackReachability(
 function sendTranscriptionAccessError(
   ctx: Context,
   reason: TranscriptionAccessDenialReason | undefined,
-  sourceMessage: Message
+  sourceMessage: Message,
+  options: QueueTranscriptionOptions = {}
 ) {
+  if (options.guestQueryId) {
+    return answerGuestQueryWithText(
+      ctx,
+      options.guestQueryId,
+      markdownI18n(ctx, transcriptionAccessMessageKey(reason)),
+      { parse_mode: 'Markdown' }
+    )
+  }
+
   return replyAndTrackReachability(ctx, 'sendTranscriptionAccessError', {
     text: markdownI18n(ctx, transcriptionAccessMessageKey(reason)),
     options: {
@@ -339,6 +434,50 @@ function findActiveTranscriptionJob(mediaCacheKey: string) {
   return TranscriptionJobModel.findOne({
     activeMediaCacheKey: mediaCacheKey,
     status: { $in: activeTranscriptionJobStatuses },
+  })
+}
+
+async function attachGuestInlineMessageToJob(
+  job: Awaited<ReturnType<typeof findActiveTranscriptionJob>>,
+  guestInlineMessageId: string
+) {
+  if (!job) {
+    return
+  }
+
+  const jobId = (job as { _id?: unknown })._id
+  if (!jobId) {
+    const guestInlineMessageIds = guestInlineMessageIdsFromJob({
+      guestInlineMessageId: job.guestInlineMessageId,
+      guestInlineMessageIds: [
+        ...(job.guestInlineMessageIds || []),
+        guestInlineMessageId,
+      ],
+    })
+    job.guestInlineMessageId ||= guestInlineMessageId
+    job.guestInlineMessageIds = guestInlineMessageIds
+    await job.save()
+    return
+  }
+
+  const update: {
+    $addToSet: { guestInlineMessageIds: string }
+    $set?: { guestInlineMessageId: string }
+  } = {
+    $addToSet: { guestInlineMessageIds: guestInlineMessageId },
+  }
+  if (!job.guestInlineMessageId) {
+    update.$set = { guestInlineMessageId: guestInlineMessageId }
+  }
+
+  await TranscriptionJobModel.updateOne({ _id: jobId }, update)
+  job.guestInlineMessageId ||= guestInlineMessageId
+  job.guestInlineMessageIds = guestInlineMessageIdsFromJob({
+    guestInlineMessageId: job.guestInlineMessageId,
+    guestInlineMessageIds: [
+      ...(job.guestInlineMessageIds || []),
+      guestInlineMessageId,
+    ],
   })
 }
 

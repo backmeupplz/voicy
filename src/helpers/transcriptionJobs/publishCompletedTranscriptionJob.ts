@@ -1,15 +1,17 @@
 import { DocumentType } from '@typegoose/typegoose'
 import {
+  TELEGRAM_MESSAGE_LIMIT,
+  splitTelegramText,
+  transcriptText,
+} from '@/helpers/transcriptionJobs/transcriptFormatting'
+import {
   TelegramReachabilityFailureKind,
   classifyTelegramReachabilityFailure,
   markChatUnreachableByIdForTelegramError,
 } from '@/helpers/chatReachability'
 import { TranscriptionJob } from '@/models/TranscriptionJob'
 import { VoiceModel } from '@/models/Voice'
-import {
-  splitTelegramText,
-  transcriptText,
-} from '@/helpers/transcriptionJobs/transcriptFormatting'
+import { guestInlineMessageIdsFromJob } from '@/helpers/telegramGuestMode'
 import bot from '@/helpers/bot'
 import localizedTranscriptionText from '@/helpers/localizedTranscriptionText'
 
@@ -91,6 +93,18 @@ export default async function publishCompletedTranscriptionJob(
     job.uiLocale,
     'completed_empty'
   )
+  const guestInlineMessageIds = guestInlineMessageIdsFromJob(job)
+  if (guestInlineMessageIds.length > 0) {
+    await editGuestFinalMessages(
+      job,
+      guestInlineMessageIds,
+      firstText || fallbackText,
+      chunks.length
+    )
+    await storeVoiceRecord(job)
+    return
+  }
+
   const replyOptions =
     job.telegramChatType === 'channel'
       ? {}
@@ -119,6 +133,46 @@ export default async function publishCompletedTranscriptionJob(
   }
 
   await storeVoiceRecord(job)
+}
+
+async function editGuestFinalMessages(
+  job: DocumentType<TranscriptionJob>,
+  guestInlineMessageIds: string[],
+  firstText: string,
+  remainingChunks: number
+) {
+  const text = guestFinalTranscriptionText(job, firstText, remainingChunks)
+  for (const guestInlineMessageId of guestInlineMessageIds) {
+    try {
+      await bot.api.editMessageTextInline(guestInlineMessageId, text)
+    } catch (error) {
+      const failure = classifyTelegramReachabilityFailure(error)
+      if (failure.kind !== TelegramReachabilityFailureKind.benign) {
+        throw error
+      }
+    }
+  }
+}
+
+function guestFinalTranscriptionText(
+  job: DocumentType<TranscriptionJob>,
+  firstText: string,
+  remainingChunks: number
+) {
+  if (remainingChunks <= 0) {
+    return firstText
+  }
+
+  const suffix = localizedTranscriptionText(
+    job.uiLocale,
+    'guest_result_truncated'
+  )
+  const separator = '\n\n'
+  const allowedTextLength = Math.max(
+    TELEGRAM_MESSAGE_LIMIT - suffix.length - separator.length,
+    0
+  )
+  return `${firstText.slice(0, allowedTextLength)}${separator}${suffix}`
 }
 
 async function sendFinalMessage(
@@ -155,3 +209,5 @@ async function sendFinalMessage(
     throw error
   }
 }
+
+export { guestFinalTranscriptionText }

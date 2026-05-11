@@ -23,6 +23,7 @@ import disallowPrivate from '@/middlewares/disallowPrivate'
 import handleAudio from '@/handlers/handleAudio'
 import handleDonate from '@/commands/handleDonate'
 import handleFiles from '@/commands/handleFiles'
+import handleGuestMessage from '@/handlers/handleGuestMessage'
 import handleHelp from '@/commands/handleHelp'
 import handleId from '@/commands/handleId'
 import handleLanguage from '@/commands/handleLanguage'
@@ -49,6 +50,7 @@ async function runApp() {
   // Middlewares
   bot.use(recordTimeReceived)
   bot.use(countMessage)
+  bot.use(handleGuestMessage)
   bot.use(ignoreOldMessageUpdates)
   bot.use(attachChat)
   bot.use(i18n.middleware())

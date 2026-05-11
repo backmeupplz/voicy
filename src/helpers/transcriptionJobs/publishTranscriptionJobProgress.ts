@@ -9,6 +9,7 @@ import {
   TranscriptionJobModel,
 } from '@/models/TranscriptionJob'
 import { Types } from 'mongoose'
+import { guestInlineMessageIdsFromJob } from '@/helpers/telegramGuestMode'
 import {
   liveProgressAllowedForChatType,
   shouldThrottleProgressPublish,
@@ -144,6 +145,40 @@ export default async function publishTranscriptionJobProgress(
     })
   ) {
     return false
+  }
+
+  const guestInlineMessageIds = guestInlineMessageIdsFromJob(job)
+  if (guestInlineMessageIds.length > 0) {
+    const text = statusTextHtml(phase, job)
+    let edited = false
+    for (const guestInlineMessageId of guestInlineMessageIds) {
+      try {
+        await bot.api.editMessageTextInline(guestInlineMessageId, text, {
+          parse_mode: 'HTML',
+        })
+        edited = true
+      } catch (error) {
+        const failure = classifyTelegramReachabilityFailure(error)
+        if (
+          failure.kind === TelegramReachabilityFailureKind.benign ||
+          failure.kind === TelegramReachabilityFailureKind.staleStatusMessage
+        ) {
+          continue
+        }
+        throw error
+      }
+    }
+
+    if (!edited) {
+      return false
+    }
+
+    if (phase === 'partial') {
+      job.lastProgressPublishedAt = new Date()
+      await job.save()
+    }
+
+    return true
   }
 
   if (job.silent) {

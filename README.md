@@ -106,6 +106,19 @@ update drop, and then restart workers only after the backend is accepting fresh
 updates. Operators should expect voice/audio messages sent while the bot was
 down to be discarded rather than transcribed late.
 
+Telegram Guest Mode is supported through `guest_message` updates from Bot API
+10.0. Enable Guest Mode for `@voicybot` in BotFather's Mini App settings before
+deploying this flow. A user can reply to a voice, audio, video note, video, or
+supported media document with `@voicybot` in a supported chat where Voicy is not
+a member; Voicy answers the `guest_query_id` once, stores the returned
+`inline_message_id`, and edits that guest reply for progress and the final
+transcript. Guest chats are stored separately as `guest:<telegram chat id>` so
+they do not collide with normal chat records. Access checks and abuse limits run
+against that guest record and the caller/source user; an existing paid normal
+chat record is not assumed to match the guest chat because Telegram does not
+guarantee that identity mapping. Guest Mode does not provide chat history or
+participant lists, and long transcripts are limited to one edited guest reply.
+
 The donation wall is temporarily disabled by default for testing. Leave
 `VOICY_DONATION_WALL_ENABLED=false` unset or false to let unpaid chats enqueue
 voice/audio transcription. Set `VOICY_DONATION_WALL_ENABLED=true` to re-enable
