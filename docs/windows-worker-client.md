@@ -262,6 +262,57 @@ hosts, the adapter also appends `/opt/homebrew/bin` and `/usr/local/bin` when it
 spawns `whisper`, which protects the local test worker from launchd's default
 `PATH=/usr/bin:/bin`.
 
+## Windows Worker Auto-Restart
+
+Install or refresh the production worker scheduled task from an elevated
+PowerShell prompt on the Windows host after the repo has been built:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\install-windows-worker.ps1 `
+  -AppRoot "C:\voicy-worker\app" `
+  -WorkerApiUrl "https://<voicy-host>/worker/v1" `
+  -WorkerToken "voicy_worker_..." `
+  -TranscribeExecutable "C:\voicy-worker\.venv\Scripts\python.exe" `
+  -TranscribeArgsJson '["C:\\voicy-worker\\transcribe.py","{input}","{output}","{language}","{model}"]' `
+  -TelegramBotApiUrl "http://127.0.0.1:8081" `
+  -TelegramBotToken "<telegram-bot-token>" `
+  -TaskName "VoicyWorker4070Ti" `
+  -Start
+```
+
+The installer copies `scripts/run-windows-worker.ps1` into
+`C:\voicy-worker\worker`, writes the worker environment to
+`C:\ProgramData\Voicy\worker\worker.env`, ACLs that file to SYSTEM,
+Administrators, and the installing user, and registers the `VoicyWorker4070Ti`
+scheduled task. The task starts at boot, ignores duplicate starts, keeps running
+for up to 365 days, and asks Task Scheduler to restart it every minute for up to
+999 consecutive failures.
+
+The wrapper appends worker stdout, stderr, and wrapper lifecycle lines to
+`C:\voicy-worker\logs\worker-yyyyMMdd.log`. It exits with the worker process
+exit code, or `1` when the wrapper itself crashes, so Task Scheduler can detect
+failures and restart the task. Keep the log directory on local disk and rotate
+or prune it with the same operational policy as the worker job directory.
+
+Verify the task and recent logs:
+
+```powershell
+Get-ScheduledTask -TaskName VoicyWorker4070Ti | Select-Object TaskName,State
+Get-ScheduledTaskInfo -TaskName VoicyWorker4070Ti | Select-Object LastRunTime,LastTaskResult,NumberOfMissedRuns
+Get-Content C:\voicy-worker\logs\worker-$(Get-Date -Format yyyyMMdd).log -Tail 80
+```
+
+Crash-restart smoke test:
+
+1. Start the task with `Start-ScheduledTask -TaskName VoicyWorker4070Ti`.
+2. Confirm the log contains `Voicy worker wrapper starting` and
+   `Starting Voicy worker client`.
+3. Kill the worker Node process from Task Manager or PowerShell.
+4. Wait at least one minute and confirm the log has a wrapper exit/crash line
+   followed by a new wrapper start line.
+5. Submit or replay a transcription job and confirm the log reaches
+   `Worker transcription job completed`.
+
 Optional:
 
 - `VOICY_WORKER_LANGUAGE=en` forces a language when the queued job has no hint.

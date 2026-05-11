@@ -956,13 +956,24 @@ export async function runWorker(
   config: WorkerConfig = loadConfig(),
   logger: Logger = consoleLogger
 ) {
-  logger.info(`Starting Voicy worker client against ${config.apiUrl}`)
+  logWorkerActivity(logger, 'Starting Voicy worker client', {
+    apiUrl: config.apiUrl,
+    engine: config.engine,
+    model: config.model,
+    workDir: config.workDir,
+    pollIntervalMs: config.pollIntervalMs,
+    heartbeatIntervalMs: config.heartbeatIntervalMs,
+    downloadConcurrency: config.downloadConcurrency,
+    transcriptionConcurrency: config.transcriptionConcurrency,
+    telegramBotApiUrl: config.telegramBotApiUrl,
+  })
   let stopped = false
-  const stop = () => {
+  const stop = (signal: string) => {
+    logger.info(`Stopping Voicy worker client after ${signal}`)
     stopped = true
   }
-  process.once('SIGINT', stop)
-  process.once('SIGTERM', stop)
+  process.once('SIGINT', () => stop('SIGINT'))
+  process.once('SIGTERM', () => stop('SIGTERM'))
 
   while (!stopped) {
     const processed = await processAvailableJobs(config, logger)
@@ -976,11 +987,16 @@ export async function runWorker(
       await delay(config.pollIntervalMs)
     }
   }
+  logger.info('Voicy worker client stopped')
 }
 
 if (require.main === module) {
   runWorker().catch((error) => {
-    console.error(error)
+    console.error(
+      redactSensitiveText(
+        error instanceof Error ? error.stack || error.message : String(error)
+      )
+    )
     process.exitCode = 1
   })
 }
