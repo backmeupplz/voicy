@@ -915,6 +915,19 @@ export async function processAvailableJobs(
     }
   }
 
+  const waitForActiveWork = async () => {
+    const activeWork = [...downloads, ...transcriptions]
+    if (activeWork.length === 0) {
+      return
+    }
+    try {
+      await Promise.race(activeWork)
+    } catch (error) {
+      await Promise.allSettled(activeWork)
+      throw error
+    }
+  }
+
   let cycleComplete = false
   while (!cycleComplete) {
     await fillDownloads()
@@ -929,7 +942,7 @@ export async function processAvailableJobs(
       continue
     }
 
-    await Promise.race([...downloads, ...transcriptions])
+    await waitForActiveWork()
   }
 
   const legacyJob = processed === 0 ? await claimJob(api) : undefined
