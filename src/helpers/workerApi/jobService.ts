@@ -9,6 +9,7 @@ import {
 import { Types } from 'mongoose'
 import { WorkerClient, WorkerClientModel } from '@/models/WorkerClient'
 import { cacheCompletedTranscriptionJob } from '@/helpers/transcriptionJobs/transcriptionResultCache'
+import { emitWorkerJobActivity } from '@/helpers/activityStream'
 import { safeWorkerSourceUrl } from '@/helpers/sourceUrlSecurity'
 import publishCompletedTranscriptionJob from '@/helpers/transcriptionJobs/publishCompletedTranscriptionJob'
 import publishTranscriptionJobProgress from '@/helpers/transcriptionJobs/publishTranscriptionJobProgress'
@@ -224,6 +225,7 @@ export async function claimReadyJob(workerClient: DocumentType<WorkerClient>) {
     publishTranscriptionJobProgress(job, 'processing').catch((error) =>
       console.error('Failed to publish transcription job start', error)
     )
+    emitWorkerJobActivity(job, 'started')
   }
 
   return job
@@ -256,6 +258,7 @@ export async function startTranscriptionJob(
   publishTranscriptionJobProgress(job, 'processing').catch((error) =>
     console.error('Failed to publish transcription job start', error)
   )
+  emitWorkerJobActivity(job, 'started')
   return job
 }
 
@@ -291,6 +294,7 @@ export async function claimNextJob(workerClient: DocumentType<WorkerClient>) {
     publishTranscriptionJobProgress(legacyJob, 'processing').catch((error) =>
       console.error('Failed to publish transcription job start', error)
     )
+    emitWorkerJobActivity(legacyJob, 'started')
   }
 
   return legacyJob
@@ -521,6 +525,7 @@ export async function completeJob(
   if (!completedJob) {
     throw new WorkerApiError(404, 'job_not_found')
   }
+  emitWorkerJobActivity(completedJob, 'completed')
   return completedJob
 }
 
@@ -585,5 +590,6 @@ export async function failJob(
   }).catch((error) =>
     console.error('Failed to publish transcription job failure', error)
   )
+  emitWorkerJobActivity(job, shouldRetry ? 'retrying' : 'failed')
   return job
 }

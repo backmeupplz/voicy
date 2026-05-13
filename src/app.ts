@@ -10,6 +10,9 @@ import { markChatUnreachableForTelegramError } from '@/helpers/chatReachability'
 import { run } from '@grammyjs/runner'
 import { webhookApp } from '@/helpers/startWebhook'
 import Cluster from '@/helpers/Cluster'
+import activityStreamMiddleware, {
+  emitRuntimeActivity,
+} from '@/helpers/activityStream'
 import attachChat from '@/middlewares/attachChat'
 import bot from '@/helpers/bot'
 import checkAdminLock from '@/middlewares/adminLock'
@@ -49,6 +52,7 @@ async function runApp() {
   console.log('Mongo started')
   // Middlewares
   bot.use(recordTimeReceived)
+  bot.use(activityStreamMiddleware)
   bot.use(countMessage)
   bot.use(handleGuestMessage)
   bot.use(ignoreOldMessageUpdates)
@@ -92,6 +96,7 @@ async function runApp() {
   await dropPendingTelegramUpdatesBeforePolling(bot.api)
   run(bot, 500, { allowed_updates: telegramAllowedUpdates })
   console.info(`Bot ${bot.botInfo.username} is up and running`)
+  emitRuntimeActivity(`Voicy bot ${bot.botInfo.username} runtime started`)
   // Start webhook app
   webhookApp.listen(4242, () => console.log('Running on port 4242'))
 }

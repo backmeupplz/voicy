@@ -25,6 +25,7 @@ import {
   chatCanQueueTranscriptions,
   markChatUnreachableForTelegramError,
 } from '@/helpers/chatReachability'
+import { emitTranscriptionQueued } from '@/helpers/activityStream'
 import { isMediaTooLarge } from '@/helpers/mediaSizeLimit'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import {
@@ -324,6 +325,7 @@ async function enqueueTranscription(
       (new Date().getTime() - ctx.timeReceived.getTime()) / 1000
     }s`
   )
+  emitTranscriptionQueued(ctx, audio.sourceType)
   return queuedJob
 }
 
