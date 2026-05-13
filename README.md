@@ -34,6 +34,20 @@ The active bot interface is maintained in English and Russian in the `locales` f
 
 See examples in `.env.sample` file.
 
+Optional live activity stream:
+
+| Variable                                     | Description                                                                           |
+| -------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `VOICY_ACTIVITY_STREAM_URL`                  | Symphony activity stream base URL or full `/activity/v1/events` URL                   |
+| `VOICY_ACTIVITY_STREAM_TOKEN`                | Submit token sent as `Authorization: Bearer ...`                                      |
+| `VOICY_ACTIVITY_STREAM_ANONYMIZATION_SECRET` | Optional HMAC secret for deterministic chat/user labels; defaults to the submit token |
+| `VOICY_ACTIVITY_STREAM_TIMEOUT_MS`           | Optional submit timeout, default `750`                                                |
+
+When the stream URL or token is missing, activity emitters are no-ops. Events
+are fire-and-forget and contain only anonymized chat labels, command names,
+media source kinds, and runtime/job milestones; Telegram message text, raw chat
+IDs, raw user IDs, file IDs, tokens, emails, and phone numbers must not be sent.
+
 ## Continuous integration
 
 Any commit pushed to `main` gets deployed to [@voicybot](https://t.me/voicybot) via [CI Ninja](https://github.com/backmeupplz/ci-ninja).

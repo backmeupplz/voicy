@@ -24,6 +24,7 @@
     "test:error-empty-handling": "node scripts/error-empty-handling-proof.js",
     "test:media-coverage": "node scripts/media-coverage-proof.js",
     "test:report-sanitizer": "node scripts/report-sanitizer-proof.js",
+    "test:activity-stream": "node scripts/activity-stream-proof.js",
     "test:source-url-security": "node scripts/source-url-security-proof.js",
     "test:chat-reachability": "node scripts/chat-reachability-proof.js",
     "test:transcription-abuse-limits": "node scripts/transcription-abuse-limits-proof.js",
