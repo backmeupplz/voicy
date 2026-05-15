@@ -126,12 +126,15 @@ async function withPatchedStripeCheckout(callback) {
   }
 }
 
-async function withPatchedQueue(callback, accessResult) {
+async function withPatchedQueue(callback, accessResult, abuseLimitResult) {
   const originalCreate = TranscriptionJobModel.create
+  const originalFindJob = TranscriptionJobModel.findOne
+  const originalUpdateMany = TranscriptionJobModel.updateMany
   const originalFindCache = TranscriptionResultCacheModel.findOne
   const originalCheckLimits = abuseLimits.checkTranscriptionAbuseLimits
   const originalCheckAccess = goldenBorodutchAllowance.checkTranscriptionAccess
   const createdJobs = []
+  const abuseLimitChecks = []
 
   TranscriptionJobModel.create = async (job) => {
     const jobDoc = {
@@ -148,8 +151,15 @@ async function withPatchedQueue(callback, accessResult) {
     createdJobs.push(jobDoc)
     return jobDoc
   }
+  TranscriptionJobModel.findOne = async () => undefined
+  TranscriptionJobModel.updateMany = async () => ({ modifiedCount: 0 })
   TranscriptionResultCacheModel.findOne = async () => undefined
-  abuseLimits.checkTranscriptionAbuseLimits = async () => undefined
+  abuseLimits.checkTranscriptionAbuseLimits = async (options) => {
+    abuseLimitChecks.push(options)
+    return typeof abuseLimitResult === 'function'
+      ? abuseLimitResult(options)
+      : abuseLimitResult
+  }
   goldenBorodutchAllowance.checkTranscriptionAccess = async () => {
     if (accessResult instanceof Error) {
       throw accessResult
@@ -158,9 +168,11 @@ async function withPatchedQueue(callback, accessResult) {
   }
 
   try {
-    await callback(createdJobs)
+    await callback(createdJobs, abuseLimitChecks)
   } finally {
     TranscriptionJobModel.create = originalCreate
+    TranscriptionJobModel.findOne = originalFindJob
+    TranscriptionJobModel.updateMany = originalUpdateMany
     TranscriptionResultCacheModel.findOne = originalFindCache
     abuseLimits.checkTranscriptionAbuseLimits = originalCheckLimits
     goldenBorodutchAllowance.checkTranscriptionAccess = originalCheckAccess
@@ -214,6 +226,70 @@ async function main() {
       'queued job should use download queue status'
     )
   })
+
+  await withPatchedQueue(
+    async (createdJobs, abuseLimitChecks) => {
+      process.env.VOICY_DONATION_WALL_ENABLED = 'false'
+      const ctx = mockContext({ paid: true, chatType: 'private' })
+      await handleAudio(ctx)
+
+      assert(
+        createdJobs.length === 1,
+        'paid audio should enqueue when abuse counters are over limit'
+      )
+      assert(
+        abuseLimitChecks.length === 1,
+        'paid audio should still call the abuse-limit helper'
+      )
+      assert(
+        abuseLimitChecks[0].chatPaid === true,
+        'paid audio should pass donation state to abuse-limit helper'
+      )
+      assert(
+        ctx.replies.length === 1,
+        'paid audio should get normal queue progress'
+      )
+      assert(
+        ctx.replies[0].text !== 'error_transcription_user_limited',
+        'paid audio should not get rate-limit copy'
+      )
+    },
+    undefined,
+    (options) =>
+      options.chatPaid
+        ? undefined
+        : { reason: 'user_rate_limited', limit: 4, windowMs: 120_000 }
+  )
+
+  await withPatchedQueue(
+    async (createdJobs, abuseLimitChecks) => {
+      process.env.VOICY_DONATION_WALL_ENABLED = 'false'
+      const ctx = mockContext({ paid: false, chatType: 'private' })
+      await handleAudio(ctx)
+
+      assert(
+        createdJobs.length === 0,
+        'unpaid audio should still be blocked by abuse limits'
+      )
+      assert(
+        abuseLimitChecks.length === 1,
+        'unpaid audio should call the abuse-limit helper'
+      )
+      assert(
+        abuseLimitChecks[0].chatPaid === false,
+        'unpaid audio should pass unpaid state to abuse-limit helper'
+      )
+      assert(
+        ctx.replies[0].text === 'error_transcription_user_limited',
+        'unpaid audio should keep existing user limit copy'
+      )
+    },
+    undefined,
+    (options) =>
+      options.chatPaid
+        ? undefined
+        : { reason: 'user_rate_limited', limit: 4, windowMs: 120_000 }
+  )
 
   await withPatchedQueue(async (createdJobs) => {
     process.env.VOICY_DONATION_WALL_ENABLED = 'false'

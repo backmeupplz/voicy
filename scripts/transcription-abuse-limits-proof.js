@@ -101,6 +101,27 @@ async function main() {
     'missing user id should not query user cap'
   )
 
+  const paidChatQueries = []
+  const paidChatResult = await checkTranscriptionAbuseLimits({
+    chatId: 'chat-1',
+    chatPaid: true,
+    userId: 'user-1',
+    now: new Date('2026-05-05T12:00:00.000Z'),
+    settings: {
+      chatActiveJobLimit: 2,
+      chatWindowMs: 60_000,
+      chatWindowJobLimit: 3,
+      userWindowMs: 120_000,
+      userWindowJobLimit: 4,
+    },
+    counter: counterFor([2, 3, 4], paidChatQueries),
+  })
+  assert(!paidChatResult, 'paid chats should bypass abuse limits')
+  assert(
+    paidChatQueries.length === 0,
+    'paid chats should not query abuse-limit counters'
+  )
+
   const settings = transcriptionAbuseLimitSettings({
     VOICY_TRANSCRIPTION_CHAT_ACTIVE_JOB_LIMIT: '0',
     VOICY_TRANSCRIPTION_CHAT_WINDOW_MS: 'not-a-number',

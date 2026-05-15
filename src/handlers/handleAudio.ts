@@ -97,6 +97,7 @@ async function enqueueTranscription(
   }
   const abuseLimit = await checkTranscriptionAbuseLimits({
     chatId: ctx.dbchat.id,
+    chatPaid: ctx.dbchat.paid,
     userId: ctx.from?.id ? String(ctx.from.id) : undefined,
   })
   if (abuseLimit) {
