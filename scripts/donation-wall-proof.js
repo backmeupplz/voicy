@@ -24,6 +24,7 @@ const {
 const {
   TranscriptionResultCacheModel,
 } = require('../dist/models/TranscriptionResultCache')
+const { ChatModel } = require('../dist/models/Chat')
 const abuseLimits = require('../dist/helpers/transcriptionJobs/abuseLimits')
 const goldenBorodutchAllowance = require('../dist/helpers/goldenBorodutchFreeTranscriptions')
 
@@ -126,15 +127,22 @@ async function withPatchedStripeCheckout(callback) {
   }
 }
 
-async function withPatchedQueue(callback, accessResult, abuseLimitResult) {
+async function withPatchedQueue(
+  callback,
+  accessResult,
+  abuseLimitResult,
+  requesterPaid = false
+) {
   const originalCreate = TranscriptionJobModel.create
   const originalFindJob = TranscriptionJobModel.findOne
   const originalUpdateMany = TranscriptionJobModel.updateMany
   const originalFindCache = TranscriptionResultCacheModel.findOne
+  const originalChatExists = ChatModel.exists
   const originalCheckLimits = abuseLimits.checkTranscriptionAbuseLimits
   const originalCheckAccess = goldenBorodutchAllowance.checkTranscriptionAccess
   const createdJobs = []
   const abuseLimitChecks = []
+  const paidRequesterChecks = []
 
   TranscriptionJobModel.create = async (job) => {
     const jobDoc = {
@@ -154,6 +162,12 @@ async function withPatchedQueue(callback, accessResult, abuseLimitResult) {
   TranscriptionJobModel.findOne = async () => undefined
   TranscriptionJobModel.updateMany = async () => ({ modifiedCount: 0 })
   TranscriptionResultCacheModel.findOne = async () => undefined
+  ChatModel.exists = (query) => {
+    paidRequesterChecks.push(query)
+    return {
+      exec: async () => (requesterPaid ? { _id: 'paid-requester-chat' } : null),
+    }
+  }
   abuseLimits.checkTranscriptionAbuseLimits = async (options) => {
     abuseLimitChecks.push(options)
     return typeof abuseLimitResult === 'function'
@@ -168,12 +182,13 @@ async function withPatchedQueue(callback, accessResult, abuseLimitResult) {
   }
 
   try {
-    await callback(createdJobs, abuseLimitChecks)
+    await callback(createdJobs, abuseLimitChecks, paidRequesterChecks)
   } finally {
     TranscriptionJobModel.create = originalCreate
     TranscriptionJobModel.findOne = originalFindJob
     TranscriptionJobModel.updateMany = originalUpdateMany
     TranscriptionResultCacheModel.findOne = originalFindCache
+    ChatModel.exists = originalChatExists
     abuseLimits.checkTranscriptionAbuseLimits = originalCheckLimits
     goldenBorodutchAllowance.checkTranscriptionAccess = originalCheckAccess
   }
@@ -246,6 +261,10 @@ async function main() {
         'paid audio should pass donation state to abuse-limit helper'
       )
       assert(
+        abuseLimitChecks[0].requesterPaid === true,
+        'paid chat should also pass requester donation state'
+      )
+      assert(
         ctx.replies.length === 1,
         'paid audio should get normal queue progress'
       )
@@ -259,6 +278,45 @@ async function main() {
       options.chatPaid
         ? undefined
         : { reason: 'user_rate_limited', limit: 4, windowMs: 120_000 }
+  )
+
+  await withPatchedQueue(
+    async (createdJobs, abuseLimitChecks, paidRequesterChecks) => {
+      process.env.VOICY_DONATION_WALL_ENABLED = 'false'
+      const ctx = mockContext({ paid: false, chatType: 'supergroup' })
+      await handleAudio(ctx)
+
+      assert(
+        createdJobs.length === 1,
+        'paid requester should bypass throttles in an unpaid group'
+      )
+      assert(
+        paidRequesterChecks.length === 1,
+        'unpaid group should check requester donation status'
+      )
+      assert(
+        paidRequesterChecks[0].id === '67890',
+        'requester donation lookup should use Telegram requester id'
+      )
+      assert(
+        abuseLimitChecks[0].chatPaid === false,
+        'unpaid group should pass unpaid chat state'
+      )
+      assert(
+        abuseLimitChecks[0].requesterPaid === true,
+        'paid requester should pass requester donation state'
+      )
+      assert(
+        ctx.replies[0].text !== 'error_transcription_user_limited',
+        'paid requester should not get rate-limit copy'
+      )
+    },
+    undefined,
+    (options) =>
+      options.requesterPaid
+        ? undefined
+        : { reason: 'user_rate_limited', limit: 4, windowMs: 120_000 },
+    true
   )
 
   await withPatchedQueue(
@@ -278,6 +336,10 @@ async function main() {
       assert(
         abuseLimitChecks[0].chatPaid === false,
         'unpaid audio should pass unpaid state to abuse-limit helper'
+      )
+      assert(
+        abuseLimitChecks[0].requesterPaid === false,
+        'unpaid audio should pass unpaid requester state'
       )
       assert(
         ctx.replies[0].text === 'error_transcription_user_limited',
