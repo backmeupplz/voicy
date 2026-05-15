@@ -30,6 +30,7 @@ interface Counter {
 interface CheckTranscriptionAbuseLimitOptions {
   chatId: string
   chatPaid?: boolean
+  requesterPaid?: boolean
   userId?: string
   now?: Date
   settings?: TranscriptionAbuseLimitSettings
@@ -66,6 +67,7 @@ export function transcriptionAbuseLimitSettings(
 export async function checkTranscriptionAbuseLimits({
   chatId,
   chatPaid = false,
+  requesterPaid = false,
   userId,
   now = new Date(),
   settings = transcriptionAbuseLimitSettings(),
@@ -73,7 +75,7 @@ export async function checkTranscriptionAbuseLimits({
 }: CheckTranscriptionAbuseLimitOptions): Promise<
   TranscriptionAbuseLimitResult | undefined
 > {
-  if (chatPaid) {
+  if (chatPaid || requesterPaid) {
     return undefined
   }
 

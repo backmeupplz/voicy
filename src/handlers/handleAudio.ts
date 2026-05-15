@@ -1,3 +1,4 @@
+import { ChatModel } from '@/models/Chat'
 import { Message } from '@grammyjs/types'
 import {
   TranscribableTelegramFile,
@@ -98,6 +99,7 @@ async function enqueueTranscription(
   const abuseLimit = await checkTranscriptionAbuseLimits({
     chatId: ctx.dbchat.id,
     chatPaid: ctx.dbchat.paid,
+    requesterPaid: await requesterHasPaidPrivateChat(ctx),
     userId: ctx.from?.id ? String(ctx.from.id) : undefined,
   })
   if (abuseLimit) {
@@ -328,6 +330,23 @@ async function enqueueTranscription(
   )
   emitTranscriptionQueued(ctx, audio.sourceType)
   return queuedJob
+}
+
+async function requesterHasPaidPrivateChat(ctx: Context) {
+  if (ctx.dbchat.paid) {
+    return true
+  }
+
+  const requesterId = ctx.from?.id ? String(ctx.from.id) : undefined
+  if (!requesterId) {
+    return false
+  }
+
+  const paidRequesterChat = await ChatModel.exists({
+    id: requesterId,
+    paid: true,
+  }).exec()
+  return Boolean(paidRequesterChat)
 }
 
 function transcriptionAccessUserId(sourceMessage: Message, ctx: Context) {

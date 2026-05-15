@@ -122,6 +122,28 @@ async function main() {
     'paid chats should not query abuse-limit counters'
   )
 
+  const paidRequesterQueries = []
+  const paidRequesterResult = await checkTranscriptionAbuseLimits({
+    chatId: 'chat-1',
+    chatPaid: false,
+    requesterPaid: true,
+    userId: 'user-1',
+    now: new Date('2026-05-05T12:00:00.000Z'),
+    settings: {
+      chatActiveJobLimit: 2,
+      chatWindowMs: 60_000,
+      chatWindowJobLimit: 3,
+      userWindowMs: 120_000,
+      userWindowJobLimit: 4,
+    },
+    counter: counterFor([2, 3, 4], paidRequesterQueries),
+  })
+  assert(!paidRequesterResult, 'paid requesters should bypass abuse limits')
+  assert(
+    paidRequesterQueries.length === 0,
+    'paid requesters should not query abuse-limit counters'
+  )
+
   const settings = transcriptionAbuseLimitSettings({
     VOICY_TRANSCRIPTION_CHAT_ACTIVE_JOB_LIMIT: '0',
     VOICY_TRANSCRIPTION_CHAT_WINDOW_MS: 'not-a-number',
