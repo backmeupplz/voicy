@@ -28,14 +28,8 @@ async function assertLimit(counts, expectedReason) {
   const queries = []
   const result = await checkTranscriptionAbuseLimits({
     chatId: 'chat-1',
-    userId: 'user-1',
-    now: new Date('2026-05-05T12:00:00.000Z'),
     settings: {
       chatActiveJobLimit: 2,
-      chatWindowMs: 60_000,
-      chatWindowJobLimit: 3,
-      userWindowMs: 120_000,
-      userWindowJobLimit: 4,
     },
     counter: counterFor(counts, queries),
   })
@@ -62,57 +56,26 @@ async function main() {
     'active queue query should include transcribing jobs'
   )
 
-  const chatQueries = await assertLimit(
-    [0, 3],
-    TranscriptionAbuseLimitReason.chatRateLimited
-  )
-  assert(chatQueries.length === 2, 'chat rate cap should stop before user cap')
-  assert(
-    chatQueries[1].createdAt.$gte.toISOString() === '2026-05-05T11:59:00.000Z',
-    'chat rate window should use configured start time'
-  )
-
-  const userQueries = await assertLimit(
-    [0, 0, 4],
-    TranscriptionAbuseLimitReason.userRateLimited
-  )
-  assert(userQueries.length === 3, 'user rate cap should run after chat checks')
-  assert(
-    userQueries[2].requestedByUserId === 'user-1',
-    'user rate query should scope by requesting user'
-  )
-
-  const noUserQueries = []
-  const noUserResult = await checkTranscriptionAbuseLimits({
+  const allowedQueries = []
+  const allowedResult = await checkTranscriptionAbuseLimits({
     chatId: 'chat-1',
-    now: new Date('2026-05-05T12:00:00.000Z'),
     settings: {
       chatActiveJobLimit: 2,
-      chatWindowMs: 60_000,
-      chatWindowJobLimit: 3,
-      userWindowMs: 120_000,
-      userWindowJobLimit: 4,
     },
-    counter: counterFor([0, 0, 4], noUserQueries),
+    counter: counterFor([0], allowedQueries),
   })
-  assert(!noUserResult, 'missing user id should skip user rate cap')
+  assert(!allowedResult, 'jobs below the active queue cap should be allowed')
   assert(
-    noUserQueries.length === 2,
-    'missing user id should not query user cap'
+    allowedQueries.length === 1,
+    'allowed jobs should only query the active queue cap'
   )
 
   const paidChatQueries = []
   const paidChatResult = await checkTranscriptionAbuseLimits({
     chatId: 'chat-1',
     chatPaid: true,
-    userId: 'user-1',
-    now: new Date('2026-05-05T12:00:00.000Z'),
     settings: {
       chatActiveJobLimit: 2,
-      chatWindowMs: 60_000,
-      chatWindowJobLimit: 3,
-      userWindowMs: 120_000,
-      userWindowJobLimit: 4,
     },
     counter: counterFor([2, 3, 4], paidChatQueries),
   })
@@ -127,14 +90,8 @@ async function main() {
     chatId: 'chat-1',
     chatPaid: false,
     requesterPaid: true,
-    userId: 'user-1',
-    now: new Date('2026-05-05T12:00:00.000Z'),
     settings: {
       chatActiveJobLimit: 2,
-      chatWindowMs: 60_000,
-      chatWindowJobLimit: 3,
-      userWindowMs: 120_000,
-      userWindowJobLimit: 4,
     },
     counter: counterFor([2, 3, 4], paidRequesterQueries),
   })
@@ -146,22 +103,8 @@ async function main() {
 
   const settings = transcriptionAbuseLimitSettings({
     VOICY_TRANSCRIPTION_CHAT_ACTIVE_JOB_LIMIT: '0',
-    VOICY_TRANSCRIPTION_CHAT_WINDOW_MS: 'not-a-number',
-    VOICY_TRANSCRIPTION_CHAT_WINDOW_JOB_LIMIT: '7',
-    VOICY_TRANSCRIPTION_USER_WINDOW_MS: '5000',
-    VOICY_TRANSCRIPTION_USER_WINDOW_JOB_LIMIT: '-1',
   })
   assert(settings.chatActiveJobLimit === 0, 'zero should disable active cap')
-  assert(
-    settings.chatWindowMs === 10 * 60 * 1000,
-    'invalid chat window should use default'
-  )
-  assert(settings.chatWindowJobLimit === 7, 'valid chat cap should be used')
-  assert(settings.userWindowMs === 5000, 'valid user window should be used')
-  assert(
-    settings.userWindowJobLimit === 5,
-    'negative user cap should use default'
-  )
 
   console.log('transcription abuse limits proof passed')
 }

@@ -65,8 +65,6 @@ guest_reply_to_media: 'Antworte auf eine Sprachnachricht, Videonachricht oder un
 error_queue: "_👮 Voicy konnte nicht anfangen, diese Nachricht in Text umzuwandeln. Bitte versuche es später erneut._"
 error_donation_checkout: "_👮 Voicy konnte keinen Spenden-Checkout erstellen. Bitte versuche es später erneut._"
 error_transcription_queue_full: "_👮 In diesem Chat warten bereits zu viele Audionachrichten darauf, in Text umgewandelt zu werden. Bitte versuche es erneut, nachdem die aktuellen Nachrichten fertig sind._"
-error_transcription_chat_limited: "_👮 Dieser Chat sendet Audionachrichten zu schnell. Bitte warte kurz, bevor du eine weitere Transkription startest._"
-error_transcription_user_limited: "_👮 Du startest Transkriptionen zu schnell. Bitte warte kurz und versuche es erneut._"
 banned: 'Du bist gesperrt, wahrscheinlich wegen Zahlungsbetrugs. Kontaktiere @borodutch, wenn das ein Fehler ist.'
 progress_processing: 'Wird in Text umgewandelt...'
 progress_retrying: 'Das konnte nicht in Text umgewandelt werden; Voicy versucht es erneut...'

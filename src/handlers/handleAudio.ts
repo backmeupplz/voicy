@@ -100,7 +100,6 @@ async function enqueueTranscription(
     chatId: ctx.dbchat.id,
     chatPaid: ctx.dbchat.paid,
     requesterPaid: await requesterHasPaidPrivateChat(ctx),
-    userId: ctx.from?.id ? String(ctx.from.id) : undefined,
   })
   if (abuseLimit) {
     if (!ctx.dbchat.silent) {
@@ -563,13 +562,8 @@ function sendLargeFileError(ctx: Context) {
 }
 
 function transcriptionLimitMessageKey(reason: TranscriptionAbuseLimitReason) {
-  if (reason === TranscriptionAbuseLimitReason.chatQueueFull) {
-    return 'error_transcription_queue_full'
-  }
-  if (reason === TranscriptionAbuseLimitReason.userRateLimited) {
-    return 'error_transcription_user_limited'
-  }
-  return 'error_transcription_chat_limited'
+  void reason
+  return 'error_transcription_queue_full'
 }
 
 export { enqueueTranscription, transcriptionAccessUserId }
