@@ -250,7 +250,7 @@ async function main() {
 
       assert(
         createdJobs.length === 1,
-        'paid audio should enqueue when abuse counters are over limit'
+        'paid audio should enqueue when active queue counters are over limit'
       )
       assert(
         abuseLimitChecks.length === 1,
@@ -269,15 +269,15 @@ async function main() {
         'paid audio should get normal queue progress'
       )
       assert(
-        ctx.replies[0].text !== 'error_transcription_user_limited',
-        'paid audio should not get rate-limit copy'
+        ctx.replies[0].text !== 'error_transcription_queue_full',
+        'paid audio should not get active queue cap copy'
       )
     },
     undefined,
     (options) =>
       options.chatPaid
         ? undefined
-        : { reason: 'user_rate_limited', limit: 4, windowMs: 120_000 }
+        : { reason: 'chat_queue_full', limit: 10 }
   )
 
   await withPatchedQueue(
@@ -307,15 +307,15 @@ async function main() {
         'paid requester should pass requester donation state'
       )
       assert(
-        ctx.replies[0].text !== 'error_transcription_user_limited',
-        'paid requester should not get rate-limit copy'
+        ctx.replies[0].text !== 'error_transcription_queue_full',
+        'paid requester should not get active queue cap copy'
       )
     },
     undefined,
     (options) =>
       options.requesterPaid
         ? undefined
-        : { reason: 'user_rate_limited', limit: 4, windowMs: 120_000 },
+        : { reason: 'chat_queue_full', limit: 10 },
     true
   )
 
@@ -342,15 +342,15 @@ async function main() {
         'unpaid audio should pass unpaid requester state'
       )
       assert(
-        ctx.replies[0].text === 'error_transcription_user_limited',
-        'unpaid audio should keep existing user limit copy'
+        ctx.replies[0].text === 'error_transcription_queue_full',
+        'unpaid audio should keep existing active queue cap copy'
       )
     },
     undefined,
     (options) =>
       options.chatPaid
         ? undefined
-        : { reason: 'user_rate_limited', limit: 4, windowMs: 120_000 }
+        : { reason: 'chat_queue_full', limit: 10 }
   )
 
   await withPatchedQueue(async (createdJobs) => {

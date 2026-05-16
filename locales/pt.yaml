@@ -65,8 +65,6 @@ guest_reply_to_media: 'Responda a uma mensagem de voz, nota de vídeo ou arquivo
 error_queue: "_👮 O Voicy não conseguiu começar a transformar essa mensagem em texto. Tente novamente mais tarde._"
 error_donation_checkout: "_👮 O Voicy não conseguiu criar um checkout de doação. Tente novamente mais tarde._"
 error_transcription_queue_full: "_👮 Este chat já tem mensagens de áudio demais aguardando para virar texto. Tente novamente depois que as mensagens atuais terminarem._"
-error_transcription_chat_limited: "_👮 Este chat está enviando mensagens de áudio rápido demais. Aguarde um pouco antes de iniciar outra transcrição._"
-error_transcription_user_limited: "_👮 Você está iniciando transcrições rápido demais. Aguarde um pouco e tente novamente._"
 banned: 'Você foi banido, provavelmente por fraude de pagamento. Fale com @borodutch se isso for um erro.'
 progress_processing: 'Transformando em texto...'
 progress_retrying: 'Não foi possível transformar isso em texto; tentando novamente...'

@@ -155,8 +155,6 @@ const dynamicKeys = new Set([
   'transcribe_all_true',
   'transcribe_all_false',
   'error_transcription_queue_full',
-  'error_transcription_chat_limited',
-  'error_transcription_user_limited',
   'golden_borodutch_subscription_required',
   'golden_borodutch_free_transcriptions_exhausted',
   'golden_borodutch_membership_check_failed',

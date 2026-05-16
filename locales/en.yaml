@@ -65,8 +65,6 @@ guest_reply_to_media: 'Reply to a voice message, video note, or supported audio/
 error_queue: "_\U0001F46E Voicy could not start turning that message into text. Please try again later._"
 error_donation_checkout: "_\U0001F46E Voicy could not create a donation checkout. Please try again later._"
 error_transcription_queue_full: "_\U0001F46E This chat already has too many audio messages waiting to be turned into text. Please try again after the current messages finish._"
-error_transcription_chat_limited: "_\U0001F46E This chat is sending audio messages too quickly. Please wait a bit before starting another transcription._"
-error_transcription_user_limited: "_\U0001F46E You are starting transcriptions too quickly. Please wait a bit before trying again._"
 banned: 'You are banned, most likely because of payment fraud. Contact @borodutch if this is a mistake.'
 progress_processing: 'Turning into text...'
 progress_retrying: 'Could not turn that into text; trying again...'
