@@ -109,6 +109,11 @@ interface ResolvedSource {
   localPath?: string
 }
 
+interface HeartbeatHandle {
+  isStale: () => boolean
+  stop: () => void
+}
+
 const consoleLogger: Logger = {
   info: (message) => console.log(message),
   warn: (message) => console.warn(message),
@@ -116,6 +121,13 @@ const consoleLogger: Logger = {
 }
 
 type LogValue = string | number | boolean | undefined
+
+const staleWorkerJobErrorCodes = new Set([
+  'job_not_found',
+  'job_not_owned',
+  'job_not_active',
+  'job_cancelled',
+])
 
 function formatLogValue(value: LogValue) {
   if (typeof value === 'string') {
@@ -138,6 +150,41 @@ function logWorkerActivity(
 ) {
   const formattedContext = formatLogContext(context)
   logger.info(formattedContext ? `${message} ${formattedContext}` : message)
+}
+
+function backendErrorCode(error: unknown) {
+  if (!axios.isAxiosError(error)) {
+    return undefined
+  }
+  const data = error.response?.data
+  if (!data || typeof data !== 'object') {
+    return undefined
+  }
+  const code = (data as { error?: unknown }).error
+  return typeof code === 'string' ? code : undefined
+}
+
+function isStaleWorkerJobError(error: unknown) {
+  if (!axios.isAxiosError(error) || error.response?.status !== 404) {
+    return false
+  }
+  const code = backendErrorCode(error)
+  return code ? staleWorkerJobErrorCodes.has(code) : false
+}
+
+function logStaleWorkerJob(
+  logger: Logger,
+  job: WorkerJob,
+  phase: string,
+  action: string,
+  error: unknown
+) {
+  logWorkerActivity(logger, 'Worker stale job ignored', {
+    ...jobLogContext(job),
+    phase,
+    action,
+    backendError: backendErrorCode(error) || 'unknown',
+  })
 }
 
 function jobLogContext(job: WorkerJob): Record<string, LogValue> {
@@ -715,6 +762,7 @@ async function transcribeJob(
 async function failJob(
   api: AxiosInstance,
   jobId: string,
+  job: WorkerJob,
   error: unknown,
   logger: Logger
 ) {
@@ -723,26 +771,51 @@ async function failJob(
     error instanceof Error ? error.message : String(error)
   )
   logger.warn(`Reporting job ${jobId} failure: ${message}`)
-  await api.post(`/jobs/${jobId}/failure`, { error: message, retryable })
+  try {
+    await api.post(`/jobs/${jobId}/failure`, { error: message, retryable })
+  } catch (failureError) {
+    if (isStaleWorkerJobError(failureError)) {
+      logStaleWorkerJob(
+        logger,
+        job,
+        'failure_report',
+        'report_failure',
+        failureError
+      )
+      return
+    }
+    throw failureError
+  }
 }
 
 function startHeartbeat(
   api: AxiosInstance,
-  jobId: string,
+  job: WorkerJob,
   intervalMs: number,
   logger: Logger
-) {
+): HeartbeatHandle | undefined {
   if (intervalMs <= 0) {
     return undefined
   }
-  return setInterval(() => {
-    api.post(`/jobs/${jobId}/heartbeat`).catch((error) => {
+  let stale = false
+  const timer = setInterval(() => {
+    api.post(`/jobs/${job.id}/heartbeat`).catch((error) => {
+      if (isStaleWorkerJobError(error)) {
+        stale = true
+        logStaleWorkerJob(logger, job, 'heartbeat', 'heartbeat', error)
+        clearInterval(timer)
+        return
+      }
       const message = redactSensitiveText(
         error instanceof Error ? error.message : String(error)
       )
-      logger.warn(`Heartbeat failed for job ${jobId}: ${message}`)
+      logger.warn(`Heartbeat failed for job ${job.id}: ${message}`)
     })
   }, intervalMs)
+  return {
+    isStale: () => stale,
+    stop: () => clearInterval(timer),
+  }
 }
 
 export async function processNextJob(
@@ -765,17 +838,39 @@ async function downloadJob(
     'Worker media download job claimed',
     jobLogContext(job)
   )
-  const heartbeat = startHeartbeat(
-    api,
-    job.id,
-    config.heartbeatIntervalMs,
-    logger
-  )
+  const heartbeat = startHeartbeat(api, job, config.heartbeatIntervalMs, logger)
 
   try {
-    const source = await getSource(api, job.id)
+    let source: WorkerSource
+    try {
+      source = await getSource(api, job.id)
+    } catch (error) {
+      if (isStaleWorkerJobError(error)) {
+        logStaleWorkerJob(logger, job, 'download', 'get_source', error)
+        return undefined
+      }
+      throw error
+    }
     const inputPath = await downloadSource(config, job, source)
-    const readyJob = await markDownloaded(api, job.id, inputPath)
+    if (heartbeat?.isStale()) {
+      logWorkerActivity(logger, 'Worker media download result dropped', {
+        ...jobLogContext(job),
+        phase: 'mark_downloaded',
+        action: 'drop_after_stale_heartbeat',
+        inputFile: path.basename(inputPath),
+      })
+      return undefined
+    }
+    let readyJob: WorkerJob
+    try {
+      readyJob = await markDownloaded(api, job.id, inputPath)
+    } catch (error) {
+      if (isStaleWorkerJobError(error)) {
+        logStaleWorkerJob(logger, job, 'download', 'mark_downloaded', error)
+        return undefined
+      }
+      throw error
+    }
     logWorkerActivity(logger, 'Worker media download completed', {
       ...jobLogContext(readyJob),
       elapsedMs: Date.now() - startedAt,
@@ -790,11 +885,19 @@ async function downloadJob(
       elapsedMs: Date.now() - startedAt,
       retryable,
     })
-    await failJob(api, job.id, error, logger)
+    if (heartbeat?.isStale()) {
+      logWorkerActivity(logger, 'Worker media download failure dropped', {
+        ...jobLogContext(job),
+        phase: 'failure_report',
+        action: 'drop_after_stale_heartbeat',
+      })
+      return undefined
+    }
+    await failJob(api, job.id, job, error, logger)
     return undefined
   } finally {
     if (heartbeat) {
-      clearInterval(heartbeat)
+      heartbeat.stop()
     }
   }
 }
@@ -806,21 +909,31 @@ async function transcribeDownloadedJob(
   logger: Logger
 ) {
   const startedAt = Date.now()
-  const job = ['processing', 'transcribing'].includes(downloaded.job.status)
-    ? downloaded.job
-    : await startTranscription(api, downloaded.job.id)
+  let job: WorkerJob
+  try {
+    job = ['processing', 'transcribing'].includes(downloaded.job.status)
+      ? downloaded.job
+      : await startTranscription(api, downloaded.job.id)
+  } catch (error) {
+    if (isStaleWorkerJobError(error)) {
+      logStaleWorkerJob(
+        logger,
+        downloaded.job,
+        'transcription',
+        'start_transcription',
+        error
+      )
+      return
+    }
+    throw error
+  }
   logWorkerActivity(logger, 'Worker transcription job started', {
     ...jobLogContext(job),
     engine: config.engine,
     model: config.model,
     inputFile: path.basename(downloaded.inputPath),
   })
-  const heartbeat = startHeartbeat(
-    api,
-    job.id,
-    config.heartbeatIntervalMs,
-    logger
-  )
+  const heartbeat = startHeartbeat(api, job, config.heartbeatIntervalMs, logger)
 
   try {
     const result = await transcribeJob(
@@ -837,7 +950,24 @@ async function transcribeDownloadedJob(
         Date.now() - startedAt
       ),
     })
-    await api.post(`/jobs/${job.id}/result`, result)
+    if (heartbeat?.isStale()) {
+      logWorkerActivity(logger, 'Worker transcription result dropped', {
+        ...jobLogContext(job),
+        phase: 'result_upload',
+        action: 'drop_after_stale_heartbeat',
+        textChars: result.text.length,
+      })
+      return
+    }
+    try {
+      await api.post(`/jobs/${job.id}/result`, result)
+    } catch (error) {
+      if (isStaleWorkerJobError(error)) {
+        logStaleWorkerJob(logger, job, 'result_upload', 'upload_result', error)
+        return
+      }
+      throw error
+    }
     logWorkerActivity(logger, 'Worker transcription job completed', {
       ...transcriptionResultLogContext(
         job,
@@ -857,10 +987,18 @@ async function transcribeDownloadedJob(
       elapsedMs: Date.now() - startedAt,
       retryable,
     })
-    await failJob(api, job.id, error, logger)
+    if (heartbeat?.isStale()) {
+      logWorkerActivity(logger, 'Worker transcription failure dropped', {
+        ...jobLogContext(job),
+        phase: 'failure_report',
+        action: 'drop_after_stale_heartbeat',
+      })
+      return
+    }
+    await failJob(api, job.id, job, error, logger)
   } finally {
     if (heartbeat) {
-      clearInterval(heartbeat)
+      heartbeat.stop()
     }
   }
 }

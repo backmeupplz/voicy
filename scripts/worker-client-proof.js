@@ -485,6 +485,213 @@ function createRestartProofServer() {
   return { server, state }
 }
 
+function createStaleWorkerProofServer(mode) {
+  const ids =
+    mode === 'start'
+      ? ['stale-start-job', 'later-job']
+      : [`stale-${mode}-job`]
+  const queue = [...ids]
+  const state = {
+    claimed: [],
+    downloaded: [],
+    transcribeAttempts: [],
+    results: [],
+    failures: [],
+    heartbeats: 0,
+  }
+
+  const server = http.createServer(async (request, response) => {
+    const url = new URL(request.url, 'http://127.0.0.1')
+    if (
+      !url.pathname.startsWith('/audio/') &&
+      request.headers.authorization !== 'Bearer proof-worker-token'
+    ) {
+      response.writeHead(401, { 'Content-Type': 'application/json' })
+      response.end(JSON.stringify({ error: 'invalid_worker_token' }))
+      return
+    }
+
+    if (
+      request.method === 'POST' &&
+      url.pathname === '/worker/v1/jobs/claim-download'
+    ) {
+      const id = queue.shift()
+      if (!id) {
+        response.writeHead(204)
+        response.end()
+        return
+      }
+      state.claimed.push(id)
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          job: {
+            id,
+            status: 'downloading',
+            chatId: 'stale-chat',
+            sourceKind: 'voice',
+            fileSize: 17,
+            recognitionLanguageHint: 'en',
+            attempts: 1,
+          },
+        })
+      )
+      return
+    }
+
+    const sourceMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/source$/
+    )
+    if (request.method === 'GET' && sourceMatch) {
+      const id = sourceMatch[1]
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          source: {
+            sourceUrl: `http://127.0.0.1:${
+              server.address().port
+            }/audio/${id}.ogg`,
+            sourceKind: 'voice',
+            mimeType: 'audio/ogg',
+          },
+        })
+      )
+      return
+    }
+
+    const audioMatch = url.pathname.match(/^\/audio\/([^/]+)\.ogg$/)
+    if (request.method === 'GET' && audioMatch) {
+      response.writeHead(200, { 'Content-Type': 'audio/ogg' })
+      response.end(Buffer.from(`${audioMatch[1]} audio bytes`))
+      return
+    }
+
+    const downloadedMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/downloaded$/
+    )
+    if (request.method === 'POST' && downloadedMatch) {
+      const id = downloadedMatch[1]
+      await readJson(request)
+      state.downloaded.push(id)
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          job: {
+            id,
+            status: 'ready',
+            chatId: 'stale-chat',
+            sourceKind: 'voice',
+            fileSize: 17,
+            recognitionLanguageHint: 'en',
+            attempts: 1,
+          },
+        })
+      )
+      return
+    }
+
+    const transcribeMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/transcribe$/
+    )
+    if (request.method === 'POST' && transcribeMatch) {
+      const id = transcribeMatch[1]
+      state.transcribeAttempts.push(id)
+      if (mode === 'start' && id === 'stale-start-job') {
+        response.writeHead(404, { 'Content-Type': 'application/json' })
+        response.end(JSON.stringify({ error: 'job_not_found' }))
+        return
+      }
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          job: {
+            id,
+            status: 'transcribing',
+            chatId: 'stale-chat',
+            sourceKind: 'voice',
+            fileSize: 17,
+            recognitionLanguageHint: 'en',
+            attempts: 1,
+          },
+        })
+      )
+      return
+    }
+
+    const heartbeatMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/heartbeat$/
+    )
+    if (request.method === 'POST' && heartbeatMatch) {
+      state.heartbeats += 1
+      if (mode === 'heartbeat') {
+        response.writeHead(404, { 'Content-Type': 'application/json' })
+        response.end(JSON.stringify({ error: 'job_not_found' }))
+        return
+      }
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(JSON.stringify({ job: { id: heartbeatMatch[1] } }))
+      return
+    }
+
+    const resultMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/result$/
+    )
+    if (request.method === 'POST' && resultMatch) {
+      const body = await readJson(request)
+      if (mode === 'result') {
+        response.writeHead(404, { 'Content-Type': 'application/json' })
+        response.end(JSON.stringify({ error: 'job_not_found' }))
+        return
+      }
+      state.results.push({ id: resultMatch[1], body })
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({ job: { id: resultMatch[1], status: 'completed' } })
+      )
+      return
+    }
+
+    const failureMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/failure$/
+    )
+    if (request.method === 'POST' && failureMatch) {
+      const body = await readJson(request)
+      if (mode === 'failure') {
+        response.writeHead(404, { 'Content-Type': 'application/json' })
+        response.end(JSON.stringify({ error: 'job_not_found' }))
+        return
+      }
+      state.failures.push({ id: failureMatch[1], body })
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({ job: { id: failureMatch[1], status: 'failed' } })
+      )
+      return
+    }
+
+    if (request.method === 'POST' && url.pathname === '/worker/v1/jobs/claim') {
+      response.writeHead(204)
+      response.end()
+      return
+    }
+
+    response.writeHead(404, { 'Content-Type': 'application/json' })
+    response.end(JSON.stringify({ error: 'not_found' }))
+  })
+
+  return { server, state }
+}
+
+function staleWorkerLogs(logLines, phase, action) {
+  return logLines.filter(
+    (line) =>
+      line.includes('Worker stale job ignored') &&
+      line.includes(`phase="${phase}"`) &&
+      line.includes(`action="${action}"`) &&
+      line.includes('backendError="job_not_found"')
+  )
+}
+
 async function main() {
   const { server, state } = createProofServer()
   await listen(server)
@@ -929,6 +1136,239 @@ async function main() {
     )
   } finally {
     await close(failureProof.server)
+  }
+
+  const staleStartProof = createStaleWorkerProofServer('start')
+  await listen(staleStartProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      staleStartProof.server.address().port
+    }/worker/v1`
+    const staleStartLogLines = []
+    const processed = await processAvailableJobs(
+      loadConfig({
+        VOICY_WORKER_API_URL: baseUrl,
+        VOICY_WORKER_TOKEN: 'proof-worker-token',
+        VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+        VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+          'scripts/fake-transcriber.js',
+          '{input}',
+          '{output}',
+        ]),
+        VOICY_WORKER_WORK_DIR: path.join(
+          os.tmpdir(),
+          `voicy-worker-stale-start-proof-${process.pid}`
+        ),
+        VOICY_WORKER_DOWNLOAD_CONCURRENCY: '1',
+        VOICY_WORKER_TRANSCRIPTION_CONCURRENCY: '1',
+      }),
+      {
+        info: (message) => staleStartLogLines.push(message),
+        warn: (message) => staleStartLogLines.push(message),
+        error: (message) => staleStartLogLines.push(message),
+      }
+    )
+
+    assert(
+      processed === 2,
+      'stale start proof should still count both claimed jobs'
+    )
+    assert(
+      staleStartProof.state.results.length === 1 &&
+        staleStartProof.state.results[0].id === 'later-job',
+      'worker should keep processing later jobs after stale start'
+    )
+    assert(
+      staleStartProof.state.failures.length === 0,
+      'stale start should not report job failure'
+    )
+    assert(
+      staleWorkerLogs(
+        staleStartLogLines,
+        'transcription',
+        'start_transcription'
+      ).length === 1,
+      'stale start should log one structured stale-job line'
+    )
+  } finally {
+    await close(staleStartProof.server)
+  }
+
+  const staleResultProof = createStaleWorkerProofServer('result')
+  await listen(staleResultProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      staleResultProof.server.address().port
+    }/worker/v1`
+    const staleResultLogLines = []
+    const staleTranscriptText =
+      'stale result transcript 123456:ABCDEFGHIJKLMNOPQRSTUVWXYZabc'
+    const previousFakeTranscriptText = process.env.VOICY_FAKE_TRANSCRIPT_TEXT
+    process.env.VOICY_FAKE_TRANSCRIPT_TEXT = staleTranscriptText
+    try {
+      const processed = await processNextJob(
+        loadConfig({
+          VOICY_WORKER_API_URL: baseUrl,
+          VOICY_WORKER_TOKEN: 'proof-worker-token',
+          VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+          VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+            'scripts/fake-transcriber.js',
+            '{input}',
+            '{output}',
+          ]),
+          VOICY_WORKER_WORK_DIR: path.join(
+            os.tmpdir(),
+            `voicy-worker-stale-result-proof-${process.pid}`
+          ),
+        }),
+        {
+          info: (message) => staleResultLogLines.push(message),
+          warn: (message) => staleResultLogLines.push(message),
+          error: (message) => staleResultLogLines.push(message),
+        }
+      )
+      assert(processed, 'stale result proof should claim a job')
+    } finally {
+      if (previousFakeTranscriptText === undefined) {
+        delete process.env.VOICY_FAKE_TRANSCRIPT_TEXT
+      } else {
+        process.env.VOICY_FAKE_TRANSCRIPT_TEXT = previousFakeTranscriptText
+      }
+    }
+
+    assert(
+      staleResultProof.state.failures.length === 0,
+      'stale result should not report job failure'
+    )
+    assert(
+      staleWorkerLogs(
+        staleResultLogLines,
+        'result_upload',
+        'upload_result'
+      ).length === 1,
+      'stale result should log one structured stale-job line'
+    )
+    assert(
+      staleResultLogLines.every(
+        (line) => !line.includes(staleTranscriptText)
+      ),
+      'stale result logs should not include raw transcript text'
+    )
+  } finally {
+    await close(staleResultProof.server)
+  }
+
+  const staleHeartbeatProof = createStaleWorkerProofServer('heartbeat')
+  await listen(staleHeartbeatProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      staleHeartbeatProof.server.address().port
+    }/worker/v1`
+    const staleHeartbeatLogLines = []
+    const processed = await processNextJob(
+      loadConfig({
+        VOICY_WORKER_API_URL: baseUrl,
+        VOICY_WORKER_TOKEN: 'proof-worker-token',
+        VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+        VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+          '-e',
+          "setTimeout(() => process.stdout.write(JSON.stringify({ text: 'heartbeat stale transcript', parts: [], language: 'en' })), 50)",
+        ]),
+        VOICY_WORKER_WORK_DIR: path.join(
+          os.tmpdir(),
+          `voicy-worker-stale-heartbeat-proof-${process.pid}`
+        ),
+        VOICY_WORKER_HEARTBEAT_INTERVAL_MS: '1',
+      }),
+      {
+        info: (message) => staleHeartbeatLogLines.push(message),
+        warn: (message) => staleHeartbeatLogLines.push(message),
+        error: (message) => staleHeartbeatLogLines.push(message),
+      }
+    )
+
+    assert(processed, 'stale heartbeat proof should claim a job')
+    assert(
+      staleHeartbeatProof.state.heartbeats >= 1,
+      'stale heartbeat proof should exercise the heartbeat endpoint'
+    )
+    assert(
+      staleHeartbeatProof.state.results.length === 0,
+      'stale heartbeat should drop the finished local result'
+    )
+    assert(
+      staleHeartbeatProof.state.failures.length === 0,
+      'stale heartbeat should not report job failure'
+    )
+    assert(
+      staleWorkerLogs(
+        staleHeartbeatLogLines,
+        'heartbeat',
+        'heartbeat'
+      ).length === 1,
+      'stale heartbeat should log one structured stale-job line'
+    )
+  } finally {
+    await close(staleHeartbeatProof.server)
+  }
+
+  const staleFailureProof = createStaleWorkerProofServer('failure')
+  await listen(staleFailureProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      staleFailureProof.server.address().port
+    }/worker/v1`
+    const staleFailureLogLines = []
+    const processed = await processNextJob(
+      loadConfig({
+        VOICY_WORKER_API_URL: baseUrl,
+        VOICY_WORKER_TOKEN: 'proof-worker-token',
+        VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+        VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+          '-e',
+          'process.stdout.write("PRIVATE STALE FAILURE TRANSCRIPT"); process.exit(3)',
+        ]),
+        VOICY_WORKER_WORK_DIR: path.join(
+          os.tmpdir(),
+          `voicy-worker-stale-failure-proof-${process.pid}`
+        ),
+      }),
+      {
+        info: (message) => staleFailureLogLines.push(message),
+        warn: (message) => staleFailureLogLines.push(message),
+        error: (message) => staleFailureLogLines.push(message),
+      }
+    )
+
+    assert(processed, 'stale failure proof should claim a job')
+    assert(
+      staleFailureProof.state.results.length === 0,
+      'failed stale job should not submit result'
+    )
+    assert(
+      staleFailureProof.state.failures.length === 0,
+      'stale failure report should not be accepted as a normal failure'
+    )
+    assert(
+      staleWorkerLogs(
+        staleFailureLogLines,
+        'failure_report',
+        'report_failure'
+      ).length === 1,
+      'stale failure report should log one structured stale-job line'
+    )
+    assert(
+      staleFailureLogLines.every(
+        (line) => !line.includes('PRIVATE STALE FAILURE TRANSCRIPT')
+      ),
+      'stale failure logs should not include raw transcript output'
+    )
+  } finally {
+    await close(staleFailureProof.server)
   }
 
   const schedulingProof = createSchedulingProofServer()
