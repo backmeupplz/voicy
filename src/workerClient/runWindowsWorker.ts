@@ -880,6 +880,7 @@ export async function processAvailableJobs(
     const ready = await downloadJob(api, config, job, logger)
     if (ready) {
       readyQueue.push(ready)
+      fillTranscriptions()
     }
   }
 
