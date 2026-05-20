@@ -6,6 +6,12 @@ import {
   stripeCheckoutSessionRequest,
   stripeDonationOption,
 } from '@/helpers/stripeCheckoutActivation'
+import {
+  VOICY_TELEGRAM_STARS_FIXED_AMOUNTS,
+  createTelegramStarsInvoiceLink,
+  formatTelegramStarsDonationAmount,
+  telegramStarsDonationOption,
+} from '@/helpers/telegramStarsActivation'
 import { htmlI18n, markdownI18n } from '@/helpers/telegramMarkdown'
 import { stripe } from '@/helpers/stripe'
 import Context from '@/models/Context'
@@ -36,6 +42,42 @@ function checkoutButton(
       amount: formatStripeDonationAmount(amount),
     }),
     url: session.url,
+  }
+}
+
+async function starsInvoiceButtons(ctx: Context, chatId: string) {
+  try {
+    const links = await Promise.all(
+      VOICY_TELEGRAM_STARS_FIXED_AMOUNTS.map(async (amount) => {
+        const formattedAmount = formatTelegramStarsDonationAmount(amount)
+        return {
+          amount,
+          url: await createTelegramStarsInvoiceLink(
+            ctx.api,
+            chatId,
+            telegramStarsDonationOption(amount),
+            {
+              title: ctx.i18n.t('telegram_stars_invoice_title'),
+              description: ctx.i18n.t('telegram_stars_invoice_description'),
+              label: ctx.i18n.t('telegram_stars_invoice_label', {
+                amount: formattedAmount,
+              }),
+            }
+          ),
+        }
+      })
+    )
+    return links.map(({ amount, url }) => [
+      {
+        text: ctx.i18n.t('telegram_stars_button', {
+          amount: formatTelegramStarsDonationAmount(amount),
+        }),
+        url,
+      },
+    ])
+  } catch (error) {
+    console.warn('Failed to create Telegram Stars invoice links', error)
+    return []
   }
 }
 
@@ -87,19 +129,25 @@ export default async function handleDonate(ctx: Context) {
         return
       }
       console.log('Not paid, creating fixed donation sessions')
-      const sessions = await Promise.all(
-        VOICY_STRIPE_FIXED_AMOUNTS.map((amount) =>
-          createCheckoutSession(chatId, amount)
-        )
-      )
+      const [starsButtons, sessions] = await Promise.all([
+        starsInvoiceButtons(ctx, chatId),
+        Promise.all(
+          VOICY_STRIPE_FIXED_AMOUNTS.map((amount) =>
+            createCheckoutSession(chatId, amount)
+          )
+        ),
+      ])
       console.log('Not paid, sending message')
       await ctx.reply(htmlI18n(ctx, 'pay'), {
         parse_mode: 'HTML',
         disable_web_page_preview: true,
         reply_markup: {
-          inline_keyboard: sessions.map((session, index) => [
-            checkoutButton(ctx, session, VOICY_STRIPE_FIXED_AMOUNTS[index]),
-          ]),
+          inline_keyboard: [
+            ...starsButtons,
+            ...sessions.map((session, index) => [
+              checkoutButton(ctx, session, VOICY_STRIPE_FIXED_AMOUNTS[index]),
+            ]),
+          ],
         },
       })
     } catch (error) {

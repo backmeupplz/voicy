@@ -6,6 +6,10 @@ import * as dotenv from 'dotenv'
 dotenv.config({ path: `${__dirname}/../.env` })
 // Dependencies
 import { dropPendingTelegramUpdatesBeforePolling } from '@/helpers/staleTelegramUpdates'
+import {
+  handleTelegramStarsPreCheckout,
+  handleTelegramStarsSuccessfulPayment,
+} from '@/handlers/handleTelegramStarsPayment'
 import { markChatUnreachableForTelegramError } from '@/helpers/chatReachability'
 import { run } from '@grammyjs/runner'
 import { webhookApp } from '@/helpers/startWebhook'
@@ -56,12 +60,14 @@ async function runApp() {
   bot.use(countMessage)
   bot.use(handleGuestMessage)
   bot.use(ignoreOldMessageUpdates)
+  bot.on('pre_checkout_query', handleTelegramStarsPreCheckout)
   bot.use(attachChat)
   bot.use(i18n.middleware())
   bot.use(configureI18n)
   bot.use(checkBanned)
   // Various events
   bot.on('my_chat_member', handleMyChatMember)
+  bot.on(':successful_payment', handleTelegramStarsSuccessfulPayment)
   bot.on([':voice', ':video_note'], handleAudio)
   bot.on(
     [':audio', ':document', ':video'],

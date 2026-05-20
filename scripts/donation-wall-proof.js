@@ -14,6 +14,11 @@ const handleDonate = require('../dist/commands/handleDonate').default
 const handleAudio = require('../dist/handlers/handleAudio').default
 const stripeHelper = require('../dist/helpers/stripe')
 const {
+  VOICY_TELEGRAM_STARS_FIXED_AMOUNTS,
+  TELEGRAM_STARS_CURRENCY,
+  TELEGRAM_STARS_PROVIDER_TOKEN,
+} = require('../dist/helpers/telegramStarsActivation')
+const {
   VOICY_STRIPE_FIXED_AMOUNTS,
   VOICY_STRIPE_MINIMUM_AMOUNT,
 } = require('../dist/helpers/stripeCheckoutActivation')
@@ -51,6 +56,7 @@ function mockContext({
   const replies = []
   const chatActions = []
   const chatSaves = []
+  const starsInvoiceLinks = []
   const dbchat = {
     id: `donation-wall-proof-${paid ? 'paid' : 'unpaid'}`,
     paid,
@@ -97,6 +103,12 @@ function mockContext({
           throw sendChatActionError
         }
       },
+      raw: {
+        createInvoiceLink: async (request) => {
+          starsInvoiceLinks.push(request)
+          return `https://telegram.test/stars-${starsInvoiceLinks.length}`
+        },
+      },
     },
     reply: async (text, options) => {
       if (failReplyToMessageId && options?.reply_to_message_id) {
@@ -106,6 +118,7 @@ function mockContext({
       return { message_id: 222 }
     },
     timeReceived: new Date(),
+    starsInvoiceLinks,
   }
 }
 
@@ -481,7 +494,11 @@ async function main() {
 
     assert(
       createdSessions.length === VOICY_STRIPE_FIXED_AMOUNTS.length,
-      'disabled wall should keep /donate fixed-tier checkouts available'
+      'disabled wall should keep /donate fixed-tier Stripe checkouts available'
+    )
+    assert(
+      ctx.starsInvoiceLinks.length === VOICY_TELEGRAM_STARS_FIXED_AMOUNTS.length,
+      'disabled wall should create one Stars invoice link per Stars tier'
     )
     assert(
       ctx.chatActions.length === 1,
@@ -495,11 +512,33 @@ async function main() {
     )
     assert(
       ctx.replies[0].options.reply_markup.inline_keyboard.length ===
-        VOICY_STRIPE_FIXED_AMOUNTS.length,
-      'donate checkout should include one button per fixed tier'
+        VOICY_TELEGRAM_STARS_FIXED_AMOUNTS.length +
+          VOICY_STRIPE_FIXED_AMOUNTS.length,
+      'donate checkout should include Stars and Stripe fixed-tier buttons'
     )
+    for (const [index, amount] of VOICY_TELEGRAM_STARS_FIXED_AMOUNTS.entries()) {
+      const createdInvoiceLink = ctx.starsInvoiceLinks[index]
+      assert(
+        createdInvoiceLink.currency === TELEGRAM_STARS_CURRENCY,
+        'Stars invoice should use XTR currency'
+      )
+      assert(
+        createdInvoiceLink.provider_token === TELEGRAM_STARS_PROVIDER_TOKEN,
+        'Stars invoice should use an empty provider token'
+      )
+      assert(
+        createdInvoiceLink.prices[0].amount === amount,
+        'Stars invoice should use the selected amount'
+      )
+      assert(
+        ctx.replies[0].options.reply_markup.inline_keyboard[index][0].url ===
+          `https://telegram.test/stars-${index + 1}`,
+        'donate checkout should put Stars invoice links first'
+      )
+    }
     for (const [index, amount] of VOICY_STRIPE_FIXED_AMOUNTS.entries()) {
       const createdSession = createdSessions[index]
+      const keyboardIndex = VOICY_TELEGRAM_STARS_FIXED_AMOUNTS.length + index
       assert(
         createdSession.line_items[0].price_data.unit_amount === amount,
         'fixed tier checkout should use the selected amount'
@@ -517,7 +556,8 @@ async function main() {
         'fixed tier checkout should include fixed tier metadata'
       )
       assert(
-        ctx.replies[0].options.reply_markup.inline_keyboard[index][0].url ===
+        ctx.replies[0].options.reply_markup.inline_keyboard[keyboardIndex][0]
+          .url ===
           `https://stripe.test/donation-wall-proof-${index + 1}`,
         'donate checkout should include Stripe session URLs'
       )

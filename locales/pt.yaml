@@ -41,6 +41,11 @@ golden_borodutch_free_transcriptions_exhausted: '👮 Você usou todas as 50 tra
 golden_borodutch_membership_check_failed: '👮 O Voicy não conseguiu confirmar a participação deste usuário em @golden\_borodutch. O bot precisa conseguir ler essa participação no canal; tente novamente mais tarde ou use /donate para ativar este chat.'
 already_paid: 'A transcrição de voz já está ativada para este chat. Obrigado.'
 stripe_activation_confirmed: 'O Voicy agora está ativado para este chat. Obrigado por apoiar a transcrição local privada.'
+telegram_stars_activation_confirmed: 'O Voicy agora está ativado para este chat. Obrigado pela doação com Telegram Stars.'
+telegram_stars_invoice_title: 'Ativar chat do Voicy'
+telegram_stars_invoice_description: 'Doação única com Telegram Stars para ativar a transcrição local privada neste chat.'
+telegram_stars_invoice_label: 'Ativação do Voicy: ${amount}'
+telegram_stars_button: 'Pagar ${amount}'
 pay: |
   O Voicy transforma áudio em texto usando computação local. Isso mantém a transcrição privada e evita enviar seu áudio para APIs de transcrição de terceiros.
 
@@ -48,7 +53,7 @@ pay: |
 
   As doações são por chat, não por usuário. Se você doar em mensagens privadas com o Voicy, ele será ativado no seu chat privado. Se quiser ativar um grupo, execute /donate dentro desse grupo.
 
-  Escolha uma opção abaixo ou envie <code>/donate 15.69</code> para pagar qualquer valor com mínimo de $6.99. Você também pode enviar tokens no valor de pelo menos $6.99 para <code>borodutch.eth</code> e enviar a transação para @borodutch.
+  Escolha uma opção de Telegram Stars abaixo. O checkout do Stripe continua disponível, ou envie <code>/donate 15.69</code> para pagar qualquer valor com mínimo de $6.99. Você também pode enviar tokens no valor de pelo menos $6.99 para <code>borodutch.eth</code> e enviar a transação para @borodutch.
 pay_custom: |
   Doe <b>${amount}</b> para ativar a transcrição de voz neste chat.
 

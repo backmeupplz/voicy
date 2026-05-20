@@ -58,6 +58,16 @@ export class Chat extends FindOrCreate {
   stripePriceId?: string
   @prop()
   stripeDonationTier?: string
+  @prop()
+  telegramPaymentChargeId?: string
+  @prop()
+  telegramStarsPaidAt?: Date
+  @prop()
+  telegramStarsAmount?: number
+  @prop()
+  telegramStarsDonationTier?: string
+  @prop()
+  telegramStarsPayerUserId?: string
   @prop({ required: true, default: false })
   banned: boolean
 }
