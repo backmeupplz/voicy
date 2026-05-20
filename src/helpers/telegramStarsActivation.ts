@@ -17,10 +17,10 @@ const MAX_TELEGRAM_PAYLOAD_BYTES = 128
 export const TELEGRAM_STARS_CURRENCY = 'XTR'
 export const TELEGRAM_STARS_PROVIDER_TOKEN = ''
 export const VOICY_TELEGRAM_STARS_MINIMUM_AMOUNT = Number(
-  process.env.TELEGRAM_STARS_MINIMUM_AMOUNT || 100
+  process.env.TELEGRAM_STARS_MINIMUM_AMOUNT || 300
 )
 export const VOICY_TELEGRAM_STARS_FIXED_AMOUNTS = (
-  process.env.TELEGRAM_STARS_FIXED_AMOUNTS || '100,250,500,1000'
+  process.env.TELEGRAM_STARS_FIXED_AMOUNTS || '300,500,1000'
 )
   .split(',')
   .map((amount) => Number(amount.trim()))
