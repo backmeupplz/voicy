@@ -35,6 +35,7 @@
     "test:start-help-previews": "node scripts/start-help-preview-proof.js",
     "test:local-runtime-health": "node scripts/local-runtime-health.js",
     "test:stripe-webhook": "node scripts/stripe-webhook-proof.js",
+    "test:telegram-stars": "node scripts/telegram-stars-proof.js",
     "test:telegram-markdown": "node scripts/telegram-markdown-proof.js",
     "test:donation-formatting": "node scripts/donation-formatting-proof.js",
     "test:telegram-api-retry": "node scripts/telegram-api-retry-proof.js",

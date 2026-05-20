@@ -41,6 +41,11 @@ golden_borodutch_free_transcriptions_exhausted: '👮 Du hast alle 50 kostenlose
 golden_borodutch_membership_check_failed: '👮 Voicy konnte die Mitgliedschaft dieses Nutzers bei @golden\_borodutch nicht bestätigen. Der Bot muss diese Kanalmitgliedschaft lesen können; versuche es später erneut oder verwende /donate, um diesen Chat zu aktivieren.'
 already_paid: 'Sprachtranskription ist für diesen Chat bereits aktiviert. Danke.'
 stripe_activation_confirmed: 'Voicy ist jetzt für diesen Chat aktiviert. Danke, dass du private lokale Transkription unterstützt.'
+telegram_stars_activation_confirmed: 'Voicy ist jetzt für diesen Chat aktiviert. Danke für die Telegram-Stars-Spende.'
+telegram_stars_invoice_title: 'Voicy-Chat aktivieren'
+telegram_stars_invoice_description: 'Einmalige Telegram-Stars-Spende, um private lokale Transkription für diesen Chat zu aktivieren.'
+telegram_stars_invoice_label: 'Voicy-Aktivierung: ${amount}'
+telegram_stars_button: '${amount} zahlen'
 pay: |
   Voicy wandelt Audio mit lokaler Rechenleistung in Text um. So bleibt die Transkription privat, und dein Audio wird nicht an Drittanbieter-Transkriptions-APIs gesendet.
 
@@ -48,7 +53,7 @@ pay: |
 
   Spenden gelten pro Chat, nicht pro Nutzer. Wenn du in privaten Nachrichten mit Voicy spendest, wird Voicy in deinem privaten Chat aktiviert. Wenn du eine Gruppe aktivieren möchtest, führe /donate in dieser Gruppe aus.
 
-  Wähle unten einen Betrag oder sende <code>/donate 15.69</code>, um einen beliebigen Betrag mit einem Minimum von $6.99 zu zahlen. Du kannst auch Token im Wert von mindestens $6.99 an <code>borodutch.eth</code> senden und die Transaktion an @borodutch schicken.
+  Wähle unten einen Telegram-Stars-Betrag. Stripe-Checkout ist weiterhin verfügbar, oder sende <code>/donate 15.69</code>, um einen beliebigen Betrag mit einem Minimum von $6.99 zu zahlen. Du kannst auch Token im Wert von mindestens $6.99 an <code>borodutch.eth</code> senden und die Transaktion an @borodutch schicken.
 pay_custom: |
   Spende <b>${amount}</b>, um Sprachtranskription für diesen Chat zu aktivieren.
 

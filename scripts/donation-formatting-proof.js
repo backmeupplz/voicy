@@ -100,7 +100,7 @@ assert.equal(
     'Voicy turns audio into text using local compute. That keeps transcription private and avoids sending your audio to third-party transcription APIs.',
     'Running local compute costs money. A one-time donation activates Voicy for this chat and helps us add more compute capacity.',
     'Donations are per chat, not per user. If you donate in private messages with Voicy, it activates Voicy in your private chat. If you want to activate a group, run /donate inside that group.',
-    'Choose a tier below, or send <code>/donate 15.69</code> to pay any amount with a $6.99 minimum. You can also send tokens worth at least $6.99 to <code>borodutch.eth</code> and send the transaction to @borodutch.\n',
+    'Choose a Telegram Stars tier below. Stripe checkout is still available, or send <code>/donate 15.69</code> to pay any amount with a $6.99 minimum. You can also send tokens worth at least $6.99 to <code>borodutch.eth</code> and send the transaction to @borodutch.\n',
   ].join('\n\n'),
   'English donation copy should match the approved wording'
 )
