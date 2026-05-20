@@ -5,9 +5,9 @@ process.env.STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'sk_test_dummy'
 process.env.TELEGRAM_STARS_PAYLOAD_SECRET =
   process.env.TELEGRAM_STARS_PAYLOAD_SECRET || 'stars-proof-secret'
 process.env.TELEGRAM_STARS_MINIMUM_AMOUNT =
-  process.env.TELEGRAM_STARS_MINIMUM_AMOUNT || '100'
+  process.env.TELEGRAM_STARS_MINIMUM_AMOUNT || '300'
 process.env.TELEGRAM_STARS_FIXED_AMOUNTS =
-  process.env.TELEGRAM_STARS_FIXED_AMOUNTS || '100,250,500'
+  process.env.TELEGRAM_STARS_FIXED_AMOUNTS || '300,500,1000'
 
 require('reflect-metadata')
 require('module-alias/register')
@@ -107,12 +107,18 @@ assert(
 )
 assert(metadata.tier === 'fixed', 'payload should include tier')
 assert(
-  !parseTelegramStarsInvoicePayload(payload.replace('-100', '-200')),
+  !parseTelegramStarsInvoicePayload(payload.replace('300', '200')),
   'tampered Stars payload should be rejected'
 )
 assert(
-  formatTelegramStarsDonationAmount(250) === '250 Stars',
+  formatTelegramStarsDonationAmount(300) === '300 Stars',
   'Stars amount should be formatted without USD equivalence'
+)
+assert(
+  VOICY_TELEGRAM_STARS_FIXED_AMOUNTS.every(
+    (amount) => amount >= VOICY_TELEGRAM_STARS_MINIMUM_AMOUNT
+  ),
+  'default Stars tiers should not include amounts below the minimum'
 )
 
 for (const amount of VOICY_TELEGRAM_STARS_FIXED_AMOUNTS) {
@@ -150,6 +156,17 @@ assertInvalid(validPayment({ currency: 'USD' }), 'currency')
 assertInvalid(
   validPayment({ total_amount: VOICY_TELEGRAM_STARS_MINIMUM_AMOUNT + 1 }),
   'total_amount'
+)
+assertInvalid(
+  validPayment({
+    total_amount: 100,
+    invoice_payload: createTelegramStarsInvoicePayload(
+      '-1001234567890',
+      { amount: 100, tier: 'custom' },
+      'belowminimum'
+    ),
+  }),
+  'below minimum'
 )
 assertInvalid(
   validPayment({ invoice_payload: payload.replace('proofnonce', 'other') }),
