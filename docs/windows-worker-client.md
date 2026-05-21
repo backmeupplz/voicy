@@ -230,6 +230,7 @@ $env:VOICY_WORKER_TELEGRAM_BOT_TOKEN = "<telegram-bot-token>"
 $env:VOICY_WORKER_TELEGRAM_API_URL = "http://127.0.0.1:8081"
 $env:VOICY_WORKER_DOWNLOAD_CONCURRENCY = "2"
 $env:VOICY_WORKER_TRANSCRIPTION_CONCURRENCY = "1"
+$env:VOICY_WORKER_READY_QUEUE_LIMIT = "2"
 $env:VOICY_WORKER_TRANSCRIBE_EXECUTABLE = "C:\voicy-worker\.venv\Scripts\python.exe"
 $env:VOICY_WORKER_TRANSCRIBE_ARGS_JSON = '["C:\\voicy-worker\\transcribe.py","{input}","{output}","{language}","{model}"]'
 ```
@@ -275,6 +276,11 @@ Optional:
 - `VOICY_WORKER_DOWNLOAD_CONCURRENCY=2` controls parallel media downloads.
 - `VOICY_WORKER_TRANSCRIPTION_CONCURRENCY=1` controls concurrent local STT
   commands.
+- `VOICY_WORKER_READY_QUEUE_LIMIT=2` bounds how many downloaded jobs the client
+  keeps ahead of local transcription.
+- `VOICY_WORKER_STALE_ACTIVE_JOB_MS=900000` controls when same-worker
+  `transcribing`/`processing` jobs with local media can be reclaimed after a
+  crash or restart.
 - `VOICY_MAX_MEDIA_FILE_SIZE_MB=2048` controls the bot-side accepted Telegram
   media size before a job is queued. This is the backend default for local Bot
   API workers; set `20` on cloud-only deployments.
@@ -376,6 +382,23 @@ transcription scheduler consumes whichever download becomes ready first, so a
 large slow file does not block a later smaller file that has already reached
 local disk.
 
+The worker also keeps only a small local ready backlog ahead of the transcriber.
+`VOICY_WORKER_READY_QUEUE_LIMIT` defaults to the larger of download concurrency
+and two transcription slots. Download claims alternate between the oldest and
+newest server-side jobs, and once the download queue has been exhausted the
+worker rechecks for new download work between transcriptions. During backlog
+recovery this gives fresh voice messages a chance to run between older ready
+jobs instead of waiting for the entire stale in-memory queue to drain. Scheduler
+logs include the selected `claimBucket`/`schedulingBucket`, job id, source kind,
+file size, language hint, and attempt count, but never transcript text or source
+URLs.
+
+On restart, the worker calls `POST /jobs/claim-ready` to recover ready local
+files already owned by the same worker. The backend also lets that endpoint
+reclaim same-worker `transcribing`/legacy `processing` jobs with a stale
+heartbeat and a stored `localSourcePath`; the default stale cutoff is 15 minutes
+and can be adjusted with `VOICY_WORKER_STALE_ACTIVE_JOB_MS`.
+
 `VOICY_WORKER_TRANSCRIBE_ARGS_JSON` must be a JSON array of argument strings.
 Each argument may contain `{input}`, `{output}`, `{language}`, and `{model}`.
 The worker replaces those placeholders and then starts the executable with an
@@ -451,6 +474,9 @@ MONGO=mongodb://127.0.0.1:27017/voicy_worker_proof yarn test:worker-e2e
 downloads a fake audio payload, executes a fake transcriber, uploads the result,
 checks the no-work polling path, checks retryable command failure reporting, and
 proves a smaller ready download can transcribe before a slower earlier download.
+It also covers fair backlog recovery: after download claims are exhausted while
+older ready work remains, a fresh newest-bucket job is claimed and transcribed
+before the older ready backlog fully drains.
 
 `yarn test:worker-e2e` uses the real Express worker API, local Mongo, a queued
 `TranscriptionJob`, a local sample-audio HTTP server, and the worker client. It

@@ -18,6 +18,8 @@ const DEFAULT_RESTART_DELAY_MS = 10000
 const DEFAULT_WORK_DIR = path.join(process.cwd(), 'tmp', 'voicy-worker')
 const DEFAULT_WORKER_MODEL = 'large-v3'
 
+type WorkerQueueBucket = 'oldest' | 'newest'
+
 interface WorkerJob {
   id: string
   status: string
@@ -78,6 +80,7 @@ interface WorkerConfig {
   restartDelayMs: number
   downloadConcurrency: number
   transcriptionConcurrency: number
+  readyQueueLimit: number
   telegramBotApiUrl: string
   telegramBotToken?: string
   idleExit: boolean
@@ -102,6 +105,7 @@ interface RunCommandResult {
 interface DownloadedJob {
   job: WorkerJob
   inputPath: string
+  schedulingBucket?: WorkerQueueBucket | 'recovered'
 }
 
 interface ResolvedSource {
@@ -295,6 +299,23 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
     )
   }
 
+  const downloadConcurrency = Math.max(
+    1,
+    numberFromEnv(
+      env.VOICY_WORKER_DOWNLOAD_CONCURRENCY,
+      2,
+      'VOICY_WORKER_DOWNLOAD_CONCURRENCY'
+    )
+  )
+  const transcriptionConcurrency = Math.max(
+    1,
+    numberFromEnv(
+      env.VOICY_WORKER_TRANSCRIPTION_CONCURRENCY,
+      1,
+      'VOICY_WORKER_TRANSCRIPTION_CONCURRENCY'
+    )
+  )
+
   return {
     apiUrl: required(env.VOICY_WORKER_API_URL, 'VOICY_WORKER_API_URL').replace(
       /\/+$/,
@@ -330,20 +351,14 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
       DEFAULT_RESTART_DELAY_MS,
       'VOICY_WORKER_RESTART_DELAY_MS'
     ),
-    downloadConcurrency: Math.max(
+    downloadConcurrency,
+    transcriptionConcurrency,
+    readyQueueLimit: Math.max(
       1,
       numberFromEnv(
-        env.VOICY_WORKER_DOWNLOAD_CONCURRENCY,
-        2,
-        'VOICY_WORKER_DOWNLOAD_CONCURRENCY'
-      )
-    ),
-    transcriptionConcurrency: Math.max(
-      1,
-      numberFromEnv(
-        env.VOICY_WORKER_TRANSCRIPTION_CONCURRENCY,
-        1,
-        'VOICY_WORKER_TRANSCRIPTION_CONCURRENCY'
+        env.VOICY_WORKER_READY_QUEUE_LIMIT,
+        Math.max(downloadConcurrency, transcriptionConcurrency * 2),
+        'VOICY_WORKER_READY_QUEUE_LIMIT'
       )
     ),
     telegramBotApiUrl: (
@@ -376,11 +391,36 @@ async function claimJob(api: AxiosInstance) {
   return (response.data as ClaimResponse).job
 }
 
-async function claimDownloadJob(api: AxiosInstance) {
-  const response = await api.post('/jobs/claim-download', undefined, {
-    validateStatus: (status) => status === 200 || status === 204,
-  })
+async function claimDownloadJobFromBucket(
+  api: AxiosInstance,
+  bucket: WorkerQueueBucket
+) {
+  const response = await api.post(
+    '/jobs/claim-download',
+    { bucket },
+    {
+      validateStatus: (status) => status === 200 || status === 204,
+    }
+  )
   if (response.status === 204) {
+    return undefined
+  }
+  return (response.data as ClaimResponse).job
+}
+
+async function claimReadyJob(
+  api: AxiosInstance,
+  bucket: WorkerQueueBucket = 'oldest'
+) {
+  const response = await api.post(
+    '/jobs/claim-ready',
+    { bucket },
+    {
+      validateStatus: (status) =>
+        status === 200 || status === 204 || status === 404,
+    }
+  )
+  if (response.status !== 200) {
     return undefined
   }
   return (response.data as ClaimResponse).job
@@ -1008,47 +1048,154 @@ export async function processAvailableJobs(
   logger: Logger = consoleLogger
 ) {
   const api = createApi(config)
-  const readyQueue: DownloadedJob[] = []
+  const readyQueues: Record<WorkerQueueBucket | 'recovered', DownloadedJob[]> =
+    {
+      oldest: [],
+      newest: [],
+      recovered: [],
+    }
   const downloads = new Set<Promise<void>>()
   const transcriptions = new Set<Promise<void>>()
+  const activeDownloadBuckets: Record<WorkerQueueBucket, number> = {
+    oldest: 0,
+    newest: 0,
+  }
   let downloadQueueExhausted = false
+  let recheckDownloadsAfterTranscription = false
+  let hasObservedDownloadExhaustion = false
+  let nextDownloadBucket: WorkerQueueBucket = 'oldest'
+  let nextTranscriptionBucket: WorkerQueueBucket = 'oldest'
   let processed = 0
 
-  const startDownload = async (job: WorkerJob) => {
+  const queuedReadyCount = () =>
+    readyQueues.oldest.length +
+    readyQueues.newest.length +
+    readyQueues.recovered.length
+
+  const queueReadyJob = (ready: DownloadedJob) => {
+    const bucket = ready.schedulingBucket || 'oldest'
+    readyQueues[bucket].push(ready)
+    fillTranscriptions()
+  }
+
+  const startDownload = async (job: WorkerJob, bucket: WorkerQueueBucket) => {
     const ready = await downloadJob(api, config, job, logger)
     if (ready) {
-      readyQueue.push(ready)
-      fillTranscriptions()
+      queueReadyJob({ ...ready, schedulingBucket: bucket })
     }
   }
 
   const fillDownloads = async () => {
     while (
       !downloadQueueExhausted &&
-      downloads.size < config.downloadConcurrency
+      downloads.size < config.downloadConcurrency &&
+      queuedReadyCount() < config.readyQueueLimit
     ) {
-      const job = await claimDownloadJob(api)
+      const bucket = nextDownloadBucket
+      const job = await claimDownloadJobFromBucket(api, bucket)
       if (!job) {
         downloadQueueExhausted = true
+        hasObservedDownloadExhaustion = true
+        recheckDownloadsAfterTranscription = queuedReadyCount() > 0
+        if (recheckDownloadsAfterTranscription) {
+          nextDownloadBucket = 'newest'
+        }
+        logWorkerActivity(logger, 'Worker download queue exhausted', {
+          queuedReadyJobs: queuedReadyCount(),
+          activeDownloads: downloads.size,
+          activeTranscriptions: transcriptions.size,
+        })
         return
       }
+      const schedulingBucket = hasObservedDownloadExhaustion ? bucket : 'oldest'
       processed += 1
-      const task = startDownload(job).finally(() => downloads.delete(task))
+      logWorkerActivity(logger, 'Worker download scheduler selected job', {
+        ...jobLogContext(job),
+        claimBucket: bucket,
+        schedulingBucket,
+        queuedReadyJobs: queuedReadyCount(),
+      })
+      nextDownloadBucket = bucket === 'oldest' ? 'newest' : 'oldest'
+      activeDownloadBuckets[schedulingBucket] += 1
+      const task = startDownload(job, schedulingBucket).finally(() => {
+        activeDownloadBuckets[schedulingBucket] -= 1
+        downloads.delete(task)
+      })
       downloads.add(task)
     }
   }
 
+  const fillRecoveredReadyJobs = async () => {
+    while (
+      transcriptions.size + queuedReadyCount() <
+      config.transcriptionConcurrency
+    ) {
+      const job = await claimReadyJob(api, 'oldest')
+      if (!job?.localSourcePath) {
+        return
+      }
+      processed += 1
+      logWorkerActivity(logger, 'Worker recovered ready job selected', {
+        ...jobLogContext(job),
+        schedulingBucket: 'recovered',
+        inputFile: path.basename(job.localSourcePath),
+      })
+      queueReadyJob({
+        job,
+        inputPath: job.localSourcePath,
+        schedulingBucket: 'recovered',
+      })
+    }
+  }
+
+  const takeNextReadyJob = () => {
+    const preferred = nextTranscriptionBucket
+    const alternate = preferred === 'oldest' ? 'newest' : 'oldest'
+    const bucket =
+      readyQueues[preferred].length > 0
+        ? preferred
+        : readyQueues[alternate].length > 0
+        ? alternate
+        : 'recovered'
+    const ready = readyQueues[bucket].shift()
+    if (ready && bucket !== 'recovered') {
+      nextTranscriptionBucket = bucket === 'oldest' ? 'newest' : 'oldest'
+      return ready
+    }
+    return ready
+  }
+
   const fillTranscriptions = () => {
     while (
-      readyQueue.length > 0 &&
+      queuedReadyCount() > 0 &&
       transcriptions.size < config.transcriptionConcurrency
     ) {
-      const ready = readyQueue.shift()
+      const alternate =
+        nextTranscriptionBucket === 'oldest' ? 'newest' : 'oldest'
+      if (
+        readyQueues[nextTranscriptionBucket].length === 0 &&
+        activeDownloadBuckets[nextTranscriptionBucket] > 0 &&
+        (readyQueues[alternate].length > 0 || readyQueues.recovered.length > 0)
+      ) {
+        return
+      }
+      const ready = takeNextReadyJob()
       if (!ready) {
         return
       }
+      logWorkerActivity(logger, 'Worker transcription scheduler selected job', {
+        ...jobLogContext(ready.job),
+        schedulingBucket: ready.schedulingBucket,
+        queuedReadyJobs: queuedReadyCount(),
+      })
       const task = transcribeDownloadedJob(api, config, ready, logger).finally(
-        () => transcriptions.delete(task)
+        () => {
+          transcriptions.delete(task)
+          if (recheckDownloadsAfterTranscription) {
+            downloadQueueExhausted = false
+            recheckDownloadsAfterTranscription = false
+          }
+        }
       )
       transcriptions.add(task)
     }
@@ -1070,12 +1217,13 @@ export async function processAvailableJobs(
   let cycleComplete = false
   while (!cycleComplete) {
     await fillDownloads()
+    await fillRecoveredReadyJobs()
     fillTranscriptions()
 
     if (
       downloads.size === 0 &&
       transcriptions.size === 0 &&
-      readyQueue.length === 0
+      queuedReadyCount() === 0
     ) {
       cycleComplete = true
       continue

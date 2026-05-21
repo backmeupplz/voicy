@@ -22,6 +22,8 @@ type TimestampedJob = DocumentType<TranscriptionJob> & {
   updatedAt?: Date
 }
 
+type WorkerQueueBucket = 'oldest' | 'newest'
+
 export class WorkerApiError extends Error {
   status: number
   code: string
@@ -56,6 +58,28 @@ function truncateError(error: unknown) {
 function maxAttempts() {
   const configured = Number(process.env.VOICY_WORKER_MAX_ATTEMPTS || 3)
   return Number.isFinite(configured) && configured > 0 ? configured : 3
+}
+
+function staleActiveJobMs() {
+  const configured = Number(
+    process.env.VOICY_WORKER_STALE_ACTIVE_JOB_MS || 15 * 60 * 1000
+  )
+  return Number.isFinite(configured) && configured > 0
+    ? configured
+    : 15 * 60 * 1000
+}
+
+function queueBucket(value: unknown): WorkerQueueBucket {
+  return value === 'newest' ? 'newest' : 'oldest'
+}
+
+function createdAtSort(bucket: WorkerQueueBucket) {
+  return { createdAt: bucket === 'newest' ? -1 : 1 }
+}
+
+function readyJobSort(bucket: WorkerQueueBucket) {
+  const direction = bucket === 'newest' ? -1 : 1
+  return { downloadedAt: direction, createdAt: direction }
 }
 
 function validateResultText(text: unknown) {
@@ -170,9 +194,11 @@ export function serializeJob(job: DocumentType<TranscriptionJob>) {
 }
 
 export async function claimDownloadJob(
-  workerClient: DocumentType<WorkerClient>
+  workerClient: DocumentType<WorkerClient>,
+  body: Record<string, unknown> = {}
 ) {
   const now = new Date()
+  const bucket = queueBucket(body.bucket)
   const job = await TranscriptionJobModel.findOneAndUpdate(
     {
       status: {
@@ -191,7 +217,7 @@ export async function claimDownloadJob(
       },
       $inc: { attempts: 1 },
     },
-    { sort: { createdAt: 1 }, new: true }
+    { sort: createdAtSort(bucket), new: true }
   )
 
   if (job) {
@@ -204,13 +230,39 @@ export async function claimDownloadJob(
   return job
 }
 
-export async function claimReadyJob(workerClient: DocumentType<WorkerClient>) {
+export function claimReadyJob(workerClient: DocumentType<WorkerClient>) {
+  return claimReadyJobFromBucket(workerClient)
+}
+
+export async function claimReadyJobFromBucket(
+  workerClient: DocumentType<WorkerClient>,
+  body: Record<string, unknown> = {}
+) {
   const now = new Date()
+  const staleCutoff = new Date(now.getTime() - staleActiveJobMs())
+  const bucket = queueBucket(body.bucket)
   const job = await TranscriptionJobModel.findOneAndUpdate(
     {
       workerId: workerId(workerClient),
-      status: TranscriptionJobStatus.ready,
       localSourcePath: { $exists: true, $ne: '' },
+      $or: [
+        { status: TranscriptionJobStatus.ready },
+        {
+          status: {
+            $in: [
+              TranscriptionJobStatus.transcribing,
+              TranscriptionJobStatus.processing,
+            ],
+          },
+          $or: [
+            { heartbeatAt: { $lt: staleCutoff } },
+            {
+              heartbeatAt: { $exists: false },
+              claimedAt: { $lt: staleCutoff },
+            },
+          ],
+        },
+      ],
     },
     {
       $set: {
@@ -218,7 +270,7 @@ export async function claimReadyJob(workerClient: DocumentType<WorkerClient>) {
         heartbeatAt: now,
       },
     },
-    { sort: { downloadedAt: 1, createdAt: 1 }, new: true }
+    { sort: readyJobSort(bucket), new: true }
   )
 
   if (job) {
