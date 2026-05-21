@@ -1,6 +1,7 @@
 import * as path from 'path'
 import { Readable } from 'stream'
 import { URL } from 'url'
+import { constants as bufferConstants } from 'buffer'
 import { copyFile, mkdir, readFile, stat, unlink } from 'fs/promises'
 import { createWriteStream } from 'fs'
 import { pipeline } from 'stream'
@@ -17,6 +18,9 @@ const DEFAULT_DOWNLOAD_TIMEOUT_MS = 300000
 const DEFAULT_RESTART_DELAY_MS = 10000
 const DEFAULT_WORK_DIR = path.join(process.cwd(), 'tmp', 'voicy-worker')
 const DEFAULT_WORKER_MODEL = 'large-v3'
+const COMMAND_OUTPUT_CAPTURE_LIMIT_BYTES = 1024 * 1024
+const MAX_TRANSCRIPTION_OUTPUT_BYTES = bufferConstants.MAX_STRING_LENGTH - 1024
+const TRANSCRIPTION_RESULT_LOG_CHARS = 2000
 
 type WorkerQueueBucket = 'oldest' | 'newest'
 
@@ -98,6 +102,10 @@ interface Logger {
 interface RunCommandResult {
   stdout: string
   stderr: string
+  stdoutBytes: number
+  stderrBytes: number
+  stdoutTruncated: boolean
+  stderrTruncated: boolean
   elapsedMs: number
   exitCode: number | null
 }
@@ -225,7 +233,14 @@ function transcriptionResultLogContext(
 }
 
 function transcriptionResultTextForLog(result: TranscriptionOutput) {
-  return redactSensitiveText(result.text)
+  const truncated = result.text.length > TRANSCRIPTION_RESULT_LOG_CHARS
+  const preview = truncated
+    ? result.text.slice(0, TRANSCRIPTION_RESULT_LOG_CHARS)
+    : result.text
+  const redactedPreview = redactSensitiveText(preview)
+  return truncated
+    ? `${redactedPreview}... [truncated; textChars=${result.text.length}]`
+    : redactedPreview
 }
 
 class WorkerClientError extends Error {
@@ -658,11 +673,11 @@ function runCommand(
       windowsHide: true,
       env: commandEnv(config),
     })
-    const stdoutChunks: Buffer[] = []
-    const stderrChunks: Buffer[] = []
+    const stdoutCapture = createBoundedOutputCapture()
+    const stderrCapture = createBoundedOutputCapture()
 
-    child.stdout.on('data', (chunk) => stdoutChunks.push(Buffer.from(chunk)))
-    child.stderr.on('data', (chunk) => stderrChunks.push(Buffer.from(chunk)))
+    child.stdout.on('data', (chunk) => stdoutCapture.append(chunk))
+    child.stderr.on('data', (chunk) => stderrCapture.append(chunk))
     child.on('error', (error: NodeJS.ErrnoException) => {
       if (error.code === 'ENOENT') {
         reject(
@@ -676,16 +691,53 @@ function runCommand(
       reject(error)
     })
     child.on('close', (code) => {
-      const stdout = Buffer.concat(stdoutChunks).toString('utf8')
-      const stderr = Buffer.concat(stderrChunks).toString('utf8')
       const elapsedMs = Date.now() - startedAt
-      resolve({ stdout, stderr, elapsedMs, exitCode: code })
+      resolve({
+        stdout: stdoutCapture.text(),
+        stderr: stderrCapture.text(),
+        stdoutBytes: stdoutCapture.bytes,
+        stderrBytes: stderrCapture.bytes,
+        stdoutTruncated: stdoutCapture.truncated,
+        stderrTruncated: stderrCapture.truncated,
+        elapsedMs,
+        exitCode: code,
+      })
     })
   })
 }
 
 function commandFailureMessage(commandResult: RunCommandResult) {
-  return `Transcription command exited with ${commandResult.exitCode}; stdoutChars=${commandResult.stdout.length}; stderrChars=${commandResult.stderr.length}`
+  return `Transcription command exited with ${commandResult.exitCode}; stdoutChars=${commandResult.stdout.length}; stderrChars=${commandResult.stderr.length}; stdoutBytes=${commandResult.stdoutBytes}; stderrBytes=${commandResult.stderrBytes}; stdoutTruncated=${commandResult.stdoutTruncated}; stderrTruncated=${commandResult.stderrTruncated}`
+}
+
+function createBoundedOutputCapture() {
+  const chunks: Buffer[] = []
+  let capturedBytes = 0
+  let totalBytes = 0
+
+  return {
+    get bytes() {
+      return totalBytes
+    },
+    get truncated() {
+      return totalBytes > capturedBytes
+    },
+    append(chunk: Buffer | string) {
+      const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
+      totalBytes += buffer.length
+      const remaining = COMMAND_OUTPUT_CAPTURE_LIMIT_BYTES - capturedBytes
+      if (remaining <= 0) {
+        return
+      }
+      const captured =
+        buffer.length > remaining ? buffer.subarray(0, remaining) : buffer
+      chunks.push(Buffer.from(captured))
+      capturedBytes += captured.length
+    },
+    text() {
+      return Buffer.concat(chunks, capturedBytes).toString('utf8')
+    },
+  }
 }
 
 function parseJsonOutput(value: string) {
@@ -735,9 +787,27 @@ async function readTranscriptionOutput(
   logger: Logger
 ) {
   const outputStat = await stat(outputPath).catch(() => undefined)
-  const rawOutput = outputStat
-    ? await readFile(outputPath, 'utf8')
-    : commandResult.stdout
+  let rawOutput: string
+  let outputSource: 'file' | 'stdout'
+  if (outputStat) {
+    if (outputStat.size > MAX_TRANSCRIPTION_OUTPUT_BYTES) {
+      throw new WorkerClientError(
+        `Transcription output file is too large to parse safely; outputBytes=${outputStat.size}`,
+        false
+      )
+    }
+    rawOutput = await readFile(outputPath, 'utf8')
+    outputSource = 'file'
+  } else {
+    if (commandResult.stdoutTruncated) {
+      throw new WorkerClientError(
+        `Transcription command stdout exceeded safe capture limit; stdoutBytes=${commandResult.stdoutBytes}; configure the transcriber to write the final transcript to {output}`,
+        false
+      )
+    }
+    rawOutput = commandResult.stdout
+    outputSource = 'stdout'
+  }
   const result = normalizeTranscriptionOutput(rawOutput, config, job, inputPath)
   logWorkerActivity(logger, 'Worker transcription command completed', {
     jobId: job.id,
@@ -749,7 +819,11 @@ async function readTranscriptionOutput(
       commandResult.exitCode && commandResult.exitCode !== 0
         ? commandResult.exitCode
         : undefined,
-    outputSource: outputStat ? 'file' : 'stdout',
+    outputSource,
+    stdoutBytes: commandResult.stdoutBytes,
+    stderrBytes: commandResult.stderrBytes,
+    stdoutTruncated: commandResult.stdoutTruncated || undefined,
+    stderrTruncated: commandResult.stderrTruncated || undefined,
     textChars: result.text.length,
     parts: result.parts?.length || 0,
     duration: result.duration,
