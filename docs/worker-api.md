@@ -90,8 +90,17 @@ after the local media file is fully available.
 
 Claims the oldest ready local file owned by the authenticated worker and marks
 it `transcribing`. This endpoint is available for split downloader/transcriber
-clients; the bundled worker normally calls `POST /jobs/:id/transcribe` for the
-job it just downloaded.
+clients and for worker restart recovery. The request body may include
+`{"bucket":"oldest"}` or `{"bucket":"newest"}` to choose the sort direction.
+The endpoint can also reclaim same-worker `transcribing` or legacy `processing`
+jobs when their heartbeat is stale, they have a stored `localSourcePath`, and
+the worker needs to recover after an interrupted local run. The default stale
+cutoff is 15 minutes and can be adjusted with
+`VOICY_WORKER_STALE_ACTIVE_JOB_MS`.
+
+The bundled worker normally calls `POST /jobs/:id/transcribe` for the job it
+just downloaded, but it also polls `claim-ready` when a transcription slot is
+free so ready jobs from an older local run are not stranded.
 
 ### `POST /jobs/claim`
 

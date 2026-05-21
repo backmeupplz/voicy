@@ -3,7 +3,7 @@ import {
   WorkerApiError,
   claimDownloadJob,
   claimNextJob,
-  claimReadyJob,
+  claimReadyJobFromBucket,
   completeJob,
   failJob,
   getOwnedJob,
@@ -45,7 +45,10 @@ workerRouter.use(authenticateWorker)
 workerRouter.post(
   '/jobs/claim-download',
   asyncRoute(async (request, response) => {
-    const job = await claimDownloadJob(workerClient(request))
+    const job = await claimDownloadJob(
+      workerClient(request),
+      request.body || {}
+    )
     if (!job) {
       response.status(204).send()
       return
@@ -57,7 +60,10 @@ workerRouter.post(
 workerRouter.post(
   '/jobs/claim-ready',
   asyncRoute(async (request, response) => {
-    const job = await claimReadyJob(workerClient(request))
+    const job = await claimReadyJobFromBucket(
+      workerClient(request),
+      request.body || {}
+    )
     if (!job) {
       response.status(204).send()
       return

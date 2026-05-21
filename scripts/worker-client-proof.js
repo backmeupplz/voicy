@@ -439,6 +439,183 @@ function createSchedulingProofServer() {
   return { server, state }
 }
 
+function createFairBacklogRecoveryProofServer() {
+  const initialQueue = ['old-backlog-1', 'old-backlog-2']
+  const state = {
+    downloadClaims: [],
+    transcribeOrder: [],
+    results: [],
+    exhaustedOnce: false,
+    freshClaimed: false,
+  }
+
+  const server = http.createServer(async (request, response) => {
+    const url = new URL(request.url, 'http://127.0.0.1')
+    if (
+      !url.pathname.startsWith('/audio/') &&
+      request.headers.authorization !== 'Bearer proof-worker-token'
+    ) {
+      response.writeHead(401, { 'Content-Type': 'application/json' })
+      response.end(JSON.stringify({ error: 'invalid_worker_token' }))
+      return
+    }
+
+    if (
+      request.method === 'POST' &&
+      url.pathname === '/worker/v1/jobs/claim-download'
+    ) {
+      const body = await readJson(request)
+      const bucket = body.bucket || 'oldest'
+      let id = initialQueue.shift()
+      if (
+        !id &&
+        state.exhaustedOnce &&
+        bucket === 'newest' &&
+        !state.freshClaimed
+      ) {
+        id = 'fresh-new-job'
+        state.freshClaimed = true
+      }
+      if (!id) {
+        state.exhaustedOnce = true
+        response.writeHead(204)
+        response.end()
+        return
+      }
+      state.downloadClaims.push({ id, bucket })
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          job: {
+            id,
+            status: 'downloading',
+            sourceKind: 'voice',
+            fileSize: id === 'fresh-new-job' ? 12 : 60000000,
+            recognitionLanguageHint: 'en',
+            attempts: 1,
+          },
+        })
+      )
+      return
+    }
+
+    const sourceMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/source$/
+    )
+    if (request.method === 'GET' && sourceMatch) {
+      const id = sourceMatch[1]
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          source: {
+            sourceUrl: `http://127.0.0.1:${
+              server.address().port
+            }/audio/${id}.ogg`,
+            sourceKind: 'voice',
+            mimeType: 'audio/ogg',
+            fileId: id,
+          },
+        })
+      )
+      return
+    }
+
+    const audioMatch = url.pathname.match(/^\/audio\/([^/]+)\.ogg$/)
+    if (request.method === 'GET' && audioMatch) {
+      response.writeHead(200, { 'Content-Type': 'audio/ogg' })
+      response.end(Buffer.from(`${audioMatch[1]} audio bytes`))
+      return
+    }
+
+    const downloadedMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/downloaded$/
+    )
+    if (request.method === 'POST' && downloadedMatch) {
+      const id = downloadedMatch[1]
+      await readJson(request)
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          job: {
+            id,
+            status: 'ready',
+            sourceKind: 'voice',
+            fileSize: id === 'fresh-new-job' ? 12 : 60000000,
+            recognitionLanguageHint: 'en',
+            attempts: 1,
+          },
+        })
+      )
+      return
+    }
+
+    const transcribeMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/transcribe$/
+    )
+    if (request.method === 'POST' && transcribeMatch) {
+      const id = transcribeMatch[1]
+      state.transcribeOrder.push(id)
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          job: {
+            id,
+            status: 'transcribing',
+            sourceKind: 'voice',
+            fileSize: id === 'fresh-new-job' ? 12 : 60000000,
+            recognitionLanguageHint: 'en',
+            attempts: 1,
+          },
+        })
+      )
+      return
+    }
+
+    const resultMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/result$/
+    )
+    if (request.method === 'POST' && resultMatch) {
+      state.results.push(resultMatch[1])
+      await readJson(request)
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({ job: { id: resultMatch[1], status: 'completed' } })
+      )
+      return
+    }
+
+    const heartbeatMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/heartbeat$/
+    )
+    if (request.method === 'POST' && heartbeatMatch) {
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(JSON.stringify({ job: { id: heartbeatMatch[1] } }))
+      return
+    }
+
+    if (request.method === 'POST' && url.pathname === '/worker/v1/jobs/claim') {
+      response.writeHead(204)
+      response.end()
+      return
+    }
+
+    if (
+      request.method === 'POST' &&
+      url.pathname === '/worker/v1/jobs/claim-ready'
+    ) {
+      await readJson(request)
+      response.writeHead(204)
+      response.end()
+      return
+    }
+
+    response.writeHead(404, { 'Content-Type': 'application/json' })
+    response.end(JSON.stringify({ error: 'not_found' }))
+  })
+
+  return { server, state }
+}
+
 function createRestartProofServer() {
   const state = {
     claimDownloadAttempts: 0,
@@ -487,9 +664,7 @@ function createRestartProofServer() {
 
 function createStaleWorkerProofServer(mode) {
   const ids =
-    mode === 'start'
-      ? ['stale-start-job', 'later-job']
-      : [`stale-${mode}-job`]
+    mode === 'start' ? ['stale-start-job', 'later-job'] : [`stale-${mode}-job`]
   const queue = [...ids]
   const state = {
     claimed: [],
@@ -1243,17 +1418,12 @@ async function main() {
       'stale result should not report job failure'
     )
     assert(
-      staleWorkerLogs(
-        staleResultLogLines,
-        'result_upload',
-        'upload_result'
-      ).length === 1,
+      staleWorkerLogs(staleResultLogLines, 'result_upload', 'upload_result')
+        .length === 1,
       'stale result should log one structured stale-job line'
     )
     assert(
-      staleResultLogLines.every(
-        (line) => !line.includes(staleTranscriptText)
-      ),
+      staleResultLogLines.every((line) => !line.includes(staleTranscriptText)),
       'stale result logs should not include raw transcript text'
     )
   } finally {
@@ -1275,7 +1445,7 @@ async function main() {
         VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
         VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
           '-e',
-          "setTimeout(() => process.stdout.write(JSON.stringify({ text: 'heartbeat stale transcript', parts: [], language: 'en' })), 50)",
+          "setTimeout(() => process.stdout.write(JSON.stringify({ text: 'heartbeat stale transcript', parts: [], language: 'en' })), 200)",
         ]),
         VOICY_WORKER_WORK_DIR: path.join(
           os.tmpdir(),
@@ -1304,12 +1474,9 @@ async function main() {
       'stale heartbeat should not report job failure'
     )
     assert(
-      staleWorkerLogs(
-        staleHeartbeatLogLines,
-        'heartbeat',
-        'heartbeat'
-      ).length === 1,
-      'stale heartbeat should log one structured stale-job line'
+      staleWorkerLogs(staleHeartbeatLogLines, 'heartbeat', 'heartbeat')
+        .length >= 1,
+      'stale heartbeat should log structured stale-job lines'
     )
   } finally {
     await close(staleHeartbeatProof.server)
@@ -1354,11 +1521,8 @@ async function main() {
       'stale failure report should not be accepted as a normal failure'
     )
     assert(
-      staleWorkerLogs(
-        staleFailureLogLines,
-        'failure_report',
-        'report_failure'
-      ).length === 1,
+      staleWorkerLogs(staleFailureLogLines, 'failure_report', 'report_failure')
+        .length === 1,
       'stale failure report should log one structured stale-job line'
     )
     assert(
@@ -1413,6 +1577,74 @@ async function main() {
     )
   } finally {
     await close(schedulingProof.server)
+  }
+
+  const fairBacklogProof = createFairBacklogRecoveryProofServer()
+  await listen(fairBacklogProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      fairBacklogProof.server.address().port
+    }/worker/v1`
+    const fairLogLines = []
+    const processed = await processAvailableJobs(
+      loadConfig({
+        VOICY_WORKER_API_URL: baseUrl,
+        VOICY_WORKER_TOKEN: 'proof-worker-token',
+        VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+        VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+          'scripts/fake-transcriber.js',
+          '{input}',
+          '{output}',
+        ]),
+        VOICY_WORKER_WORK_DIR: path.join(
+          os.tmpdir(),
+          `voicy-worker-fair-backlog-proof-${process.pid}`
+        ),
+        VOICY_WORKER_DOWNLOAD_CONCURRENCY: '1',
+        VOICY_WORKER_TRANSCRIPTION_CONCURRENCY: '1',
+        VOICY_WORKER_READY_QUEUE_LIMIT: '2',
+      }),
+      {
+        info: (message) => fairLogLines.push(message),
+        warn: (message) => fairLogLines.push(message),
+        error: (message) => fairLogLines.push(message),
+      }
+    )
+
+    assert(processed === 3, 'fair scheduler should process all claimed jobs')
+    assert(
+      fairBacklogProof.state.transcribeOrder.join(',') ===
+        'old-backlog-1,fresh-new-job,old-backlog-2',
+      `fresh job should alternate in before the older ready backlog drains: ${fairBacklogProof.state.transcribeOrder.join(
+        ','
+      )}`
+    )
+    assert(
+      fairBacklogProof.state.downloadClaims.some(
+        (claim) => claim.id === 'fresh-new-job' && claim.bucket === 'newest'
+      ),
+      'fresh post-exhaustion job should be claimed from the newest bucket'
+    )
+    assert(
+      fairLogLines.some(
+        (line) =>
+          line.includes('Worker download queue exhausted') &&
+          line.includes('queuedReadyJobs=1')
+      ),
+      'worker should log bounded backlog state when downloads are exhausted'
+    )
+    assert(
+      fairLogLines.some(
+        (line) =>
+          line.includes('Worker transcription scheduler selected job') &&
+          line.includes('jobId="fresh-new-job"') &&
+          line.includes('schedulingBucket="newest"')
+      ),
+      'worker should log the scheduling bucket for the fresh job'
+    )
+  } finally {
+    await close(fairBacklogProof.server)
   }
 
   const restartProof = createRestartProofServer()

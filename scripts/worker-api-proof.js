@@ -65,7 +65,7 @@ async function main() {
 
   const tokenA = 'proof-token-a'
   const tokenB = 'proof-token-b'
-  await WorkerClientModel.create([
+  const [workerA] = await WorkerClientModel.create([
     { name: 'proof-a', tokenHash: hashWorkerToken(tokenA) },
     { name: 'proof-b', tokenHash: hashWorkerToken(tokenB) },
   ])
@@ -256,7 +256,10 @@ async function main() {
     })
     assert(claimEmpty.status === 200, 'empty job should be claimable')
     const emptyClaim = await claimEmpty.json()
-    assert(emptyClaim.job.id === emptyJob._id.toString(), 'claimed wrong empty job')
+    assert(
+      emptyClaim.job.id === emptyJob._id.toString(),
+      'claimed wrong empty job'
+    )
     const emptyDownloaded = await request(
       baseUrl,
       `/jobs/${emptyClaim.job.id}/downloaded`,
@@ -273,7 +276,10 @@ async function main() {
       tokenA,
       { method: 'POST' }
     )
-    assert(emptyTranscribe.status === 200, 'empty job should start transcription')
+    assert(
+      emptyTranscribe.status === 200,
+      'empty job should start transcription'
+    )
     const emptyResult = await request(
       baseUrl,
       `/jobs/${emptyClaim.job.id}/result`,
@@ -297,7 +303,41 @@ async function main() {
       completedEmptyJob.status === TranscriptionJobStatus.completed,
       'empty result should complete job'
     )
-    assert(completedEmptyJob.resultText === '', 'empty result text should persist')
+    assert(
+      completedEmptyJob.resultText === '',
+      'empty result text should persist'
+    )
+
+    const staleTranscribingJob = await TranscriptionJobModel.create({
+      chatId: 'proof-chat',
+      telegramChatId: '123',
+      sourceMessageId: 14,
+      fileId: 'proof-file-stale-transcribing',
+      sourceKind: TranscriptionJobSourceKind.voice,
+      status: TranscriptionJobStatus.transcribing,
+      workerId: workerA._id.toString(),
+      localSourcePath: '/tmp/proof-stale-transcribing.ogg',
+      downloadedAt: new Date(Date.now() - 30 * 60 * 1000),
+      claimedAt: new Date(Date.now() - 30 * 60 * 1000),
+      heartbeatAt: new Date(Date.now() - 30 * 60 * 1000),
+    })
+    const recoveredReady = await request(baseUrl, '/jobs/claim-ready', tokenA, {
+      method: 'POST',
+      body: JSON.stringify({ bucket: 'oldest' }),
+    })
+    assert(
+      recoveredReady.status === 200,
+      'same worker should recover stale transcribing local job'
+    )
+    const recoveredReadyBody = await recoveredReady.json()
+    assert(
+      recoveredReadyBody.job.id === staleTranscribingJob._id.toString(),
+      'claim-ready should return the stale same-worker job'
+    )
+    assert(
+      recoveredReadyBody.job.status === TranscriptionJobStatus.transcribing,
+      'recovered job should stay in transcribing for local retry'
+    )
 
     const retryJob = await TranscriptionJobModel.create({
       chatId: 'proof-chat',
