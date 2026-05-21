@@ -1249,6 +1249,130 @@ async function main() {
     await close(nonZeroOutputProof.server)
   }
 
+  const largeOutputFileProof = createProofServer()
+  await listen(largeOutputFileProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      largeOutputFileProof.server.address().port
+    }/worker/v1`
+    const config = loadConfig({
+      VOICY_WORKER_API_URL: baseUrl,
+      VOICY_WORKER_TOKEN: 'proof-worker-token',
+      VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+      VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+        '-e',
+        [
+          "const fs = require('fs')",
+          "process.stdout.write('p'.repeat(2 * 1024 * 1024))",
+          "process.stderr.write('s'.repeat(2 * 1024 * 1024))",
+          "fs.writeFileSync(process.argv[2], JSON.stringify({ text: 'large output file transcript', parts: [], language: 'en', duration: 2 }))",
+        ].join('; '),
+        '{input}',
+        '{output}',
+      ]),
+      VOICY_WORKER_WORK_DIR: path.join(
+        os.tmpdir(),
+        `voicy-worker-large-output-file-proof-${process.pid}`
+      ),
+      VOICY_WORKER_TELEGRAM_API_URL: `http://127.0.0.1:${
+        largeOutputFileProof.server.address().port
+      }`,
+      VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
+    })
+
+    const largeOutputLogLines = []
+    const processed = await processNextJob(config, {
+      info: (message) => largeOutputLogLines.push(message),
+      warn: (message) => largeOutputLogLines.push(message),
+      error: (message) => largeOutputLogLines.push(message),
+    })
+
+    assert(processed, 'large output-file proof should process the job')
+    assert(
+      !largeOutputFileProof.state.failure,
+      `large output-file proof should not fail: ${JSON.stringify(
+        largeOutputFileProof.state.failure
+      )}`
+    )
+    assert(
+      largeOutputFileProof.state.result?.text ===
+        'large output file transcript',
+      'worker should preserve output-file transcript parsing when stdout/stderr are huge'
+    )
+    assert(
+      largeOutputLogLines.some(
+        (line) =>
+          line.includes('Worker transcription command completed') &&
+          line.includes('outputSource="file"') &&
+          line.includes('stdoutBytes=2097152') &&
+          line.includes('stderrBytes=2097152') &&
+          line.includes('stdoutTruncated=true') &&
+          line.includes('stderrTruncated=true')
+      ),
+      'worker should log bounded capture metrics for huge child-process output'
+    )
+  } finally {
+    await close(largeOutputFileProof.server)
+  }
+
+  const largeStdoutFallbackProof = createProofServer()
+  await listen(largeStdoutFallbackProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      largeStdoutFallbackProof.server.address().port
+    }/worker/v1`
+    const config = loadConfig({
+      VOICY_WORKER_API_URL: baseUrl,
+      VOICY_WORKER_TOKEN: 'proof-worker-token',
+      VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+      VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+        '-e',
+        "process.stdout.write('x'.repeat(2 * 1024 * 1024))",
+      ]),
+      VOICY_WORKER_WORK_DIR: path.join(
+        os.tmpdir(),
+        `voicy-worker-large-stdout-fallback-proof-${process.pid}`
+      ),
+      VOICY_WORKER_TELEGRAM_API_URL: `http://127.0.0.1:${
+        largeStdoutFallbackProof.server.address().port
+      }`,
+      VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
+    })
+
+    const processed = await processNextJob(config, {
+      info: () => undefined,
+      warn: () => undefined,
+      error: () => undefined,
+    })
+
+    assert(processed, 'large stdout fallback proof should claim the job')
+    assert(
+      !largeStdoutFallbackProof.state.result,
+      'oversized stdout fallback should not submit a partial result'
+    )
+    assert(
+      largeStdoutFallbackProof.state.failure,
+      'oversized stdout fallback should report a controlled failure'
+    )
+    assert(
+      largeStdoutFallbackProof.state.failure.retryable === false,
+      'oversized stdout fallback should be a non-retryable worker config failure'
+    )
+    assert(
+      largeStdoutFallbackProof.state.failure.error.includes(
+        'stdout exceeded safe capture limit'
+      ) &&
+        largeStdoutFallbackProof.state.failure.error.includes(
+          'stdoutBytes=2097152'
+        ),
+      'oversized stdout fallback should explain the safe output-file path'
+    )
+  } finally {
+    await close(largeStdoutFallbackProof.server)
+  }
+
   const failureProof = createProofServer()
   await listen(failureProof.server)
 
