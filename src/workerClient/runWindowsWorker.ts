@@ -1,7 +1,6 @@
 import * as path from 'path'
 import { Readable } from 'stream'
 import { URL } from 'url'
-import { constants as bufferConstants } from 'buffer'
 import { copyFile, mkdir, readFile, stat, unlink } from 'fs/promises'
 import { createWriteStream } from 'fs'
 import { pipeline } from 'stream'
@@ -19,7 +18,9 @@ const DEFAULT_RESTART_DELAY_MS = 10000
 const DEFAULT_WORK_DIR = path.join(process.cwd(), 'tmp', 'voicy-worker')
 const DEFAULT_WORKER_MODEL = 'large-v3'
 const COMMAND_OUTPUT_CAPTURE_LIMIT_BYTES = 1024 * 1024
-const MAX_TRANSCRIPTION_OUTPUT_BYTES = bufferConstants.MAX_STRING_LENGTH - 1024
+const MAX_TRANSCRIPTION_OUTPUT_BYTES = COMMAND_OUTPUT_CAPTURE_LIMIT_BYTES
+const MAX_TRANSCRIPTION_RESULT_TEXT_CHARS = 100000
+const MAX_TRANSCRIPTION_RESULT_PARTS = 5000
 const TRANSCRIPTION_RESULT_LOG_CHARS = 2000
 
 type WorkerQueueBucket = 'oldest' | 'newest'
@@ -778,6 +779,26 @@ function normalizeTranscriptionOutput(
   }
 }
 
+function assertSafeTranscriptionOutput(
+  result: ReturnType<typeof normalizeTranscriptionOutput>
+) {
+  if (result.text.length > MAX_TRANSCRIPTION_RESULT_TEXT_CHARS) {
+    throw new WorkerClientError(
+      `Transcription result text is too large to upload safely; textChars=${result.text.length}; maxTextChars=${MAX_TRANSCRIPTION_RESULT_TEXT_CHARS}`,
+      false
+    )
+  }
+  if (
+    Array.isArray(result.parts) &&
+    result.parts.length > MAX_TRANSCRIPTION_RESULT_PARTS
+  ) {
+    throw new WorkerClientError(
+      `Transcription result has too many parts to upload safely; parts=${result.parts.length}; maxParts=${MAX_TRANSCRIPTION_RESULT_PARTS}`,
+      false
+    )
+  }
+}
+
 async function readTranscriptionOutput(
   commandResult: RunCommandResult,
   outputPath: string,
@@ -792,7 +813,7 @@ async function readTranscriptionOutput(
   if (outputStat) {
     if (outputStat.size > MAX_TRANSCRIPTION_OUTPUT_BYTES) {
       throw new WorkerClientError(
-        `Transcription output file is too large to parse safely; outputBytes=${outputStat.size}`,
+        `Transcription output file is too large to parse safely; outputBytes=${outputStat.size}; maxBytes=${MAX_TRANSCRIPTION_OUTPUT_BYTES}`,
         false
       )
     }
@@ -809,6 +830,7 @@ async function readTranscriptionOutput(
     outputSource = 'stdout'
   }
   const result = normalizeTranscriptionOutput(rawOutput, config, job, inputPath)
+  assertSafeTranscriptionOutput(result)
   logWorkerActivity(logger, 'Worker transcription command completed', {
     jobId: job.id,
     engine: config.engine,
