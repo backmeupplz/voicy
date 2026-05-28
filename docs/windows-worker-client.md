@@ -394,10 +394,13 @@ file size, language hint, and attempt count, but never transcript text or source
 URLs.
 
 On restart, the worker calls `POST /jobs/claim-ready` to recover ready local
-files already owned by the same worker. The backend also lets that endpoint
-reclaim same-worker `transcribing`/legacy `processing` jobs with a stale
-heartbeat and a stored `localSourcePath`; the default stale cutoff is 15 minutes
-and can be adjusted with `VOICY_WORKER_STALE_ACTIVE_JOB_MS`.
+files already owned by the same worker. Recovery claims alternate between the
+oldest and newest ready jobs, so a newly downloaded short voice can run between
+older local backlog items instead of waiting for every stale ready job first. The
+backend also lets that endpoint reclaim same-worker `transcribing`/legacy
+`processing` jobs with a stale heartbeat and a stored `localSourcePath`; the
+default stale cutoff is 15 minutes and can be adjusted with
+`VOICY_WORKER_STALE_ACTIVE_JOB_MS`.
 
 `VOICY_WORKER_TRANSCRIBE_ARGS_JSON` must be a JSON array of argument strings.
 Each argument may contain `{input}`, `{output}`, `{language}`, and `{model}`.
@@ -476,7 +479,9 @@ checks the no-work polling path, checks retryable command failure reporting, and
 proves a smaller ready download can transcribe before a slower earlier download.
 It also covers fair backlog recovery: after download claims are exhausted while
 older ready work remains, a fresh newest-bucket job is claimed and transcribed
-before the older ready backlog fully drains.
+before the older ready backlog fully drains. The proof also covers already-ready
+backlog recovery, where `claim-ready` alternates a fresh newest-bucket ready job
+between older ready jobs from the same worker.
 
 `yarn test:worker-e2e` uses the real Express worker API, local Mongo, a queued
 `TranscriptionJob`, a local sample-audio HTTP server, and the worker client. It

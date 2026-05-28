@@ -616,6 +616,126 @@ function createFairBacklogRecoveryProofServer() {
   return { server, state }
 }
 
+function createReadyBacklogRecoveryProofServer() {
+  const oldQueue = ['old-ready-1', 'old-ready-2']
+  const newestQueue = ['fresh-ready-job']
+  const workDir = fs.mkdtempSync(
+    path.join(os.tmpdir(), `voicy-worker-ready-recovery-source-${process.pid}-`)
+  )
+  const state = {
+    readyClaims: [],
+    results: [],
+  }
+
+  for (const id of [...oldQueue, ...newestQueue]) {
+    fs.writeFileSync(path.join(workDir, `${id}.ogg`), `${id} audio bytes`)
+  }
+
+  const server = http.createServer(async (request, response) => {
+    const url = new URL(request.url, 'http://127.0.0.1')
+    if (request.headers.authorization !== 'Bearer proof-worker-token') {
+      response.writeHead(401, { 'Content-Type': 'application/json' })
+      response.end(JSON.stringify({ error: 'invalid_worker_token' }))
+      return
+    }
+
+    if (
+      request.method === 'POST' &&
+      url.pathname === '/worker/v1/jobs/claim-download'
+    ) {
+      await readJson(request)
+      response.writeHead(204)
+      response.end()
+      return
+    }
+
+    if (
+      request.method === 'POST' &&
+      url.pathname === '/worker/v1/jobs/claim-ready'
+    ) {
+      const body = await readJson(request)
+      const bucket = body.bucket || 'oldest'
+      const queue = bucket === 'newest' ? newestQueue : oldQueue
+      const id = queue.shift()
+      state.readyClaims.push({ id, bucket })
+      if (!id) {
+        response.writeHead(204)
+        response.end()
+        return
+      }
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          job: {
+            id,
+            status: 'transcribing',
+            sourceKind: 'voice',
+            fileSize: id === 'fresh-ready-job' ? 12 : 60000000,
+            recognitionLanguageHint: 'en',
+            localSourcePath: path.join(workDir, `${id}.ogg`),
+            attempts: 1,
+          },
+        })
+      )
+      return
+    }
+
+    const transcribeMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/transcribe$/
+    )
+    if (request.method === 'POST' && transcribeMatch) {
+      const id = transcribeMatch[1]
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          job: {
+            id,
+            status: 'transcribing',
+            sourceKind: 'voice',
+            fileSize: id === 'fresh-ready-job' ? 12 : 60000000,
+            recognitionLanguageHint: 'en',
+            attempts: 1,
+          },
+        })
+      )
+      return
+    }
+
+    const resultMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/result$/
+    )
+    if (request.method === 'POST' && resultMatch) {
+      state.results.push(resultMatch[1])
+      await readJson(request)
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({ job: { id: resultMatch[1], status: 'completed' } })
+      )
+      return
+    }
+
+    const heartbeatMatch = url.pathname.match(
+      /^\/worker\/v1\/jobs\/([^/]+)\/heartbeat$/
+    )
+    if (request.method === 'POST' && heartbeatMatch) {
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(JSON.stringify({ job: { id: heartbeatMatch[1] } }))
+      return
+    }
+
+    if (request.method === 'POST' && url.pathname === '/worker/v1/jobs/claim') {
+      response.writeHead(204)
+      response.end()
+      return
+    }
+
+    response.writeHead(404, { 'Content-Type': 'application/json' })
+    response.end(JSON.stringify({ error: 'not_found' }))
+  })
+
+  return { server, state }
+}
+
 function createRestartProofServer() {
   const state = {
     claimDownloadAttempts: 0,
@@ -1769,6 +1889,72 @@ async function main() {
     )
   } finally {
     await close(fairBacklogProof.server)
+  }
+
+  const readyBacklogProof = createReadyBacklogRecoveryProofServer()
+  await listen(readyBacklogProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      readyBacklogProof.server.address().port
+    }/worker/v1`
+    const readyLogLines = []
+    const readyWorkerDir = path.join(
+      os.tmpdir(),
+      `voicy-worker-ready-backlog-proof-${process.pid}`
+    )
+    fs.mkdirSync(readyWorkerDir, { recursive: true })
+    const processed = await processAvailableJobs(
+      loadConfig({
+        VOICY_WORKER_API_URL: baseUrl,
+        VOICY_WORKER_TOKEN: 'proof-worker-token',
+        VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+        VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+          'scripts/fake-transcriber.js',
+          '{input}',
+          '{output}',
+        ]),
+        VOICY_WORKER_WORK_DIR: readyWorkerDir,
+        VOICY_WORKER_DOWNLOAD_CONCURRENCY: '1',
+        VOICY_WORKER_TRANSCRIPTION_CONCURRENCY: '1',
+        VOICY_WORKER_READY_QUEUE_LIMIT: '2',
+      }),
+      {
+        info: (message) => readyLogLines.push(message),
+        warn: (message) => readyLogLines.push(message),
+        error: (message) => readyLogLines.push(message),
+      }
+    )
+
+    assert(
+      processed === 3,
+      'ready backlog scheduler should process all recovered ready jobs'
+    )
+    assert(
+      readyBacklogProof.state.results.join(',') ===
+        'old-ready-1,fresh-ready-job,old-ready-2',
+      `fresh ready job should alternate in before the older ready backlog drains: ${readyBacklogProof.state.results.join(
+        ','
+      )}`
+    )
+    assert(
+      readyBacklogProof.state.readyClaims.some(
+        (claim) => claim.id === 'fresh-ready-job' && claim.bucket === 'newest'
+      ),
+      'fresh ready job should be recovered from the newest claim-ready bucket'
+    )
+    assert(
+      readyLogLines.some(
+        (line) =>
+          line.includes('Worker recovered ready job selected') &&
+          line.includes('jobId="fresh-ready-job"') &&
+          line.includes('claimBucket="newest"') &&
+          line.includes('schedulingBucket="newest"')
+      ),
+      'worker should log the recovered ready claim and scheduling bucket'
+    )
+  } finally {
+    await close(readyBacklogProof.server)
   }
 
   const restartProof = createRestartProofServer()
