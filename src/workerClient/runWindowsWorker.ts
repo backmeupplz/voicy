@@ -1138,6 +1138,7 @@ export async function processAvailableJobs(
   let recheckDownloadsAfterTranscription = false
   let hasObservedDownloadExhaustion = false
   let nextDownloadBucket: WorkerQueueBucket = 'oldest'
+  let nextRecoveredReadyBucket: WorkerQueueBucket = 'oldest'
   let nextTranscriptionBucket: WorkerQueueBucket = 'oldest'
   let processed = 0
 
@@ -1204,20 +1205,29 @@ export async function processAvailableJobs(
       transcriptions.size + queuedReadyCount() <
       config.transcriptionConcurrency
     ) {
-      const job = await claimReadyJob(api, 'oldest')
+      const preferred = nextRecoveredReadyBucket
+      const alternate = preferred === 'oldest' ? 'newest' : 'oldest'
+      let claimBucket = preferred
+      let job = await claimReadyJob(api, claimBucket)
+      if (!job) {
+        claimBucket = alternate
+        job = await claimReadyJob(api, claimBucket)
+      }
       if (!job?.localSourcePath) {
         return
       }
       processed += 1
       logWorkerActivity(logger, 'Worker recovered ready job selected', {
         ...jobLogContext(job),
-        schedulingBucket: 'recovered',
+        claimBucket,
+        schedulingBucket: claimBucket,
         inputFile: path.basename(job.localSourcePath),
       })
+      nextRecoveredReadyBucket = claimBucket === 'oldest' ? 'newest' : 'oldest'
       queueReadyJob({
         job,
         inputPath: job.localSourcePath,
-        schedulingBucket: 'recovered',
+        schedulingBucket: claimBucket,
       })
     }
   }

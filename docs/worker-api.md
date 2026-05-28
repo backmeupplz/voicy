@@ -88,8 +88,8 @@ after the local media file is fully available.
 
 ### `POST /jobs/claim-ready`
 
-Claims the oldest ready local file owned by the authenticated worker and marks
-it `transcribing`. This endpoint is available for split downloader/transcriber
+Claims a ready local file owned by the authenticated worker and marks it
+`transcribing`. This endpoint is available for split downloader/transcriber
 clients and for worker restart recovery. The request body may include
 `{"bucket":"oldest"}` or `{"bucket":"newest"}` to choose the sort direction.
 The endpoint can also reclaim same-worker `transcribing` or legacy `processing`
@@ -100,7 +100,9 @@ cutoff is 15 minutes and can be adjusted with
 
 The bundled worker normally calls `POST /jobs/:id/transcribe` for the job it
 just downloaded, but it also polls `claim-ready` when a transcription slot is
-free so ready jobs from an older local run are not stranded.
+free so ready jobs from an older local run are not stranded. Recovery claims
+alternate between `oldest` and `newest` buckets so fresh ready jobs do not wait
+for the whole stale ready backlog to drain.
 
 ### `POST /jobs/claim`
 
