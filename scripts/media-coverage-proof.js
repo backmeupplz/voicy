@@ -7,7 +7,10 @@ const {
   transcribableExtension,
   transcribableMediaFromMessage,
 } = require('../dist/helpers/transcribableTelegramMedia')
-const { isMediaTooLarge } = require('../dist/helpers/mediaSizeLimit')
+const {
+  MAX_MEDIA_FILE_SIZE_BYTES,
+  isMediaTooLarge,
+} = require('../dist/helpers/mediaSizeLimit')
 const { extensionForSource } = require('../dist/workerClient/runWindowsWorker')
 
 function assert(condition, message) {
@@ -114,21 +117,21 @@ assertMedia(
 
 delete process.env.VOICY_MAX_MEDIA_FILE_SIZE_MB
 assert(
-  !isMediaTooLarge(21 * 1024 * 1024),
-  'default backend media limit should allow files larger than cloud Bot API 20 MB'
+  !isMediaTooLarge(MAX_MEDIA_FILE_SIZE_BYTES),
+  'default backend media limit should allow files up to 100 MB'
 )
 assert(
-  isMediaTooLarge(2048 * 1024 * 1024),
-  'default backend media limit should still cap files at 2048 MB'
-)
-process.env.VOICY_MAX_MEDIA_FILE_SIZE_MB = '20'
-assert(
-  !isMediaTooLarge(20 * 1024 * 1024 - 1),
-  'explicit 20 MB backend media limit should allow files below 20 MB'
+  !isMediaTooLarge(MAX_MEDIA_FILE_SIZE_BYTES - 1),
+  'default backend media limit should allow files just below 100 MB'
 )
 assert(
-  isMediaTooLarge(20 * 1024 * 1024),
-  'explicit 20 MB backend media limit should preserve cloud Bot API behavior'
+  isMediaTooLarge(MAX_MEDIA_FILE_SIZE_BYTES + 1),
+  'default backend media limit should reject files over 100 MB'
+)
+process.env.VOICY_MAX_MEDIA_FILE_SIZE_MB = '2048'
+assert(
+  isMediaTooLarge(MAX_MEDIA_FILE_SIZE_BYTES + 1),
+  'configured backend media limit should not raise the hard 100 MB cap'
 )
 delete process.env.VOICY_MAX_MEDIA_FILE_SIZE_MB
 

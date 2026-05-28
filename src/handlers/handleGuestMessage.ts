@@ -58,7 +58,7 @@ export default async function handleGuestMessage(
       await answerGuestQueryWithText(
         guestCtx,
         guestMessage.guest_query_id,
-        markdownI18n(guestCtx, 'error_twenty'),
+        markdownI18n(guestCtx, 'error_file_too_large'),
         { parse_mode: 'Markdown' }
       )
       return undefined

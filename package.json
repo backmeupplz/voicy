@@ -23,6 +23,7 @@
     "test:silent-mode": "node scripts/silent-mode-proof.js",
     "test:error-empty-handling": "node scripts/error-empty-handling-proof.js",
     "test:media-coverage": "node scripts/media-coverage-proof.js",
+    "test:media-size-limit": "node scripts/media-size-limit-proof.js",
     "test:report-sanitizer": "node scripts/report-sanitizer-proof.js",
     "test:activity-stream": "node scripts/activity-stream-proof.js",
     "test:source-url-security": "node scripts/source-url-security-proof.js",
