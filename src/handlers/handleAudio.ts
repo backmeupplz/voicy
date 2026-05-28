@@ -27,7 +27,10 @@ import {
   markChatUnreachableForTelegramError,
 } from '@/helpers/chatReachability'
 import { emitTranscriptionQueued } from '@/helpers/activityStream'
-import { isMediaTooLarge } from '@/helpers/mediaSizeLimit'
+import {
+  isMediaTooLarge,
+  maxMediaFileSizeBytes,
+} from '@/helpers/mediaSizeLimit'
 import { markdownI18n } from '@/helpers/telegramMarkdown'
 import {
   publishCachedTranscriptionResult,
@@ -63,9 +66,7 @@ export default async function handleAudio(ctx: Context) {
       return
     }
     if (isMediaTooLarge(audio.file_size)) {
-      if (!ctx.dbchat.silent) {
-        await sendLargeFileError(ctx)
-      }
+      await rejectOversizedMedia(ctx, audio, message)
       return
     }
 
@@ -95,6 +96,10 @@ async function enqueueTranscription(
   const audio = transcribableMediaFromMessage(sourceMessage)
   if (!audio) {
     throw new Error('No supported audio payload found on message')
+  }
+  if (isMediaTooLarge(audio.file_size)) {
+    await rejectOversizedMedia(ctx, audio, sourceMessage, options)
+    return undefined
   }
   const abuseLimit = await checkTranscriptionAbuseLimits({
     chatId: ctx.dbchat.id,
@@ -551,12 +556,39 @@ async function sendQueueError(ctx: Context) {
   }
 }
 
-function sendLargeFileError(ctx: Context) {
+async function rejectOversizedMedia(
+  ctx: Context,
+  media: TranscribableTelegramFile,
+  sourceMessage: Message,
+  options: QueueTranscriptionOptions = {}
+) {
+  console.info('Rejected oversized transcription media', {
+    sourceType: media.sourceType,
+    fileSize: media.file_size,
+    limitBytes: maxMediaFileSizeBytes(),
+  })
+
+  if (options.guestQueryId) {
+    await answerGuestQueryWithText(
+      ctx,
+      options.guestQueryId,
+      markdownI18n(ctx, 'error_file_too_large'),
+      { parse_mode: 'Markdown' }
+    )
+    return
+  }
+
+  if (!ctx.dbchat.silent) {
+    await sendLargeFileError(ctx, sourceMessage)
+  }
+}
+
+function sendLargeFileError(ctx: Context, sourceMessage: Message = ctx.msg) {
   return replyAndTrackReachability(ctx, 'sendLargeFileError', {
-    text: markdownI18n(ctx, 'error_twenty'),
+    text: markdownI18n(ctx, 'error_file_too_large'),
     options: {
       parse_mode: 'Markdown',
-      reply_to_message_id: ctx.msg.message_id,
+      reply_to_message_id: sourceMessage.message_id,
     },
   })
 }

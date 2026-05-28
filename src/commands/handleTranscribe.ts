@@ -28,7 +28,7 @@ export default async function handleTranscribe(ctx: Context) {
     // Check size
     if (isMediaTooLarge(voice.file_size)) {
       if (!ctx.dbchat.silent) {
-        await ctx.reply(markdownI18n(ctx, 'error_twenty'), {
+        await ctx.reply(markdownI18n(ctx, 'error_file_too_large'), {
           parse_mode: 'Markdown',
           reply_to_message_id: message.message_id,
         })

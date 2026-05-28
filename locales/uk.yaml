@@ -31,7 +31,7 @@ start: |
   Voicy має відкритий код: https://github.com/backmeupplz/voicy.
 language: "👋 Виберіть мову інтерфейсу бота."
 language_success: "👍 Voicy тепер використовуватиме *${language}* для повідомлень бота в цьому чаті."
-error_twenty: "_👮 Файли Telegram понад 20 МБ не можна обробити тут. Для більших файлів використовуйте https://voicybot.com напряму._"
+error_file_too_large: "_👮 Voicy не підтримує файли понад 100 МБ._"
 sunsetting: |
   *Voicy потрібен одноразовий донат, щоб продовжувати розшифрування в цьому чаті.*
 

@@ -31,7 +31,7 @@ start: |
   Voicy is open source: https://github.com/backmeupplz/voicy.
 language: "\U0001F44B Choose the bot interface language."
 language_success: "\U0001F44D Voicy will now use *${language}* for bot messages in this chat."
-error_twenty: "_\U0001F46E Telegram files over 20 MB cannot be processed here. For larger files, use https://voicybot.com directly._"
+error_file_too_large: "_\U0001F46E Voicy doesn't support files over 100 MB._"
 sunsetting: |
   *Voicy needs a one-time donation to keep transcribing in this chat.*
 
