@@ -61,7 +61,7 @@
     "@grammyjs/i18n": "^0.5.1",
     "@grammyjs/runner": "^1.0.4",
     "@typegoose/typegoose": "^9.13.2",
-    "axios": "^0.31.1",
+    "axios": "^0.32.0",
     "express": "^4.22.1",
     "grammy": "^1.7.3",
     "js-yaml": "^4.1.1",
