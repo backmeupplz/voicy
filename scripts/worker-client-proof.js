@@ -1493,6 +1493,187 @@ async function main() {
     await close(largeStdoutFallbackProof.server)
   }
 
+  const largeResultTextProof = createProofServer()
+  await listen(largeResultTextProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      largeResultTextProof.server.address().port
+    }/worker/v1`
+    const config = loadConfig({
+      VOICY_WORKER_API_URL: baseUrl,
+      VOICY_WORKER_TOKEN: 'proof-worker-token',
+      VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+      VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+        '-e',
+        [
+          "const fs = require('fs')",
+          "fs.writeFileSync(process.argv[2], JSON.stringify({ text: 't'.repeat(100001), parts: [], language: 'en', duration: 2 }))",
+        ].join('; '),
+        '{input}',
+        '{output}',
+      ]),
+      VOICY_WORKER_WORK_DIR: path.join(
+        os.tmpdir(),
+        `voicy-worker-large-result-text-proof-${process.pid}`
+      ),
+      VOICY_WORKER_TELEGRAM_API_URL: `http://127.0.0.1:${
+        largeResultTextProof.server.address().port
+      }`,
+      VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
+    })
+
+    const processed = await processNextJob(config, {
+      info: () => undefined,
+      warn: () => undefined,
+      error: () => undefined,
+    })
+
+    assert(processed, 'large result text proof should claim the job')
+    assert(
+      !largeResultTextProof.state.result,
+      'oversized result text should not be uploaded'
+    )
+    assert(
+      largeResultTextProof.state.failure,
+      'oversized result text should report a controlled failure'
+    )
+    assert(
+      largeResultTextProof.state.failure.retryable === false,
+      'oversized result text should be a non-retryable worker config failure'
+    )
+    assert(
+      largeResultTextProof.state.failure.error.includes(
+        'Transcription result text is too large to upload safely'
+      ) &&
+        largeResultTextProof.state.failure.error.includes('textChars=100001'),
+      'oversized result text failure should explain the text limit'
+    )
+  } finally {
+    await close(largeResultTextProof.server)
+  }
+
+  const tooManyResultPartsProof = createProofServer()
+  await listen(tooManyResultPartsProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      tooManyResultPartsProof.server.address().port
+    }/worker/v1`
+    const config = loadConfig({
+      VOICY_WORKER_API_URL: baseUrl,
+      VOICY_WORKER_TOKEN: 'proof-worker-token',
+      VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+      VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+        '-e',
+        [
+          "const fs = require('fs')",
+          "fs.writeFileSync(process.argv[2], JSON.stringify({ text: 'too many parts transcript', parts: Array.from({ length: 5001 }, () => ({ text: 'p' })), language: 'en', duration: 2 }))",
+        ].join('; '),
+        '{input}',
+        '{output}',
+      ]),
+      VOICY_WORKER_WORK_DIR: path.join(
+        os.tmpdir(),
+        `voicy-worker-too-many-result-parts-proof-${process.pid}`
+      ),
+      VOICY_WORKER_TELEGRAM_API_URL: `http://127.0.0.1:${
+        tooManyResultPartsProof.server.address().port
+      }`,
+      VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
+    })
+
+    const processed = await processNextJob(config, {
+      info: () => undefined,
+      warn: () => undefined,
+      error: () => undefined,
+    })
+
+    assert(processed, 'too many result parts proof should claim the job')
+    assert(
+      !tooManyResultPartsProof.state.result,
+      'too many result parts should not be uploaded'
+    )
+    assert(
+      tooManyResultPartsProof.state.failure,
+      'too many result parts should report a controlled failure'
+    )
+    assert(
+      tooManyResultPartsProof.state.failure.retryable === false,
+      'too many result parts should be a non-retryable worker config failure'
+    )
+    assert(
+      tooManyResultPartsProof.state.failure.error.includes(
+        'Transcription result has too many parts to upload safely'
+      ) && tooManyResultPartsProof.state.failure.error.includes('parts=5001'),
+      'too many result parts failure should explain the parts limit'
+    )
+  } finally {
+    await close(tooManyResultPartsProof.server)
+  }
+
+  const oversizedOutputFileProof = createProofServer()
+  await listen(oversizedOutputFileProof.server)
+
+  try {
+    const baseUrl = `http://127.0.0.1:${
+      oversizedOutputFileProof.server.address().port
+    }/worker/v1`
+    const config = loadConfig({
+      VOICY_WORKER_API_URL: baseUrl,
+      VOICY_WORKER_TOKEN: 'proof-worker-token',
+      VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+      VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+        '-e',
+        [
+          "const fs = require('fs')",
+          "fs.writeFileSync(process.argv[2], JSON.stringify({ text: 'oversized output file transcript', parts: [{ text: 'p'.repeat(2 * 1024 * 1024) }], language: 'en', duration: 2 }))",
+        ].join('; '),
+        '{input}',
+        '{output}',
+      ]),
+      VOICY_WORKER_WORK_DIR: path.join(
+        os.tmpdir(),
+        `voicy-worker-oversized-output-file-proof-${process.pid}`
+      ),
+      VOICY_WORKER_TELEGRAM_API_URL: `http://127.0.0.1:${
+        oversizedOutputFileProof.server.address().port
+      }`,
+      VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
+    })
+
+    const processed = await processNextJob(config, {
+      info: () => undefined,
+      warn: () => undefined,
+      error: () => undefined,
+    })
+
+    assert(processed, 'oversized output file proof should claim the job')
+    assert(
+      !oversizedOutputFileProof.state.result,
+      'oversized output file should not be uploaded'
+    )
+    assert(
+      oversizedOutputFileProof.state.failure,
+      'oversized output file should report a controlled failure'
+    )
+    assert(
+      oversizedOutputFileProof.state.failure.retryable === false,
+      'oversized output file should be a non-retryable worker config failure'
+    )
+    assert(
+      oversizedOutputFileProof.state.failure.error.includes(
+        'Transcription output file is too large to parse safely'
+      ) &&
+        oversizedOutputFileProof.state.failure.error.includes(
+          'maxBytes=1048576'
+        ),
+      'oversized output file failure should explain the byte limit'
+    )
+  } finally {
+    await close(oversizedOutputFileProof.server)
+  }
+
   const failureProof = createProofServer()
   await listen(failureProof.server)
 
