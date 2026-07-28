@@ -2359,10 +2359,10 @@ mongoose-findorcreate@^3.0.0:
   resolved "https://registry.yarnpkg.com/mongoose-findorcreate/-/mongoose-findorcreate-3.0.0.tgz#490acf67c16061de74f7d1b92906538a62554a6d"
   integrity sha512-kQhDe5XDj6tMv8kq1wjK+hITGIGUl60rj8oGLupF9poNsqIDkAJBXudZKcCdSyBZ7p6DLK2+0jSBthrb26tSYQ==
 
-mongoose@6.13.9:
-  version "6.13.9"
-  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-6.13.9.tgz#880294370404dda9c51eeaac00352f83e6a4a5b7"
-  integrity sha512-x8XpK0SEDJtAtMoOF2U9aGrGXN6kbu01TqhznGLnA4B1oPXNb4Lye0MgmfxF9J2Dva7wf49VOgClk2fuKQYGHw==
+mongoose@6.13.10:
+  version "6.13.10"
+  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-6.13.10.tgz#dc25059ea79d787b3eaf6efea2f671f863ab13c0"
+  integrity sha512-5Xya7crlTwBrl3Gp1XCZMSnKI1WTLYzKkRdKaBiD51AprGtLQtgNoFO7v/qG0O5PixjfxzLuN3f3MChDOOFQOQ==
   dependencies:
     bson "^4.7.2"
     kareem "2.5.1"
