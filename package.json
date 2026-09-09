@@ -65,7 +65,7 @@
     "axios": "^0.33.0",
     "express": "^4.22.2",
     "grammy": "^1.7.3",
-    "js-yaml": "^4.3.1",
+    "js-yaml": "^4.3.2",
     "mongoose": "6.13.10",
     "mongoose-findorcreate": "^3.0.0",
     "stripe": "^14.25.0",
