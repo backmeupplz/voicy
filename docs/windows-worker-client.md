@@ -593,14 +593,18 @@ shows a green dot while this PC transcribes, blue while another worker does,
 and red when nothing is online. When a Steam game starts
 (`HKCU\Software\Valve\Steam\RunningAppID` turns non-zero) it makes another
 worker active; when the game exits it makes this PC active again. Start it at
-logon for the interactive user:
+logon for the interactive user. Launch it through `conhost.exe --headless`:
+with Windows Terminal as the default console, `-WindowStyle Hidden` still shows
+a window, and closing that window kills the tray.
 
 ```powershell
 Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Run VoicyWorkerSwitch `
-  'powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File C:\voicy-worker\voicy\scripts\worker-switch-tray.ps1'
+  'conhost.exe --headless powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\voicy-worker\voicy\scripts\worker-switch-tray.ps1'
 ```
 
-Switches it makes are logged to `C:\voicy-worker\logs\switch.log`.
+Windows 11 first puts the icon in the hidden tray overflow; show it with
+Settings > Personalization > Taskbar > Other system tray icons > Windows
+PowerShell. Switches it makes are logged to `C:\voicy-worker\logs\switch.log`.
 
 ## macOS Test Bot LaunchAgent
 

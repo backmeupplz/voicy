@@ -1,7 +1,9 @@
 # Tray switch for which Voicy worker takes new jobs. While a Steam game runs,
 # new jobs go to another worker; when the game exits they come back here.
-# Start at logon (HKCU Run):
-#   powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File <this file>
+# Start at logon (HKCU Run) through conhost --headless: with Windows Terminal as
+# the default console, -WindowStyle Hidden still shows a window, and closing it
+# kills the tray.
+#   conhost.exe --headless powershell.exe -NoProfile -ExecutionPolicy Bypass -File <this file>
 param(
   [string]$EnvPath = "C:\voicy-worker\voicy-worker.env.ps1",
   [string]$LogPath = "C:\voicy-worker\logs\switch.log"
