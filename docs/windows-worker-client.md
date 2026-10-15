@@ -547,6 +547,7 @@ Mac worker (one-time):
    VOICY_WORKER_API_URL=https://<voicy-host>/worker/v1
    VOICY_WORKER_TOKEN=voicy_worker_...
    VOICY_WORKER_TELEGRAM_BOT_TOKEN=<telegram-bot-token>
+   VOICY_WORKER_TELEGRAM_LARGE_FILE_API_URL=https://<windows-host>.<tailnet>.ts.net:8443
    VOICY_WORKER_WORK_DIR=/Users/<user>/.voicy-worker/jobs
    VOICY_WORKER_ENGINE=mlx-whisper
    VOICY_WORKER_MODEL=large-v3-turbo
@@ -561,9 +562,26 @@ Mac worker (one-time):
    `com.voicy.worker` and `com.voicy.worker-switch` LaunchAgents and logs to
    `~/Library/Logs/voicy-worker/`.
 
-The Mac uses the cloud Bot API, so it only claims files up to 20 MB; larger
-files wait for the Windows worker with its local Bot API. Do not run a second
-local Bot API server for the same bot.
+The Mac downloads files up to 20 MB from the cloud Bot API. Larger files go
+through the Windows host's local Bot API, so the bot is never logged into a
+second Bot API server: a `--local` server returns paths on its own disk and
+does not serve files over HTTP, so `scripts/telegram-bot-api-file-proxy.py`
+forwards `getMe`/`getFile`, rewrites `file_path`, and serves the files. Run it
+on the Windows host and expose it on the tailnet (from an elevated prompt):
+
+```powershell
+Copy-Item scripts\telegram-bot-api-file-proxy.py C:\voicy-worker\telegram-bot-api\file-proxy.py
+Register-ScheduledTask -TaskName VoicyBotApiFileProxy -User SYSTEM -RunLevel Highest `
+  -Trigger (New-ScheduledTaskTrigger -AtStartup) `
+  -Settings (New-ScheduledTaskSettingsSet -RestartCount 999 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit 0) `
+  -Action (New-ScheduledTaskAction -Execute C:\voicy-worker\.venv\Scripts\python.exe `
+    -Argument "C:\voicy-worker\telegram-bot-api\file-proxy.py C:\voicy-worker\telegram-bot-api\data")
+Start-ScheduledTask -TaskName VoicyBotApiFileProxy
+tailscale serve --bg --https=8443 http://127.0.0.1:8082
+```
+
+The Mac claims files over 20 MB only while that API answers `getMe` (checked
+every 30 s), so they wait for Windows instead of failing when the PC is off.
 
 The menu bar icon shows a laptop while this Mac transcribes, a desktop while
 another worker does, and a warning when no worker is online. Clicking a worker

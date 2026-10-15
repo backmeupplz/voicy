@@ -52,7 +52,9 @@ workers cannot claim the same media acquisition job.
 
 The body may include `{"maxFileSize": 20971520}` to skip jobs whose `fileSize`
 is larger (or unknown). The bundled worker sends it when it downloads through
-the cloud Bot API, which refuses files over 20 MB.
+the cloud Bot API, which refuses files over 20 MB, unless its
+`VOICY_WORKER_TELEGRAM_LARGE_FILE_API_URL` (another host's local Bot API) is
+answering.
 
 A standby worker (see [Active worker switch](#active-worker-switch)) gets `204`
 here and from `POST /jobs/claim` while an active worker is online.
