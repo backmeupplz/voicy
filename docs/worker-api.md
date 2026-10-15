@@ -50,6 +50,15 @@ The Mongo update sets `status: downloading`, `workerId`, `claimedAt`,
 `heartbeatAt`, and increments `attempts` in one `findOneAndUpdate`, so two
 workers cannot claim the same media acquisition job.
 
+The body may include `{"maxFileSize": 20971520}` to skip jobs whose `fileSize`
+is larger (or unknown). The bundled worker sends it when it downloads through
+the cloud Bot API, which refuses files over 20 MB, unless its
+`VOICY_WORKER_TELEGRAM_LARGE_FILE_API_URL` (another host's local Bot API) is
+answering.
+
+A standby worker (see [Active worker switch](#active-worker-switch)) gets `204`
+here and from `POST /jobs/claim` while an active worker is online.
+
 ### `GET /jobs/:id/source`
 
 Returns source media metadata for an owned `downloading`, `ready`,
@@ -202,6 +211,40 @@ Request body:
 }
 ```
 
+## Active worker switch
+
+Workers are active by default. Marking one worker active puts every other
+worker on standby: standby workers stop claiming new jobs while an active
+worker has made a job request in the last 90 seconds, finish the jobs they
+already own, and take new jobs again whenever no active worker is online. Two
+workers claiming at once is harmless because claims are atomic.
+
+### `GET /workers`
+
+Lists enabled workers. Requests to `/workers*` do not refresh `lastSeenAt`, so a
+switch UI that polls with a worker token cannot keep a dead worker "online".
+
+```json
+{
+  "self": "macbook-m1-max",
+  "workers": [
+    { "name": "macbook-m1-max", "active": true, "online": true },
+    { "name": "windows-4070-ti", "active": false, "online": true }
+  ]
+}
+```
+
+### `POST /workers/active`
+
+Body `{"name": "macbook-m1-max"}` makes that worker active and every other
+worker standby, then returns the same list. Unknown or disabled names return
+`404`. Any worker token may switch; a worker could already take every job by
+polling.
+
+`scripts/worker-switch-menubar.swift` (macOS menu bar) and
+`scripts/worker-switch-tray.ps1` (Windows tray, hands work to another worker
+while a Steam game runs) are the bundled switch UIs.
+
 ## Validation
 
 `yarn test:worker-api` runs a scripted HTTP proof against `MONGO`. It verifies:
@@ -215,3 +258,7 @@ Request body:
   channels;
 - result upload completes the job and persists transcript data;
 - retryable failure requeues while attempts remain.
+- a standby worker yields new jobs while the active worker is online, and
+  claims them once it is not;
+- `/workers` polling does not count as worker presence;
+- `maxFileSize` skips larger jobs.

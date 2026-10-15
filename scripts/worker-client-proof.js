@@ -47,6 +47,7 @@ function createProofServer(options = {}) {
     heartbeats: 0,
     audioAuthorization: undefined,
     fileDownloadRequests: 0,
+    claimBodies: [],
   }
 
   const server = http.createServer(async (request, response) => {
@@ -101,6 +102,7 @@ function createProofServer(options = {}) {
       request.method === 'POST' &&
       url.pathname === '/worker/v1/jobs/claim-download'
     ) {
+      state.claimBodies.push(await readJson(request))
       if (state.claimed) {
         response.writeHead(204)
         response.end()
@@ -140,9 +142,19 @@ function createProofServer(options = {}) {
             sourceKind: 'voice',
             mimeType: 'audio/ogg',
             fileId: 'proof-file',
+            fileSize: options.sourceFileSize,
           },
         })
       )
+      return
+    }
+
+    if (
+      request.method === 'GET' &&
+      url.pathname === '/botproof-telegram-token/getMe'
+    ) {
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(JSON.stringify({ ok: true, result: { id: 1 } }))
       return
     }
 
@@ -2187,6 +2199,58 @@ async function main() {
     )
   } finally {
     await close(restartProof.server)
+  }
+
+  // A cloud Bot API worker downloads files over 20 MB through another host's
+  // local Bot API (telegram-bot-api-file-proxy.py) while it answers.
+  for (const largeFileApiUp of [true, false]) {
+    const largeProof = createProofServer({ sourceFileSize: 30 * 1024 * 1024 })
+    await listen(largeProof.server)
+    try {
+      const base = `http://127.0.0.1:${largeProof.server.address().port}`
+      const config = loadConfig({
+        VOICY_WORKER_API_URL: `${base}/worker/v1`,
+        VOICY_WORKER_TOKEN: 'proof-worker-token',
+        VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+        VOICY_WORKER_TRANSCRIBE_ARGS_JSON: JSON.stringify([
+          'scripts/fake-transcriber.js',
+          '{input}',
+          '{output}',
+        ]),
+        VOICY_WORKER_WORK_DIR: path.join(
+          os.tmpdir(),
+          `voicy-large-file-proof-${process.pid}`
+        ),
+        VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
+        VOICY_WORKER_TELEGRAM_LARGE_FILE_API_URL: largeFileApiUp
+          ? base
+          : 'http://127.0.0.1:9',
+      })
+      if (largeFileApiUp) {
+        assert(
+          await processNextJob(config, { info() {}, warn() {}, error() {} }),
+          'large file job should be processed'
+        )
+        assert(
+          largeProof.state.claimBodies[0].maxFileSize === undefined,
+          'claims should not limit file size while the large-file API answers'
+        )
+        assert(
+          largeProof.state.fileDownloadRequests === 1 &&
+            largeProof.state.result,
+          'large file should download through the large-file API'
+        )
+      } else {
+        largeProof.state.claimed = true
+        await processNextJob(config, { info() {}, warn() {}, error() {} })
+        assert(
+          largeProof.state.claimBodies[0].maxFileSize === 20 * 1024 * 1024,
+          'claims should keep the cloud limit while the large-file API is down'
+        )
+      }
+    } finally {
+      await close(largeProof.server)
+    }
   }
 
   const supervisorScript = fs.readFileSync(

@@ -8,8 +8,10 @@ import {
   failJob,
   getOwnedJob,
   heartbeatJob,
+  listWorkers,
   markJobDownloaded,
   serializeJob,
+  setActiveWorker,
   startTranscriptionJob,
   updateJobProgress,
 } from '@/helpers/workerApi/jobService'
@@ -177,6 +179,22 @@ workerRouter.post(
       request.body || {}
     )
     response.json({ job: serializeJob(job) })
+  })
+)
+
+workerRouter.get(
+  '/workers',
+  asyncRoute(async (request, response) => {
+    response.json(await listWorkers(workerClient(request)))
+  })
+)
+
+workerRouter.post(
+  '/workers/active',
+  asyncRoute(async (request, response) => {
+    response.json(
+      await setActiveWorker(workerClient(request), request.body || {})
+    )
   })
 )
 

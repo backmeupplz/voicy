@@ -22,6 +22,7 @@ const MAX_TRANSCRIPTION_OUTPUT_BYTES = COMMAND_OUTPUT_CAPTURE_LIMIT_BYTES
 const MAX_TRANSCRIPTION_RESULT_TEXT_CHARS = 100000
 const MAX_TRANSCRIPTION_RESULT_PARTS = 5000
 const TRANSCRIPTION_RESULT_LOG_CHARS = 2000
+const CLOUD_BOT_API_MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024
 
 type WorkerQueueBucket = 'oldest' | 'newest'
 
@@ -54,6 +55,7 @@ interface WorkerSource {
   fileUniqueId?: string
   filePath?: string
   localSourcePath?: string
+  fileSize?: number
 }
 
 interface SourceResponse {
@@ -88,6 +90,8 @@ interface WorkerConfig {
   readyQueueLimit: number
   telegramBotApiUrl: string
   telegramBotToken?: string
+  maxDownloadBytes?: number
+  telegramLargeFileApiUrl?: string
   idleExit: boolean
   language?: string
   engine: string
@@ -332,6 +336,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
     )
   )
 
+  const telegramBotApiUrl = (
+    env.VOICY_WORKER_TELEGRAM_API_URL || 'https://api.telegram.org'
+  ).replace(/\/+$/, '')
+
   return {
     apiUrl: required(env.VOICY_WORKER_API_URL, 'VOICY_WORKER_API_URL').replace(
       /\/+$/,
@@ -377,10 +385,17 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
         'VOICY_WORKER_READY_QUEUE_LIMIT'
       )
     ),
-    telegramBotApiUrl: (
-      env.VOICY_WORKER_TELEGRAM_API_URL || 'https://api.telegram.org'
-    ).replace(/\/+$/, ''),
+    telegramBotApiUrl,
     telegramBotToken: env.VOICY_WORKER_TELEGRAM_BOT_TOKEN || env.TOKEN,
+    // The cloud Bot API refuses bigger downloads; leave those to local-API workers.
+    maxDownloadBytes:
+      new URL(telegramBotApiUrl).hostname === 'api.telegram.org'
+        ? CLOUD_BOT_API_MAX_DOWNLOAD_BYTES
+        : undefined,
+    // Another host's local Bot API (via scripts/telegram-bot-api-file-proxy.py)
+    // for files over the cloud limit.
+    telegramLargeFileApiUrl:
+      env.VOICY_WORKER_TELEGRAM_LARGE_FILE_API_URL?.replace(/\/+$/, ''),
     idleExit: booleanFromEnv(env.VOICY_WORKER_IDLE_EXIT),
     language: env.VOICY_WORKER_LANGUAGE,
     engine: env.VOICY_WORKER_ENGINE || 'faster-whisper',
@@ -409,11 +424,12 @@ async function claimJob(api: AxiosInstance) {
 
 async function claimDownloadJobFromBucket(
   api: AxiosInstance,
-  bucket: WorkerQueueBucket
+  bucket: WorkerQueueBucket,
+  maxFileSize?: number
 ) {
   const response = await api.post(
     '/jobs/claim-download',
-    { bucket },
+    { bucket, maxFileSize },
     {
       validateStatus: (status) => status === 200 || status === 204,
     }
@@ -440,6 +456,34 @@ async function claimReadyJob(
     return undefined
   }
   return (response.data as ClaimResponse).job
+}
+
+const largeFileApiChecks = new WeakMap<
+  WorkerConfig,
+  { checkedAt: number; up: boolean }
+>()
+
+// Claim files over the cloud limit only while the large-file Bot API answers;
+// otherwise they wait for a worker that can download them.
+async function claimMaxFileSize(config: WorkerConfig) {
+  if (!config.maxDownloadBytes || !config.telegramLargeFileApiUrl) {
+    return config.maxDownloadBytes
+  }
+  let check = largeFileApiChecks.get(config)
+  if (!check || Date.now() - check.checkedAt > 30000) {
+    const up = await axios
+      .get(
+        `${config.telegramLargeFileApiUrl}/bot${config.telegramBotToken}/getMe`,
+        { timeout: 5000 }
+      )
+      .then(
+        () => true,
+        () => false
+      )
+    check = { checkedAt: Date.now(), up }
+    largeFileApiChecks.set(config, check)
+  }
+  return check.up ? undefined : config.maxDownloadBytes
 }
 
 async function getSource(api: AxiosInstance, jobId: string) {
@@ -622,7 +666,13 @@ async function downloadSource(
     `${job.id}${extensionForSource(source)}`
   )
   await removeIfExists(inputPath)
-  const resolved = await resolveSource(config, source)
+  const sourceConfig =
+    config.maxDownloadBytes &&
+    config.telegramLargeFileApiUrl &&
+    !(source.fileSize <= config.maxDownloadBytes)
+      ? { ...config, telegramBotApiUrl: config.telegramLargeFileApiUrl }
+      : config
+  const resolved = await resolveSource(sourceConfig, source)
   if (resolved.localPath) {
     await copyFile(resolved.localPath, inputPath)
     return inputPath
@@ -630,7 +680,7 @@ async function downloadSource(
   if (!resolved.sourceUrl) {
     throw new WorkerClientError('Job source did not resolve to a file')
   }
-  assertAllowedSourceUrl(resolved.sourceUrl, config)
+  assertAllowedSourceUrl(resolved.sourceUrl, sourceConfig)
   const response = await axios.get(resolved.sourceUrl, {
     responseType: 'stream',
     timeout: config.downloadTimeoutMs,
@@ -1189,7 +1239,11 @@ export async function processAvailableJobs(
       queuedReadyCount() < config.readyQueueLimit
     ) {
       const bucket = nextDownloadBucket
-      const job = await claimDownloadJobFromBucket(api, bucket)
+      const job = await claimDownloadJobFromBucket(
+        api,
+        bucket,
+        await claimMaxFileSize(config)
+      )
       if (!job) {
         downloadQueueExhausted = true
         hasObservedDownloadExhaustion = true
@@ -1197,11 +1251,14 @@ export async function processAvailableJobs(
         if (recheckDownloadsAfterTranscription) {
           nextDownloadBucket = 'newest'
         }
-        logWorkerActivity(logger, 'Worker download queue exhausted', {
-          queuedReadyJobs: queuedReadyCount(),
-          activeDownloads: downloads.size,
-          activeTranscriptions: transcriptions.size,
-        })
+        // Idle polls would log this every poll interval (GBs of worker.log).
+        if (queuedReadyCount() || downloads.size || transcriptions.size) {
+          logWorkerActivity(logger, 'Worker download queue exhausted', {
+            queuedReadyJobs: queuedReadyCount(),
+            activeDownloads: downloads.size,
+            activeTranscriptions: transcriptions.size,
+          })
+        }
         return
       }
       const schedulingBucket = hasObservedDownloadExhaustion ? bucket : 'oldest'

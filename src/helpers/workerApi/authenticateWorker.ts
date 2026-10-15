@@ -8,6 +8,7 @@ import {
 
 export interface WorkerRequest extends express.Request {
   workerClient?: DocumentType<WorkerClient>
+  path: string
   params: { [key: string]: string }
   body?: Record<string, unknown>
 }
@@ -35,11 +36,16 @@ export default async function authenticateWorker(
     return
   }
 
-  const workerClient = await WorkerClientModel.findOneAndUpdate(
-    { tokenHash: hashWorkerToken(token), enabled: true },
-    { $set: { lastSeenAt: new Date() } },
-    { new: true }
-  )
+  const filter = { tokenHash: hashWorkerToken(token), enabled: true }
+  // Switch UIs call /workers with a worker token; only job traffic proves the
+  // worker process itself is online.
+  const workerClient = request.path.startsWith('/workers')
+    ? await WorkerClientModel.findOne(filter)
+    : await WorkerClientModel.findOneAndUpdate(
+        filter,
+        { $set: { lastSeenAt: new Date() } },
+        { new: true }
+      )
   if (!workerClient) {
     response.status(401).json({ error: 'invalid_worker_token' })
     return
