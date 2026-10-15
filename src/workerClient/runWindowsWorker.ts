@@ -1211,11 +1211,14 @@ export async function processAvailableJobs(
         if (recheckDownloadsAfterTranscription) {
           nextDownloadBucket = 'newest'
         }
-        logWorkerActivity(logger, 'Worker download queue exhausted', {
-          queuedReadyJobs: queuedReadyCount(),
-          activeDownloads: downloads.size,
-          activeTranscriptions: transcriptions.size,
-        })
+        // Idle polls would log this every poll interval (GBs of worker.log).
+        if (queuedReadyCount() || downloads.size || transcriptions.size) {
+          logWorkerActivity(logger, 'Worker download queue exhausted', {
+            queuedReadyJobs: queuedReadyCount(),
+            activeDownloads: downloads.size,
+            activeTranscriptions: transcriptions.size,
+          })
+        }
         return
       }
       const schedulingBucket = hasObservedDownloadExhaustion ? bucket : 'oldest'
