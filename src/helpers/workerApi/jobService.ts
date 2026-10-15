@@ -69,6 +69,33 @@ function staleActiveJobMs() {
     : 15 * 60 * 1000
 }
 
+// Idle workers poll every few seconds; busy ones heartbeat every 30 s.
+const WORKER_ONLINE_MS = 90 * 1000
+
+function onlineCutoff() {
+  return new Date(Date.now() - WORKER_ONLINE_MS)
+}
+
+async function yieldsNewWork(workerClient: DocumentType<WorkerClient>) {
+  if (!workerClient.standby) {
+    return false
+  }
+  return Boolean(
+    await WorkerClientModel.exists({
+      _id: { $ne: workerClient._id },
+      enabled: true,
+      standby: { $ne: true },
+      lastSeenAt: { $gte: onlineCutoff() },
+    })
+  )
+}
+
+function maxFileSize(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0
+    ? value
+    : undefined
+}
+
 function queueBucket(value: unknown): WorkerQueueBucket {
   return value === 'newest' ? 'newest' : 'oldest'
 }
@@ -197,8 +224,12 @@ export async function claimDownloadJob(
   workerClient: DocumentType<WorkerClient>,
   body: Record<string, unknown> = {}
 ) {
+  if (await yieldsNewWork(workerClient)) {
+    return null
+  }
   const now = new Date()
   const bucket = queueBucket(body.bucket)
+  const sizeLimit = maxFileSize(body.maxFileSize)
   const job = await TranscriptionJobModel.findOneAndUpdate(
     {
       status: {
@@ -207,6 +238,7 @@ export async function claimDownloadJob(
           TranscriptionJobStatus.queued,
         ],
       },
+      ...(sizeLimit ? { fileSize: { $lte: sizeLimit } } : {}),
     },
     {
       $set: {
@@ -318,6 +350,9 @@ export async function claimNextJob(workerClient: DocumentType<WorkerClient>) {
   const readyJob = await claimReadyJob(workerClient)
   if (readyJob) {
     return readyJob
+  }
+  if (await yieldsNewWork(workerClient)) {
+    return null
   }
 
   const now = new Date()
@@ -644,4 +679,39 @@ export async function failJob(
   )
   emitWorkerJobActivity(job, shouldRetry ? 'retrying' : 'failed')
   return job
+}
+
+export async function listWorkers(workerClient: DocumentType<WorkerClient>) {
+  const cutoff = onlineCutoff().getTime()
+  const workers = await WorkerClientModel.find({ enabled: true }).sort({
+    name: 1,
+  })
+  return {
+    self: workerClient.name,
+    workers: workers.map((worker) => ({
+      name: worker.name,
+      active: !worker.standby,
+      online: (worker.lastSeenAt?.getTime() || 0) >= cutoff,
+      lastSeenAt: worker.lastSeenAt,
+    })),
+  }
+}
+
+export async function setActiveWorker(
+  workerClient: DocumentType<WorkerClient>,
+  body: Record<string, unknown>
+) {
+  const name = body.name
+  if (
+    typeof name !== 'string' ||
+    !(await WorkerClientModel.exists({ name, enabled: true }))
+  ) {
+    throw new WorkerApiError(404, 'worker_not_found')
+  }
+  await WorkerClientModel.updateOne({ name }, { $set: { standby: false } })
+  await WorkerClientModel.updateMany(
+    { name: { $ne: name } },
+    { $set: { standby: true } }
+  )
+  return listWorkers(workerClient)
 }

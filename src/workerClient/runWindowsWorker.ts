@@ -22,6 +22,7 @@ const MAX_TRANSCRIPTION_OUTPUT_BYTES = COMMAND_OUTPUT_CAPTURE_LIMIT_BYTES
 const MAX_TRANSCRIPTION_RESULT_TEXT_CHARS = 100000
 const MAX_TRANSCRIPTION_RESULT_PARTS = 5000
 const TRANSCRIPTION_RESULT_LOG_CHARS = 2000
+const CLOUD_BOT_API_MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024
 
 type WorkerQueueBucket = 'oldest' | 'newest'
 
@@ -88,6 +89,7 @@ interface WorkerConfig {
   readyQueueLimit: number
   telegramBotApiUrl: string
   telegramBotToken?: string
+  maxDownloadBytes?: number
   idleExit: boolean
   language?: string
   engine: string
@@ -332,6 +334,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
     )
   )
 
+  const telegramBotApiUrl = (
+    env.VOICY_WORKER_TELEGRAM_API_URL || 'https://api.telegram.org'
+  ).replace(/\/+$/, '')
+
   return {
     apiUrl: required(env.VOICY_WORKER_API_URL, 'VOICY_WORKER_API_URL').replace(
       /\/+$/,
@@ -377,10 +383,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
         'VOICY_WORKER_READY_QUEUE_LIMIT'
       )
     ),
-    telegramBotApiUrl: (
-      env.VOICY_WORKER_TELEGRAM_API_URL || 'https://api.telegram.org'
-    ).replace(/\/+$/, ''),
+    telegramBotApiUrl,
     telegramBotToken: env.VOICY_WORKER_TELEGRAM_BOT_TOKEN || env.TOKEN,
+    // The cloud Bot API refuses bigger downloads; leave those to local-API workers.
+    maxDownloadBytes:
+      new URL(telegramBotApiUrl).hostname === 'api.telegram.org'
+        ? CLOUD_BOT_API_MAX_DOWNLOAD_BYTES
+        : undefined,
     idleExit: booleanFromEnv(env.VOICY_WORKER_IDLE_EXIT),
     language: env.VOICY_WORKER_LANGUAGE,
     engine: env.VOICY_WORKER_ENGINE || 'faster-whisper',
@@ -409,11 +418,12 @@ async function claimJob(api: AxiosInstance) {
 
 async function claimDownloadJobFromBucket(
   api: AxiosInstance,
-  bucket: WorkerQueueBucket
+  bucket: WorkerQueueBucket,
+  maxFileSize?: number
 ) {
   const response = await api.post(
     '/jobs/claim-download',
-    { bucket },
+    { bucket, maxFileSize },
     {
       validateStatus: (status) => status === 200 || status === 204,
     }
@@ -1189,7 +1199,11 @@ export async function processAvailableJobs(
       queuedReadyCount() < config.readyQueueLimit
     ) {
       const bucket = nextDownloadBucket
-      const job = await claimDownloadJobFromBucket(api, bucket)
+      const job = await claimDownloadJobFromBucket(
+        api,
+        bucket,
+        config.maxDownloadBytes
+      )
       if (!job) {
         downloadQueueExhausted = true
         hasObservedDownloadExhaustion = true

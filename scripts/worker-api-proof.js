@@ -371,6 +371,86 @@ async function main() {
       requeuedJob.status === TranscriptionJobStatus.queuedForDownload,
       'retryable failure should requeue below max attempts'
     )
+    await TranscriptionJobModel.deleteOne({ _id: retryJob._id })
+
+    const workersBefore = await request(baseUrl, '/workers', tokenA)
+    assert(workersBefore.status === 200, 'worker should list workers')
+    const workersBeforeBody = await workersBefore.json()
+    assert(workersBeforeBody.self === 'proof-a', 'list should name the caller')
+    assert(
+      workersBeforeBody.workers.every((worker) => worker.active),
+      'workers should start active'
+    )
+    const unknownActive = await request(baseUrl, '/workers/active', tokenA, {
+      method: 'POST',
+      body: JSON.stringify({ name: 'proof-missing' }),
+    })
+    assert(unknownActive.status === 404, 'unknown worker cannot be activated')
+    const activate = await request(baseUrl, '/workers/active', tokenA, {
+      method: 'POST',
+      body: JSON.stringify({ name: 'proof-b' }),
+    })
+    assert(activate.status === 200, 'worker should set the active worker')
+    const activeByName = Object.fromEntries(
+      (await activate.json()).workers.map((worker) => [worker.name, worker])
+    )
+    assert(
+      activeByName['proof-b'].active && !activeByName['proof-a'].active,
+      'activating proof-b should put proof-a on standby'
+    )
+
+    const standbyJob = await TranscriptionJobModel.create({
+      chatId: 'proof-chat',
+      telegramChatId: '123',
+      sourceMessageId: 15,
+      fileId: 'proof-file-standby',
+      sourceKind: TranscriptionJobSourceKind.voice,
+      fileSize: 30 * 1024 * 1024,
+      status: TranscriptionJobStatus.queued,
+      sourceUrl: 'https://example.invalid/standby.ogg',
+    })
+    await request(baseUrl, '/jobs/claim-ready', tokenB, { method: 'POST' })
+    for (const path of ['/jobs/claim-download', '/jobs/claim']) {
+      const standbyClaim = await request(baseUrl, path, tokenA, {
+        method: 'POST',
+      })
+      assert(
+        standbyClaim.status === 204,
+        `standby worker should yield ${path} while the active one is online`
+      )
+    }
+    const tooBig = await request(baseUrl, '/jobs/claim-download', tokenB, {
+      method: 'POST',
+      body: JSON.stringify({ maxFileSize: 20 * 1024 * 1024 }),
+    })
+    assert(tooBig.status === 204, 'maxFileSize should skip larger jobs')
+
+    await WorkerClientModel.updateOne(
+      { name: 'proof-b' },
+      { $set: { lastSeenAt: new Date(Date.now() - 5 * 60 * 1000) } }
+    )
+    const switchPoll = await request(baseUrl, '/workers', tokenB)
+    const offlineByName = Object.fromEntries(
+      (await switchPoll.json()).workers.map((worker) => [worker.name, worker])
+    )
+    assert(
+      !offlineByName['proof-b'].online,
+      'switch UI polling should not count as worker presence'
+    )
+    const failoverClaim = await request(
+      baseUrl,
+      '/jobs/claim-download',
+      tokenA,
+      { method: 'POST' }
+    )
+    assert(
+      failoverClaim.status === 200,
+      'standby worker should claim when no active worker is online'
+    )
+    assert(
+      (await failoverClaim.json()).job.id === standbyJob._id.toString(),
+      'failover claimed the wrong job'
+    )
 
     console.log('worker API proof passed')
   } finally {

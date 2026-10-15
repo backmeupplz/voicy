@@ -27,6 +27,9 @@ export class WorkerClient {
   tokenHash: string
   @prop({ required: true, default: true, index: true })
   enabled: boolean
+  // Standby workers take new jobs only while no active worker is online.
+  @prop()
+  standby?: boolean
   @prop()
   lastSeenAt?: Date
   @prop()

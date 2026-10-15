@@ -523,6 +523,67 @@ Worker auto-restart QA:
    task env, and observe repeated `Worker crashed` lines plus the threshold log.
    Restore the real executable and reinstall before leaving the host.
 
+## Switching Between Windows and a Mac
+
+The Windows GPU can hand new jobs to a second worker on an Apple Silicon Mac,
+for example while a game runs. Both workers stay up; the backend decides who
+claims new work (see
+[Active worker switch](worker-api.md#active-worker-switch)). A standby worker
+finishes the jobs it already owns, and it takes over again automatically when
+the active worker has been silent for 90 seconds.
+
+Mac worker (one-time):
+
+1. Create a production token: `yarn worker:create-client macbook-m1-max`.
+2. Create a venv for the transcriber:
+   `uv venv --python 3.12 ~/.voicy-worker/venv` and
+   `uv pip install --python ~/.voicy-worker/venv/bin/python mlx-whisper faster-whisper av==17.0.1`
+   (faster-whisper provides the same decoding and Silero VAD the Windows host
+   uses; large-v3-turbo hallucinates "Thank you." on silence without it).
+   Run the transcriber once on any audio file to download the model.
+3. Write `~/.voicy-worker/env` (`chmod 600`):
+
+   ```sh
+   VOICY_WORKER_API_URL=https://<voicy-host>/worker/v1
+   VOICY_WORKER_TOKEN=voicy_worker_...
+   VOICY_WORKER_TELEGRAM_BOT_TOKEN=<telegram-bot-token>
+   VOICY_WORKER_WORK_DIR=/Users/<user>/.voicy-worker/jobs
+   VOICY_WORKER_ENGINE=mlx-whisper
+   VOICY_WORKER_MODEL=large-v3-turbo
+   VOICY_WORKER_LANGUAGE=auto
+   VOICY_WORKER_TRANSCRIBE_EXECUTABLE=/Users/<user>/.voicy-worker/venv/bin/python
+   VOICY_WORKER_TRANSCRIBE_ARGS_JSON='["/Users/<user>/.voicy-worker/voicy/scripts/mlx-whisper-transcriber.py","{input}","{output}","{language}","{model}"]'
+   HF_HUB_OFFLINE=1
+   ```
+
+4. Clone the repo to `~/.voicy-worker/voicy`, `yarn install --frozen-lockfile`,
+   `yarn build-ts`, then `scripts/install-macos-worker.sh`. It installs the
+   `com.voicy.worker` and `com.voicy.worker-switch` LaunchAgents and logs to
+   `~/Library/Logs/voicy-worker/`.
+
+The Mac uses the cloud Bot API, so it only claims files up to 20 MB; larger
+files wait for the Windows worker with its local Bot API. Do not run a second
+local Bot API server for the same bot.
+
+The menu bar icon shows a laptop while this Mac transcribes, a desktop while
+another worker does, and a warning when no worker is online. Clicking a worker
+makes it active. While the Mac is the active worker it keeps itself from idle
+sleep.
+
+Windows tray: `scripts/worker-switch-tray.ps1` reads the worker env file and
+shows a green dot while this PC transcribes, blue while another worker does,
+and red when nothing is online. When a Steam game starts
+(`HKCU\Software\Valve\Steam\RunningAppID` turns non-zero) it makes another
+worker active; when the game exits it makes this PC active again. Start it at
+logon for the interactive user:
+
+```powershell
+Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Run VoicyWorkerSwitch `
+  'powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File C:\voicy-worker\voicy\scripts\worker-switch-tray.ps1'
+```
+
+Switches it makes are logged to `C:\voicy-worker\logs\switch.log`.
+
 ## macOS Test Bot LaunchAgent
 
 The local test bot on Nikita's Mac can use the same worker client under launchd.
