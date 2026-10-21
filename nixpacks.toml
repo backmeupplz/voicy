@@ -1,3 +1,6 @@
+[phases.setup]
+nixpkgsArchive = "cd4ea8d57de16f4810bc5f14207bac45fbf19f67"
+
 [phases.install]
 cmds = ["yarn install --frozen-lockfile"]
 
