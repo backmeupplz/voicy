@@ -1,17 +1,26 @@
 name: Dosu Backend
-
 on:
   pull_request:
     types: [synchronize, opened]
-
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   compile-code:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Install modules
-        run: yarn --no-progress
-      - name: Compile code
-        run: yarn tsc --skipLibCheck
-      - name: Lint code
-        run: yarn lint
+      - uses: actions/checkout@v4
+      # node_modules itself is cached: a hit skips the install entirely
+      - id: modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+          key: modules-${{ runner.os }}-image-${{ hashFiles('yarn.lock') }}
+      - if: steps.modules.outputs.cache-hit != 'true'
+        run: yarn --no-progress --frozen-lockfile
+      # Independent checks run in parallel; any failure fails the step
+      - run: |
+          yarn -s tsc --skipLibCheck &
+          yarn -s lint &
+          for job in $(jobs -p); do wait $job || exit 1; done
