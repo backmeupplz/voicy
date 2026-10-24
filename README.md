@@ -19,8 +19,8 @@ The active bot interface is maintained in English and Russian in the `locales` f
 2. Launch a [mongo database](https://www.mongodb.com/) locally
 3. Create `.env` file with the environment variables listed below
 4. Install `ffmpeg` on machines that run local transcription workers
-5. Run `yarn` in the root folder
-6. Run `yarn start`
+5. Run `bun install` in the root folder
+6. Run `bun run develop`
 
 ## Environment variables in `.env` file
 
@@ -65,8 +65,8 @@ The worker API is mounted at `/worker/v1` and requires
 token from a trusted backend shell after building the TypeScript output:
 
 ```sh
-yarn build-ts
-MONGO='mongodb://...' yarn worker:create-client windows-4070-ti
+bun run build-ts
+MONGO='mongodb://...' bun run worker:create-client windows-4070-ti
 ```
 
 Store the printed token only in the Windows worker environment as
@@ -74,7 +74,7 @@ Store the printed token only in the Windows worker environment as
 lost or exposed, create a replacement token and disable the old `WorkerClient`
 record in Mongo by setting `enabled` to `false`.
 
-On the Windows machine, build this repo, install FFmpeg, Node.js 20+, Python
+On the Windows machine, build this repo, install FFmpeg, Node.js 20+, Bun, Python
 3.11, current NVIDIA drivers, and a CUDA-capable transcription stack such as
 `faster-whisper`. Configure the worker with:
 
@@ -91,7 +91,7 @@ $env:VOICY_WORKER_DOWNLOAD_CONCURRENCY = "2"
 $env:VOICY_WORKER_TRANSCRIPTION_CONCURRENCY = "1"
 $env:VOICY_WORKER_TRANSCRIBE_EXECUTABLE = "C:\voicy-worker\.venv\Scripts\python.exe"
 $env:VOICY_WORKER_TRANSCRIBE_ARGS_JSON = '["C:\\voicy-worker\\transcribe.py","{input}","{output}","{language}","{model}"]'
-yarn worker:run
+bun run worker:run
 ```
 
 For production on Windows, install the checked-in scheduled-task supervisor with
@@ -164,18 +164,18 @@ the worker is restarted by launchd with a full executable path. Build first,
 export the worker API/token environment, then inspect the generated plist:
 
 ```sh
-yarn build-ts
+bun run build-ts
 export VOICY_WORKER_API_URL=http://127.0.0.1:3000/worker/v1
 export VOICY_WORKER_TOKEN=voicy_worker_...
 export VOICY_WORKER_TRANSCRIBE_EXECUTABLE="$(command -v node)"
 export VOICY_WORKER_TRANSCRIBE_ARGS_JSON='["scripts/whisper-transcriber.js","{input}","{output}","{language}"]'
-yarn worker:print-macos-test-launchd
+bun run worker:print-macos-test-launchd
 ```
 
 Load it after the output looks right:
 
 ```sh
-yarn worker:install-macos-test-launchd
+bun run worker:install-macos-test-launchd
 ```
 
 The generated LaunchAgent sets `PATH` to include `/opt/homebrew/bin` and
@@ -187,7 +187,7 @@ environment.
 Check the local bot, worker, Mongo, Whisper command, and queued job health with:
 
 ```sh
-MONGO=mongodb://127.0.0.1:27017/voicy yarn test:local-runtime-health
+MONGO=mongodb://127.0.0.1:27017/voicy bun run test:local-runtime-health
 ```
 
 For the live Telegram proof loop, send a fresh voice message to the test bot,

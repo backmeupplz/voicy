@@ -211,8 +211,8 @@ Start-ScheduledTask -TaskName VoicyLocalTelegramBotApi
 Build the repo on the Windows machine:
 
 ```powershell
-yarn install --frozen-lockfile
-yarn build-ts
+bun install --frozen-lockfile
+bun run build-ts
 ```
 
 Set environment variables:
@@ -557,8 +557,8 @@ Mac worker (one-time):
    HF_HUB_OFFLINE=1
    ```
 
-4. Clone the repo to `~/.voicy-worker/voicy`, `yarn install --frozen-lockfile`,
-   `yarn build-ts`, then `scripts/install-macos-worker.sh`. It installs the
+4. Clone the repo to `~/.voicy-worker/voicy`, `bun install --frozen-lockfile`,
+   `bun run build-ts`, then `scripts/install-macos-worker.sh`. It installs the
    `com.voicy.worker` and `com.voicy.worker-switch` LaunchAgents and logs to
    `~/Library/Logs/voicy-worker/`.
 

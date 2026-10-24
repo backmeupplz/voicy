@@ -1,17 +1,33 @@
 name: Dosu Backend
-
 on:
   pull_request:
     types: [synchronize, opened]
-
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   compile-code:
-    runs-on: ubuntu-latest
+    # Our own PRs run on the Mac runners; outsiders' PRs (AGit via the github bot) stay on Linux
+    runs-on: ${{ contains(fromJSON('["backmeupplz","renovate","claude"]'), github.event.pull_request.user.login) && 'macos-latest' || 'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Install modules
-        run: yarn --no-progress
-      - name: Compile code
-        run: yarn tsc --skipLibCheck
-      - name: Lint code
-        run: yarn lint
+      - uses: actions/checkout@v4
+      # bun is the package manager and script runner only; tsc/eslint and production run on Node. The Mac uses Homebrew's bun
+      - if: runner.os == 'Linux'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+      # Linux caches node_modules (a hit skips the install); on the Mac bun's global cache persists between runs
+      - id: modules
+        if: runner.os == 'Linux'
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+          key: modules-${{ runner.os }}-image-${{ hashFiles('bun.lock') }}
+      - if: steps.modules.outputs.cache-hit != 'true'
+        run: bun install --frozen-lockfile
+      # Independent checks run in parallel; any failure fails the step
+      - run: |
+          bun run tsc --skipLibCheck &
+          bun run lint &
+          for job in $(jobs -p); do wait $job || exit 1; done

@@ -8,7 +8,7 @@
   "author": "backmeupplz <backmeupplz@gmail.com>",
   "scripts": {
     "distribute": "node dist/app.js",
-    "develop": "concurrently -k -i -p \"[{name}]\" -n \"Node,TypeScript\" -c \"yellow.bold,cyan.bold\" \"yarn watch-js\" \"yarn watch-ts\"",
+    "develop": "concurrently -k -i -p \"[{name}]\" -n \"Node,TypeScript\" -c \"yellow.bold,cyan.bold\" \"bun run watch-js\" \"bun run watch-ts\"",
     "build-ts": "tsc --skipLibCheck",
     "test:qa-vnext": "node scripts/qa-vnext-proof.js",
     "test:worker-client": "node scripts/worker-client-proof.js",
@@ -55,7 +55,7 @@
     "audit-locales": "node scripts/audit-localizations.js",
     "audit:commands": "node scripts/audit-bot-commands.js",
     "pretty": "prettier --check src",
-    "lint": "yarn pretty && eslint --max-warnings 0 --ext ts,tsx,json src"
+    "lint": "bun run pretty && eslint --max-warnings 0 --ext ts,tsx,json src"
   },
   "dependencies": {
     "@grammyjs/auto-retry": "1.1.1",
@@ -88,6 +88,5 @@
   },
   "_moduleAliases": {
     "@": "dist"
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  }
 }
