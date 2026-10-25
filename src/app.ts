@@ -5,13 +5,13 @@ import 'module-alias/register'
 import * as dotenv from 'dotenv'
 dotenv.config({ path: `${__dirname}/../.env` })
 // Dependencies
+import { RunnerHandle, run } from '@grammyjs/runner'
 import { dropPendingTelegramUpdatesBeforePolling } from '@/helpers/staleTelegramUpdates'
 import {
   handleTelegramStarsPreCheckout,
   handleTelegramStarsSuccessfulPayment,
 } from '@/handlers/handleTelegramStarsPayment'
 import { markChatUnreachableForTelegramError } from '@/helpers/chatReachability'
-import { run } from '@grammyjs/runner'
 import { webhookApp } from '@/helpers/startWebhook'
 import Cluster from '@/helpers/Cluster'
 import activityStreamMiddleware, {
@@ -44,6 +44,7 @@ import handleTranscribe from './commands/handleTranscribe'
 import handleTranscribeAll from './commands/handleTranscribeAll'
 import i18n from '@/helpers/i18n'
 import ignoreOldMessageUpdates from '@/middlewares/ignoreOldMessageUpdates'
+import pollWithHandover from '@/helpers/handover'
 import recordTimeReceived from '@/middlewares/recordTimeReceived'
 import report from '@/helpers/report'
 import startMongo from '@/helpers/startMongo'
@@ -54,6 +55,14 @@ async function runApp() {
   // Mongo
   await startMongo()
   console.log('Mongo started')
+  // The newest update fetched and the handlers still running, for handing polling over on deploys
+  let lastUpdate = 0
+  let handling = 0
+  bot.use((ctx, next) => {
+    lastUpdate = Math.max(lastUpdate, ctx.update.update_id)
+    handling++
+    return next().finally(() => handling--)
+  })
   // Middlewares
   bot.use(recordTimeReceived)
   bot.use(activityStreamMiddleware)
@@ -99,12 +108,34 @@ async function runApp() {
   // Start bot
   await bot.init()
   await configureBotCommands()
-  await dropPendingTelegramUpdatesBeforePolling(bot.api)
-  run(bot, 500, { allowed_updates: telegramAllowedUpdates })
-  console.info(`Bot ${bot.botInfo.username} is up and running`)
-  emitRuntimeActivity(`Voicy bot ${bot.botInfo.username} runtime started`)
-  // Start webhook app
+  // Start webhook app (Stripe and the transcription workers): every container serves it,
+  // so a new one is healthy before it takes polling over
   webhookApp.listen(4242, () => console.log('Running on port 4242'))
+  // Only the container holding the polling lock polls
+  let runner: RunnerHandle
+  await pollWithHandover(
+    async () => {
+      await dropPendingTelegramUpdatesBeforePolling(bot.api)
+      runner = run(bot, 500, { allowed_updates: telegramAllowedUpdates })
+      console.info(`Bot ${bot.botInfo.username} is up and running`)
+      emitRuntimeActivity(`Voicy bot ${bot.botInfo.username} runtime started`)
+    },
+    async () => {
+      await runner?.stop()
+      // The runner does not confirm on stop: a zero-timeout getUpdates confirms
+      // every update fetched, so the next poller does not get them again
+      if (lastUpdate) {
+        await bot.api.getUpdates({
+          offset: lastUpdate + 1,
+          limit: 1,
+          timeout: 0,
+        })
+      }
+    },
+    async () => {
+      while (handling) await new Promise((resolve) => setTimeout(resolve, 100))
+    }
+  )
 }
 
 if (Cluster.isPrimary) {

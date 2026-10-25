@@ -2,7 +2,10 @@ import { Message } from '@grammyjs/types'
 import Context from '@/models/Context'
 
 const DEFAULT_MAX_MESSAGE_AGE_SECONDS = 5 * 60
-const STARTUP_CUTOFF_SECONDS = Math.floor(Date.now() / 1000)
+// Deploys hand polling over between containers (HANDOVER_LOCK): the updates queued
+// meanwhile are fresh, so they are neither dropped nor ignored (the max age still applies)
+const HANDOVER = !!process.env.HANDOVER_LOCK
+const STARTUP_CUTOFF_SECONDS = HANDOVER ? 0 : Math.floor(Date.now() / 1000)
 
 type StaleTelegramMessageDecision = {
   ignore: boolean
@@ -32,7 +35,10 @@ function configuredMaxMessageAgeSeconds() {
 }
 
 function dropPendingUpdatesOnStartupEnabled() {
-  return parseBoolean(process.env.VOICY_DROP_PENDING_UPDATES_ON_STARTUP, true)
+  return parseBoolean(
+    process.env.VOICY_DROP_PENDING_UPDATES_ON_STARTUP,
+    !HANDOVER
+  )
 }
 
 function shouldIgnoreTelegramMessageUpdate(
