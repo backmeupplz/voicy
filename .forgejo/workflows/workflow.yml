@@ -32,4 +32,4 @@ jobs:
           bun run lint &
           for job in $(jobs -p); do wait $job || exit 1; done
       # tsc above emitted dist/: the cross-promo and broadcast proofs run on it
-      - run: node scripts/promo-start-proof.js && node scripts/broadcast-proof.js
+      - run: node scripts/promo-start-proof.js && node scripts/promo-hook-proof.js && node scripts/broadcast-proof.js

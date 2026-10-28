@@ -1,4 +1,5 @@
 import { ChatModel } from '@/models/Chat'
+import { Config } from '@/helpers/promo'
 import { createHash } from 'crypto'
 import Context from '@/models/Context'
 import axios from 'axios'
@@ -138,4 +139,51 @@ export async function ensurePromoInviteLinks(ctx: {
     }
     console.info(`promo invite link ${name} ${link}`)
   }
+}
+
+const CHANNEL = 'https://t.me/golden_borodutch'
+
+// The invite links campaigns need: every running or paused campaign variant
+// that points at @golden_borodutch gets one named
+// <campaign>-<variant>-<source bot code>
+export function campaignInviteLinkNames(cfg: Config | undefined) {
+  const names: string[] = []
+  for (const c of cfg?.campaigns || []) {
+    if (c.status !== 'running' && c.status !== 'paused') continue
+    for (const v of c.variants)
+      if ((v.target ?? c.target) === CHANNEL)
+        names.push(`${c.id}-${v.id}-${cfg?.bots[c.bot]?.code}`)
+  }
+  return names.filter((n) => PAYLOAD.test(n))
+}
+
+// Campaign invite links on demand, so any bot can promote the channel without
+// env changes: creates the missing ones (Voicy is the channel's admin) and
+// hands every known link to the go service, which puts them in the config the
+// bots read (POST /go/links). Failures only log.
+export async function syncCampaignInviteLinks(ctx: {
+  api: Context['api']
+  me: { id: number }
+  chatId: string
+  cfg: Config | undefined
+}) {
+  const token = process.env.PROMO_TOKEN
+  if (!token || !ctx.cfg) return
+  const col = ChatModel.db.collection('promoinvitelinks')
+  const missing: string[] = []
+  for (const name of campaignInviteLinkNames(ctx.cfg))
+    if (!(await col.findOne({ name }))) missing.push(name)
+  if (missing.length) await ensurePromoInviteLinks({ ...ctx, names: missing })
+  const links: Record<string, string> = {}
+  for (const d of await col.find({}).toArray())
+    if (PAYLOAD.test(d.name) && typeof d.link === 'string')
+      links[d.name] = d.link
+  if (!Object.keys(links).length) return
+  await axios.post(
+    (
+      process.env.PROMO_URL || 'https://lumen.borodutch.com/go/campaigns.json'
+    ).replace(/campaigns\.json$/, 'links'),
+    { links },
+    { headers: { Authorization: `Bearer ${token}` }, timeout: 10_000 }
+  )
 }

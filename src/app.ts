@@ -7,7 +7,11 @@ dotenv.config({ path: `${__dirname}/../.env` })
 // Dependencies
 import { RunnerHandle, run } from '@grammyjs/runner'
 import { dropPendingTelegramUpdatesBeforePolling } from '@/helpers/staleTelegramUpdates'
-import { ensurePromoInviteLinks, reportPromoJoin } from '@/helpers/promoStart'
+import {
+  ensurePromoInviteLinks,
+  reportPromoJoin,
+  syncCampaignInviteLinks,
+} from '@/helpers/promoStart'
 import {
   handleBroadcastOptOut,
   startBroadcasts,
@@ -18,6 +22,7 @@ import {
   handleTelegramStarsSuccessfulPayment,
 } from '@/handlers/handleTelegramStarsPayment'
 import { markChatUnreachableForTelegramError } from '@/helpers/chatReachability'
+import { promoHook } from '@/helpers/promoHost'
 import { webhookApp } from '@/helpers/startWebhook'
 import Cluster from '@/helpers/Cluster'
 import activityStreamMiddleware, {
@@ -127,16 +132,28 @@ async function runApp() {
       await dropPendingTelegramUpdatesBeforePolling(bot.api)
       runner = run(bot, 500, { allowed_updates: telegramAllowedUpdates })
       console.info(`Bot ${bot.botInfo.username} is up and running`)
+      const channel =
+        process.env.VOICY_GOLDEN_BORODUTCH_CHAT_ID || '@golden_borodutch'
       void ensurePromoInviteLinks({
         api: bot.api,
         me: bot.botInfo,
-        chatId:
-          process.env.VOICY_GOLDEN_BORODUTCH_CHAT_ID || '@golden_borodutch',
+        chatId: channel,
         names: (process.env.PROMO_INVITE_LINKS || '').split(','),
       }).catch((error) => console.error('promo invite links', error?.message))
+      // invite links the campaigns ask for, after each config refresh
+      const syncLinks = () =>
+        syncCampaignInviteLinks({
+          api: bot.api,
+          me: bot.botInfo,
+          chatId: channel,
+          cfg: promoHook.config(),
+        }).catch((error) => console.error('promo links', error?.message))
+      setTimeout(syncLinks, 30_000)
+      setInterval(syncLinks, 5 * 60_000)
       emitRuntimeActivity(`Voicy bot ${bot.botInfo.username} runtime started`)
-      // approved broadcasts from Prime Radiant run only where polling runs
+      // approved broadcasts and reply promos from Prime Radiant run only where polling runs
       startBroadcasts(bot.api)
+      promoHook.start()
     },
     async () => {
       await stopBroadcasts()
@@ -153,6 +170,7 @@ async function runApp() {
     },
     async () => {
       while (handling) await new Promise((resolve) => setTimeout(resolve, 100))
+      await promoHook.stop()
     }
   )
 }
