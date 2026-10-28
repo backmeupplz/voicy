@@ -7,6 +7,7 @@ dotenv.config({ path: `${__dirname}/../.env` })
 // Dependencies
 import { RunnerHandle, run } from '@grammyjs/runner'
 import { dropPendingTelegramUpdatesBeforePolling } from '@/helpers/staleTelegramUpdates'
+import { ensurePromoInviteLinks, reportPromoJoin } from '@/helpers/promoStart'
 import {
   handleTelegramStarsPreCheckout,
   handleTelegramStarsSuccessfulPayment,
@@ -63,6 +64,8 @@ async function runApp() {
     handling++
     return next().finally(() => handling--)
   })
+  // Campaign joins to the channel; other chat_member updates stop here too
+  bot.on('chat_member', (ctx) => reportPromoJoin(ctx))
   // Middlewares
   bot.use(recordTimeReceived)
   bot.use(activityStreamMiddleware)
@@ -118,6 +121,13 @@ async function runApp() {
       await dropPendingTelegramUpdatesBeforePolling(bot.api)
       runner = run(bot, 500, { allowed_updates: telegramAllowedUpdates })
       console.info(`Bot ${bot.botInfo.username} is up and running`)
+      void ensurePromoInviteLinks({
+        api: bot.api,
+        me: bot.botInfo,
+        chatId:
+          process.env.VOICY_GOLDEN_BORODUTCH_CHAT_ID || '@golden_borodutch',
+        names: (process.env.PROMO_INVITE_LINKS || '').split(','),
+      }).catch((error) => console.error('promo invite links', error?.message))
       emitRuntimeActivity(`Voicy bot ${bot.botInfo.username} runtime started`)
     },
     async () => {

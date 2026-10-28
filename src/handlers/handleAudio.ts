@@ -37,6 +37,7 @@ import {
   sourceKindFromTelegramSourceType,
   transcriptionResultCacheKey,
 } from '@/helpers/transcriptionJobs/transcriptionResultCache'
+import { reportPromoUse } from '@/helpers/promoStart'
 import { transcriptionProgressStatusHtml } from '@/helpers/transcriptionJobs/progressStatusText'
 import Context from '@/models/Context'
 import report from '@/helpers/report'
@@ -46,6 +47,7 @@ type QueueTranscriptionOptions = {
 }
 
 export default async function handleAudio(ctx: Context) {
+  reportPromoUse(ctx)
   try {
     if (!chatCanQueueTranscriptions(ctx.dbchat)) {
       console.info(

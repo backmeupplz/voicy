@@ -70,6 +70,13 @@ export class Chat extends FindOrCreate {
   telegramStarsPayerUserId?: string
   @prop({ required: true, default: false })
   banned: boolean
+  // cross-promo: the /start payload that first brought this chat (promoStart.ts)
+  @prop()
+  promoCampaign?: string
+  @prop()
+  promoStartAt?: Date
+  @prop()
+  promoUseDay?: string
 }
 
 export const ChatModel = getModelForClass(Chat)
