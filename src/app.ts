@@ -9,6 +9,11 @@ import { RunnerHandle, run } from '@grammyjs/runner'
 import { dropPendingTelegramUpdatesBeforePolling } from '@/helpers/staleTelegramUpdates'
 import { ensurePromoInviteLinks, reportPromoJoin } from '@/helpers/promoStart'
 import {
+  handleBroadcastOptOut,
+  startBroadcasts,
+  stopBroadcasts,
+} from '@/helpers/broadcast'
+import {
   handleTelegramStarsPreCheckout,
   handleTelegramStarsSuccessfulPayment,
 } from '@/handlers/handleTelegramStarsPayment'
@@ -101,6 +106,7 @@ async function runApp() {
   bot.command('transcribe', checkAdminLock, handleTranscribe)
   // Callabcks
   bot.callbackQuery(/li.+/, handleSetLanguage)
+  bot.callbackQuery(/^bco:/, handleBroadcastOptOut)
   // Errors
   bot.catch(async (error) => {
     await markChatUnreachableForTelegramError(error.ctx, error.error, {
@@ -129,8 +135,11 @@ async function runApp() {
         names: (process.env.PROMO_INVITE_LINKS || '').split(','),
       }).catch((error) => console.error('promo invite links', error?.message))
       emitRuntimeActivity(`Voicy bot ${bot.botInfo.username} runtime started`)
+      // approved broadcasts from Prime Radiant run only where polling runs
+      startBroadcasts(bot.api)
     },
     async () => {
+      await stopBroadcasts()
       await runner?.stop()
       // The runner does not confirm on stop: a zero-timeout getUpdates confirms
       // every update fetched, so the next poller does not get them again

@@ -1,4 +1,5 @@
 import { markChatReachable } from '@/helpers/chatReachability'
+import { recordBroadcastBlock } from '@/helpers/broadcast'
 import Context from '@/models/Context'
 import sendLanguage from '@/helpers/language/sendLanguage'
 
@@ -16,6 +17,9 @@ function botCanSendAfterMemberUpdate(ctx: Context) {
 }
 
 export default async function handleMyChatMember(ctx: Context) {
+  await recordBroadcastBlock(ctx).catch((error) =>
+    console.error('broadcast block', error?.message)
+  )
   if (!botCanSendAfterMemberUpdate(ctx)) {
     return
   }

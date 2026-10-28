@@ -77,6 +77,9 @@ export class Chat extends FindOrCreate {
   promoStartAt?: Date
   @prop()
   promoUseDay?: string
+  // "Don't send me news" under a broadcast: no broadcast reaches it again (broadcast.ts)
+  @prop()
+  noNews?: boolean
 }
 
 export const ChatModel = getModelForClass(Chat)
