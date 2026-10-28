@@ -34,6 +34,7 @@
     "test:donation-wall": "node scripts/donation-wall-proof.js",
     "test:telegram-runtime": "node scripts/telegram-runtime-check.js",
     "test:id-command": "node scripts/id-command-proof.js",
+    "test:promo-start": "node scripts/promo-start-proof.js",
     "test:start-help-previews": "node scripts/start-help-preview-proof.js",
     "test:local-runtime-health": "node scripts/local-runtime-health.js",
     "test:stripe-webhook": "node scripts/stripe-webhook-proof.js",
