@@ -8,7 +8,7 @@ concurrency:
 jobs:
   compile-code:
     # Our own PRs run on the Mac runners; outsiders' PRs (AGit via the github bot) stay on Linux
-    runs-on: ${{ contains(fromJSON('["backmeupplz","renovate","claude"]'), github.event.pull_request.user.login) && 'macos-latest' || 'ubuntu-latest' }}
+    runs-on: ${{ contains(fromJSON('["backmeupplz","renovate","claude","radiant"]'), github.event.pull_request.user.login) && 'macos-latest' || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       # bun is the package manager and script runner only; tsc/eslint and production run on Node. The Mac uses Homebrew's bun
