@@ -1,12 +1,13 @@
 import * as path from 'path'
+import { ChildProcess, spawn } from 'child_process'
 import { Readable } from 'stream'
 import { URL } from 'url'
 import { copyFile, mkdir, readFile, stat, unlink } from 'fs/promises'
+import { createInterface } from 'readline'
 import { createWriteStream } from 'fs'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
 import { redactSensitiveText } from '../helpers/report'
-import { spawn } from 'child_process'
 import axios, { AxiosInstance } from 'axios'
 
 const streamPipeline = promisify(pipeline)
@@ -23,6 +24,9 @@ const MAX_TRANSCRIPTION_RESULT_TEXT_CHARS = 100000
 const MAX_TRANSCRIPTION_RESULT_PARTS = 5000
 const TRANSCRIPTION_RESULT_LOG_CHARS = 2000
 const CLOUD_BOT_API_MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024
+// A transcription server unloads its model after this long without jobs, so a
+// standby worker frees the GPU (e.g. while its PC is gaming).
+const TRANSCRIBE_SERVER_IDLE_MS = 120000
 
 type WorkerQueueBucket = 'oldest' | 'newest'
 
@@ -80,6 +84,7 @@ interface WorkerConfig {
   token: string
   transcribeExecutable: string
   transcribeArgs: string[]
+  transcribeServerArgs?: string[]
   workDir: string
   pollIntervalMs: number
   heartbeatIntervalMs: number
@@ -354,6 +359,14 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): WorkerConfig {
       env.VOICY_WORKER_TRANSCRIBE_ARGS_JSON,
       'VOICY_WORKER_TRANSCRIBE_ARGS_JSON'
     ),
+    // Optional: run the transcriber once with these args and send it one JSON
+    // line per job (see scripts/faster-whisper-transcriber.py --serve).
+    transcribeServerArgs: env.VOICY_WORKER_TRANSCRIBE_SERVER_ARGS_JSON
+      ? stringArrayFromJsonEnv(
+          env.VOICY_WORKER_TRANSCRIBE_SERVER_ARGS_JSON,
+          'VOICY_WORKER_TRANSCRIBE_SERVER_ARGS_JSON'
+        )
+      : undefined,
     workDir: env.VOICY_WORKER_WORK_DIR || DEFAULT_WORK_DIR,
     pollIntervalMs: numberFromEnv(
       env.VOICY_WORKER_POLL_INTERVAL_MS,
@@ -757,6 +770,107 @@ function runCommand(
   })
 }
 
+let transcribeServer: ReturnType<typeof startTranscribeServer> | undefined
+let transcribeServerQueue: Promise<unknown> = Promise.resolve()
+let transcribeServerIdleTimer: NodeJS.Timeout | undefined
+
+function startTranscribeServer(config: WorkerConfig) {
+  const child: ChildProcess = spawn(
+    config.transcribeExecutable,
+    config.transcribeServerArgs || [],
+    {
+      shell: false,
+      windowsHide: true,
+      env: commandEnv(config),
+      stdio: ['pipe', 'pipe', 'inherit'],
+    }
+  )
+  let waiting:
+    | { resolve: (line: string) => void; reject: (error: Error) => void }
+    | undefined
+  const handle = {
+    child,
+    request(payload: Record<string, string>) {
+      return new Promise<string>((resolve, reject) => {
+        waiting = { resolve, reject }
+        child.stdin?.write(`${JSON.stringify(payload)}\n`)
+      })
+    },
+  }
+  const gone = (error: Error) => {
+    if (transcribeServer === handle) {
+      transcribeServer = undefined
+    }
+    waiting?.reject(error)
+    waiting = undefined
+  }
+  createInterface({ input: child.stdout as Readable }).on('line', (line) => {
+    const current = waiting
+    waiting = undefined
+    current?.resolve(line)
+  })
+  // EPIPE after the server died is reported through 'exit' below
+  child.stdin?.on('error', () => undefined)
+  child.on('error', (error: NodeJS.ErrnoException) =>
+    gone(
+      error.code === 'ENOENT'
+        ? new WorkerClientError(
+            `Unable to start transcription executable "${config.transcribeExecutable}". Set VOICY_WORKER_TRANSCRIBE_EXECUTABLE to an absolute executable path or include it in PATH.`,
+            false
+          )
+        : error
+    )
+  )
+  child.on('exit', (code) =>
+    gone(new WorkerClientError(`Transcription server exited with ${code}`))
+  )
+  return handle
+}
+
+export function stopTranscribeServer() {
+  clearTimeout(transcribeServerIdleTimer)
+  transcribeServer?.child.stdin?.end()
+  transcribeServer = undefined
+}
+
+function runServerCommand(
+  config: WorkerConfig,
+  payload: Record<string, string>
+): Promise<RunCommandResult> {
+  const run = async () => {
+    clearTimeout(transcribeServerIdleTimer)
+    transcribeServer ??= startTranscribeServer(config)
+    const startedAt = Date.now()
+    try {
+      const line = await transcribeServer.request(payload)
+      const reply = parseJsonOutput(line) as
+        | { ok?: boolean; error?: string }
+        | undefined
+      const stderr = reply?.ok ? '' : String(reply?.error ?? line)
+      return {
+        stdout: '',
+        stderr,
+        stdoutBytes: 0,
+        stderrBytes: Buffer.byteLength(stderr),
+        stdoutTruncated: false,
+        stderrTruncated: false,
+        elapsedMs: Date.now() - startedAt,
+        exitCode: reply?.ok ? 0 : 1,
+      }
+    } finally {
+      transcribeServerIdleTimer = setTimeout(
+        stopTranscribeServer,
+        TRANSCRIBE_SERVER_IDLE_MS
+      )
+      transcribeServerIdleTimer.unref()
+    }
+  }
+  // One job at a time per server; a failed job doesn't block the next one
+  const result = transcribeServerQueue.then(run, run)
+  transcribeServerQueue = result.catch(() => undefined)
+  return result
+}
+
 function commandFailureMessage(commandResult: RunCommandResult) {
   return `Transcription command exited with ${commandResult.exitCode}; stdoutChars=${commandResult.stdout.length}; stderrChars=${commandResult.stderr.length}; stdoutBytes=${commandResult.stdoutBytes}; stderrBytes=${commandResult.stderrBytes}; stdoutTruncated=${commandResult.stdoutTruncated}; stderrTruncated=${commandResult.stderrTruncated}`
 }
@@ -923,11 +1037,14 @@ async function transcribeJob(
     inputFile: path.basename(inputPath),
     outputFile: path.basename(outputPath),
   })
-  const commandResult = await runCommand(
-    config.transcribeExecutable,
-    args,
-    config
-  )
+  const commandResult = config.transcribeServerArgs
+    ? await runServerCommand(config, {
+        input: inputPath,
+        output: outputPath,
+        language: language || '',
+        model: config.model,
+      })
+    : await runCommand(config.transcribeExecutable, args, config)
   if (commandResult.exitCode !== 0) {
     const rawOutput = await readFile(outputPath, 'utf8').catch(() => undefined)
     const parsed = rawOutput ? parseJsonOutput(rawOutput.trim()) : undefined
@@ -1467,6 +1584,7 @@ export async function runWorker(
       await delay(config.pollIntervalMs)
     }
   }
+  stopTranscribeServer()
   logger.info('Voicy worker client stopped')
 }
 

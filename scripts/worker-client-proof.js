@@ -9,6 +9,7 @@ const {
   loadConfig,
   processAvailableJobs,
   processNextJob,
+  stopTranscribeServer,
   runWorker,
 } = require('../dist/workerClient/runWindowsWorker')
 
@@ -2284,6 +2285,73 @@ async function main() {
       installerScript.includes('$name.StartsWith("CT2_")') &&
       installerScript.includes('$name -eq "PATH"'),
     'Windows worker installer should preserve runtime env needed by CUDA/Python workers'
+  )
+
+  // Server mode: one transcriber process serves many jobs, reports failures
+  // without dying, and is restarted after it is stopped.
+  const fakeServer = [
+    '-e',
+    [
+      "const fs = require('fs')",
+      "require('readline').createInterface({ input: process.stdin }).on('line', (line) => {",
+      '  const request = JSON.parse(line)',
+      "  if (request.model === 'fail') return console.log(JSON.stringify({ ok: false, error: 'proof failure' }))",
+      "  fs.writeFileSync(request.output, JSON.stringify({ text: 'served', metadata: { pid: process.pid } }))",
+      '  console.log(JSON.stringify({ ok: true }))',
+      '})',
+    ].join('\n'),
+  ]
+  const serveJob = async (model) => {
+    const proof = createProofServer()
+    await listen(proof.server)
+    try {
+      const port = proof.server.address().port
+      await processNextJob(
+        loadConfig({
+          VOICY_WORKER_API_URL: `http://127.0.0.1:${port}/worker/v1`,
+          VOICY_WORKER_TOKEN: 'proof-worker-token',
+          VOICY_WORKER_TRANSCRIBE_EXECUTABLE: process.execPath,
+          VOICY_WORKER_TRANSCRIBE_ARGS_JSON: '[]',
+          VOICY_WORKER_TRANSCRIBE_SERVER_ARGS_JSON: JSON.stringify(fakeServer),
+          VOICY_WORKER_MODEL: model,
+          VOICY_WORKER_WORK_DIR: path.join(
+            os.tmpdir(),
+            `voicy-worker-server-${process.pid}`
+          ),
+          VOICY_WORKER_TELEGRAM_API_URL: `http://127.0.0.1:${port}`,
+          VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
+        }),
+        { info: () => undefined, warn: () => undefined, error: () => undefined }
+      )
+      return proof.state
+    } finally {
+      await close(proof.server)
+    }
+  }
+  const first = await serveJob('proof-model')
+  const failed = await serveJob('fail')
+  const second = await serveJob('proof-model')
+  stopTranscribeServer()
+  const restarted = await serveJob('proof-model')
+  stopTranscribeServer()
+  assert(
+    first.result?.text === 'served' && second.result?.text === 'served',
+    `server mode should submit served transcripts: ${JSON.stringify(
+      first.failure
+    )}`
+  )
+  assert(
+    first.result.metadata.pid === second.result.metadata.pid,
+    'server mode should reuse one transcriber process across jobs'
+  )
+  assert(
+    failed.failure && !failed.result,
+    'server mode should fail a job the server reports as failed'
+  )
+  assert(
+    restarted.result?.text === 'served' &&
+      restarted.result.metadata.pid !== first.result.metadata.pid,
+    'server mode should start a new transcriber after the old one stopped'
   )
 
   console.log('worker client proof passed')
