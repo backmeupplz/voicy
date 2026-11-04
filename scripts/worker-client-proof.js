@@ -2301,6 +2301,10 @@ async function main() {
       '})',
     ].join('\n'),
   ]
+  const serverWorkDir = path.join(
+    os.tmpdir(),
+    `voicy-worker-server-${process.pid}`
+  )
   const serveJob = async (model) => {
     const proof = createProofServer()
     await listen(proof.server)
@@ -2314,10 +2318,7 @@ async function main() {
           VOICY_WORKER_TRANSCRIBE_ARGS_JSON: '[]',
           VOICY_WORKER_TRANSCRIBE_SERVER_ARGS_JSON: JSON.stringify(fakeServer),
           VOICY_WORKER_MODEL: model,
-          VOICY_WORKER_WORK_DIR: path.join(
-            os.tmpdir(),
-            `voicy-worker-server-${process.pid}`
-          ),
+          VOICY_WORKER_WORK_DIR: serverWorkDir,
           VOICY_WORKER_TELEGRAM_API_URL: `http://127.0.0.1:${port}`,
           VOICY_WORKER_TELEGRAM_BOT_TOKEN: 'proof-telegram-token',
         }),
@@ -2329,6 +2330,10 @@ async function main() {
     }
   }
   const first = await serveJob('proof-model')
+  assert(
+    fs.readdirSync(serverWorkDir).length === 0,
+    'worker should delete media and transcript after delivering a result'
+  )
   const failed = await serveJob('fail')
   const second = await serveJob('proof-model')
   stopTranscribeServer()

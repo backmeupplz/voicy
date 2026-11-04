@@ -1271,6 +1271,15 @@ async function transcribeDownloadedJob(
       }
       throw error
     }
+    // Delivered: drop the media and transcript. Failed jobs keep their file,
+    // since a retry reuses it via localSourcePath.
+    await removeIfExists(path.join(config.workDir, `${job.id}.transcript.json`))
+    if (
+      path.dirname(path.resolve(downloaded.inputPath)) ===
+      path.resolve(config.workDir)
+    ) {
+      await removeIfExists(downloaded.inputPath)
+    }
     logWorkerActivity(logger, 'Worker transcription job completed', {
       ...transcriptionResultLogContext(
         job,
