@@ -24,9 +24,10 @@ const MAX_TRANSCRIPTION_RESULT_TEXT_CHARS = 100000
 const MAX_TRANSCRIPTION_RESULT_PARTS = 5000
 const TRANSCRIPTION_RESULT_LOG_CHARS = 2000
 const CLOUD_BOT_API_MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024
-// A transcription server unloads its model after this long without jobs, so a
+// A transcription server unloads its model after this long without jobs (3%
+// of PC jobs come >10 min apart, 27% >2 min; a reload costs ~4 s), so a
 // standby worker frees the GPU (e.g. while its PC is gaming).
-const TRANSCRIBE_SERVER_IDLE_MS = 120000
+const TRANSCRIBE_SERVER_IDLE_MS = 600000
 
 type WorkerQueueBucket = 'oldest' | 'newest'
 
