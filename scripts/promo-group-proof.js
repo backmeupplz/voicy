@@ -44,12 +44,30 @@ const cfg = {
 
 async function provesTheHook() {
   // axios stands in for the network: the salt, the config, the event batches
+  // and the go service's cap across bots (POST /go/group: one claim per group
+  // hash per 7 days, whichever bot)
   const sent = []
+  const claims = new Map()
+  const capBodies = []
+  let capDown = false
   mockModule(require.resolve('axios'), {
     __esModule: true,
     default: {
       get: async (url) => ({ data: url.includes('/salt?bot=voicy') ? { salt: 'S' } : cfg }),
-      post: async (url, body) => void sent.push({ url, body }),
+      post: async (url, body) => {
+        if (!url.endsWith('/go/group')) return void sent.push({ url, body })
+        if (capDown) throw new Error('Request failed with status code 502')
+        capBodies.push(body)
+        const held = claims.get(body.g)
+        if (body.k === 'release') {
+          if (held === body.at) claims.delete(body.g)
+          return { data: { ok: true } }
+        }
+        if (held !== undefined) return { data: { ok: false, at: held } }
+        const at = Date.now()
+        claims.set(body.g, at)
+        return { data: { ok: true, at } }
+      },
     },
   })
   delete require.cache[require.resolve('../dist/helpers/promo')]
@@ -89,15 +107,36 @@ async function provesTheHook() {
   assert.equal(await h.setGroup(other, false), true)
   assert.equal(await h.groupOn(other), false)
   assert.equal(await h.group(other, 'supergroup', 'en', secret), null)
+  // the cap holds across bots: a group another bot claimed this week gets no
+  // button (still seen); the service down means no button either, and a reply
+  // without the button releases Voicy's claim
+  const third = group('a', other - 1)
+  claims.set(promo.groupKey('S', third), Date.now() - 86400_000)
+  const taken = await h.group(third, 'supergroup', 'en', secret)
+  assert.equal(taken.arm, 'a')
+  assert.equal(taken.promo, undefined)
+  const fourth = group('a', third - 1)
+  capDown = true
+  assert.equal((await h.group(fourth, 'supergroup', 'en', secret)).promo, undefined)
+  capDown = false
+  const mine = await h.group(fourth, 'supergroup', 'en', secret)
+  assert(mine.promo, 'the claim goes through once the service answers')
+  assert(claims.has(promo.groupKey('S', fourth)))
+  await h.record(mine, false)
+  await new Promise((resolve) => setImmediate(resolve))
+  assert(!claims.has(promo.groupKey('S', fourth)), 'released')
+  assert(capBodies.every((b) => Object.keys(b).every((k) => ['g', 'k', 'at'].includes(k))))
+  assert.deepEqual(h.matches('download it'), ['gp1'])
+  assert.deepEqual(h.matches('off topic'), [])
   await h.removed(a)
   await h.removed(-5) // never seen
   await h.flush()
   const events = sent.at(-1).body.events
   assert.deepEqual(
     events.map((e) => `${e.c}:${e.v}:${e.k}`),
-    ['gp1:a:seen', 'gp1:a:shown', 'gp1:holdout:seen', 'gp1:a:optout', 'gp1:a:removed']
+    ['gp1:a:seen', 'gp1:a:shown', 'gp1:holdout:seen', 'gp1:a:optout', 'gp1:a:seen', 'gp1:a:removed']
   )
-  const wire = JSON.stringify(sent)
+  const wire = JSON.stringify(sent) + JSON.stringify(capBodies)
   assert(!wire.includes('secret') && !wire.includes(String(a).slice(1)), 'no text or group id leaves the bot')
   assert(![...map.values()].join().includes('secret'), 'no text in the store')
 
@@ -109,7 +148,7 @@ async function provesTheHook() {
   }
   const h2 = promo.promos('voicy', flaky, { PROMO_TOKEN: 't' })
   await h2.refresh()
-  const fresh = group('a', other - 1)
+  const fresh = group('a', fourth - 1)
   const d2 = await h2.group(fresh, 'supergroup', 'en', secret)
   assert(d2.promo)
   down = true
