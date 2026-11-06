@@ -48,6 +48,7 @@ import handleLanguage from '@/commands/handleLanguage'
 import handleLock from '@/commands/handleLock'
 import handleMyChatMember from '@/handlers/handleMyChatMember'
 import handlePrivacy from '@/commands/handlePrivacy'
+import handlePromos from '@/commands/handlePromos'
 import handleSetLanguage from '@/handlers/handleSetLanguage'
 import handleSilent from '@/commands/handleSilent'
 import handleStart from '@/commands/handleStart'
@@ -106,6 +107,7 @@ async function runApp() {
   bot.command('files', checkAdminLock, handleFiles)
   bot.command('silent', checkAdminLock, handleSilent)
   bot.command('privacy', checkAdminLock, handlePrivacy)
+  bot.command('promos', checkAdminLock, handlePromos)
   bot.command('language', checkAdminLock, handleLanguage)
   bot.command('transcribe_all', checkAdminLock, handleTranscribeAll)
   bot.command('transcribe', checkAdminLock, handleTranscribe)

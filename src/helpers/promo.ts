@@ -19,6 +19,16 @@
 // (bots.<bot>.enabled, a campaign's status), or the config couldn't be read for
 // an hour. The salt comes from GET /go/salt with PROMO_TOKEN, so it is the same
 // in every bot and a /start in one bot joins up with a promo shown in another.
+//
+// Groups (approvals.md, 2026-11-06): only campaigns with chats ["group"], only
+// as a button on a reply the bot already sends there, and only when the message
+// it answers (its text, caption or transcript) matches one of the campaign's
+// topic keywords. The text is matched in memory and never kept or logged. The
+// unit is the group: its arm comes from a salted hash of the group id, events
+// carry a salted group hash, at most one promo per group per 7 days, and a
+// group admin can turn promos off for the group (/promos off: optout). The
+// bot being removed from a group (left or kicked) is reported as removed, in
+// the group's arm, so harm is treatment groups against holdout groups.
 
 import { createHash } from 'crypto'
 import axios from 'axios'
@@ -26,6 +36,7 @@ import axios from 'axios'
 const STALE = 3600_000
 const DAY = 86400_000
 const WEEK = 7 * DAY
+export const GROUP_DAYS = 7
 
 export type Variant = {
   id: string
@@ -44,6 +55,8 @@ export type Campaign = {
   langs: string[]
   text: Record<string, string>
   variants: Variant[]
+  // group campaigns: keywords per language for the target's topic
+  topics?: Record<string, string[]>
 }
 export type Config = {
   base: string
@@ -57,7 +70,15 @@ export type Decision = {
   unit: string
   promo?: Promo
 }
-type Kind = 'seen' | 'shown' | 'start' | 'new' | 'use' | 'blocked'
+type Kind =
+  | 'seen'
+  | 'shown'
+  | 'start'
+  | 'new'
+  | 'use'
+  | 'blocked'
+  | 'removed'
+  | 'optout'
 type Event = { c: string; v: string; k: Kind; u: string; t: number; b: string }
 // A tiny key-value store in the bot's own database (Mongo, Postgres, SQLite)
 export type Store = {
@@ -82,16 +103,53 @@ const esc = (s: string) =>
 export const bucket = (campaign: string, user: number) =>
   parseInt(sha(`${campaign}:${user}`).slice(0, 8), 16) / 2 ** 32
 
-// The user's arm: variants take their shares from 0 up, the rest is holdout
-export function arm(c: Campaign, user: number) {
-  const b = bucket(c.id, user)
+// Variants take their shares from 0 up, the rest is holdout
+function pick(c: Campaign, b: number) {
   let edge = 0
   for (const v of c.variants) if (b < (edge += v.share)) return v
   return undefined
 }
 
+// The user's arm
+export const arm = (c: Campaign, user: number) => pick(c, bucket(c.id, user))
+
+// A group's arm: by a salted hash of the group id
+export const groupArm = (c: Campaign, salt: string, chat: number) =>
+  pick(
+    c,
+    parseInt(sha(`${salt}:group:${c.id}:${chat}`).slice(0, 8), 16) / 2 ** 32
+  )
+
+// The salted hash events carry for a user (or, in groups, the group)
 export const unitOf = (salt: string, campaign: string, user: number) =>
   sha(`${salt}:${campaign}:${user}`).slice(0, 16)
+
+// Telegram's chat types as campaigns name them: a supergroup is a group too
+export const chatKind = (type: string | undefined) =>
+  type === 'supergroup' ? 'group' : type
+
+const LETTER = new RegExp('[\\p{L}\\p{N}_]', 'u')
+const fold = (s: string) => s.normalize('NFKC').toLowerCase().replace(/ё/g, 'е')
+
+// Whether a message touches one of a campaign's topic keywords (any language):
+// a keyword matches at the start of a word, so "download" finds "downloading"
+// and "youtu.be" finds a link. Case- and ё-insensitive. Pure: the text is
+// neither kept nor logged.
+export function topical(
+  text: string | undefined,
+  topics: Record<string, string[]> | undefined
+) {
+  if (!text || !topics) return false
+  const t = fold(text)
+  for (const lang of Object.keys(topics))
+    for (const word of topics[lang] || []) {
+      const k = fold(word).trim()
+      if (!k) continue
+      for (let i = t.indexOf(k); i >= 0; i = t.indexOf(k, i + 1))
+        if (i === 0 || !LETTER.test(t.charAt(i - 1))) return true
+    }
+  return false
+}
 
 // The link a promo carries: a bot gets a native deep link (Telegram opens it in
 // the app; the promoted bot reports the /start), a channel invite link goes as
@@ -138,7 +196,14 @@ export function decide(
     | ((campaign: string, unit: string) => number | undefined),
   now = Date.now()
 ): Decision | null {
-  if (!cfg || !salt || cfg.bots?.[bot]?.enabled !== true) return null
+  // groups only through decideGroup (topics, the group's arm)
+  if (
+    !cfg ||
+    !salt ||
+    cfg.bots?.[bot]?.enabled !== true ||
+    chatKind(chat) === 'group'
+  )
+    return null
   const l = baseLang(code)
   const c = cfg.campaigns.find(
     (c) =>
@@ -164,6 +229,51 @@ export function decide(
           text: v.text?.[l] ?? c.text[l]!,
           url: link(cfg, bot, c, v, unit)!,
           format: v.format,
+        },
+  }
+}
+
+// What to do for one reply in a group: null = the message matches no group
+// campaign's topics (log nothing). lastShown is the group's last promo from any
+// campaign: at most one per GROUP_DAYS (or the campaign's cap_days if longer).
+export function decideGroup(
+  cfg: Config | undefined,
+  bot: string,
+  salt: string,
+  chat: number,
+  code: string | undefined,
+  text: string | undefined,
+  lastShown: number | undefined,
+  now = Date.now()
+): Decision | null {
+  if (!cfg || !salt || !chat || cfg.bots?.[bot]?.enabled !== true) return null
+  const l = baseLang(code)
+  const c = cfg.campaigns.find(
+    (c) =>
+      usable(cfg, bot, c) &&
+      c.chats.includes('group') &&
+      c.langs.includes(l) &&
+      c.text[l] &&
+      c.variants.every((v) => v.format === 'button') &&
+      topical(text, c.topics)
+  )
+  if (!c) return null
+  const unit = unitOf(salt, c.id, chat)
+  const v = groupArm(c, salt, chat)
+  if (!v) return { campaign: c.id, arm: 'holdout', unit }
+  const capped =
+    lastShown !== undefined &&
+    now - lastShown < Math.max(c.cap_days, GROUP_DAYS) * DAY
+  return {
+    campaign: c.id,
+    arm: v.id,
+    unit,
+    promo: capped
+      ? undefined
+      : {
+          text: v.text?.[l] ?? c.text[l]!,
+          url: link(cfg, bot, c, v, unit)!,
+          format: 'button',
         },
   }
 }
@@ -210,6 +320,13 @@ export function promos(
   let salt = ''
   let queue: Event[] = []
   const timers: ReturnType<typeof setInterval>[] = []
+  // groups handed a promo in this process: two replies at once still get one.
+  // A reservation until record() says the button went out (then it's stored
+  // as group-shown) or release() says it didn't.
+  const recent = new Map<number, number>()
+  const pending = new WeakMap<Decision, { chat: number; at: number }>()
+  // removals and opt-outs that came before the config and salt were there
+  let deferred: { k: 'removed' | 'optout'; chat: number }[] = []
 
   async function refresh() {
     if (off || !token) return
@@ -226,6 +343,9 @@ export function promos(
     } catch (e) {
       console.error('promo config', (e as Error).message)
     }
+    const later = deferred
+    deferred = []
+    for (const e of later) await groupEvent(e.k, e.chat)
   }
 
   async function flush() {
@@ -255,6 +375,30 @@ export function promos(
     } catch (e) {
       console.error(`promo ${what}`, (e as Error).message)
       return undefined
+    }
+  }
+
+  // removed or optout, in the group's arm, for each group campaign this bot
+  // runs (removed only where the group was seen); kept for later while the
+  // config or the salt isn't there
+  async function groupEvent(k: 'removed' | 'optout', chat: number) {
+    const c = fresh()
+    if (off || !token) return
+    if (!salt || !c) {
+      deferred = [...deferred, { k, chat }].slice(-5_000)
+      return
+    }
+    try {
+      for (const x of c.campaigns.filter(
+        (x) =>
+          x.bot === bot && x.status !== 'stopped' && x.chats.includes('group')
+      )) {
+        const u = unitOf(salt, x.id, chat)
+        if (k === 'optout' || (await store.get(`seen:${x.id}:${u}`)))
+          push({ c: x.id, v: groupArm(x, salt, chat)?.id ?? 'holdout', u, k })
+      }
+    } catch (e) {
+      console.error(`promo ${k}`, (e as Error).message)
     }
   }
 
@@ -305,26 +449,109 @@ export function promos(
         })) ?? null
       )
     },
-    // After the reply went out: seen once a day per user, shown each time
-    async record(d: Decision | null | undefined) {
+    // After the reply went out: seen once a day per unit, shown each time.
+    // shown = false: the reply went out without the promo (a group's cap
+    // isn't used up then).
+    async record(d: Decision | null | undefined, shown = true) {
       if (!d) return
-      await safe('record', async () => {
-        const key = `seen:${d.campaign}:${d.unit}`
-        if ((await store.get(key)) !== day()) {
-          await store.set(key, day())
-          push({ c: d.campaign, v: d.arm, u: d.unit, k: 'seen' })
-        }
-        if (d.promo) push({ c: d.campaign, v: d.arm, u: d.unit, k: 'shown' })
+      const p = pending.get(d)
+      pending.delete(d)
+      const promo = shown ? d.promo : undefined
+      if (p && !promo && recent.get(p.chat) === p.at) recent.delete(p.chat)
+      // the button already went out: a failed store write never loses the
+      // events (seen goes out again if its once-a-day mark can't be read)
+      if (p && promo)
+        await safe('record', () =>
+          store.set(`group-shown:${p.chat}`, String(p.at))
+        )
+      const key = `seen:${d.campaign}:${d.unit}`
+      const first = await safe('record', async () => {
+        if ((await store.get(key)) === day()) return false
+        await store.set(key, day())
+        return true
       })
+      if (first !== false)
+        push({ c: d.campaign, v: d.arm, u: d.unit, k: 'seen' })
+      if (promo) push({ c: d.campaign, v: d.arm, u: d.unit, k: 'shown' })
+    },
+    // The reply carrying a group decision never went out: no events, and the
+    // group's cap isn't used up
+    release(d: Decision | null | undefined) {
+      const p = d ? pending.get(d) : undefined
+      if (!d || !p) return
+      pending.delete(d)
+      if (recent.get(p.chat) === p.at) recent.delete(p.chat)
+    },
+    // The promo for a reply about to go out in a group, or null. The text is
+    // the message the reply answers (its text, caption or transcript): it is
+    // only matched against the campaigns' topics, here, in memory. A promo
+    // holds the group's cap in this process at once, and uses it up when
+    // record() says it went out (release() if the reply failed). Never throws.
+    async group(
+      chat: number | undefined,
+      type: string | undefined,
+      code: string | undefined,
+      text: string | undefined
+    ) {
+      if (!chat || !text || chatKind(type) !== 'group') return null
+      return (
+        (await safe('group', async () => {
+          const c = fresh()
+          const pre = decideGroup(c, bot, salt, chat, code, text, undefined)
+          if (!pre || (await store.get(`group-off:${chat}`))) return null
+          if (!pre.promo) return pre
+          const stored = Number((await store.get(`group-shown:${chat}`)) || NaN)
+          const last =
+            Math.max(
+              Number.isNaN(stored) ? 0 : stored,
+              recent.get(chat) ?? 0
+            ) || undefined
+          const d = decideGroup(c, bot, salt, chat, code, text, last)
+          if (d?.promo) {
+            const now = Date.now()
+            recent.set(chat, now) // before the next await: a reply in flight sees it
+            pending.set(d, { chat, at: now })
+            if (recent.size > 10_000)
+              for (const [k, t] of recent)
+                if (now - t >= GROUP_DAYS * DAY) recent.delete(k)
+          }
+          return d
+        })) ?? null
+      )
+    },
+    // Whether a group's admins left promos on (/promos); undefined if the
+    // store couldn't be read
+    async groupOn(chat: number) {
+      const r = await safe('group-off', async () => ({
+        off: await store.get(`group-off:${chat}`),
+      }))
+      return r && !r.off
+    },
+    // A group admin turned promos off (or back on) for the group: true once
+    // stored. Off reports optout in the group's arm for each group campaign.
+    async setGroup(chat: number, on: boolean) {
+      const ok = await safe('group-off', async () => {
+        await store.set(`group-off:${chat}`, on ? '' : '1')
+        return true
+      })
+      if (ok && !on) await groupEvent('optout', chat)
+      return ok === true
+    },
+    // The bot was removed from a group (my_chat_member → left or kicked):
+    // removed, in the group's arm (holdout too), for each group campaign that
+    // saw the group, so harm is treatment groups against holdout groups
+    async removed(chat: number | undefined) {
+      if (chat) await groupEvent('removed', chat)
     },
     // A private chat blocked the bot (my_chat_member → kicked): one blocked
-    // event per campaign this bot runs, in the user's arm (holdout too), so
-    // harm is treatment against holdout
+    // event per private campaign this bot runs, in the user's arm (holdout
+    // too), so harm is treatment against holdout
     blocked(user: number | undefined) {
       const c = fresh()
       if (!user || !salt || !c) return
       for (const k of c.campaigns.filter(
-        (k) => k.bot === bot && k.status !== 'stopped'
+        (k) =>
+          k.bot === bot && k.status !== 'stopped' && !k.chats.includes('group')
       ))
         push({
           c: k.id,

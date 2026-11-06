@@ -36,6 +36,7 @@
     "test:id-command": "node scripts/id-command-proof.js",
     "test:promo-start": "node scripts/promo-start-proof.js",
     "test:promo-hook": "node scripts/promo-hook-proof.js",
+    "test:promo-group": "node scripts/promo-group-proof.js",
     "test:broadcast": "node scripts/broadcast-proof.js",
     "test:broadcast-local": "node scripts/broadcast-local-check.js",
     "test:start-help-previews": "node scripts/start-help-preview-proof.js",

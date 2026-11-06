@@ -1,4 +1,5 @@
 import { DocumentType } from '@typegoose/typegoose'
+import { InlineKeyboardMarkup } from '@grammyjs/types'
 import {
   TELEGRAM_MESSAGE_LIMIT,
   splitTelegramText,
@@ -12,12 +13,20 @@ import {
 import { TranscriptionJob } from '@/models/TranscriptionJob'
 import { VoiceModel } from '@/models/Voice'
 import { guestInlineMessageIdsFromJob } from '@/helpers/telegramGuestMode'
+import { keyboard } from '@/helpers/promo'
+import { promoHook } from '@/helpers/promoHost'
 import bot from '@/helpers/bot'
 import localizedTranscriptionText from '@/helpers/localizedTranscriptionText'
 
 type FinalReplyOptions = {
   reply_to_message_id?: number
 }
+
+// grammY options with the promo button, or none at all
+const withMarkup = <T extends object>(
+  options: T,
+  markup: InlineKeyboardMarkup | undefined
+) => (markup ? { ...options, reply_markup: markup } : options)
 
 async function storeVoiceRecord(job: DocumentType<TranscriptionJob>) {
   await VoiceModel.findOneAndUpdate(
@@ -110,28 +119,80 @@ export default async function publishCompletedTranscriptionJob(
       ? {}
       : { reply_to_message_id: job.sourceMessageId }
 
-  if (job.statusMessageId) {
-    try {
-      await bot.api.editMessageText(
-        job.telegramChatId,
-        job.statusMessageId,
-        firstText || fallbackText
+  // Prime Radiant's group promos (promo.ts): in a group, one URL button on
+  // this transcription (its last message) when the transcript matches a group
+  // campaign's topics. The transcript is only matched in memory, here. Never
+  // in guest mode.
+  const decision = job.guestQueryId
+    ? null
+    : await promoHook.group(
+        Number(job.telegramChatId),
+        job.telegramChatType,
+        job.uiLocale,
+        finalText
       )
-    } catch (error) {
-      const failure = classifyTelegramReachabilityFailure(error)
-      if (failure.kind !== TelegramReachabilityFailureKind.benign) {
-        await deleteStatusMessage(job)
-        await sendFinalMessage(job, firstText || fallbackText, replyOptions)
+  const button = keyboard(decision?.promo) as InlineKeyboardMarkup | undefined
+  let attached = false
+  // Telegram refused the button: the transcript goes out without it
+  let rejected = false
+  const markupFor = (last: boolean) => (last && !rejected ? button : undefined)
+  const send = async (text: string, last: boolean) => {
+    const markup = markupFor(last)
+    if (!(await sendFinalMessage(job, text, replyOptions, markup)) && markup)
+      rejected = true
+  }
+
+  try {
+    if (job.statusMessageId) {
+      const statusMessageId = job.statusMessageId
+      const edit = (markup?: InlineKeyboardMarkup) =>
+        bot.api.editMessageText(
+          job.telegramChatId,
+          statusMessageId,
+          firstText || fallbackText,
+          ...(markup ? [{ reply_markup: markup }] : [])
+        )
+      try {
+        const markup = markupFor(!chunks.length)
+        try {
+          await edit(markup)
+        } catch (error) {
+          if (!markup || !promoButtonMayBeRejected(error)) throw error
+          console.error(
+            'Promo button rejected on a transcription edit, editing without it',
+            classifyTelegramReachabilityFailure(error).description
+          )
+          rejected = true
+          await edit()
+        }
+        attached = !chunks.length
+      } catch (error) {
+        const failure = classifyTelegramReachabilityFailure(error)
+        if (failure.kind !== TelegramReachabilityFailureKind.benign) {
+          await deleteStatusMessage(job)
+          await send(firstText || fallbackText, !chunks.length)
+          attached = !chunks.length
+        }
       }
+    } else {
+      await send(firstText || fallbackText, !chunks.length)
+      attached = !chunks.length
     }
-  } else {
-    await sendFinalMessage(job, firstText || fallbackText, replyOptions)
+
+    for (const [index, chunk] of chunks.entries()) {
+      const last = index === chunks.length - 1
+      await send(chunk, last)
+      attached = attached || last
+    }
+  } catch (error) {
+    // the reply never went out: the group's promo cap isn't used up
+    promoHook.release(decision)
+    throw error
   }
 
-  for (const chunk of chunks) {
-    await sendFinalMessage(job, chunk, replyOptions)
-  }
-
+  // seen (holdout too), and shown only if the button went out: before the
+  // voice record, so a failed database write doesn't lose it
+  await promoHook.record(decision, attached && !rejected)
   await storeVoiceRecord(job)
 }
 
@@ -175,19 +236,59 @@ function guestFinalTranscriptionText(
   return `${firstText.slice(0, allowedTextLength)}${separator}${suffix}`
 }
 
+// A Bad Request that isn't the chat being unreachable: on a message carrying
+// the promo button, the button may be what Telegram refused (a bad URL or
+// label), so that message goes out once more without it
+function promoButtonMayBeRejected(error: unknown) {
+  const failure = classifyTelegramReachabilityFailure(error)
+  return (
+    failure.code === 400 &&
+    failure.kind === TelegramReachabilityFailureKind.transient
+  )
+}
+
+// Sends one transcription message; false if it carried the promo button and
+// went out without it because Telegram refused the message with the button
 async function sendFinalMessage(
   job: DocumentType<TranscriptionJob>,
   text: string,
-  replyOptions: FinalReplyOptions
+  replyOptions: FinalReplyOptions,
+  markup?: InlineKeyboardMarkup
 ) {
   try {
-    await bot.api.sendMessage(job.telegramChatId, text, {
-      ...replyOptions,
-    })
+    await sendFinalMessageOnce(job, text, replyOptions, markup)
+    return true
+  } catch (error) {
+    if (!markup || !promoButtonMayBeRejected(error)) throw error
+    console.error(
+      'Promo button rejected on a transcription, sending without it',
+      classifyTelegramReachabilityFailure(error).description
+    )
+    await sendFinalMessageOnce(job, text, replyOptions)
+    return false
+  }
+}
+
+async function sendFinalMessageOnce(
+  job: DocumentType<TranscriptionJob>,
+  text: string,
+  replyOptions: FinalReplyOptions,
+  markup?: InlineKeyboardMarkup
+) {
+  try {
+    await bot.api.sendMessage(
+      job.telegramChatId,
+      text,
+      withMarkup({ ...replyOptions }, markup)
+    )
   } catch (error) {
     if (replyOptions.reply_to_message_id) {
       try {
-        await bot.api.sendMessage(job.telegramChatId, text)
+        await bot.api.sendMessage(
+          job.telegramChatId,
+          text,
+          withMarkup({}, markup)
+        )
         return
       } catch (fallbackError) {
         await markChatUnreachableByIdForTelegramError(

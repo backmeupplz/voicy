@@ -16,9 +16,17 @@ help: |
   /transcribe\_all — Turn every voice message in this group into text
   /transcribe — Turn the voice or audio message you reply to into text
   /privacy — Open the privacy policy
+  /promos — Turn buttons for our other bots in this group on or off
 
   Voicy now uses workers to turn messages into text. Voicy is open source: https://github.com/backmeupplz/voicy.
 error_group: "\U0001F605 This command only works in group chats."
+privacy_promos: "In groups, Voicy may add one button under a transcription that points to another bot by the same maker, picked by matching that transcription's words to the bot's topic (for example, downloading a video). The text is only matched in memory and is never stored or logged for this, and it happens at most once a week per group. Group admins can turn this off with /promos off."
+promos_status_on: "📣 Voicy may add one button for another bot by the same maker under a transcription in this group, at most once a week, when the transcription is about that bot's topic. Group admins can turn this off with /promos off."
+promos_status_off: "🔕 Buttons for other bots are off in this group. Group admins can turn them back on with /promos on."
+promos_off: "🔕 Done: Voicy won't add buttons for other bots in this group."
+promos_on: "📣 Done: Voicy may again add a button for another bot by the same maker under a transcription, at most once a week."
+promos_admins_only: "👮 Only group admins can change this."
+promos_error: "😥 Voicy couldn't save that. Please try again later."
 lock_true: "\U0001F511 Voicy will now accept commands only from group admins."
 lock_false: "\U0001F511 Voicy will now accept commands from anyone in this chat."
 silent_true: "\U0001F636 Silent mode is on. Voicy will only send final text."

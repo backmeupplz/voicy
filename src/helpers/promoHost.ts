@@ -3,8 +3,11 @@ import { connection } from 'mongoose'
 import { keyboard, markdown, mongoStore, promos } from '@/helpers/promo'
 import Context from '@/models/Context'
 
-// Prime Radiant's reply promos in Voicy (promo.ts): only in private replies to
-// /start and /help, never in groups, guest mode, transcriptions or payments
+// Prime Radiant's reply promos in Voicy (promo.ts): in private replies to
+// /start and /help, and (group mode, approvals.md 2026-11-06) as a button on a
+// transcription in a group whose transcript matches a group campaign's topics
+// (publishCompletedTranscriptionJob). Never in guest mode, private
+// transcriptions or payments.
 export const promoHook = promos(
   'voicy',
   mongoStore(connection.collection('promos'))

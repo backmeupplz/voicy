@@ -108,6 +108,15 @@ export const publicBotCommands: BotCommandDefinition[] = [
     spanishDescription: 'Abrir la política de privacidad',
     ukrainianDescription: 'Відкрити політику приватності',
   },
+  {
+    command: 'promos',
+    description: 'Buttons for our other bots: on or off',
+    germanDescription: 'Buttons für unsere anderen Bots: an/aus',
+    portugueseDescription: 'Botões dos nossos outros bots: on/off',
+    russianDescription: 'Кнопки других наших ботов: вкл/выкл',
+    spanishDescription: 'Botones de nuestros otros bots: sí/no',
+    ukrainianDescription: 'Кнопки інших наших ботів: увімк/вимк',
+  },
 ]
 
 export const allBotCommands = publicBotCommands.map(

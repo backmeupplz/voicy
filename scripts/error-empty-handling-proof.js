@@ -149,7 +149,9 @@ assert(
 )
 assert(
   publishSource.includes('replyOptions.reply_to_message_id') &&
-    publishSource.includes('await bot.api.sendMessage(job.telegramChatId, text)'),
+    /await bot\.api\.sendMessage\(\s*job\.telegramChatId,\s*text,\s*withMarkup\(\{\}, markup\)\s*\)/.test(
+      publishSource
+    ),
   'completed publisher should retry final transcript messages without a reply target'
 )
 assert(

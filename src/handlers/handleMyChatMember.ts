@@ -1,3 +1,4 @@
+import { chatKind } from '@/helpers/promo'
 import { markChatReachable } from '@/helpers/chatReachability'
 import { promoHook } from '@/helpers/promoHost'
 import { recordBroadcastBlock } from '@/helpers/broadcast'
@@ -24,6 +25,12 @@ export default async function handleMyChatMember(ctx: Context) {
     ctx.myChatMember.new_chat_member.status === 'kicked'
   )
     promoHook.blocked(ctx.from?.id)
+  // removed from a group: harm numbers for the group promos
+  if (
+    chatKind(ctx.chat?.type) === 'group' &&
+    ['left', 'kicked'].includes(ctx.myChatMember.new_chat_member.status)
+  )
+    await promoHook.removed(ctx.chat?.id)
   await recordBroadcastBlock(ctx).catch((error) =>
     console.error('broadcast block', error?.message)
   )
