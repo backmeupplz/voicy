@@ -35,6 +35,7 @@ import checkBanned from '@/handlers/checkBanned'
 import checkDocumentType from '@/middlewares/checkDocumentType'
 import checkFilesBanned from '@/middlewares/checkFilesBanned'
 import configureBotCommands from '@/helpers/configureBotCommands'
+import configureBotDescription from '@/helpers/configureBotDescription'
 import configureI18n from '@/middlewares/configureI18n'
 import countMessage from '@/middlewares/countMessage'
 import disallowPrivate from '@/middlewares/disallowPrivate'
@@ -124,6 +125,15 @@ async function runApp() {
   // Start bot
   await bot.init()
   await configureBotCommands()
+  // In the background: a rate-limited set must not hold up polling
+  void configureBotDescription((method, payload) =>
+    (
+      bot.api.raw as unknown as Record<
+        string,
+        (payload: Record<string, string>) => Promise<unknown>
+      >
+    )[method](payload)
+  )
   // Start webhook app (Stripe and the transcription workers): every container serves it,
   // so a new one is healthy before it takes polling over
   webhookApp.listen(4242, () => console.log('Running on port 4242'))
