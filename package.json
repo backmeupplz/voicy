@@ -74,7 +74,7 @@
     "grammy": "^1.7.3",
     "js-yaml": "^4.3.1",
     "module-alias": "^2.3.4",
-    "mongoose": "6.13.10",
+    "mongoose": "6.13.12",
     "mongoose-findorcreate": "^3.0.0",
     "stripe": "^14.25.0",
     "uuid": "^14.0.0"
