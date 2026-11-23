@@ -13,9 +13,11 @@ RUN bun run build-ts
 FROM node:22.23.5-bookworm-slim@sha256:e9f565d32859f0cbfb52125eafe8be39390f24dac302dc3cdf566e8ba3ab21ee
 WORKDIR /app
 COPY package.json bun.lock ./
+# Nothing runs npm at runtime (CMD is plain node), so drop the bundled npm and its CVEs
 RUN --mount=type=bind,from=bun,source=/usr/local/bin/bun,target=/usr/local/bin/bun \
   --mount=type=cache,target=/root/.bun/install/cache,sharing=locked \
-  bun install --frozen-lockfile --production --backend=copyfile
+  bun install --frozen-lockfile --production --backend=copyfile \
+  && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 COPY locales locales
 COPY --from=build /app/dist dist
 ENV NODE_ENV=production
